@@ -72,8 +72,8 @@ describe('憋氣：一次花 4 點以上 ×1.3', () => {
     expect(glossary['蓄氣']).toContain(`（上限剛好 ${QI_BURST_MIN} 點的牌，花滿就算；`);
     const pick = between(HERO, "hero: 'fengfeng', name: '封封'", '},');
     expect(pick).toContain("rule: '蓄氣',");
-    expect(HERO).toContain("p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',");
-    expect(COMBAT).toContain("const node = el('div', { class: 'chip good qi' }, el('b', {}, '蓄氣'), el('span', {}, `${qi}/12`));");
-    expect(between(COMBAT, "const node = el('div', { class: 'chip good qi' }", 'row.append(node);')).toContain("attachTooltip(node, '蓄氣');");
+    expect(HERO).toContain("p.rule && glossText(p.rule) ? el('div', { class: 'hero-kit-row' }, el('b', {}, term(p.rule)), el('span', {}, glossText(p.rule)!)) : '',");
+    expect(COMBAT).toContain("const node = el('div', { class: 'chip good qi' }, el('b', {}, term('蓄氣')), el('span', {}, `${qi}/12`));");
+    expect(between(COMBAT, "const node = el('div', { class: 'chip good qi' }", 'row.append(node);')).toContain("attachTooltip(node, term('蓄氣'));");
   });
 });

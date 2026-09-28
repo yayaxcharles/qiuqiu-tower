@@ -1,4 +1,6 @@
-import { relicById, relicLongText } from '../content/relics';
+import { t } from '../i18n';
+import { relicLong, relicName } from '../i18n/names';
+import { relicById } from '../content/relics';
 import { relicCounter } from '../engine/counters';
 import type { RunState } from '../engine/types';
 import { artUrl } from './assets';
@@ -37,16 +39,17 @@ export function showRelicList(run: RunState, seat = 0): void {
     const url = artUrl('icons', r.art);
     // 套組那幾件多一段集到幾件；跨場計數的（木人樁、撲滿）補一句目前數到幾（2026-09-23 第二批。清單在地圖上開，只看得到跨場那兩件）
     const n = relicCounter(id, me(run, seat));
+    const nameStr = relicName(r);
+    const countSuffix = r.hooks.chestExtra ? (n ? t('（還剩 {n} 次）', { n }) : t('（用完了）')) : n !== null ? t('（目前數到 {n}）', { n }) : '';
     list.append(el('div', { class: 'swap-item relic-row' },
-      url.startsWith('data:') ? el('b', { class: 'relic-row-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }),
+      url.startsWith('data:') ? el('b', { class: 'relic-row-name' }, nameStr.slice(0, 2)) : el('img', { src: url, alt: nameStr }),
       // 箱中箱數的是剩幾次、用完寫「用完了」（2026-09-23 第三批）
-      el('div', { class: 'swap-text' }, el('b', {}, r.name), el('em', {}, relicLongText(r, me(run, seat).relics)
-        + (r.hooks.chestExtra ? (n ? `（還剩 ${n} 次）` : '（用完了）') : n !== null ? `（目前數到 ${n}）` : '')))));
+      el('div', { class: 'swap-text' }, el('b', {}, nameStr), el('em', {}, `${relicLong(r, me(run, seat).relics)}${countSuffix}`))));
   }
   overlay.append(el('div', { class: 'modal swap-modal relic-modal' },
-    el('h2', { class: 'modal-title' }, `本局秘寶（${ids.length} 件）`),
-    ids.length ? list : el('p', { class: 'relic-empty' }, '還沒有秘寶。'),
-    el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: close }, '關閉'))));
+    el('h2', { class: 'modal-title' }, t('本局秘寶（{n} 件）', { n: ids.length })),
+    ids.length ? list : el('p', { class: 'relic-empty' }, t('還沒有秘寶。')),
+    el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: close }, t('關閉')))));
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) close(); });
   layer.append(overlay);
   window.addEventListener('keydown', onKey);

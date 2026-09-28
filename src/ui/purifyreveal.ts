@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+import { relicName } from '../i18n/names';
 import { MIASMA_PURE, PURIFY_CHANGE, isMiasma, relicById } from '../content/relics';
 import { artUrl } from './assets';
 import { el } from './dom';
@@ -33,22 +35,22 @@ export function showPurifyReveal(ids: readonly string[], onClose?: () => void): 
     const r = relicById[id]!, pure = relicById[MIASMA_PURE[id]!]!;
     // 特效掛在外層（`fx-host`，沒有透明度、濾鏡、縮放），淡出與彈出只套在裡層的圖上：
     // 原本同一層，煙跟著原件一起變灰剩四成、金光跟著淨化版從小放大（推前審查 2026-09-25 低-3）
-    const before = el('span', { class: 'purify-before' }, icon(r.art, r.name));
-    const after = el('span', { class: 'purify-after' }, icon(pure.art, pure.name));
+    const before = el('span', { class: 'purify-before' }, icon(r.art, relicName(r)));
+    const after = el('span', { class: 'purify-after' }, icon(pure.art, relicName(pure)));
     const beforeHost = el('span', { class: 'fx-host' }, before);
     const afterHost = el('span', { class: 'fx-host' }, after);
     list.append(el('div', { class: 'purify-row' },
       el('div', { class: 'purify-icons' }, beforeHost, el('span', { class: 'purify-arrow' }, '→'), afterHost),
-      el('b', { class: 'purify-names' }, `${r.name} → ${pure.name}`),
+      el('b', { class: 'purify-names' }, t('{from} → {to}', { from: relicName(r), to: relicName(pure) })),
       ...purifyChangeLines(id)));
     // 紫霧先罩著一下，散掉（煙）之後淨化版才彈出來（白金光）；兩個特效都要等節點進了文件才量得到位置
     timers.push(window.setTimeout(() => { before.classList.add('cleared'); burst(beforeHost, 'smoke'); }, 450));
     timers.push(window.setTimeout(() => { after.classList.add('shown'); burst(afterHost, 'buff'); }, 850));
   }
   overlay.append(el('div', { class: 'modal purify-modal' },
-    el('h2', { class: 'modal-title' }, '淨化完成'),
+    el('h2', { class: 'modal-title' }, t('淨化完成')),
     list,
-    el('div', { class: 'modal-foot' }, el('button', { class: 'btn primary', onclick: dismiss }, '收好了'))));
+    el('div', { class: 'modal-foot' }, el('button', { class: 'btn primary', onclick: dismiss }, t('收好了')))));
   layer.append(overlay);
   lockScreen();
 }
@@ -61,8 +63,9 @@ export function purifyChangeLines(id: string): HTMLElement[] {
   const ch = PURIFY_CHANGE[id];
   if (!ch) return [];
   return [
-    ...ch.good.map((t) => el('span', { class: 'purify-good' }, `✔ ${t}`)),
-    ...(ch.bad.length ? ch.bad.map((t) => el('span', { class: 'purify-bad' }, `代價：${t}`)) : [el('span', { class: 'purify-none' }, '沒有代價')]),
+    ...ch.good.map((g) => el('span', { class: 'purify-good' }, `✔ ${t(g)}`)), // i18n-dynamic (content/relics.ts PURIFY_CHANGE[id].good)
+    ...(ch.bad.length ? ch.bad.map((b) => el('span', { class: 'purify-bad' }, t('代價：{b}', { b: t(b) }))) // i18n-dynamic (content/relics.ts PURIFY_CHANGE[id].bad)
+      : [el('span', { class: 'purify-none' }, t('沒有代價'))]),
   ];
 }
 

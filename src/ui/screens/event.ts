@@ -1,10 +1,12 @@
 import { play } from '../audio';
-import { cardById, cardNameFor } from '../../content/cards';
+import { cardById } from '../../content/cards';
 import { dialogue } from '../../content/dialogue';
 import { condHint, coopFill, eventTextFor, flagWhy, lotteryAfter, partnerCondLabel } from '../../content/event-text';
 import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
-import { relicById, relicLongText } from '../../content/relics';
+import { relicById } from '../../content/relics';
+import { cardName as cardNameL, potionText, relicLong, relicName, potionName } from '../../i18n/names';
+import { N_, listJoin, t, term } from '../../i18n';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, purifyRelic, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
 import { showPurifyPick } from '../purifypick';
@@ -74,15 +76,16 @@ function gainsNode(gains: readonly RunGain[], owned: readonly string[]): HTMLEle
     const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
     const url = d ? artUrl('icons', d.art) : '';
     if (!d || url.startsWith('data:')) continue;
+    const name = g.kind === '秘寶' ? relicName(d) : potionName(d);
     // 包一層才放得下特效：`<img>` 不能有子節點（見 fx.ts 的 burst）
-    const node = el('img', { class: 'showcase-icon', src: url, alt: d.name });
+    const node = el('img', { class: 'showcase-icon', src: url, alt: name });
     const host = el('span', { class: 'fx-host' }, node);
     box.append(el('div', { class: 'gain-stack' },
       el('p', { class: 'loot-above' }, gainText(g, owned)),
       host,
       el('div', { class: 'loot-below' },
-        el('span', { class: 'loot-kind' }, g.kind),
-        el('b', { class: 'loot-name' }, d.name))));
+        el('span', { class: 'loot-kind' }, term(g.kind)),
+        el('b', { class: 'loot-name' }, name))));
     window.setTimeout(() => burst(host, 'buff'), 60);
   }
   return box.childElementCount ? box : '';
@@ -94,8 +97,9 @@ function gainsNode(gains: readonly RunGain[], owned: readonly string[]): HTMLEle
  * 事件這兩處原本只寫 `d.text`，影子給的舊木劍拿到時看不出湊到第幾件（2026-09-23 b2fin，b2mech 報告第五條）。
  */
 function gainText(g: RunGain, owned: readonly string[]): string {
-  const r = g.kind === '秘寶' ? relicById[g.id] : undefined;
-  return r ? relicLongText(r, owned, true) : potionById[g.id]?.text ?? '';
+  if (g.kind === '秘寶') { const r = relicById[g.id]; return r ? relicLong(r, owned, true) : ''; }
+  const p = potionById[g.id];
+  return p ? potionText(p) : '';
 }
 
 /**
@@ -140,12 +144,13 @@ function gainRows(gains: readonly RunGain[], owned: readonly string[]): HTMLElem
     const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
     if (!d) continue;
     const url = artUrl('icons', d.art);
+    const name = g.kind === '秘寶' ? relicName(d) : potionName(d);
     // 帶滿收不下的忍具要寫清楚（不然看起來像拿到了）；問過之後照 `asked` 畫（換成了／放棄了），重畫也不會變回「收不下」
-    const label = g.asked === 'swapped' ? `換成了「${d.name}」`
-      : g.asked === 'declined' ? `沒有換，放棄了「${d.name}」`
-      : g.missed ? `忍具帶滿了，「${d.name}」收不下` : `拿到${g.kind}「${d.name}」`;
+    const label = g.asked === 'swapped' ? t('換成了「{name}」', { name })
+      : g.asked === 'declined' ? t('沒有換，放棄了「{name}」', { name })
+      : g.missed ? t('忍具帶滿了，「{name}」收不下', { name }) : t('拿到{kind}「{name}」', { kind: term(g.kind), name });
     box.append(el('div', { class: `reward-item ${g.kind === '秘寶' ? 'relic' : 'potion'}${g.missed && !g.asked ? ' missed' : ''}`, 'data-gain': g.id },
-      url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
+      url.startsWith('data:') ? '' : el('img', { src: url, alt: name }),
       el('span', { class: 'reward-line' }, el('b', {}, label), el('em', {}, gainText(g, owned)))));
   }
   return box;
@@ -155,25 +160,27 @@ function gainRows(gains: readonly RunGain[], owned: readonly string[]): HTMLElem
  * 條件選項按鈕下面那一行灰字「因為：…」（2026-09-23 內容擴充第二批，劇本 design2 新1）：
  * 讓玩家知道「為什麼多了這條路」是**這一局養出來的**。`who`＝讓它出現的那一位（本機這一位寫「你」，同伴寫名字）。
  */
-const TAG_VERB: Readonly<Record<string, string>> = { 毒: '會上毒', 反彈: '會反彈', 隱身: '會隱身', 蓄氣: '會蓄氣' };
+const TAG_VERB: Readonly<Record<string, string>> = { 毒: N_('會上毒'), 反彈: N_('會反彈'), 隱身: N_('會隱身'), 蓄氣: N_('會蓄氣') };
 function condWhyLine(gate: ChoiceGate, who: string, coop: boolean): string {
   const w = gate.why;
   if (!w) return '';
-  const all = coop ? '你們' : '你';   // 付錢型與整局旗標是兩個人一起的
+  const all = coop ? t('你們') : t('你');   // 付錢型與整局旗標是兩個人一起的
   switch (w.kind) {
-    case 'deckTag': return `因為：${who}後來學的牌裡有 ${w.n} 張${TAG_VERB[w.tag] ?? ''}`;
-    case 'relic': return `因為：${who}身上帶著「${relicById[w.id]?.name ?? w.id}」`;
-    case 'fishAtLeast': return `因為：${all}身上${coop ? '都' : ''}有 ${w.n} 條以上的小魚乾`;
-    case 'potionsFull': return `因為：${who}的忍具帶滿了`;
-    case 'flag': { const why = flagWhy(w.name); return why ? `因為：${all}${why}` : ''; }
+    // TAG_VERB 的值是本檔固定清單（上面那行），i18n-dynamic
+    case 'deckTag': return t('因為：{who}後來學的牌裡有 {n} 張{verb}', { who, n: w.n, verb: t(TAG_VERB[w.tag] ?? '') /* i18n-dynamic */ });
+    case 'relic': return t('因為：{who}身上帶著「{name}」', { who, name: (() => { const r = relicById[w.id]; return r ? relicName(r) : w.id; })() });
+    case 'fishAtLeast': return t('因為：{all}身上{du}有 {n} 條以上的小魚乾', { all, du: coop ? t('都') : '', n: w.n });
+    case 'potionsFull': return t('因為：{who}的忍具帶滿了', { who });
+    // flagWhy 來自 content/event-text.ts（固定清單），i18n-dynamic
+    case 'flag': { const why = flagWhy(w.name); return why ? t('因為：{all}{why}', { all, why: t(why) /* i18n-dynamic */ }) : ''; }
     default: { const _never: never = w; void _never; return ''; }
   }
 }
 
-/** 牌名。**要收 hero**：菲菲看到的是她那套名字（`cardNameFor`），拿原名會跟牌面對不起來 */
+/** 牌名。**要收 hero**：菲菲看到的是她那套名字，拿原名會跟牌面對不起來；多語系走 `names.ts` 的 `cardName` */
 function cardName(c: CardInstance, hero: string | undefined): string {
   const d = cardById[c.cardId];
-  return (d ? cardNameFor(d, hero) : c.cardId) + (c.upgraded ? '＋' : '');
+  return (d ? cardNameL(d, hero) : c.cardId) + (c.upgraded ? '＋' : '');
 }
 
 registerScreen('event', (app, root, props) => {
@@ -284,7 +291,7 @@ registerScreen('event', (app, root, props) => {
     if (!choice.outcome.some((fx) => fx.kind === 'loseRelic')) return '';
     const participants = coop ? run.players.filter((p) => !p.down) : [me(run, seat)];
     const missing = participants.find((p) => !p.relics.some((id) => relicById[id]?.pool !== '起始'));
-    return !missing ? '' : missing === me(run, seat) ? '沒有可交換的秘寶' : '同伴沒有可交換的秘寶';
+    return !missing ? '' : missing === me(run, seat) ? t('沒有可交換的秘寶') : t('同伴沒有可交換的秘寶');
   }
 
   /**
@@ -323,7 +330,7 @@ registerScreen('event', (app, root, props) => {
     // 引擎記的「中了！／沒中……」不只寫成一行小字，還蓋一個大戳章＋音效
     const won = note?.includes('中了！') ?? false;
     const lost = note?.includes('沒中') ?? false;
-    const stamp = won || lost ? el('div', { class: `gamble-stamp ${won ? 'win' : 'lose'}` }, won ? '賭贏了！' : '賭輸了……') : '';
+    const stamp = won || lost ? el('div', { class: `gamble-stamp ${won ? 'win' : 'lose'}` }, won ? t('賭贏了！') : t('賭輸了……')) : '';
     if (won) play('victory'); else if (lost) play('defeat');
     root.append(markRare(sceneView({
       art: artNode,
@@ -337,7 +344,7 @@ registerScreen('event', (app, root, props) => {
   }
   /** 稀有事件：名牌旁掛金色小牌「難得一見」（2026-09-23 第三批，design3 5-1）。其他事件原樣回 */
   function markRare(scene: HTMLElement): HTMLElement {
-    if (evd.rare) scene.querySelector('.dialogue-speaker')?.append(el('span', { class: 'rare-badge' }, '難得一見'));
+    if (evd.rare) scene.querySelector('.dialogue-speaker')?.append(el('span', { class: 'rare-badge' }, t('難得一見')));
     return scene;
   }
   /**
@@ -370,7 +377,7 @@ registerScreen('event', (app, root, props) => {
     resolving = true;
     app.stage.classList.add('fight-pending');
     const slow = window.setTimeout(() => {
-      root.querySelector('.scene-box')?.append(el('p', { class: 'event-note event-wait' }, '正在準備……'));
+      root.querySelector('.scene-box')?.append(el('p', { class: 'event-note event-wait' }, t('正在準備……')));
     }, 400);
     void warmResultArt(run, ev.id, index, resultArtHero).then(() => {
       window.clearTimeout(slow);
@@ -393,8 +400,8 @@ registerScreen('event', (app, root, props) => {
     lastFinish = [resultText, note, gains, show];
     panel(resultText, note,
       waitingPicks.waiting
-        ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
-        : el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續'),
+        ? el('button', { class: 'btn', disabled: 'disabled' }, t('等同伴挑完…'))
+        : el('button', { class: 'btn primary', onclick: () => app.backToMap() }, t('繼續')),
       gains, resultArt, show);
     // 忍具帶滿收不下的（gains 裡標 missed）：結果畫好之後一支一支問要不要換掉舊的。
     // **問過的不再問**（`asked`）：`finish` 會被叫不只一次（連線結算、學牌結果），不記就每次都再彈一次
@@ -410,12 +417,12 @@ registerScreen('event', (app, root, props) => {
         if (idx >= 0) {
           swapPotion(app, run, seat, idx, g.id);   // 連線時要送出去，只改本機會分岔（稽核 高-3）
           play('relic'); root.querySelector('.hud')?.remove(); renderHud(app, root);   // 先拆舊的，不然疊兩條
-          if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = `換成了「${d.name}」`; }
+          if (row && d) { row.classList.remove('missed'); row.querySelector('b')!.textContent = t('換成了「{name}」', { name: potionName(d) }); }
         } else if (row && d) {
-          row.classList.remove('missed'); row.querySelector('b')!.textContent = `沒有換，放棄了「${d.name}」`;
+          row.classList.remove('missed'); row.querySelector('b')!.textContent = t('沒有換，放棄了「{name}」', { name: potionName(d) });
         }
         askNext(i + 1);
-      }, missed.length > 1 ? { progress: `第 ${i + 1}／${missed.length} 支`, seat, apply: false } : { seat, apply: false });
+      }, missed.length > 1 ? { progress: t('第 {i}／{n} 支', { i: i + 1, n: missed.length }), seat, apply: false } : { seat, apply: false });
     };
     // 這一次淨化掉的（2026-09-25）：先秀淨化結果視窗，關掉之後才接著問忍具要不要換，兩個視窗不疊在一起
     const purified = purifiedBetween(relicsAtStart, me(run, seat).relics).filter((id) => !purifyShown.has(id));
@@ -447,7 +454,7 @@ registerScreen('event', (app, root, props) => {
       // 不同座位的清單本來就不同，見 take）。別人的只記錯誤、下一格對帳會抓到；
       // **自己的絕不能靜靜 return**——那會讓畫面停在「等同伴挑完」永遠不動（使用者 2026-09-15 實測）
       console.error(`事件學招：座位 ${who} 挑的「${cardId}」不在那個座位的清單裡`);
-      if (resultText !== null) finish(resultText, '這一招沒學到（兩邊的清單對不上）', gains);
+      if (resultText !== null) finish(resultText, t('這一招沒學到（兩邊的清單對不上）'), gains);
       return;
     }
     const up = def.id === upId;
@@ -456,7 +463,7 @@ registerScreen('event', (app, root, props) => {
     if (resultText === null) return;   // 別人的：只套用、不演（見上面對這個參數的說明）
     // 牌名要過 `cardNameFor`（2026-09-12 使用者實測抓到）：牌面畫的是「絕學·絆索」，
     // 這一行卻寫「學會了「絕學·擒拿手」」——同一張牌兩個名字。看的是**學到的那一位**
-    const note = `學會了「${cardNameFor(def, me(run, who).hero)}${up ? '＋' : ''}」`;
+    const note = t('學會了「{name}」', { name: cardNameL(def, me(run, who).hero) + (up ? '＋' : '') });
     if (chained && afterLearn) { afterLearn(note, [got]); return; }
     finish(resultText, note, gains, [{ kind: 'learn', card: got }]);
   }
@@ -505,8 +512,8 @@ registerScreen('event', (app, root, props) => {
          */
         if (cardId === '') {
           // 都不要：學完還要挑牌升級的（`then`）照樣接下去
-          if (passLearn(seat, outcomes) && afterLearn) { afterLearn('一招都沒挑', []); return; }
-          finish(resultText, '一招都沒挑', gains);
+          if (passLearn(seat, outcomes) && afterLearn) { afterLearn(t('一招都沒挑'), []); return; }
+          finish(resultText, t('一招都沒挑'), gains);
           return;
         }
         takeLearn(seat, cardId, outcomes, resultText, gains);
@@ -539,10 +546,10 @@ registerScreen('event', (app, root, props) => {
     root.append(markRare(sceneView({
       art: grid,
       speaker: title,
-      text: picked ? `${resultText}　挑好了，等同伴挑完。` : `${resultText}　選一張牌帶走。`,
+      text: picked ? t('{result}　挑好了，等同伴挑完。', { result: resultText }) : t('{result}　選一張牌帶走。', { result: resultText }),
       actions: [picked
-        ? el('button', { class: 'btn', disabled: 'disabled' }, '等同伴挑完…')
-        : el('button', { class: 'btn', onclick: () => learn('') }, '都不要')],
+        ? el('button', { class: 'btn', disabled: 'disabled' }, t('等同伴挑完…'))
+        : el('button', { class: 'btn', onclick: () => learn('') }, t('都不要'))],
     })));
   }
 
@@ -597,13 +604,14 @@ registerScreen('event', (app, root, props) => {
          * **沒得挑也要投一張空票**（稽核第二輪 高-4）：不投的話同伴那邊
          * `allVoted` 永遠湊不齊，他的疊層又是不能取消的，兩個人一起卡死只能重開。
          */
-        const why = noteLine(up ? '沒有可以升級的牌' : '沒有牌可以移除');
+        const noUsableNote = up ? t('沒有可以升級的牌') : t('沒有牌可以移除');
+        const why = noteLine(noUsableNote);
         if (coop) {
           /*
            * **連線時這裡只畫等待、不跑 `finish`**：結算那一支之後還會再跑一次 `finish`，
            * 而 `finish` 會排「忍具帶滿要不要換」的問話——跑兩次就問兩次（稽核第三輪的邊角）。
            */
-          cardPickInfo = { up, resultText, gains, gotShow, noteLine, none: up ? '沒有可以升級的牌' : '沒有牌可以移除' };
+          cardPickInfo = { up, resultText, gains, gotShow, noteLine, none: noUsableNote };
           panel(resultText, why, '', gains, resultArt);
           coop.pick('evcard', '');
           return;
@@ -614,7 +622,7 @@ registerScreen('event', (app, root, props) => {
       // 要挑的張數可能比牌組裡合格的還多（例如只剩一張沒升級過的牌卻要升兩張），
       // 那就以實際挑得到的為準，不然確認鈕永遠按不下去、玩家被鎖在疊層裡
       const want = Math.min(outcome.n, usable);
-      const verb = up ? '升級' : '移除';
+      const verb = term(up ? '升級' : '移除');
       /**
        * 把挑好的牌一次結算完，說明文字寫成「「A」「B」升級了」。
        *
@@ -635,12 +643,13 @@ registerScreen('event', (app, root, props) => {
         }
         return { names, show };
       };
+      const noPickNote = t('這次一張都沒挑');
       const finishPicks = (names: string[], show: Showcase): void => {
         if (names.length) play(up ? 'upgrade' : 'dodge');
         // 寫「至多」的可以不選（見 `eventPickRule`）：一張都沒挑也要講，不然結果那段像是真的練了
         const note = names.length
-          ? `「${names.join('」「')}」${up ? '升級了' : '被丟掉了'}`
-          : '這次一張都沒挑';
+          ? t('「{names}」{verb}', { names: names.join('」「'), verb: up ? t('升級了') : t('被丟掉了') })
+          : noPickNote;
         finish(resultText, noteLine(note), gains, [...gotShow, ...show]);
       };
       /*
@@ -648,12 +657,12 @@ registerScreen('event', (app, root, props) => {
        */
       const settleCards = (uids: readonly number[]): void => {
         if (!coop) { const r = applyPicks(seat, uids); finishPicks(r.names, r.show); return; }
-        cardPickInfo = { up, resultText, gains, gotShow, noteLine, none: '這次一張都沒挑' };
+        cardPickInfo = { up, resultText, gains, gotShow, noteLine, none: noPickNote };
         /*
          * **等待的畫面要先畫、再投票**：我如果是後投的那一位，`pick` 會當場把票湊齊、
          * 處理函式立刻把結果畫出來——這時候再畫「等同伴挑完」就會把結果蓋掉。
          */
-        panel(`${resultText}　挑好了，等同伴挑完。`, null, '', gains, resultArt);
+        panel(t('{result}　挑好了，等同伴挑完。', { result: resultText }), null, '', gains, resultArt);
         coop.pick('evcard', uids.join(','));
       };
       // 先把結果版面畫出來（含更新過的狀態列）再開疊層，別讓那一排舊選項留在疊層後面：
@@ -698,7 +707,7 @@ registerScreen('event', (app, root, props) => {
       }
       purifyInfo = { resultText, gains, gotShow, noteLine };
       showPurifyPick(ids, (id) => {
-        panel(`${resultText}　挑好了，等同伴挑完。`, noteLine(), '', gains, resultArt);   // 先畫等待再投票（我是後投的那一位時，投下去當場就結算、畫出結果）
+        panel(t('{result}　挑好了，等同伴挑完。', { result: resultText }), noteLine(), '', gains, resultArt);   // 先畫等待再投票（我是後投的那一位時，投下去當場就結算、畫出結果）
         coop.pick('evpurify', id ?? '');
       });
       return;
@@ -708,7 +717,7 @@ registerScreen('event', (app, root, props) => {
     panel(resultText, noteLine(), el('button', { class: 'btn primary', onclick: () => {
       if (app.run) app.run.pendingAfterFight = f.afterWin;   // 秘寶等獎勵打贏才發（使用者 2026-09-04）
       app.startFight(f.encounterId, false, f.bonusFish, f.bonusUpgrades ?? 0);
-    } }, '開打'), gains, resultArt);
+    } }, t('開打')), gains, resultArt);
   }
 
   /**
@@ -719,7 +728,7 @@ registerScreen('event', (app, root, props) => {
     const c = ev?.choices[index];
     if (!c) return;
     const exchangeReason = exchangeBlockReason(c);
-    if (exchangeReason) { finish('這次沒有交換秘寶。', exchangeReason); return; }
+    if (exchangeReason) { finish(t('這次沒有交換秘寶。'), exchangeReason); return; }
     // 結果寫誰做的事、結果圖照誰挑：**先問、再套效果**（鈴鐺那條套完就交出去了，問不出是誰的，見 `resultSeat`）。
     // 走 `heroOf`：球球那一位的 `hero` 欄可能不填，直接傳 undefined 會被當成「照本機這一位」
     resultHero = heroOf(me(run, resultSeat(run, c, seat)));
@@ -828,8 +837,8 @@ registerScreen('event', (app, root, props) => {
             if (v) takeLearn(i, v, outcomes, i === seat ? evText(raw, resultHero) : null, gains);
             else if (v === '' && i !== seat) passLearn(i, outcomes);   // 同伴都不要也照樣接著挑牌升級（兩台都換，才判得出升級或移除）
           });
-          if (mineThen && afterLearn) afterLearn('一招都沒挑', []);
-          else if (all[seat] === '' && hadLearn[seat]) finish(evText(raw, resultHero), '一招都沒挑', gains);
+          if (mineThen && afterLearn) afterLearn(t('一招都沒挑'), []);
+          else if (all[seat] === '' && hadLearn[seat]) finish(evText(raw, resultHero), t('一招都沒挑'), gains);
           // 我這台根本沒得挑（倒下的人、或座位不對稱時自己那一串沒有學招、投的是空票）：重畫一次把「繼續」放出來
           else if (all[seat] === null || all[seat] === '') refresh();
           return;
@@ -870,7 +879,7 @@ registerScreen('event', (app, root, props) => {
         if (!info) { refresh(); return; }   // 我這台沒開過挑牌疊層：套用完重畫一次，把「繼續」放出來（自己還在挑別種的就不動）
         if (mineOut.names.length) play(info.up ? 'upgrade' : 'dodge');
         const note = mineOut.names.length
-          ? `「${mineOut.names.join('」「')}」${info.up ? '升級了' : '被丟掉了'}` : info.none;
+          ? t('「{names}」{verb}', { names: mineOut.names.join('」「'), verb: info.up ? t('升級了') : t('被丟掉了') }) : info.none;
         finish(info.resultText, info.noteLine(note), info.gains, [...info.gotShow, ...mineOut.show]);
       });
     }
@@ -910,7 +919,7 @@ registerScreen('event', (app, root, props) => {
     const poor = cost > me(run, seat).fish;
     const exchangeReason = exchangeBlockReason(c);
     // 誰投了這一項：兩個人才知道對方想選什麼（跟地圖上的小記號同一套）
-    const who = votes.map((v, i) => (v === String(index) ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
+    const who = votes.map((v, i) => (v === String(index) ? (i === seat ? t('你') : t('同伴')) : '')).filter(Boolean);
     const gate = c.requires ? choiceGate(run, c, seat) : null;
     const bySelf = gate?.by === undefined || gate.by === seat;
     if (gate) {
@@ -919,9 +928,9 @@ registerScreen('event', (app, root, props) => {
     }
     const btn = el('button', { class: 'btn' },
       // 條件選項：按鈕最前面一個金底小標籤（連線時是同伴讓它出現的，寫「某某的…」）
-      gate && c.requiresLabel ? el('span', { class: 'choice-tag' }, `【${bySelf ? '' : `${partnerName}的`}${c.requiresLabel}】`) : '',
-      labelText(index) + (poor ? '（小魚乾不夠）' : '') + (exchangeReason ? `（${exchangeReason}）` : '') + (who.length ? `　← ${who.join('、')}` : ''),
-      gate ? el('span', { class: 'choice-why' }, condWhyLine(gate, bySelf ? '你' : partnerName, !!coop)) : '');
+      gate && c.requiresLabel ? el('span', { class: 'choice-tag' }, `【${bySelf ? '' : t('{name}的', { name: partnerName })}${c.requiresLabel}】`) : '',
+      labelText(index) + (poor ? t('（小魚乾不夠）') : '') + (exchangeReason ? t('（{reason}）', { reason: exchangeReason }) : '') + (who.length ? t('　← {who}', { who: listJoin(who) }) : ''),
+      gate ? el('span', { class: 'choice-why' }, condWhyLine(gate, bySelf ? t('你') : partnerName, !!coop)) : '');
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
     if (poor || exchangeReason || iDown || (coop && votes[seat] !== null && votes[seat] !== undefined)) btn.setAttribute('disabled', 'disabled');
     else btn.addEventListener('click', () => {
@@ -955,13 +964,13 @@ registerScreen('event', (app, root, props) => {
   // 抽獎（籤筒的下籤會掉血，2026-09-23 第三批）也算
   const risky = shown.some((i) => [...ev.choices[i]!.outcome, ...(ev.choices[i]!.bySeat?.flat() ?? [])].some((o) => o.kind === 'damage' || o.kind === 'gamble' || o.kind === 'lottery'));
   const extra = runMods(run).unlucky && risky
-    ? [el('p', { class: 'event-note' }, '這個難度下，事件會更兇：掉血多一半，賭運氣的成功機率打七折（例如 50% 只剩 35%）；選項上寫的是一般難度的數字')]
+    ? [el('p', { class: 'event-note' }, t('這個難度下，事件會更兇：掉血多一半，賭運氣的成功機率打七折（例如 50% 只剩 35%）；選項上寫的是一般難度的數字'))]
     : [];
   const opening = evText(ev.text) + hints.join('');
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
   root.append(markRare(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
     // 同伴投一票的安靜重畫：對白框、立繪、備註不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）
-    text: iDown ? `${opening}（你倒下了，這次由同伴決定）` : opening, extra, actions: choices, column: true, calm: app.redraw })));
+    text: iDown ? t('{opening}（你倒下了，這次由同伴決定）', { opening }) : opening, extra, actions: choices, column: true, calm: app.redraw })));
   // 稀有事件開場播一聲秘寶那個音效（design3 5-1）。連線時每投一票會重畫一次，有人投過票就不再響
   if (ev.rare && !votes.some((v) => v !== null)) play('relic');
 
@@ -984,7 +993,7 @@ registerScreen('event', (app, root, props) => {
       chosen = Number(pickStr);
       // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一個選項（使用者 2026-09-15：「要知道隨機到哪個事件」）
       if (new Set(now.filter((v) => v !== null)).size > 1) {
-        notice(`兩人選的不一樣，擲骰選了${now[seat] === pickStr ? '你' : '同伴'}選的「${labelText(chosen)}」`);
+        notice(t('兩人選的不一樣，擲骰選了{who}選的「{label}」', { who: now[seat] === pickStr ? t('你') : t('同伴'), label: labelText(chosen) }));
       }
       coop.clearPicks('event');
       // 兩台在同一拍結算、同一拍套效果（推前審查 高-1）：不可以等圖才 `take()`，只有畫面等

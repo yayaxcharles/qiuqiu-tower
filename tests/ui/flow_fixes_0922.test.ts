@@ -147,14 +147,14 @@ describe('連線盤點 問題 3：倒下的人在地圖與戰利品頁不要看�
   it('地圖：倒下的人不掛可選的光圈、不掛點擊，提示寫「等同伴選路」', () => {
     expect(MAP).toContain("if (choices.has(n.id) && !iDown) cls.push('choice');");
     expect(MAP).toContain('if (choices.has(n.id) && !iDown) {\n      btn.addEventListener');
-    expect(MAP).toContain("iDown ? '你倒下了，等同伴選路…'");
+    expect(MAP).toContain("iDown ? t('你倒下了，等同伴選路…')");
     expect(MAP).toContain('const iDown = !!app.coop && !!me(run, app.seat).down;');
   });
 
   it('戰利品：倒下的人不寫「選一張牌帶走」，底下的鈕也按不下去', () => {
     const view = sourceBetween(REWARD, '  root.append(sceneView({\n    art: middle,', '\n});');
-    expect(view).toMatch(/: iDown \? '你倒下了，這次拿不到新牌。/);
-    expect(view.indexOf(": iDown ?"), '倒下那句要排在「選一張牌帶走」之前').toBeLessThan(view.indexOf("'選一張牌帶走，或是放棄。'"));
+    expect(view).toMatch(/: iDown \? t\('你倒下了，這次拿不到新牌。/);
+    expect(view.indexOf(": iDown ?"), '倒下那句要排在「選一張牌帶走」之前').toBeLessThan(view.indexOf("t('選一張牌帶走，或是放棄。')"));
     expect(view).toContain('actions: [waiting || iDown');
   });
 });

@@ -15,6 +15,7 @@ import { HEROES, heroName, type Hero } from '../../engine/hero';
 import { DIFFICULTY_NAMES, DIFFICULTY_TEXT, MAX_DIFFICULTY } from '../../content/difficulty';
 import { checkRun, selectedDifficulty, setSelectedDifficulty, unlockedDifficulty } from '../../engine/save';
 import type { RunState } from '../../engine/types';
+import { t, term } from '../../i18n';
 
 /**
  * 開房畫面：兩台瀏覽器直連，**不經過任何伺服器**。
@@ -84,10 +85,11 @@ function troubleBanner(app: App, why: string): void {
   const plain = why.replace(/（[\x20-\x7E\s/]+）/g, '');   // 括號裡全是英數符號＝技術細節，拿掉
   // eslint-disable-next-line no-console
   console.error('[連線] 停下來了：', why);
+  // `plain` 是連線層丟出來的原因（`net/session.ts` 的 `stop`/`desync`，來源清單見 `net/rtc.ts`、`net/ws.ts`、`net/code.ts` 的 `throw new Error(...)`）
   const bar = el('div', { class: 'net-trouble' },
-    `連線出問題：${plain}　這一局沒辦法繼續，兩個人都按「回標題」重開一局就好，存檔不會壞。`,
-    el('button', { class: 'btn small', onclick: () => { app.leaveCoop(); app.show('title'); } }, '回標題'));
-  bar.title = why;
+    t('連線出問題：{plain}　這一局沒辦法繼續，兩個人都按「回標題」重開一局就好，存檔不會壞。', { plain: t(plain) /* i18n-dynamic */ }),
+    el('button', { class: 'btn small', onclick: () => { app.leaveCoop(); app.show('title'); } }, t('回標題')));
+  bar.title = why;   // 完整原因（含技術碼）刻意不翻，回報問題時兩邊看到的字要一樣（見上方註解）
   document.body.append(bar);
 }
 
@@ -105,7 +107,7 @@ function linkBanner(_app: App, s: LinkStatus): void {
   document.querySelectorAll(`.net-link[data-who="${who}"]`).forEach((n) => n.remove());
   if (s === 'back' || s === 'peerBack') return;
   document.body.append(el('div', { class: 'net-link', 'data-who': who },
-    who === 'me' ? '連線不穩，等待回應中…（接回來就繼續，會等幾分鐘）' : '對方斷線了，等對方回來…（會等幾分鐘）'));
+    who === 'me' ? t('連線不穩，等待回應中…（接回來就繼續，會等幾分鐘）') : t('對方斷線了，等對方回來…（會等幾分鐘）')));
 }
 
 /*
@@ -126,6 +128,7 @@ const coopHeroes: [Hero, Hero] = ['ninja', 'ninja'];
 function resyncTo(app: App, session: CoopSession, seat: number, json: string, why: string): void {
   let run: RunState | null = null;
   try { run = checkRun(JSON.parse(json) as Partial<RunState>); } catch { run = null; }
+  // `why` 來自 `net/session.ts` 的 `onResync`（`stop`/`desync` 的原因，固定清單）；`troubleBanner` 顯示時才翻譯（見那裡的 i18n-dynamic）
   if (!run) { troubleBanner(app, `${why}（存檔點讀不回來）`); session.leave(); return; }
   // 劇情幻燈片、過場影片、對白這些蓋在上面的層：演完會自己接下一個畫面，重新同步之後不能再接。
   // 要走 `dropPendingFlows` 收（連畫面鎖一起解開），不能只拔節點（推前稽核 高-2）；過關走路那層沒有鎖，直接拔
@@ -140,8 +143,8 @@ function resyncTo(app: App, session: CoopSession, seat: number, json: string, wh
   console.warn('[連線] 已重新同步：', why);
   document.querySelectorAll('.net-link[data-who="resync"], .net-link[data-who="rejoin"]').forEach((n) => n.remove());
   const bar = el('div', { class: 'net-link', 'data-who': 'resync' }, why === REJOIN_WHY
-    ? '剛剛有人重新整理了網頁，已經接回來了：兩個人一起回到這一層的地圖，剛剛那一格要重來。'
-    : '兩台的遊戲狀態對不上，已經自動對齊：兩個人一起回到這一層的地圖，剛剛那一格要重來。');
+    ? t('剛剛有人重新整理了網頁，已經接回來了：兩個人一起回到這一層的地圖，剛剛那一格要重來。')
+    : t('兩台的遊戲狀態對不上，已經自動對齊：兩個人一起回到這一層的地圖，剛剛那一格要重來。'));
   bar.title = why;
   document.body.append(bar);
   window.setTimeout(() => bar.remove(), 9000);
@@ -185,16 +188,17 @@ function makeSession(app: App, tx: Transport, isHost: boolean, resume?: { gen: n
  */
 export function rejoinCoop(app: App, rec: RejoinRecord): void {
   // 舞台先空著（不要清它：裡面有換畫面要用的畫面層），接回之後直接換到地圖；等的期間用上緣那條提示
-  document.body.append(el('div', { class: 'net-link', 'data-who': 'rejoin' }, '正在接回剛剛的連線局……'));
+  document.body.append(el('div', { class: 'net-link', 'data-who': 'rejoin' }, t('正在接回剛剛的連線局……')));
   const back = (why: string): void => {
     clearRejoin();
     app.leaveCoop();
     app.show('title');
-    troubleBanner(app, why);
+    troubleBanner(app, why);   // troubleBanner 顯示時才翻譯
   };
   resumeRelay(rec.code, rec.role, rec.recv).ready.then((tx) => {
     const session = makeSession(app, tx, rec.role === 'host', { gen: rec.gen, checkpoint: rec.checkpoint });
     session.rejoin();
+  // e.message 是 `net/ws.ts` 的 `resumeRelay` 丟出來的原因（固定清單），交給 troubleBanner 顯示時翻
   }).catch((e: unknown) => back(e instanceof Error ? e.message : '接不回剛剛的連線局'));
 }
 
@@ -248,12 +252,12 @@ function startCoop(app: App, tx: Transport, isHost: boolean): void {
 function codeBox(label: string, code: string, hint: string): HTMLElement {
   const ta = el('textarea', { class: 'lobby-code', readonly: 'readonly', rows: '3' });
   ta.value = code;
-  const copy = el('button', { class: 'btn small' }, '複製');
+  const copy = el('button', { class: 'btn small' }, t('複製'));
   copy.addEventListener('click', () => {
     ta.select();
     // `navigator.clipboard` 在非 https 的頁面會整支不存在（本機測試就會踩到），
     // 所以留著 `execCommand` 這條舊路：它醜，但每個瀏覽器都吃
-    const done = (): void => { copy.textContent = '複製好了'; window.setTimeout(() => { copy.textContent = '複製'; }, 1600); };
+    const done = (): void => { copy.textContent = t('複製好了'); window.setTimeout(() => { copy.textContent = t('複製'); }, 1600); };
     if (navigator.clipboard?.writeText) void navigator.clipboard.writeText(code).then(done, () => { document.execCommand('copy'); done(); });
     else { document.execCommand('copy'); done(); }
   });
@@ -265,7 +269,7 @@ function codeBox(label: string, code: string, hint: string): HTMLElement {
 
 /** 給玩家貼對方的碼 */
 function pasteBox(label: string, hint: string, btnText: string, onGo: (code: string) => void): HTMLElement {
-  const ta = el('textarea', { class: 'lobby-code', rows: '3', placeholder: '把對方傳來的那一整串貼在這裡' });
+  const ta = el('textarea', { class: 'lobby-code', rows: '3', placeholder: t('把對方傳來的那一整串貼在這裡') });
   const go = el('button', { class: 'btn primary' }, btnText);
   go.addEventListener('click', () => { onGo(ta.value); });
   return el('div', { class: 'lobby-field' },
@@ -296,7 +300,8 @@ registerScreen('lobby', (app, root) => {
     // 連線的例外訊息多半是英文的原始錯誤，玩家看不懂。`rtc.ts` 與 `code.ts`
     // 丟的都是講人話的訊息，其他的一律收斂成一句「說得出下一步」的話
     const raw = e instanceof Error ? e.message : String(e);
-    st.msg = /[一-鿿]/.test(raw) ? raw : '連不起來。兩邊都重新整理一次、重新開房試試看。';
+    // raw 來自 net/rtc.ts、net/ws.ts、net/code.ts 丟出來的 Error.message（固定清單的講人話訊息）
+    st.msg = /[一-鿿]/.test(raw) ? t(raw) /* i18n-dynamic */ : t('連不起來。兩邊都重新整理一次、重新開房試試看。');
     render();
   };
 
@@ -309,8 +314,8 @@ registerScreen('lobby', (app, root) => {
         onclick: () => { coopHeroes[i] = h; render(); },
       }, heroName({ hero: h }))));
     return el('div', { class: 'lobby-heroes' },
-      el('p', { class: 'lobby-note' }, '這兩排只有開房的人選的算數。要加入別人的房，角色和難度都由對方決定：'),
-      row('開房的人', 0), row('加入的人', 1));
+      el('p', { class: 'lobby-note' }, t('這兩排只有開房的人選的算數。要加入別人的房，角色和難度都由對方決定：')),
+      row(t('開房的人'), 0), row(t('加入的人'), 1));
   };
 
   /** 難度（跟標題畫面同一個設定；只有開房的人選的算數） */
@@ -324,11 +329,16 @@ registerScreen('lobby', (app, root) => {
         class: `btn small diff-btn d${i}${i === level ? ' selected' : ''}${locked ? ' locked' : ''}`,
         ...(locked ? { disabled: 'disabled' } : {}),
         onclick: () => { setSelectedDifficulty(i); render(); },
-      }, locked ? `🔒 ${i}` : `${i} ${DIFFICULTY_NAMES[i - 1]}`);
+      }, locked ? `🔒 ${i}` : `${i} ${term(DIFFICULTY_NAMES[i - 1] ?? '')}`);
     });
     return el('div', { class: 'lobby-heroes' },
-      el('div', { class: 'lobby-hero-row' }, el('b', {}, '難度'), ...btns),
-      el('p', { class: 'lobby-note' }, `${DIFFICULTY_NAMES[level - 1]}：${DIFFICULTY_TEXT[level - 1]}${level > 1 ? '（含前面各級）' : ''}`));
+      el('div', { class: 'lobby-hero-row' }, el('b', {}, t('難度')), ...btns),
+      // DIFFICULTY_NAMES／DIFFICULTY_TEXT 來自 content/difficulty.ts:8、:12-16（固定清單）
+      el('p', { class: 'lobby-note' }, t('{name}：{text}{extra}', {
+        name: term(DIFFICULTY_NAMES[level - 1] ?? ''),
+        text: t(DIFFICULTY_TEXT[level - 1] ?? '') /* i18n-dynamic */,
+        extra: level > 1 ? t('（含前面各級）') : '',
+      })));
   };
 
   const render = (): void => {
@@ -339,22 +349,22 @@ registerScreen('lobby', (app, root) => {
      */
     clearKeepBg(root);
     const box = el('div', { class: 'lobby' });
-    box.append(el('h1', {}, '兩個人一起爬塔'));
+    box.append(el('h1', {}, t('兩個人一起爬塔')));
 
     if (st.step === 'pick') {
       const relay = st.mode === 'relay';
       box.append(
-        el('p', { class: 'lobby-lead' }, '一個人開房、一個人加入。開房的人先按下面那顆。'),
+        el('p', { class: 'lobby-lead' }, t('一個人開房、一個人加入。開房的人先按下面那顆。')),
         el('div', { class: 'lobby-row' },
           el('button', {
             class: 'btn primary',
             onclick: () => {
               if (relay) {
                 // 房號中繼（2026-09-14 深夜）：兩台都連到 Cloudflare 上的中繼，手機網路也連得上
-                st.step = 'hosting'; st.busy = true; st.msg = '正在拿房號…'; render();
+                st.step = 'hosting'; st.busy = true; st.msg = t('正在拿房號…'); render();
                 hostRelay().then((r) => {
                   if (left) { r.cancel(); return; }
-                  st.room = r.code; st.cancel = r.cancel; st.busy = true; st.msg = '等對方輸入房號…（對方連上就會自動開局）'; render();
+                  st.room = r.code; st.cancel = r.cancel; st.busy = true; st.msg = t('等對方輸入房號…（對方連上就會自動開局）'); render();
                   r.ready.then((tx) => {
                     if (left) { tx.close(); return; }
                     st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
@@ -362,35 +372,35 @@ registerScreen('lobby', (app, root) => {
                   }).catch(fail);
                 }).catch(fail);
               } else {
-                st.step = 'hosting'; st.busy = true; st.msg = '正在看你這台在網路上的位置，最多五秒…'; render();
+                st.step = 'hosting'; st.busy = true; st.msg = t('正在看你這台在網路上的位置，最多五秒…'); render();
                 hostDirect().then((r) => { if (left) { r.cancel(); return; } st.invite = r.invite; st.accept = r.accept; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render(); }).catch(fail);
               }
             },
-          }, '我開房'),
-          el('button', { class: 'btn', onclick: () => { st.step = 'joining'; render(); } }, '我要加入')),
+          }, t('我開房')),
+          el('button', { class: 'btn', onclick: () => { st.step = 'joining'; render(); } }, t('我要加入'))),
         heroPicker(),
         diffPicker(),
         el('p', { class: 'lobby-note' }, relay
-          ? '兩台都連到中繼伺服器、由它轉送，手機網路也能玩。開房的人會拿到六位數房號，用 LINE 講給對方就好。'
-          : '備用方式：兩台機器直接連線、不經過伺服器，要互相貼一次代碼。手機網路多半連不上，中繼壞掉時才用。'),
+          ? t('兩台都連到中繼伺服器、由它轉送，手機網路也能玩。開房的人會拿到六位數房號，用 LINE 講給對方就好。')
+          : t('備用方式：兩台機器直接連線、不經過伺服器，要互相貼一次代碼。手機網路多半連不上，中繼壞掉時才用。')),
         el('button', { class: 'btn small', onclick: () => { st.mode = relay ? 'direct' : 'relay'; render(); } },
-          relay ? '中繼連不上？改用貼碼直連（備用）' : '改回用房號連（推薦）'));
+          relay ? t('中繼連不上？改用貼碼直連（備用）') : t('改回用房號連（推薦）')));
     }
 
     if (st.step === 'hosting' && st.mode === 'relay') {
       box.append(el('div', { class: 'lobby-field' },
-        el('div', { class: 'lobby-label' }, '把這個房號告訴對方'),
-        el('div', { class: 'lobby-room' }, st.room ?? '……'),
-        el('div', { class: 'lobby-hint' }, '對方在「我要加入」那裡輸入這六位數，連上就自動開局')));
+        el('div', { class: 'lobby-label' }, t('把這個房號告訴對方')),
+        el('div', { class: 'lobby-room' }, st.room ?? t('……')),
+        el('div', { class: 'lobby-hint' }, t('對方在「我要加入」那裡輸入這六位數，連上就自動開局'))));
     }
 
     if (st.step === 'hosting' && st.mode === 'direct') {
       if (st.invite) {
         box.append(
-          codeBox('① 把這串邀請碼傳給對方', st.invite, '整串複製，不要只複製看得到的那一段'),
-          pasteBox('② 對方會傳一串回應碼回來，貼在這裡', '貼完按這顆就連上了', '連上', (code) => {
+          codeBox(t('① 把這串邀請碼傳給對方'), st.invite, t('整串複製，不要只複製看得到的那一段')),
+          pasteBox(t('② 對方會傳一串回應碼回來，貼在這裡'), t('貼完按這顆就連上了'), t('連上'), (code) => {
             if (!st.accept) return;
-            st.busy = true; st.msg = '正在接上…'; render();
+            st.busy = true; st.msg = t('正在接上…'); render();
             st.accept(code).then((tx) => {
               if (left) { tx.close(); return; }
               st.cancel = undefined; st.step = 'connected'; st.busy = false; st.msg = undefined; render();
@@ -401,12 +411,12 @@ registerScreen('lobby', (app, root) => {
     }
 
     if (st.step === 'joining' && st.mode === 'relay') {
-      const input = el('input', { class: 'lobby-room-input', type: 'text', inputmode: 'numeric', maxlength: '6', placeholder: '六位數房號' }) as HTMLInputElement;
-      const go = el('button', { class: 'btn primary', ...(st.busy ? { disabled: 'disabled' } : {}) }, '加入');
+      const input = el('input', { class: 'lobby-room-input', type: 'text', inputmode: 'numeric', maxlength: '6', placeholder: t('六位數房號') }) as HTMLInputElement;
+      const go = el('button', { class: 'btn primary', ...(st.busy ? { disabled: 'disabled' } : {}) }, t('加入'));
       go.addEventListener('click', () => {
         if (st.busy) return;
         const code = input.value;   // 先讀值再重畫：`render()` 會把這顆 input 整個換掉（審查 低-11）
-        st.busy = true; st.msg = '正在連上去…'; render();
+        st.busy = true; st.msg = t('正在連上去…'); render();
         const j = joinRelay(code);
         st.cancel = j.cancel;
         j.ready.then((tx) => {
@@ -417,14 +427,14 @@ registerScreen('lobby', (app, root) => {
       });
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });   // 手機數字鍵盤的送出鍵
       box.append(el('div', { class: 'lobby-field' },
-        el('div', { class: 'lobby-label' }, '輸入對方給你的房號'),
+        el('div', { class: 'lobby-label' }, t('輸入對方給你的房號')),
         input,
-        el('div', { class: 'lobby-row' }, go, el('span', { class: 'lobby-hint' }, '按下去就連上，對方那邊會自動開局'))));
+        el('div', { class: 'lobby-row' }, go, el('span', { class: 'lobby-hint' }, t('按下去就連上，對方那邊會自動開局')))));
     }
 
     if (st.step === 'joining' && st.mode === 'direct') {
-      box.append(pasteBox('① 貼上對方給你的邀請碼', '按下去會產生你的回應碼', '產生回應碼', (code) => {
-        st.busy = true; st.msg = '正在讀邀請碼、看你這台的位置，最多五秒…'; render();
+      box.append(pasteBox(t('① 貼上對方給你的邀請碼'), t('按下去會產生你的回應碼'), t('產生回應碼'), (code) => {
+        st.busy = true; st.msg = t('正在讀邀請碼、看你這台的位置，最多五秒…'); render();
         joinDirect(code).then((r) => {
           if (left) { r.cancel(); return; }
           st.answer = r.answer; st.cancel = r.cancel; st.busy = false; st.msg = undefined; render();
@@ -433,25 +443,25 @@ registerScreen('lobby', (app, root) => {
         }).catch(fail);
       }));
       if (st.answer) {
-        box.append(codeBox('② 把這串回應碼傳回去給對方', st.answer, '傳回去之後等一下，對方貼完就連上了'));
+        box.append(codeBox(t('② 把這串回應碼傳回去給對方'), st.answer, t('傳回去之後等一下，對方貼完就連上了')));
       }
     }
 
     if (st.step === 'connected') {
       box.append(
-        el('p', { class: 'lobby-ok' }, '連上了！'),
-        el('p', { class: 'lobby-note' }, '正在開一局兩個人的遊戲…'));
+        el('p', { class: 'lobby-ok' }, t('連上了！')),
+        el('p', { class: 'lobby-note' }, t('正在開一局兩個人的遊戲…')));
     }
 
     if (st.step === 'failed') {
       box.append(
-        el('p', { class: 'lobby-bad' }, st.msg ?? '連不起來'),
-        el('button', { class: 'btn', onclick: () => { st.step = 'pick'; st.msg = undefined; st.invite = undefined; st.answer = undefined; st.room = undefined; render(); } }, '重來一次'));
+        el('p', { class: 'lobby-bad' }, st.msg ?? t('連不起來')),
+        el('button', { class: 'btn', onclick: () => { st.step = 'pick'; st.msg = undefined; st.invite = undefined; st.answer = undefined; st.room = undefined; render(); } }, t('重來一次')));
     }
 
     if (st.busy && st.msg) box.append(el('p', { class: 'lobby-busy' }, st.msg));
 
-    box.append(el('button', { class: 'btn small lobby-back', onclick: () => app.show('title') }, '← 回標題'));
+    box.append(el('button', { class: 'btn small lobby-back', onclick: () => app.show('title') }, t('← 回標題')));
     root.append(box);
   };
 

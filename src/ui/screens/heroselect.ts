@@ -1,13 +1,14 @@
 import { registerScreen } from '../app';
 import { artUrl, heroArtUrl } from '../assets';
-import { cardById, cardNameFor, starterDeckFor } from '../../content/cards';
+import { cardById, starterDeckFor } from '../../content/cards';
 import { fengfengSelection } from '../../content/fengfeng-dialogue';
-import { glossary } from '../../content/glossary';
 import { relicById } from '../../content/relics';
-import { describeCard } from '../cardtext';
+import { describeCardText } from '../../i18n';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
 import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
+import { N_, getLang, glossText, t, term } from '../../i18n';
+import { cardName, relicName, relicText } from '../../i18n/names';
 
 /**
  * 選角色（2026-09-12，使用者：「開頭進地圖前可以選角色」）。
@@ -32,24 +33,24 @@ export const KEY_CARD: Readonly<Record<string, string>> = {
 
 const PICKS: Pick[] = [
   {
-    hero: 'ninja', name: '球球', tag: '近身‧閃避',
-    blurb: '大俠貓的徒弟，綁著藍頭巾。膽子大，做事急，看見紙箱就想鑽。師父被魔氣控制後，他追進魔塔，要把師父和被搶走的小魚乾都帶回來。',
+    hero: 'ninja', name: '球球', tag: N_('近身‧閃避'),
+    blurb: N_('大俠貓的徒弟，綁著藍頭巾。膽子大，做事急，看見紙箱就想鑽。師父被魔氣控制後，他追進魔塔，要把師父和被搶走的小魚乾都帶回來。'),
     pose: 'hero/ninja',
   },
   {
-    hero: 'feifei', name: '菲菲', tag: '毒‧攻擊帶蜷縮',
-    blurb: '球球的師妹，一隻怕痛的暹羅貓。平時替師兄補頭巾，跟師父學使針。師父被魔氣控制，師兄也追進塔裡，三天都沒有消息。她帶上針和藥，進塔找人。',
+    hero: 'feifei', name: '菲菲', tag: N_('毒‧攻擊帶蜷縮'),
+    blurb: N_('球球的師妹，一隻怕痛的暹羅貓。平時替師兄補頭巾，跟師父學使針。師父被魔氣控制，師兄也追進塔裡，三天都沒有消息。她帶上針和藥，進塔找人。'),
     pose: 'hero/ninja',   // 立繪鍵一律寫球球版的，`heroArtUrl` 會換成她自己的（見 assets.ts）
   },
   {
-    hero: 'dangdang', name: '噹噹', tag: '擋‧卸力反擊',
-    blurb: '村口修東西的黑白賓士貓，做了一對銅護臂。魔塔出現那一夜，他留下來擋住魔物、讓村貓先進門，等門補好、糧食推進屋裡，才上塔找人。蜷縮既是他的防禦，也是他出招的本錢——打出去就沒得擋。',
+    hero: 'dangdang', name: '噹噹', tag: N_('擋‧卸力反擊'),
+    blurb: N_('村口修東西的黑白賓士貓，做了一對銅護臂。魔塔出現那一夜，他留下來擋住魔物、讓村貓先進門，等門補好、糧食推進屋裡，才上塔找人。蜷縮既是他的防禦，也是他出招的本錢——打出去就沒得擋。'),
     pose: 'hero/ninja',
   },
   {
-    hero: 'fengfeng', name: '封封', tag: '蓄氣‧強力劍招',
+    hero: 'fengfeng', name: '封封', tag: N_('蓄氣‧強力劍招'),
     // 正本在封封台詞檔（稿子 FG-SEL-01），這裡不再抄一份，免得改了一邊另一邊沒跟上
-    blurb: fengfengSelection[0]?.text ?? '',
+    blurb: fengfengSelection[0]?.text ?? '', // i18n-dynamic (src/content/fengfeng-dialogue.ts:6)
     pose: 'hero/ninja',
     rule: '蓄氣',
   },
@@ -65,8 +66,8 @@ registerScreen('heroselect', (app, root, props) => {
     for (const id of starterDeckFor(hero)) seen.set(id, (seen.get(id) ?? 0) + 1);
     return [...seen].map(([id, n]) => {
       const d = cardById[id];
-      return `${d ? cardNameFor(d, hero) : id}${n > 1 ? ` x${n}` : ''}`;
-    }).join('、');
+      return `${d ? cardName(d, hero) : id}${n > 1 ? ` x${n}` : ''}`;
+    }).join(getLang() === 'en' ? ', ' : '、');
   };
 
   /** 一位角色的說明：簡介、專屬規則、起手十張、起始秘寶、代表牌 */
@@ -82,14 +83,14 @@ registerScreen('heroselect', (app, root, props) => {
      */
     const keyCard = cardById[KEY_CARD[p.hero] ?? 'sanjo'];
     return el('div', { class: 'hero-detail-panel', 'data-hero': p.hero },
-      el('p', { class: 'hero-blurb' }, p.blurb),
+      el('p', { class: 'hero-blurb' }, t(p.blurb)),
       el('div', { class: 'hero-kit' },
-        p.rule && glossary[p.rule] ? el('div', { class: 'hero-kit-row' }, el('b', {}, p.rule), el('span', {}, glossary[p.rule]!)) : '',
-        el('div', { class: 'hero-kit-row' }, el('b', {}, '起手十張'), el('span', {}, deckLine(p.hero))),
-        el('div', { class: 'hero-kit-row' }, el('b', {}, '起始秘寶'),
-          el('span', {}, relic ? `${relic.name}：${relic.text}` : '—')),
-        keyCard ? el('div', { class: 'hero-kit-row' }, el('b', {}, `代表牌「${cardNameFor(keyCard, p.hero)}」`),   // 牌名一律過 cardNameFor（總稽核 C 低-6）
-          el('span', {}, describeCard(keyCard, false))) : ''));
+        p.rule && glossText(p.rule) ? el('div', { class: 'hero-kit-row' }, el('b', {}, term(p.rule)), el('span', {}, glossText(p.rule)!)) : '',
+        el('div', { class: 'hero-kit-row' }, el('b', {}, t('起手十張')), el('span', {}, deckLine(p.hero))),
+        el('div', { class: 'hero-kit-row' }, el('b', {}, t('起始秘寶')),
+          el('span', {}, relic ? t('{name}：{text}', { name: relicName(relic), text: relicText(relic) }) : '—')),
+        keyCard ? el('div', { class: 'hero-kit-row' }, el('b', {}, t('代表牌「{name}」', { name: cardName(keyCard, p.hero) })),   // 牌名一律過 cardName（總稽核 C 低-6）
+          el('span', {}, describeCardText(keyCard, false))) : ''));
   };
 
   /*
@@ -105,7 +106,7 @@ registerScreen('heroselect', (app, root, props) => {
     for (const node of [...cards.children, ...detail.children]) {
       node.classList.toggle('selected', node.getAttribute('data-hero') === chosen);
     }
-    goBtn.textContent = `就${heroPronoun({ hero: chosen })}了，出發`;
+    goBtn.textContent = t('就{p}了，出發', { p: t(heroPronoun({ hero: chosen })) }); // i18n-dynamic (src/engine/hero.ts:79)
   };
 
   for (const p of PICKS) {
@@ -116,23 +117,23 @@ registerScreen('heroselect', (app, root, props) => {
     },
       el('div', { class: 'hero-portrait' },
         el('div', { class: 'ground-shadow' }),
-        url.startsWith('data:') ? el('div', { class: 'hero-portrait-missing' }, p.name)
-          : el('img', { src: url, alt: p.name })),
-      el('div', { class: 'hero-name' }, p.name),
-      el('div', { class: 'hero-tag' }, p.tag)));
+        url.startsWith('data:') ? el('div', { class: 'hero-portrait-missing' }, term(p.name))
+          : el('img', { src: url, alt: term(p.name) })),
+      el('div', { class: 'hero-name' }, term(p.name)),
+      el('div', { class: 'hero-tag' }, t(p.tag))));
   }
   refresh();
 
   root.append(screenBg('bg/screen_title'));
   root.append(el('div', { class: 'heroselect' },
-    el('h2', {}, '這一趟由誰去？'),
+    el('h2', {}, t('這一趟由誰去？')),
     cards,
     detail,
     el('div', { class: 'heroselect-buttons' },
       // 選菲菲時要寫「她」（2026-09-13 實機看到的）。**文字要在 `refresh` 裡更新**——
       // 只在建立時算一次的話，挑了她之後按鈕還是指著他
       goBtn,
-      el('button', { class: 'btn', onclick: () => app.show('title') }, '再想想'))));
+      el('button', { class: 'btn', onclick: () => app.show('title') }, t('再想想')))));
   // 封面那張圖只在標題畫面用，這裡不放：兩隻角色並排時再擺一張大圖會搶掉焦點
   void artUrl;
 });

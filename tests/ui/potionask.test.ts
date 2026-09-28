@@ -65,8 +65,8 @@ describe('系統公告', () => {
   it('四個結果都走 notice', () => {
     for (const f of ['map', 'event', 'reward', 'chest']) {
       const src = readFileSync(`src/ui/screens/${f}.ts`, 'utf-8');
-      expect(src, `${f}.ts 的結果公告`).toMatch(/notice\((relicOutcomeText|`兩人選)/);
-      expect(src, `${f}.ts 不該再用 toast 講投票結果`).not.toMatch(/toast\((relicOutcomeText|`兩人選)/);
+      expect(src, `${f}.ts 的結果公告`).toMatch(/notice\((relicOutcomeText|t\(['`]兩人選)/);
+      expect(src, `${f}.ts 不該再用 toast 講投票結果`).not.toMatch(/toast\((relicOutcomeText|t\(['`]兩人選)/);
     }
   });
 

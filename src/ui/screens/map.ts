@@ -22,6 +22,7 @@ import { actVariantKey } from '../screenbg';
 import { el } from '../dom';
 import { notice } from '../dialogue';
 import { renderHud } from '../hud';
+import { listJoin, t, term } from '../../i18n';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -154,7 +155,10 @@ registerScreen('map', (app, root) => {
       // 兩人選得不一樣時是擲骰決定的，講出來骰到哪一格（使用者 2026-09-15：「要知道隨機到哪個」）
       // 只寫格子種類答不出「骰到哪一個」（總稽核 2026-09-16 甲 低-2：同一步兩個選項 44% 是同種格子，第一步 100%）
       if (pick && new Set(now.filter((v) => v !== null)).size > 1) {
-        notice(`兩人選的路不一樣，擲骰選了${now[app.seat] === pick ? '你' : '同伴'}選的那一格（${nodeById(run.map, pick).type}）`);
+        notice(t('兩人選的路不一樣，擲骰選了{who}選的那一格（{type}）', {
+          who: now[app.seat] === pick ? t('你') : t('同伴'),
+          type: term(nodeById(run.map, pick).type),
+        }));
       }
       coop.clearPicks('map');
       if (pick) app.enterNode(pick); else app.show('map');
@@ -275,9 +279,17 @@ registerScreen('map', (app, root) => {
     const btn = el('button', {
       class: cls.join(' '),
       style: `left:${x - R}px;top:${y - R}px`,
-      title: `${base + n.floor}F ${n.type}${n.encounterId ? '：' + app.nodeTitle(n.id) : ''}`,
-    }, el('img', { src: nodeIcon(n), alt: n.type, draggable: 'false' }));
-    if (mod) { btn.append(el('span', { class: 'map-mod' }, mod.label)); attachTextTooltip(btn, mod.label, mod.desc); }
+      // app.nodeTitle() 回的是魔物名字組出來的字串（不是整句），這片先不動 app.ts 裡那段查名的邏輯
+      title: t('{floor}F {type}{title}', {
+        floor: base + n.floor, type: term(n.type),
+        title: n.encounterId ? `：${app.nodeTitle(n.id)}` : '',
+      }),
+    }, el('img', { src: nodeIcon(n), alt: term(n.type), draggable: 'false' }));
+    if (mod) {
+      // mod.label/mod.desc 是固定清單（src/content/modifiers.ts），畫面上顯示時才翻
+      btn.append(el('span', { class: 'map-mod' }, t(mod.label))); // i18n-dynamic (src/content/modifiers.ts)
+      attachTextTooltip(btn, t(mod.label), t(mod.desc)); // i18n-dynamic (src/content/modifiers.ts)
+    }
     // 問號格的說明寫出**目前的機率**（主控裁決第 3 條）；變過的那一格講它變成了什麼、左上角掛小問號
     // （設計稿寫右上角，但右上角是打過的勾勾，兩個疊在一起看不清楚）
     if (n.type === '事件' && (n.variant || (n.floor >= run.floor - base && !run.trail.includes(n.id)))) {
@@ -291,7 +303,7 @@ registerScreen('map', (app, root) => {
     if (keeper) {
       const head = keeperHead(keeper);
       if (head) btn.append(head);
-      if (keeper.tip) attachTextTooltip(btn, `今天顧店：${keeper.name}`, keeper.tip);
+      if (keeper.tip) attachTextTooltip(btn, t('今天顧店：{name}', { name: term(keeper.name) }), t(keeper.tip)); // i18n-dynamic (src/content/keepers.ts)
     }
     // 地圖不存檔：進節點只呼叫 enterNode，存檔要等該節點結算完（見 app.ts 的 save() 註解）
     if (choices.has(n.id) && !iDown) {
@@ -310,7 +322,7 @@ registerScreen('map', (app, root) => {
     const voters = votes.map((v, i) => (v === n.id ? i : -1)).filter((i) => i >= 0);
     if (voters.length) {
       btn.append(el('span', { class: 'map-vote' },
-        voters.map((i) => (i === app.seat ? '你' : '同伴')).join('、')));
+        listJoin(voters.map((i) => (i === app.seat ? t('你') : t('同伴'))))));
     }
     inner.append(btn);
     /**
@@ -343,7 +355,7 @@ registerScreen('map', (app, root) => {
          * 讓**看得見的邊緣**離格子剛好 `HERO_GAP`。以後換新圖也會自己對齊。
          */
         const img = el('img', {
-          class: 'map-hero', src: hero, alt: heroName(me(run, app.seat)), draggable: 'false',
+          class: 'map-hero', src: hero, alt: term(heroName(me(run, app.seat))), draggable: 'false',
           style: `left:${x - R - RING - HERO_GAP - HERO_W}px;top:${y - 30}px`,
         }) as HTMLImageElement;
         const place = (): void => {
@@ -448,8 +460,8 @@ registerScreen('map', (app, root) => {
   lastFloor = { seed: run.seed, floor: here };
 
   renderHud(app, root);
-  root.append(el('div', { class: 'map-hint' }, iDown ? '你倒下了，等同伴選路…'
-    : run.currentNode ? '選下一層要去哪' : run.act > 1 ? `從 ${base + 1}F 選一條路往上` : '從 1F 選一條路進塔'));
+  root.append(el('div', { class: 'map-hint' }, iDown ? t('你倒下了，等同伴選路…')
+    : run.currentNode ? t('選下一層要去哪') : run.act > 1 ? t('從 {floor}F 選一條路往上', { floor: base + 1 }) : t('從 1F 選一條路進塔')));
 
   // 事件畫面（連同角色事件文案）與這張地圖排到的事件主圖先在背景抓（2026-09-23 內容擴充 0-1、0-2）：
   // 走進事件格時通常已經好了，`app.ts` 的 `enterEvent` 就不用等。抓失敗不要緊，走進去時會再要一次

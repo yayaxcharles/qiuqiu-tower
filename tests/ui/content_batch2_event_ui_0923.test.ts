@@ -95,7 +95,7 @@ describe('事件畫面的接線（讀原始碼）', () => {
 
   it('學完招接著挑牌升級（then）：單人、都不要、連線三條路都接上', () => {
     expect(ev).toContain('if (chained && afterLearn) { afterLearn(note, [got]); return; }');
-    expect(ev).toContain("if (passLearn(seat, outcomes) && afterLearn) { afterLearn('一招都沒挑', []); return; }");
+    expect(ev).toContain("if (passLearn(seat, outcomes) && afterLearn) { afterLearn(t('一招都沒挑'), []); return; }");
     // 學完招還要接著挑牌升級的：這一輪一開始就把挑牌那一種也記進去，學招湊齊了「繼續」照樣鎖著（2026-09-24 推前審查五 高-4 改成記每一種）
     expect(ev).toContain('waitingPicks.start(outcomes);');
     expect(ev).toContain("waitingPicks.settle('evlearn');");

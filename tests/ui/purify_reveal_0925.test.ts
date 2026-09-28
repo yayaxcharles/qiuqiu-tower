@@ -66,12 +66,12 @@ describe('窄格子用短句、不套兩層括號（推前審查 2026-09-25 低-
   });
   it('貨架、事件拿到那一列、戰利品與紙箱用短句；貨架的滑鼠提示、過關三選一、狀態列、秘寶清單、圖鑑用長句', () => {
     // 推前審查二（2026-09-25）：短句只講好處，要看得到代價的地方用長句
-    expect(lf(SHOP)).toContain('relicLongText(d, me(run, seat).relics, true)');
-    expect(lf(SHOP)).toContain('!!it.limited, it, relicLongText(d, me(run, seat).relics)));');
-    expect(lf(ACTCLEAR)).toContain('relicLongText(d, me(run, seat).relics)));');
-    expect(lf(EVENT)).toContain('relicLongText(r, owned, true)');
-    expect(lf(REWARD)).toContain('relicLongText(d, me(run, seat).relics, true)');
-    expect(lf(CHEST).match(/relicLongText\((?:def|d), me\(run, seat\)\.relics, true\)/g)?.length).toBe(3);
+    expect(lf(SHOP)).toContain('relicLong(d, me(run, seat).relics, true)');
+    expect(lf(SHOP)).toContain('!!it.limited, it, relicLong(d, me(run, seat).relics)));');
+    expect(lf(ACTCLEAR)).toContain('relicLong(d, me(run, seat).relics)));');
+    expect(lf(EVENT)).toContain('relicLong(r, owned, true)');
+    expect(lf(REWARD)).toContain('relicLong(d, me(run, seat).relics, true)');
+    expect(lf(CHEST).match(/relicLong\((?:def|d), me\(run, seat\)\.relics, true\)/g)?.length).toBe(3);
     expect(lf(REWARD) + lf(CHEST)).not.toMatch(/\b(?:d|def)\.text\b/);
   });
 });

@@ -32,7 +32,9 @@ import { createChipsLift } from '../chiplift';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
 import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool, type MonsterPose } from '../assets';
-import { STATUS_UNIT, describeCard } from '../cardtext';
+import { STATUS_UNIT } from '../cardtext';
+import { N_, t, term, moveLabelL, listJoin, clauseJoin, describeCardText } from '../../i18n';
+import { cardName, enemyName, relicName, potionName, potionText } from '../../i18n/names';
 import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
@@ -125,9 +127,9 @@ const STATUS_LABEL: Partial<Record<StatusName, string>> = { 潛水: '下回合�
 /** 意圖沒有圖示素材（美術清單只做了狀態圖示），用一個中文字當記號，字型一定有 */
 const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff: '強', debuff: '弱', special: '？', summon: '召', idle: '…' };
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
-  exhaust: '挑要消耗的牌', retain: '挑要留到下回合的牌', discard: '挑要丟掉的牌',
-  recover: '挑要拿回手上的牌', scryDiscard: '這是抽牌堆最上面的牌，挑要丟掉的',
-  transform: '挑一張要換掉的牌（換成隨機一張升級牌）',
+  exhaust: N_('挑要消耗的牌'), retain: N_('挑要留到下回合的牌'), discard: N_('挑要丟掉的牌'),
+  recover: N_('挑要拿回手上的牌'), scryDiscard: N_('這是抽牌堆最上面的牌，挑要丟掉的'),
+  transform: N_('挑一張要換掉的牌（換成隨機一張升級牌）'),
 };
 /**
  * 回合交接的節拍（毫秒）。按下「結束回合」之後畫面依序做三件事：
@@ -238,7 +240,7 @@ const posePick = (hero: Hero, k: PoseKey, fallback: string): string => (hasHeroS
 /** 這一位看到的牌名（她的牌名跟球球分家，見 `cardNameFor`）。查不到牌就回牌號 */
 const nameFor = (hero: string | undefined, id: string): string => {
   const d = cardById[id];
-  return d ? cardNameFor(d, hero) : id;
+  return d ? cardName(d, hero) : id;
 };
 /** 出牌時擺什麼姿勢 */
 function cardPose(hero: Hero, def: CardDef, effects: readonly Effect[] = def.effects): { pose: string; attack: boolean } {
@@ -340,7 +342,7 @@ function dropPending<T extends { token: number }>(map: Map<number, T[]>, key: nu
 
 /** 回魂香那塊牌子的字：點上了＝「回魂香」、拉住過一次這一輪打不倒＝「回魂香：打不倒」、都沒有＝空（重畫比對也用這支，2026-09-24 b3int） */
 function guardChipText(p: Pick<PlayerCombat, 'guardLethal' | 'guardLethalHold'>): string {
-  return p.guardLethalHold ? '回魂香：打不倒' : p.guardLethal ? '回魂香' : '';
+  return p.guardLethalHold ? t('回魂香：打不倒') : p.guardLethal ? t('回魂香') : '';
 }
 
 function thornPricks(lines: readonly string[]): { total: number; blocked: number } {
@@ -1155,14 +1157,14 @@ registerScreen('combat', (app, root, props) => {
     const mine = q.seat === mySeat;
     const n = cs.players.length;
     const displayedPose = mine ? pose : matePose(q);
-    const picture = spriteBox(heroArtUrl(q.hero, displayedPose), heroName(q));
+    const picture = spriteBox(heroArtUrl(q.hero, displayedPose), term(heroName(q)));
     const node = el('div', {
       class: `unit player${mine ? ' mine' : ''}${q.down ? ' downed' : ''}${q.ready && n > 1 ? ' ready' : ''}`,
       'data-seat': String(q.seat),
       style: `left:${playerLeft(q.seat, n)}px`,
     },
       picture,
-      el('div', { class: 'name' }, n > 1 ? `${heroName(q)}（${mine ? '你' : '同伴'}）` : heroName(q)),
+      el('div', { class: 'name' }, n > 1 ? t('{name}（{who}）', { name: term(heroName(q)), who: mine ? t('你') : t('同伴') }) : term(heroName(q))),
       // 動畫記憶的鍵要帶座位（連線稽核 中-1）：兩位共用 'player' 的話，每次整頁重畫兩條血條都從
       // 對方的比例滑到自己的，低的那條每次拖一條「剛掉血」的殘影，狀態牌子也每次彈一下。單機只有座位 0
       // 血與蜷縮照 shownPlayer：被刺的那一下還沒演（東西還在飛）時照被刺之前畫（見 motionPendingPlayer）
@@ -1170,8 +1172,8 @@ registerScreen('combat', (app, root, props) => {
       statusRow(shownPlayer(q), true, `p${q.seat}`));
     mountMotion(q, picture, displayedPose);
     // 舉手了就在頭上掛一張牌子：對方在等你，這件事一定要看得見
-    if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? '倒下了' : '已結束回合'));
-    else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, '倒下了'));
+    if (q.ready && n > 1) node.append(el('div', { class: 'ready-tag' }, q.down ? t('倒下了') : t('已結束回合')));
+    else if (q.down && n > 1) node.append(el('div', { class: 'ready-tag down' }, t('倒下了')));
     // 同伴剛打出的牌：縮小、半透明掛在他頭上，下一張換掉、換回合消失（使用者 2026-09-15：「完全不知道隊友做了什麼」）
     // 同伴點選還沒打的那張（虛線、更淡、標「考慮中」）優先於他上一張打出的
     const considering = mine ? undefined : mateHint.get(q.seat);
@@ -1180,7 +1182,7 @@ registerScreen('combat', (app, root, props) => {
     // 分出勝負就不掛（2026-09-22 晚，連線盤點問題 8）：原本只有換回合才消失，打贏了還掛在他頭上。
     // 條件也寫進 mateSig，勝負一分出來那一格就會換成沒有牌的新節點
     if (hintCard && cs.phase === 'player') {
-      node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q), partnerHero: heroOf(my()) }), el('div', { class: 'hint-tag' }, '考慮中')));
+      node.append(el('div', { class: 'mate-play hint' }, cardNode(hintCard, { small: true, hero: heroOf(q), partnerHero: heroOf(my()) }), el('div', { class: 'hint-tag' }, t('考慮中'))));
     } else if (mp && mp.turn === cs.turn && cs.phase === 'player') {
       const fresh = matePlayShown.get(q.seat) !== mp.card.uid;   // 新的一張才播淡入；重畫同一張不動
       matePlayShown.set(q.seat, mp.card.uid);
@@ -1270,9 +1272,9 @@ registerScreen('combat', (app, root, props) => {
   let tutStep = -1;
   try { if (run.act === 1 && run.floor === 1 && window.localStorage.getItem('qiuqiu.tutorial') !== 'done') tutStep = 0; } catch { /* 讀不到就不教 */ }
   const TUT_TEXT = [
-    '先點一張牌：攻擊牌要再點一隻魔物才會出招，其他牌點了就生效',
-    '魔物頭上的圖示＝牠下一回合要做的事（滑鼠移上去有說明）；飯糰用完就按「結束回合」',
-    '蜷縮（藍色盾）幫你擋攻擊，撐到你下回合開始；打倒全部魔物就贏了',
+    t('先點一張牌：攻擊牌要再點一隻魔物才會出招，其他牌點了就生效'),
+    t('魔物頭上的圖示＝牠下一回合要做的事（滑鼠移上去有說明）；飯糰用完就按「結束回合」'),
+    t('蜷縮（藍色盾）幫你擋攻擊，撐到你下回合開始；打倒全部魔物就贏了'),
   ];
   function tutDone(): void {
     tutStep = -1;
@@ -1544,12 +1546,12 @@ registerScreen('combat', (app, root, props) => {
     const row = el('div', { class: 'chips' });
     const qi = combatQiValue((u as Partial<PlayerCombat>).hero ?? '', (u as Partial<PlayerCombat>).qi);
     if (qi !== undefined) {
-      const node = el('div', { class: 'chip good qi' }, el('b', {}, '蓄氣'), el('span', {}, `${qi}/12`));
+      const node = el('div', { class: 'chip good qi' }, el('b', {}, term('蓄氣')), el('span', {}, `${qi}/12`));
       // 「一次花 4 點以上 ×1.3」不再每張牌重寫（使用者 2026-09-24 晚），滑到這個牌子看名詞表那一條
-      attachTooltip(node, '蓄氣');
+      attachTooltip(node, term('蓄氣'));
       row.append(node);
     }
-    if (u.block > 0) row.append(chip(mine ? '蜷縮' : '防禦', null, String(u.block), 'block'));
+    if (u.block > 0) row.append(chip(mine ? term('蜷縮') : term('防禦'), null, String(u.block), 'block'));
     for (const name of STATUS_ORDER) {
       const key = `${who}|${name}`;
       const v = getStatus(u, name);
@@ -1565,30 +1567,30 @@ registerScreen('combat', (app, root, props) => {
       // 「下回合才生效」的（潛水＝下回合隱身、鐵布衫＝下回合蜷縮）掛 `.later`：淡色虛線框，跟這回合就生效的分得開。
       // 使用者 2026-09-24 深夜：「影忍頭帶顯示我有隱身，卻一直被打到」——下回合隱身跟隱身同一個圖示，看起來就是有隱身
       const later = STATUS_LABEL[name] ? ' later' : '';
-      row.append(chip(STATUS_LABEL[name] ?? name, textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), `${tone}${later}`.trim(), bump));
+      row.append(chip(term(STATUS_LABEL[name] ?? name), textOnly ? null : STATUS_ICON[name], name === '虛化' ? '' : String(v), `${tone}${later}`.trim(), bump));
     }
     // 「別碰針尖喔」補在針上的毒（`poisonNextAttack`，下一擊命中多給幾層中毒、只到本回合）。
     // 它不是狀態名也沒走 `markPassive`，原本自己那排、同伴那排都沒畫（使用者 2026-09-15：「隊友的下方沒出現這個 BUFF」）。
     // 直接照資料畫：用掉或回合結束資料一清，牌子就跟著掉
     const pna = (u as Partial<PlayerCombat>).poisonNextAttack;
     if (pna) {
-      const node = el('div', { class: 'chip good power' }, el('b', {}, '針上有毒'), el('span', {}, String(pna.amount)));
-      attachTextTooltip(node, '針上有毒（只到本回合）', `下一次攻擊命中時多給 ${pna.amount} 層中毒${pna.anyDamage ? '（任何造成傷害的招都算）' : ''}，用掉或回合結束就沒了`);
+      const node = el('div', { class: 'chip good power' }, el('b', {}, t('針上有毒')), el('span', {}, String(pna.amount)));
+      attachTextTooltip(node, t('針上有毒（只到本回合）'), t('下一次攻擊命中時多給 {n} 層中毒{any}，用掉或回合結束就沒了', { n: pna.amount, any: pna.anyDamage ? t('（任何造成傷害的招都算）') : '' }));
       row.append(node);
     }
     // 便當、回魂香（2026-09-23 第二批）：喝下去當下什麼數字都沒動，要掛牌子才看得出「還在等著」。跟上面那個一樣照資料畫
     const pc = u as Partial<PlayerCombat>;
     if (pc.energyNextTurn) {
       // 便當與影分身卷軸（閃過之後）共用這一個牌子，所以寫結果「下回合飯糰」，不寫是誰給的
-      const node = el('div', { class: 'chip good power chip-bento' }, el('b', {}, '下回合飯糰'), el('span', {}, `+${pc.energyNextTurn}`));
-      attachTextTooltip(node, '下回合飯糰', `下回合開始時多 ${pc.energyNextTurn} 顆飯糰（便當、影分身卷軸給的）`);
+      const node = el('div', { class: 'chip good power chip-bento' }, el('b', {}, t('下回合飯糰')), el('span', {}, `+${pc.energyNextTurn}`));
+      attachTextTooltip(node, t('下回合飯糰'), t('下回合開始時多 {n} 顆飯糰（便當、影分身卷軸給的）', { n: pc.energyNextTurn }));
       row.append(node);
     }
     if (pc.guardLethal || pc.guardLethalHold) {
       // 拉住過一次之後換成「打不倒」：這一輪魔物剩下的攻擊都打不死（2026-09-24 b3int），牌子要看得出來，不然會以為香已經沒了
       const node = el('div', { class: 'chip good power chip-guard' }, el('b', {}, guardChipText(pc)));
-      attachTextTooltip(node, '回魂香', pc.guardLethalHold ? '這一輪魔物剩下的攻擊都打不死你（最低留 1 點生命）'
-        : '這場戰鬥接下來第一次會被打倒時，留下 1 點生命；這個魔物回合剩下的攻擊也打不死你（最低留 1 點）');
+      attachTextTooltip(node, t('回魂香'), pc.guardLethalHold ? t('這一輪魔物剩下的攻擊都打不死你（最低留 1 點生命）')
+        : t('這場戰鬥接下來第一次會被打倒時，留下 1 點生命；這個魔物回合剩下的攻擊也打不死你（最低留 1 點）'));
       row.append(node);
     }
     // 球球身上生效中的能力牌（封印解除、結界……）：一張一個牌子，疊了幾張寫數字，滑上去看那張牌的效果
@@ -1605,10 +1607,10 @@ registerScreen('combat', (app, root, props) => {
         const upgraded = up === '1';
         // 牌名照**這排的主人**的角色（連線稽核 中-6）：原本用 `my()`，同伴那格的能力牌照本機角色命名
         const owner = (u as PlayerCombat).hero;
-        const name = cardNameFor(def, owner).replace(/^忍術·/, '') + (upgraded ? '＋' : '');
+        const name = cardName(def, owner).replace(/^忍術·/, '') + (upgraded ? '＋' : '');
         const node = el('div', { class: 'chip good power' }, el('b', {}, name));
         if (n > 1) node.append(el('span', {}, String(n)));
-        attachTextTooltip(node, `${cardNameFor(def, owner)}${upgraded ? '＋' : ''}（能力，這場戰鬥持續生效）`, describeCard(def, upgraded));
+        attachTextTooltip(node, t('{name}{up}（能力，這場戰鬥持續生效）', { name: cardName(def, owner), up: upgraded ? '＋' : '' }), describeCardText(def, upgraded));
         row.append(node);
       }
     }
@@ -1670,52 +1672,52 @@ registerScreen('combat', (app, root, props) => {
     const blkAll = m.effects.find(has('blockAllies'));
     const buffAll = m.effects.find(has('statusAllies'));
     const boom = m.effects.find(has('selfDestruct'));
-    let text = `${INTENT_GLYPH[m.intent]} ${m.label}`;
-    if (getStatus(e, '沉睡') > 0) text = '呼呼大睡';   // 睡著的什麼都不做（2026-09-02 第二波）
-    else if (getStatus(e, '定身') > 0) text = '被定住了';   // 定身擋整個動作（2026-09-02）
-    else if (boom) text = `攻 ${dmgOf(boom)}（爆）`;
-    else if (hits.length) text = `攻 ${hits.map((d) => `${dmgOf(d)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? '（穿透）' : ''}`).join('＋')}`;
-    else if (byStatus.length) text = `攻 ${byStatus.map(dmgOf).join('＋')}（照你的${byStatus[0]!.name}）`;
-    else if (rnd) text = `攻 ${dmgOf(rnd)}～${maxOf(rnd)}`;
-    else if (blk) text = `守 ${computeBlock(blk.amount, e)}`;
+    let text = t('{glyph} {label}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveLabelL(m.label) });
+    if (getStatus(e, '沉睡') > 0) text = t('呼呼大睡');   // 睡著的什麼都不做（2026-09-02 第二波）
+    else if (getStatus(e, '定身') > 0) text = t('被定住了');   // 定身擋整個動作（2026-09-02）
+    else if (boom) text = t('攻 {n}（爆）', { n: dmgOf(boom) });
+    else if (hits.length) text = t('攻 {list}', { list: hits.map((d) => `${dmgOf(d)}${(d.times ?? 1) > 1 ? `×${d.times}` : ''}${d.pierce ? t('（穿透）') : ''}`).join('＋') });
+    else if (byStatus.length) text = t('攻 {list}（照你的{status}）', { list: byStatus.map(dmgOf).join('＋'), status: term(byStatus[0]!.name) });
+    else if (rnd) text = t('攻 {min}～{max}', { min: dmgOf(rnd), max: maxOf(rnd) });
+    else if (blk) text = t('守 {n}', { n: computeBlock(blk.amount, e) });
     // 盾陣／號令這種給全體的：牌子上也要有數字（使用者 2026-09-03：「有格檔但沒看到格檔值」）
-    else if (blkAll) text = `守 ${computeBlock(blkAll.amount, e)}（全體）`;
-    else if (buffAll) text = `${INTENT_GLYPH[m.intent]} 全體 +${buffAll.amount} ${buffAll.name}`;
+    else if (blkAll) text = t('守 {n}（全體）', { n: computeBlock(blkAll.amount, e) });
+    else if (buffAll) text = t('{glyph} 全體 +{n} {status}', { glyph: term(INTENT_GLYPH[m.intent]), n: buffAll.amount, status: term(buffAll.name) });
     // 召喚要寫清楚**會來幾隻**（2026-09-11）：只寫「喚小弟」看不出是一隻還兩隻，
     // 而那正是玩家要不要先清場、要不要囤防禦的判準
     else {
       const sum = m.effects.find(has('summon'));
-      if (sum) text = `${INTENT_GLYPH[m.intent]} ${m.label}${sum.n > 1 ? ` ${sum.n} 隻` : ''}`;
+      if (sum) text = t('{glyph} {label}{tail}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveLabelL(m.label), tail: sum.n > 1 ? t(' {n} 隻', { n: sum.n }) : '' });
     }
     // 傷害那一行不能把同一招的其他事吃掉（審查 2026-09-15 中-1／中-2／低-8）：黑貓頭目的「分身」是 8 傷＋召 2 隻、
     // 河童的「拽走小魚乾」是 7 傷＋偷 20、「頂皿蓄水」是守 10＋回 10——牌子只寫「攻 8」「守 10」玩家會誤判
     if (getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0) {
       const sum = m.effects.find(has('summon'));
-      if (sum && !text.includes('隻')) text += `＋召 ${sum.n} 隻`;
+      if (sum && !text.includes('隻')) text += t('＋召 {n} 隻', { n: sum.n });
       const steal = m.effects.find(has('stealFish'));
-      if (steal) text += `＋偷 ${steal.n}`;
+      if (steal) text += t('＋偷 {n}', { n: steal.n });
       const heal = m.effects.find(has('heal'));
-      if (heal && (hits.length || rnd || blk)) text += `＋回 ${heal.percent ? Math.round(e.maxHp * heal.percent / 100) : heal.n}`;
+      if (heal && (hits.length || rnd || blk)) text += t('＋回 {n}', { n: heal.percent ? Math.round(e.maxHp * heal.percent / 100) : heal.n });
       // 照著學一動兩張時（二三關），普攻那張會把「照你的毒打」那張蓋掉——兩段都要寫出來
       if (byStatus.length && (hits.length || rnd)) {
-        text += `＋${byStatus.map(dmgOf).join('＋')}（照你的${byStatus[0]!.name}）`;
+        text += t('＋{list}（照你的{status}）', { list: byStatus.map(dmgOf).join('＋'), status: term(byStatus[0]!.name) });
       }
       // 只有「照層數打」＋守（鏡貓學到見血封喉）：主分支只寫了攻，守要補上（推前審查 2026-09-15 中-1）
-      if (byStatus.length && blk && !hits.length && !rnd) text += `＋守 ${computeBlock(blk.amount, e)}`;
+      if (byStatus.length && blk && !hits.length && !rnd) text += t('＋守 {n}', { n: computeBlock(blk.amount, e) });
       // 影子照抄的招帶毒（菲菲的影子「針上帶毒」，2026-09-26）：牌子只寫「攻 8」看不出每張攻擊都多上一層毒
       const poison = m.learned ? m.effects.filter(has('statusPlayer')).filter((f) => f.name === '中毒').reduce((s, f) => s + f.amount, 0) : 0;
-      if (poison && (hits.length || rnd)) text += `＋毒 ${poison}`;
+      if (poison && (hits.length || rnd)) text += t('＋毒 {n}', { n: poison });
     }
-    if (e.charged && m.intent === 'attack') text += '（蓄力）';
+    if (e.charged && m.intent === 'attack') text += t('（蓄力）');
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
-    if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = `${m.label}｜${text}`;
+    if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = t('{label}｜{text}', { label: moveLabelL(m.label), text });
     // 看破／破功要寫在牌子上：使用者的朋友囤了十幾層隱身，看牌子只寫「攻 8×2」以為閃得掉，
     // 結果先被拍掉隱身再挨打（2026-09-03 回報）。牌子上先講，滑上去的提示再講細節
     if (getStatus(e, '定身') === 0) {
-      if (m.effects.some(has('stripPlayer'))) text += '（看破）';
-      if (m.effects.some(has('purgePlayer'))) text += '（破功）';
+      if (m.effects.some(has('stripPlayer'))) text += t('（看破）');
+      if (m.effects.some(has('purgePlayer'))) text += t('（破功）');
       // 迷魂香（2026-09-23 第二批）：牌子上的數字照舊（那是牠這一下的力道），但要講明這一下不是打你
-      if (isDazed(e) && getStatus(e, '沉睡') === 0 && (hits.length || rnd || boom || byStatus.length)) text += '（迷魂：打同伴）';
+      if (isDazed(e) && getStatus(e, '沉睡') === 0 && (hits.length || rnd || boom || byStatus.length)) text += t('（迷魂：打同伴）');
     }
     // 換招才翻牌子（第一次看到這隻不算換：開場整排一起翻很吵，而且那時本來就在看牠們的開場白）
     const before = lastIntent.get(e.uid);
@@ -1736,7 +1738,7 @@ registerScreen('combat', (app, root, props) => {
       node.append(part === '（穿透）' ? el('span', { class: 'pierce' }, part) : part);
     }
     // 牌子上只寫得下「攻 4」這種短標籤，滑上去才講得完牠這一下實際會做什麼
-    attachTextTooltip(node, m.label, describeMove(e));
+    attachTextTooltip(node, moveLabelL(m.label), describeMove(e));
     return node;
   }
 
@@ -1746,8 +1748,8 @@ registerScreen('combat', (app, root, props) => {
    */
   function describeMove(e: EnemyCombat): string {
     const m = e.move;
-    if (getStatus(e, '沉睡') > 0) return `睡著了，這回合什麼都不會做。再睡 ${getStatus(e, '沉睡')} 回合；打痛牠會提早醒，而且醒來會很生氣。`;
-    if (getStatus(e, '定身') > 0) return '被定住了，這回合什麼都做不了。';
+    if (getStatus(e, '沉睡') > 0) return t('睡著了，這回合什麼都不會做。再睡 {n} 回合；打痛牠會提早醒，而且醒來會很生氣。', { n: getStatus(e, '沉睡') });
+    if (getStatus(e, '定身') > 0) return t('被定住了，這回合什麼都做不了。');
     // 數字跟牌子同一份預演（`previewEnemyHits`，總稽核 2026-09-16 乙 中-1）
     const pv = previewEnemyHits(e, m.effects, my());
     const hitOf = (f: EnemyEffect) => pv.find((h) => h.fx === f);
@@ -1756,52 +1758,53 @@ registerScreen('combat', (app, root, props) => {
       switch (fx.kind) {
         case 'damage': {
           const n = hitOf(fx)?.dmg ?? 0;
-          parts.push(((fx.times ?? 1) > 1 ? `造成 ${n} 點傷害，連打 ${fx.times} 次` : `造成 ${n} 點傷害`) + (fx.pierce ? '（穿透：蜷縮擋不住，隱身閃得掉）' : ''));
+          parts.push(((fx.times ?? 1) > 1 ? t('造成 {n} 點傷害，連打 {times} 次', { n, times: fx.times ?? 1 }) : t('造成 {n} 點傷害', { n })) + (fx.pierce ? t('（穿透：蜷縮擋不住，隱身閃得掉）') : ''));
           break;
         }
         case 'damageRandom':
-          parts.push(`造成 ${hitOf(fx)?.dmg ?? 0}～${hitOf(fx)?.dmgMax ?? 0} 點傷害`);
+          parts.push(t('造成 {min}～{max} 點傷害', { min: hitOf(fx)?.dmg ?? 0, max: hitOf(fx)?.dmgMax ?? 0 }));
           break;
         case 'damageByPlayerStatus': {
           // 數字是**算完的**（出手那一刻的層數 × 倍率再吃爪力／懶洋洋／翻肚與蓄力；同一招前面先給你的毒也算進去），跟牌子上那個一樣
           const h = hitOf(fx);
           const n = h?.stacks ?? 0;
           parts.push(n > 0
-            ? `照你身上的${fx.name}層數打：出手時 ${n} 層${(fx.mul ?? 1) > 1 ? ` × ${fx.mul} 倍` : ''}＝造成 ${h?.dmg ?? 0} 點傷害`
-              + (fx.consume ? `，打完把你的${fx.name}清掉` : '')
-            : `照你身上的${fx.name}層數打：你身上沒有${fx.name}，打你這一下會撲空`);
+            ? t('照你身上的{status}層數打：出手時 {n} 層{mul}＝造成 {dmg} 點傷害', { status: term(fx.name), n, mul: (fx.mul ?? 1) > 1 ? t(' × {mul} 倍', { mul: fx.mul ?? 1 }) : '', dmg: h?.dmg ?? 0 })
+              + (fx.consume ? t('，打完把你的{status}清掉', { status: term(fx.name) }) : '')
+            : t('照你身上的{status}層數打：你身上沒有{status}，打你這一下會撲空', { status: term(fx.name) }));
           break;
         }
-        case 'block': parts.push(`自己獲得 ${computeBlock(fx.amount, e)} 點防禦`); break;
+        case 'block': parts.push(t('自己獲得 {n} 點防禦', { n: computeBlock(fx.amount, e) })); break;
         case 'statusPlayer':
           // 定身沒有量詞（「給你 1 定身」讀不通）：直接講後果
-          if (fx.name === '定身') parts.push('把你定住：這回合打不出攻擊牌');
-          else parts.push(`給你 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`);
+          if (fx.name === '定身') parts.push(t('把你定住：這回合打不出攻擊牌'));
+          else parts.push(t('給你 {n} {unit}{status}', { n: fx.amount, unit: STATUS_UNIT[fx.name] ?? '', status: term(fx.name) }));
           break;
-        case 'statusSelf': parts.push(`自己獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? ''}${fx.name}`); break;
-        case 'chargeNext': parts.push('蓄力：下一次攻擊傷害加倍'); break;
-        case 'copyPlayerStatus': parts.push(`照著學：把你身上的${fx.names.join('、')}抄一份過去`); break;
-        case 'stripPlayer': parts.push(`看破：把你身上的${fx.names.join('、')}拍掉一半`); break;
-        case 'purgePlayer': parts.push(`破功：把你身上的${fx.names.join('、')}各拍散一半`); break;
-        case 'summon': parts.push('叫來幫手'); break;
-        case 'heal': parts.push(`自己回復 ${fx.n} 點生命`); break;
-        case 'stealFish': parts.push(`偷走你 ${fx.n} 條小魚乾`); break;
-        case 'discardRandomHand': parts.push(`讓你下回合少抽 ${fx.n} 張牌`); break;
-        case 'escape': parts.push('逃走'); break;
+        case 'statusSelf': parts.push(t('自己獲得 {n} {unit}{status}', { n: fx.amount, unit: STATUS_UNIT[fx.name] ?? '', status: term(fx.name) })); break;
+        case 'chargeNext': parts.push(t('蓄力：下一次攻擊傷害加倍')); break;
+        case 'copyPlayerStatus': parts.push(t('照著學：把你身上的{names}抄一份過去', { names: listJoin(fx.names.map((n) => term(n))) })); break;
+        case 'stripPlayer': parts.push(t('看破：把你身上的{names}拍掉一半', { names: listJoin(fx.names.map((n) => term(n))) })); break;
+        case 'purgePlayer': parts.push(t('破功：把你身上的{names}各拍散一半', { names: listJoin(fx.names.map((n) => term(n))) })); break;
+        case 'summon': parts.push(t('叫來幫手')); break;
+        case 'heal': parts.push(t('自己回復 {n} 點生命', { n: fx.n })); break;
+        case 'stealFish': parts.push(t('偷走你 {n} 條小魚乾', { n: fx.n })); break;
+        case 'discardRandomHand': parts.push(t('讓你下回合少抽 {n} 張牌', { n: fx.n })); break;
+        case 'escape': parts.push(t('逃走')); break;
         // ---- 2026-09-02 第二波魔物的四個新效果 ----
-        case 'selfDestruct': parts.push(`自爆：造成 ${hitOf(fx)?.dmg ?? 0} 點傷害，然後牠自己也倒下`); break;
-        case 'statusAllies': parts.push(`全體魔物獲得 ${fx.amount} ${STATUS_UNIT[fx.name] ?? '點'}${fx.name}`); break;
-        case 'blockAllies': parts.push(`全體魔物獲得 ${fx.amount} 點防禦`); break;
-        case 'giveCard': parts.push(`把 ${fx.n} 張「${nameFor(my().hero, fx.cardId)}」塞進你的${fx.to === 'discard' ? '棄牌堆' : '抽牌堆'}`); break;
-        case 'nothing': parts.push('發呆，什麼都不做'); break;
+        case 'selfDestruct': parts.push(t('自爆：造成 {n} 點傷害，然後牠自己也倒下', { n: hitOf(fx)?.dmg ?? 0 })); break;
+        case 'statusAllies': parts.push(t('全體魔物獲得 {n} {unit}{status}', { n: fx.amount, unit: STATUS_UNIT[fx.name] ?? '點', status: term(fx.name) })); break;
+        case 'blockAllies': parts.push(t('全體魔物獲得 {n} 點防禦', { n: fx.amount })); break;
+        case 'giveCard': parts.push(t('把 {n} 張「{card}」塞進你的{to}', { n: fx.n, card: nameFor(my().hero, fx.cardId), to: fx.to === 'discard' ? t('棄牌堆') : t('抽牌堆') })); break;
+        case 'nothing': parts.push(t('發呆，什麼都不做')); break;
         // 漏接新的 EnemyEffect 種類會在型別檢查就爆——魔物做得到的事，提示框一定要講得出來
         default: { const _never: never = fx; void _never; break; }
       }
     }
-    const body = parts.length ? parts.join('，') : '看不出來要做什麼';
+    const body = parts.length ? clauseJoin(parts) : t('看不出來要做什麼');
     // 迷魂香（2026-09-23 第二批）：上面那些數字是牠這一下的力道，但這一輪會打在牠旁邊的同伴身上
-    const daze = isDazed(e) ? `迷魂了：這一輪的攻擊改打${dazeTarget(cs, e)?.name ?? '空氣（旁邊沒有同伴）'}，不打你。` : '';
-    return daze + (e.charged && m.intent === 'attack' ? `${body}（已蓄力，傷害已經算進去了）。` : `${body}。`);
+    const dazeAt = dazeTarget(cs, e);
+    const daze = isDazed(e) ? t('迷魂了：這一輪的攻擊改打{target}，不打你。', { target: dazeAt ? enemyName(dazeAt.enemyId, cs.player.hero) : t('空氣（旁邊沒有同伴）') }) : '';
+    return daze + (e.charged && m.intent === 'attack' ? t('{body}（已蓄力，傷害已經算進去了）。', { body }) : t('{body}。', { body }));
   }
 
   /**
@@ -1875,26 +1878,26 @@ registerScreen('combat', (app, root, props) => {
     // 引擎裡玩家看不到的狀態，全部做成牌子掛出來（滑上去有白話說明）——
     // 「機制是對的但畫面沒講」已經連續中招三次：隱身閃避、蜷縮延遲、影子復活
     if (!e.dead) {
-      if (def?.onDeathHealPlayer) row.prepend(chip('打倒回血', null, String(def.onDeathHealPlayer), 'good'));
+      if (def?.onDeathHealPlayer) row.prepend(chip(t('打倒回血'), null, String(def.onDeathHealPlayer), 'good'));
       if (def?.strengthEveryNTurns) {
         const left = def.strengthEveryNTurns - (e.turnCount % def.strengthEveryNTurns);
-        row.prepend(chip('越戰越勇', null, String(left), 'bad'));
+        row.prepend(chip(t('越戰越勇'), null, String(left), 'bad'));
       }
-      if (e.stolen > 0) row.prepend(chip('叼著小魚乾', null, String(e.stolen), 'bad'));
-      if (e.charged) row.prepend(chip('蓄力', null, '', 'bad'));
-      if (e.invulnIn > 0) row.prepend(chip('無敵', null, '', 'bad'));
-      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip('同生共死', null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
+      if (e.stolen > 0) row.prepend(chip(t('叼著小魚乾'), null, String(e.stolen), 'bad'));
+      if (e.charged) row.prepend(chip(t('蓄力'), null, '', 'bad'));
+      if (e.invulnIn > 0) row.prepend(chip(t('無敵'), null, '', 'bad'));
+      if (def?.reviveGroup && !def.neverRevive) row.prepend(chip(t('同生共死'), null, '', 'bad'));   // 蛙大名自己倒了就倒了，不掛這塊牌
       // 僕從護體（波斯大小姐）：還有同伴站著就打不動她——照慣例把隱藏規則掛成牌子
-      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip('僕從護體', null, '', 'bad'));
+      if (def?.guardedByAllies && cs.enemies.some((o) => o !== e && !o.dead)) row.prepend(chip(t('僕從護體'), null, '', 'bad'));
       // 第二波魔物的三個被動（2026-09-02）。狀態型的（縮殼、飛行、鱗甲、沉睡、消散）自己就是狀態牌子，
       // 這三個沒有層數可掛，所以照「僕從護體」那一套做成小牌
-      if (def?.splitInto && !e.split) row.prepend(chip('分裂', null, '', 'bad'));
-      if (def?.hexOnSkill) row.prepend(chip('詛咒', null, '', 'bad'));
-      if (def?.angerOnSkill) row.prepend(chip('憤怒', null, String(def.angerOnSkill), 'bad'));
+      if (def?.splitInto && !e.split) row.prepend(chip(t('分裂'), null, '', 'bad'));
+      if (def?.hexOnSkill) row.prepend(chip(t('詛咒'), null, '', 'bad'));
+      if (def?.angerOnSkill) row.prepend(chip(t('憤怒'), null, String(def.angerOnSkill), 'bad'));
     }
-    if (reviving) row.prepend(chip('重生中', null, String(e.reviveIn), 'bad'));
+    if (reviving) row.prepend(chip(t('重生中'), null, String(e.reviveIn), 'bad'));
     // 魔氣暴走：第 10 回合（關主戰第 15 回合）起掛在每隻魔物身上，提醒拖下去每回合都會更痛
-    if (!e.dead && cs.turn >= rampageTurnFor(cs)) row.prepend(chip('魔氣暴走', null, '', 'bad'));
+    if (!e.dead && cs.turn >= rampageTurnFor(cs)) row.prepend(chip(t('魔氣暴走'), null, '', 'bad'));
     return row;
   }
 
@@ -1959,10 +1962,10 @@ registerScreen('combat', (app, root, props) => {
     // 放在外面用負邊界試過兩次都不準——那個排版下負邊界只挪了 15 像素而不是 130。
     const row = enemyChips(e, def, reviving);
     const node = el('div', { class: cls.join(' '), 'data-uid': String(e.uid), 'data-id': e.enemyId, style: `left:${left}px` },
-      spriteBox(enemySprite(e, def), e.name,
+      spriteBox(enemySprite(e, def), enemyName(e.enemyId, cs.player.hero),
         def?.art === 'daxia' ? (e.phase >= 2 ? 'master2' : e.phase === 1 ? 'master1' : 'master') : (SPRITE_SIZE_OVERRIDE[e.enemyId] ?? def?.size ?? 'medium'),
         reviving ? undefined : intentChip(shownEnemy(e))),
-      el('div', { class: 'name' }, e.name),
+      el('div', { class: 'name' }, enemyName(e.enemyId, cs.player.hero)),
       hpBar(`e${e.uid}`, e.hp + (motionPendingDamage.get(e.uid) ?? 0), e.maxHp),
       row);
     // 照著學的那一拍（鏡中球球）：他身旁亮出剛打的那幾張牌面，讓玩家看到「他打了哪張」（使用者 2026-09-08）。
@@ -2016,7 +2019,7 @@ registerScreen('combat', (app, root, props) => {
     lastEnergy = p.energy;
     energyRefund = 0;   // 演過就清掉，下次重畫不會再演一次
     energy.append(el('span', {}, `${p.energy}/${p.maxEnergy}`));
-    attachTooltip(energy, '飯糰');
+    attachTooltip(energy, term('飯糰'));
 
     const potions = el('div', { class: 'potions' });
     // 格數隨難度與忍具袋變；跟狀態列同一套：至少畫 3 格，宗師起少掉的那格畫成鎖住（稽核 2026-09-06 介面 中-2）
@@ -2027,11 +2030,11 @@ registerScreen('combat', (app, root, props) => {
       const id = locked ? undefined : p.potions[i];
       const def = id ? potionById[id] : undefined;
       const slot = el('div', { class: `potion${def ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
-      if (locked) attachTextTooltip(slot, '這一格鎖住了', '宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。');
+      if (locked) attachTextTooltip(slot, t('這一格鎖住了'), t('宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。'));
       // 提示只掛在有忍具或鎖住的格子上：空格跳出一個沒內容的框，反而讓人以為那格有東西。
       if (id && def) {
         const url = artUrl('icons', def.art);
-        slot.append(isFallback(url) ? el('b', {}, def.name) : el('img', { src: url, alt: def.name }));
+        slot.append(isFallback(url) ? el('b', {}, potionName(def)) : el('img', { src: url, alt: potionName(def) }));
         // 這格是戰鬥中唯一能查忍具做什麼的地方，用瀏覽器原生的 `title` 要停住一秒才跳、
         // 長相又跟旁邊的飯糰、連抓提示不同款，玩家等不到就以為沒說明。改掛遊戲自己的提示框。
         /**
@@ -2041,10 +2044,10 @@ registerScreen('combat', (app, root, props) => {
          * 點下去沒反應是最糟的：格子變灰、說明多一行原因，玩家才知道是「還不能用」不是「壞了」。
          * 集中精神之後的飯糰類忍具也走這裡（2026-09-23 稽核 引擎 低-1）。
          */
+        // 來源見 engine/combat.ts 的 potionBlockedReason（def.usable.reason／'集中精神之後，這回合不能再獲得飯糰'／'手上沒有牌可以換'）
         const blocked = potionBlockedReason(p, def);
         const ready = blocked === null;
-        attachTextTooltip(slot, def.name, ready ? def.text : `${def.text}
-（${blocked}）`);
+        attachTextTooltip(slot, potionName(def), ready ? potionText(def) : t('{text}\n（{reason}）', { text: potionText(def), reason: blocked ? t(blocked) /* i18n-dynamic */ : '' }));
         if (!ready) slot.classList.add('not-ready');
         // 連線舉手等對方時不能用（引擎擋著）：不掛「可點」，免得點下去沒反應（夜間審查 低-5）
         if (canAct() && ready && !p.ready) { slot.classList.add('usable'); slot.addEventListener('click', () => onPotion(id)); }
@@ -2052,28 +2055,28 @@ registerScreen('combat', (app, root, props) => {
       potions.append(slot);
     }
 
-    const combo = el('span', {}, `連抓 ${p.cardsPlayedThisTurn}`);
-    attachTooltip(combo, '連抓');
+    const combo = el('span', {}, t('連抓 {n}', { n: p.cardsPlayedThisTurn }));
+    attachTooltip(combo, term('連抓'));
     const piles = el('div', { class: 'piles' },
-      el('span', {}, `第 ${cs.turn} 回合`),
+      el('span', {}, t('第 {n} 回合', { n: cs.turn })),
       // 這一行同時是「牌堆在哪」的座標：新發的牌就是從這裡飛出來的（見 dealFrom）
       // 三個牌堆都點得開（使用者 2026-09-03：「戰鬥中我看不到我的抽牌堆跟棄牌堆」）：
       // 抽牌堆照名字排序，不洩漏真正的順序；棄牌堆、消耗堆照丟進去的順序
       // 排序用的名字也要過 `cardNameFor`：不然菲菲看到的排列跟她看到的牌名對不起來
-      pileBtn('pile-draw', `抽牌 ${p.drawPile.length}`, '抽牌堆',
+      pileBtn('pile-draw', t('抽牌 {n}', { n: p.drawPile.length }), t('抽牌堆'),
         () => [...p.drawPile].sort((x, y) => nameFor(p.hero, x.cardId).localeCompare(nameFor(p.hero, y.cardId), 'zh-Hant'))),
-      pileBtn('pile-discard', `棄牌 ${p.discardPile.length}`, '棄牌堆', () => p.discardPile),
-      pileBtn('pile-exhaust', `消耗 ${p.exhaustPile.length}`, '消耗堆', () => p.exhaustPile),
+      pileBtn('pile-discard', t('棄牌 {n}', { n: p.discardPile.length }), t('棄牌堆'), () => p.discardPile),
+      pileBtn('pile-exhaust', t('消耗 {n}', { n: p.exhaustPile.length }), t('消耗堆'), () => p.exhaustPile),
       combo);
     return el('div', { class: 'side' }, energy, potions, piles);
   }
 
   /** 牌堆計數器：點一下翻開來看（只是看看，不能挑） */
   function pileBtn(cls: string, label: string, title: string, cards: () => CardInstance[]): HTMLElement {
-    const node = el('span', { class: `${cls} pile-btn`, title: `點一下看${title}` }, label);
+    const node = el('span', { class: `${cls} pile-btn`, title: t('點一下看{title}', { title }) }, label);
     node.addEventListener('click', () => {
       const list = cards();
-      showDeckPicker({ title: `${title}（${list.length} 張）`, cards: list, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } });
+      showDeckPicker({ title: t('{title}（{n} 張）', { title, n: list.length }), cards: list, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } });
     });
     return node;
   }
@@ -2177,7 +2180,7 @@ registerScreen('combat', (app, root, props) => {
       // 打不出來的原因直接用引擎給的字串，畫面不要自己再寫一套。
       // 用遊戲自己的說明框而不是瀏覽器原生的 `title`：原生的要停一秒才出現、樣式也不同
       if (!chk.ok) {
-        attachTextTooltip(node, '這張打不出來', chk.reason);
+        attachTextTooltip(node, t('這張打不出來'), t(chk.reason) /* i18n-dynamic */);
         // 點下去除了顯示原因，牌本身也抖一下：只有一行小字，玩家常常沒發現自己點了。
         // 動畫要加在**重畫之後**的那張牌上——render() 會把手牌整個重生，
         // 加在這個 node 上會連同它一起被丟掉，動畫根本不會播。
@@ -2381,7 +2384,7 @@ registerScreen('combat', (app, root, props) => {
       || pNode.querySelector<HTMLImageElement>('.sprite')?.getAttribute('src') !== heroArtUrl(p.hero, pose)
       || pNode.classList.contains('hit') || pNode.classList.contains('dodge') || pNode.classList.contains('attack')
       // 便當、回魂香的牌子（2026-09-23 第二批）：喝下去時血、蜷縮、狀態都沒變，不比這兩個的話牌子要等下一次重畫才冒出來
-      || (pNode.querySelector('.chip-bento')?.textContent ?? '') !== (p.energyNextTurn ? `下回合飯糰+${p.energyNextTurn}` : '')
+      || (pNode.querySelector('.chip-bento')?.textContent ?? '') !== (p.energyNextTurn ? `${t('下回合飯糰')}+${p.energyNextTurn}` : '')
       || (pNode.querySelector('.chip-guard')?.textContent ?? '') !== guardChipText(p);
     if (pChanged) pNode.replaceWith(playerUnit(p));
     // 同伴那一格：他的變化來自連線，不會經過這裡的動畫旗標，所以單純比對狀態，有變才換（見 `mateUnitStale`）
@@ -2416,15 +2419,15 @@ registerScreen('combat', (app, root, props) => {
     el('div', { class: 'target-catcher', onclick: () => { setTargeting(null); if (!patchTargeting()) render(); } });
   /** 教學那一條（整頁重畫與 `patchTargeting` 共用） */
   const tutBar = (): HTMLElement => el('div', { class: 'tut-bar' },
-    el('span', { class: 'tut-step' }, `教學 ${tutStep + 1}/3`),
+    el('span', { class: 'tut-step' }, t('教學 {n}/3', { n: tutStep + 1 })),
     // 手機、平板第一步多一句「按住牌放大看」（2026-09-23 polish，主控裁定三；最後一輪平板也開按住放大，一起教）：
     // 桌機用滑鼠滑過去就看得到，不出現
     el('span', {}, TUT_TEXT[tutStep] ?? '', tutStep === 0 && isTouchDevice() ? el('span', { class: 'tut-touch' }, TUT_TOUCH_PEEK) : ''),
     el('button', { class: 'tut-close', onclick: () => { tutDone(); render(); } }, '✕'));
   /** 下方那一行提示：選目標中講怎麼選，沒在選就講「這張為什麼打不出來」；都沒有回 null */
   const targetHint = (): HTMLElement | null => targeting
-    ? el('div', { class: 'target-hint' }, targeting.kind === 'card' ? '把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）' : '把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）')
-    : hint ? el('div', { class: 'target-hint warn' }, hint) : null;
+    ? el('div', { class: 'target-hint' }, targeting.kind === 'card' ? t('把箭頭移到魔物身上，點一下打牠（Esc 或點空白處取消）') : t('把箭頭移到魔物身上，點一下用忍具（Esc 或點空白處取消）'))
+    : hint ? el('div', { class: 'target-hint warn' }, t(hint) /* i18n-dynamic：hint 來源見 chk.reason（engine canPlay）與下方 why（potionBlockedReason／dropReasonFor 等） */) : null;
   /** 箭頭掛在 box 上的滑鼠監聽：box 不再每次選目標都換新的，收箭頭時要一起拆（見 `patchTargeting`） */
   let arrowOff: AbortController | null = null;
 
@@ -2511,7 +2514,7 @@ registerScreen('combat', (app, root, props) => {
     const iDown = !!session && !!my().down;
     const iReady = !!session && !!my().ready;
     const endBtn = el('button', { class: 'btn primary end-turn', onclick: () => onEndTurn() },
-      iDown ? '倒下了…看同伴打' : iReady ? '等對方…' : '結束回合');
+      iDown ? t('倒下了…看同伴打') : iReady ? t('等對方…') : t('結束回合'));
     // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 掛 `no-touch` 那段）
     if (!canAct() || dealDelay > 0 || iReady || iDown) endBtn.setAttribute('disabled', 'disabled');
     if (iReady && !iDown) {
@@ -2520,7 +2523,7 @@ registerScreen('combat', (app, root, props) => {
        * 缺的只是一個按得到的地方——不給的話「手滑按到」等於整個回合報銷，
        * 而兩個人玩的時候那個回合連對方一起賠進去。
        */
-      box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, '再想想'));
+      box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, t('再想想')));
       /*
        * 對方走開了：等超過一分鐘就亮出來（使用者 2026-09-11：
        * 「超過一分鐘沒動作，另一人可以強制收回合」）。
@@ -2532,7 +2535,7 @@ registerScreen('combat', (app, root, props) => {
        */
       // 對面坐的是菲菲就要寫「她」（2026-09-13 稽核 中-3）：同一個畫面上她的名字就在旁邊
       const mate = cs.players.find((q) => q !== my());
-      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, `替${heroPronoun(mate)}結束這回合`);
+      const force = el('button', { class: 'btn end-force', onclick: () => onForce() }, t('替{pronoun}結束這回合', { pronoun: heroPronoun(mate) }));
       force.hidden = true;
       box.append(force);
     }
@@ -3263,7 +3266,7 @@ registerScreen('combat', (app, root, props) => {
           slot.classList.add('fired');
         }
       }
-      const pop = el('span', { class: `relic-pop${isCostRelic(f.id) ? ' cost' : ''}` }, def.name);
+      const pop = el('span', { class: `relic-pop${isCostRelic(f.id) ? ' cost' : ''}` }, relicName(def));
       /**
        * 一次好幾件時要**排成一疊**，不能只錯開時間。兩種撞法都真的會發生：
        * ①收在「+N」裡的好幾件同時發動，名牌會疊在同一顆鈕底下；
@@ -3565,12 +3568,12 @@ registerScreen('combat', (app, root, props) => {
           sfx('poison');
         }
         if (enemySurvived && guarded > 0 && (wave === undefined || wave === 0)) {
-          target.append(floatNum(`擋住 ${guarded}`, 'blocked'));
+          target.append(floatNum(t('擋住 {n}', { n: guarded }), 'blocked'));
           burst(target, 'block');
           if (hpDamage === 0) sfx('blocked');
         }
         if (throwing && wave !== undefined && wave > 0 && amount === 0 && guarded > 0) { burst(target, 'block'); sfx('blocked'); }
-        if (wave !== undefined ? wave < leadingMisses : evaded) target.append(floatNum('閃過！'));
+        if (wave !== undefined ? wave < leadingMisses : evaded) target.append(floatNum(t('閃過！')));
       };
       const throwBox = node.querySelector<HTMLElement>('.sprite-box');
       const throwFlight = throwing && throwFoot && throwBox && !b.dead && impactPlan.length > 0;
@@ -3582,7 +3585,7 @@ registerScreen('combat', (app, root, props) => {
         // 只拿掉這一趟自己那一筆，連丟兩張時第二趟的還留著（推前審查 低-1）
         if (statusToken && dropPending(motionPendingStatus, e.uid, statusToken)) refreshEnemyStatus(target, cs.enemies.find((x) => x.uid === e.uid) ?? e);
         if (brokeFree) {
-          target.append(floatNum('掙脫！'));
+          target.append(floatNum(t('掙脫！')));
           burst(target, 'smoke');
           sfx('dodge');
         }
@@ -3657,7 +3660,7 @@ registerScreen('combat', (app, root, props) => {
       }
       // 反彈回敬的那幾下：飄「反彈！」＋刺一聲，被反彈打死的才看得出是怎麼死的
       if (fresh.some((l) => l.startsWith(`反彈回敬了${e.name} `))) {
-        node.append(floatNum('反彈！', 'thorn'));
+        node.append(floatNum(t('反彈！'), 'thorn'));
         sfx('thorns');
       }
       if (!statusByFlight) landStatus(node);
@@ -3741,7 +3744,7 @@ registerScreen('combat', (app, root, props) => {
     };
     /** 蜷縮擋下的部分也要看得到：飄「擋住 N」＋盾牌閃一下＋「鏘」（球球比照魔物） */
     const playerGuardFx = (cat: HTMLElement, amount: number): void => {
-      cat.append(floatNum(`擋住 ${amount}`, 'blocked'));
+      cat.append(floatNum(t('擋住 {n}', { n: amount }), 'blocked'));
       burst(cat, 'block');
       sfx('blocked');
     };
@@ -3873,7 +3876,7 @@ registerScreen('combat', (app, root, props) => {
       if (sumStatus(p, BAD_STATUS) > before.debuff) { burst(cat, 'debuff'); sfx('debuff'); }
       // 破功：疊好的成長被拍散——數字默默變小很容易漏看，飄字＋紫光講清楚
       if (getStatus(p, '爪力') + getStatus(p, '貓步') < before.growth && p.hp === before.hp) {
-        cat.append(floatNum('氣勁被拍散！'));
+        cat.append(floatNum(t('氣勁被拍散！')));
         burst(cat, 'debuff'); sfx('debuff', 0.8);
       }
       // 被吹散手牌（下回合少抽）：飄一句在球球身上，紀錄框裡也有。
@@ -3881,7 +3884,7 @@ registerScreen('combat', (app, root, props) => {
       // 只認魔物出手那一拍：回合開始這個數字會歸零，不擋的話上回合多抽一張的也會被當成吹散
       const blown = acting.size > 0 ? myFeedback.blown : 0;
       if (blown > 0) {
-        cat.append(floatNum(`下回合少抽 ${blown} 張`, 'bad'));
+        cat.append(floatNum(t('下回合少抽 {n} 張', { n: blown }), 'bad'));
         burst(cat, 'debuff');
         sfx('debuff', 0.8);
       }
@@ -4097,17 +4100,17 @@ registerScreen('combat', (app, root, props) => {
      */
     if (chooserOf(cs) !== mySeat) {
       const mate = cs.players[chooserOf(cs)];
-      picker = el('div', { class: 'pick-wait' }, `${mate ? heroName(mate) : '同伴'}正在挑牌，等一下`);
+      picker = el('div', { class: 'pick-wait' }, t('{name}正在挑牌，等一下', { name: mate ? term(heroName(mate)) : t('同伴') }));
       layer.append(picker);
       return;
     }
     const chosen: number[] = [];
-    const okBtn = el('button', { class: 'btn primary' }, '確定');
+    const okBtn = el('button', { class: 'btn primary' }, t('確定'));
     const count = el('div', { class: 'pick-count' });
     const refresh = (): void => {
       const bad = chosen.length < pd.min || chosen.length > pd.max;
       okBtn.toggleAttribute('disabled', bad);
-      count.textContent = `已選 ${chosen.length} 張`;
+      count.textContent = t('已選 {n} 張', { n: chosen.length });
     };
     const grid = el('div', { class: 'deck-grid' });
     for (const c of pd.cards) {
@@ -4136,10 +4139,10 @@ registerScreen('combat', (app, root, props) => {
       settle(before);   // 選完之後這張牌剩下的效果才會跑，所以照樣要結算一次
     });
     refresh();
-    const range = pd.min === pd.max ? `${pd.min} 張` : `${pd.min}～${pd.max} 張`;
+    const range = pd.min === pd.max ? t('{n} 張', { n: pd.min }) : t('{min}～{max} 張', { min: pd.min, max: pd.max });
     picker = el('div', { class: 'modal-overlay' },
       el('div', { class: 'modal' },
-        el('h2', { class: 'modal-title' }, `${PENDING_TITLE[pd.purpose]}（${range}）`),
+        el('h2', { class: 'modal-title' }, t('{title}（{range}）', { title: t(PENDING_TITLE[pd.purpose]) /* i18n-dynamic：來源見本檔 PENDING_TITLE（固定清單） */, range })),
         grid,
         el('div', { class: 'modal-foot' }, count, okBtn)));
     layer.append(picker);
@@ -4612,13 +4615,13 @@ registerScreen('combat', (app, root, props) => {
     const bossUrl = bossDef.art === 'daxia' ? artUrl('sprites', BOSS_IDLE) : monsterUrl(bossDef.art, 'idle');
     if (!isFallback(heroUrl) && !isFallback(bossUrl)) {
       const ov = el('div', { class: 'vs-overlay' },
-        el('img', { class: 'vs-left', src: heroUrl, alt: heroName(my()) }),
+        el('img', { class: 'vs-left', src: heroUrl, alt: term(heroName(my())) }),
         el('div', { class: 'vs-mark' }, 'VS'),
-        el('img', { class: 'vs-right', src: bossUrl, alt: bossDef.name }),
+        el('img', { class: 'vs-right', src: bossUrl, alt: enemyName(bossDef.id, my().hero) }),
         el('div', { class: 'vs-banner' },
-          el('span', { class: 'vs-name' }, heroName(my())),
-          // 名字用場上那隻的（可能已冠上「暴怒的」前綴），跟頭上的名牌一致
-          el('span', { class: 'vs-boss' }, cs.enemies.find((u) => enemyById[u.enemyId]?.pool === '塔主')?.name ?? bossDef.name)));
+          el('span', { class: 'vs-name' }, term(heroName(my()))),
+          // 名字用場上那隻的（可能已冠上「暴怒的」前綴，是引擎在這場戰鬥動態組出來的，不是牌表上的固定名字，故不走 enemyName），跟頭上的名牌一致
+          el('span', { class: 'vs-boss' }, cs.enemies.find((u) => enemyById[u.enemyId]?.pool === '塔主')?.name ?? enemyName(bossDef.id, my().hero))));
       root.append(ov);
       sfx('hit_heavy', 0.5);
       // 閃卡收掉才演開場秘寶（見上面 `openingFlash` 的說明）。點掉閃卡的話立刻接上，不用乾等

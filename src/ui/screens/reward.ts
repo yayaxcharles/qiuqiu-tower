@@ -1,7 +1,9 @@
+import { listJoin, t } from '../../i18n';
+import { cardName, potionName, potionText, relicLong, relicName, relicText } from '../../i18n/names';
 import { play } from '../audio';
-import { cardById, cardNameFor } from '../../content/cards';
+import { cardById } from '../../content/cards';
 import { potionById } from '../../content/potions';
-import { relicById, relicLongText } from '../../content/relics';
+import { relicById } from '../../content/relics';
 import type { CombatRewards } from '../../engine/rewards';
 import { closeCardReward, heroesIn, relicForPartnerOnly, runRng, takeCardReward, upgradeCard } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
@@ -179,15 +181,15 @@ registerScreen('reward', (app, root, props) => {
     const url = artUrl('icons', bossRelic.art);
     const hero = heroArtUrl(me(run, seat).hero, 'hero/ninja_win');
     const stack = el('div', { class: 'loot-stack' },
-      el('p', { class: 'loot-above' }, bossRelic.text),
-      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: bossRelic.name }) : el('div', { class: 'chest-loot-missing' }),
-      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '關主的信物'), el('b', { class: 'loot-name' }, bossRelic.name)));
+      el('p', { class: 'loot-above' }, relicText(bossRelic)),
+      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: relicName(bossRelic) }) : el('div', { class: 'chest-loot-missing' }),
+      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, t('關主的信物')), el('b', { class: 'loot-name' }, relicName(bossRelic))));
     root.append(sceneView({
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
       speaker: heroSpeaker(),
       text: lineFor(me(run, seat).hero, `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`),
-      actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); app.show('reward', { ...r, tokenShown: true }); } }, '收下')],
+      actions: [el('button', { class: 'btn primary', onclick: () => { play('relic'); app.show('reward', { ...r, tokenShown: true }); } }, t('收下'))],
     }));
     return;
   }
@@ -198,22 +200,23 @@ registerScreen('reward', (app, root, props) => {
   const items = r.escaped
     ? el('div', { class: 'reward-items' },
         el('div', { class: 'reward-item loot' },
-          el('span', { class: 'reward-line' }, '魔物自己散去了——一隻都沒打倒，牠們身上沒有留下任何東西。')))
+          el('span', { class: 'reward-line' }, t('魔物自己散去了——一隻都沒打倒，牠們身上沒有留下任何東西。'))))
     : el('div', { class: 'reward-items' },
         el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
-          el('span', { class: 'reward-line' }, iDown ? '你倒下了，這場的小魚乾沒有分到。' : `這場撿到 ${r.fishPerSeat?.[seat] ?? r.fish} 條小魚乾`)));
+          el('span', { class: 'reward-line' }, iDown ? t('你倒下了，這場的小魚乾沒有分到。') : t('這場撿到 {n} 條小魚乾', { n: r.fishPerSeat?.[seat] ?? r.fish }))));
   // 修飾詞的歸因：小魚乾為什麼多了／少了、為什麼多一張牌可挑，畫面上要講得出來（體檢 2026-09-05）
-  if (r.modifier) items.append(el('div', { class: 'reward-item loot' }, el('span', { class: 'reward-line' }, `這場是「${r.modifier.label}」：${r.modifier.desc}`)));
+  if (r.modifier) items.append(el('div', { class: 'reward-item loot' }, el('span', { class: 'reward-line' },
+    t('這場是「{label}」：{desc}', { label: t(r.modifier.label), desc: t(r.modifier.desc) })))); // i18n-dynamic (engine/rewards.ts modifier label/desc, fixed content list)
   // 獎金另起一行：r.fish 是規格 §5.4 的戰利品，兩個數字不併成一個，玩家才看得出獎金有沒有拿到
   if (bonus > 0) items.append(el('div', { class: 'reward-item loot' }, icon('icon/fish', ''),
-    el('span', { class: 'reward-line' }, `事件獎金再拿 ${bonus} 條小魚乾`)));
+    el('span', { class: 'reward-line' }, t('事件獎金再拿 {n} 條小魚乾', { n: bonus }))));
   // 鏡子走廊：打贏鏡中球球的獎勵是挑牌升級。進畫面就開挑牌疊層（不能取消），挑完那一行改寫成升了哪幾張
   let upLine: HTMLElement | null = null;
   const upFilter = (c: CardInstance): boolean => !c.upgraded && cardById[c.cardId]?.pool !== '壞毛病';
   const want = Math.min(ups, me(run, seat).deck.filter(upFilter).length);
   if (ups > 0) {
-    upLine = el('span', { class: 'reward-line' }, iDown ? '你倒下了，這次的升級只有同伴學得到'
-      : want > 0 ? `跟自己過招學到了：升級 ${want} 張牌` : '跟自己過招學到了……但牌組裡已經沒有可以升級的牌');
+    upLine = el('span', { class: 'reward-line' }, iDown ? t('你倒下了，這次的升級只有同伴學得到')
+      : want > 0 ? t('跟自己過招學到了：升級 {n} 張牌', { n: want }) : t('跟自己過招學到了……但牌組裡已經沒有可以升級的牌'));
     const line = upLine;
     items.append(el('div', { class: 'reward-item loot' }, line));
     /*
@@ -231,7 +234,7 @@ registerScreen('reward', (app, root, props) => {
     // 倒下的人不挑（稽核第三輪 中-2）：他挑了也會被 `onlyStanding` 洗掉，
     // 而那個疊層**不能取消、也不會被換畫面清掉**，他會被一個白挑的視窗擋在地圖前面
     if (want > 0 && !upsPicked && !iDown) { r.upsAsking = true; showDeckPicker({
-      title: want > 1 ? `選 ${want} 張牌升級` : '選一張牌升級', previewUpgrade: true,
+      title: want > 1 ? t('選 {n} 張牌升級', { n: want }) : t('選一張牌升級'), previewUpgrade: true,
       cards: me(run, seat).deck, pickable: true, cancellable: false, filter: upFilter, pickCount: want,
       onPick: (uid) => { r.upsAsking = false; settleUpgrades(uid === null ? [] : [uid]); },
       onPickMany: (uids) => { r.upsAsking = false; settleUpgrades(uids); },
@@ -249,8 +252,8 @@ registerScreen('reward', (app, root, props) => {
        */
       r.upsAsking = true;
       const coopNow = app.coop;
-      const t = window.setTimeout(() => { r.upsAsking = false; coopNow.pick('rwup', ''); }, 0);
-      app.disposers.push(() => { window.clearTimeout(t); r.upsAsking = false; });
+      const timer = window.setTimeout(() => { r.upsAsking = false; coopNow.pick('rwup', ''); }, 0);
+      app.disposers.push(() => { window.clearTimeout(timer); r.upsAsking = false; });
     }
   }
   /**
@@ -268,15 +271,15 @@ registerScreen('reward', (app, root, props) => {
       const c = me(run!, who).deck.find((x: CardInstance) => x.uid === uid);
       if (!c || !upgradeCard(run!, uid, who)) continue;
       const nd = cardById[c.cardId];
-      names.push(`「${nd ? cardNameFor(nd, me(run!, who).hero) : c.cardId}」`);
+      names.push(`「${nd ? cardName(nd, me(run!, who).hero) : c.cardId}」`);
     }
     if (who !== seat) return;
-    if (names.length) { play('upgrade'); if (upLine) upLine.textContent = `${names.join('')}升級了`; }   // 直接改存起來的那一行，不找 last-child（後面還會掛忍具列——審查 #12）
+    if (names.length) { play('upgrade'); if (upLine) upLine.textContent = t('{names}升級了', { names: names.join('') }); }   // 直接改存起來的那一行，不找 last-child（後面還會掛忍具列——審查 #12）
   }
   const relic = r.relic ? relicById[r.relic] : undefined;
-  if (relic) items.append(el('div', { class: 'reward-item relic' }, icon(relic.art, relic.name),
+  if (relic) items.append(el('div', { class: 'reward-item relic' }, icon(relic.art, relicName(relic)),
     el('span', { class: 'reward-line' },
-      el('b', {}, `獲得秘寶「${relic.name}」`), el('em', {}, relic.text))));
+      el('b', {}, t('獲得秘寶「{name}」', { name: relicName(relic) })), el('em', {}, relicText(relic)))));
   /*
    * 兩個人的秘寶排在戰利品清單裡而不是另開一頁：它跟小魚乾、忍具是同一批東西，
    * 分兩頁會讓「這一場拿到什麼」被切成兩半。（`offers` 宣告在上面，連線回呼之前）
@@ -286,21 +289,21 @@ registerScreen('reward', (app, root, props) => {
     const picks = coop.picks('relic', run.players.length);
     const mine = picks[seat] ?? null;
     const row = el('div', { class: 'reward-item relic-offers' });
-    row.append(el('span', { class: 'reward-line' }, el('b', {}, offers.length > 1 ? '秘寶有兩件，一人挑一件' : '只開出一件，兩個人搶——擲骰決定給誰')));
+    row.append(el('span', { class: 'reward-line' }, el('b', {}, offers.length > 1 ? t('秘寶有兩件，一人挑一件') : t('只開出一件，兩個人搶——擲骰決定給誰'))));
     const box = el('div', { class: 'relic-offer-row' });
     for (const id of offers) {
       const d = relicById[id];
       if (!d) continue;
-      const who = picks.map((v, i) => (v === id ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
+      const who = picks.map((v, i) => (v === id ? (i === seat ? t('你') : t('同伴')) : '')).filter(Boolean);
       const got = me(run, seat).relics.includes(id);
       // 鎖住我、只有同伴用得到的那件要講明白（推前審查 2026-09-23 中-1，照過關三選一的做法）：清單照「有一位用得到」開
       const partnerOnly = relicForPartnerOnly(run, id, seat);
       const b = el('button', { class: `relic-offer${mine === id ? ' picked' : ''}${got ? ' got' : ''}${partnerOnly ? ' partner-only' : ''}` },
-        icon(d.art, d.name),
-        el('span', { class: 'relic-offer-text' }, el('b', {}, d.name),
+        icon(d.art, relicName(d)),
+        el('span', { class: 'relic-offer-text' }, el('b', {}, relicName(d)),
           // 沾魔氣的補「可淨化成…」短句（2026-09-25：原本直接寫說明原文，挑的當下看不到可以淨化）
-          partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '', el('em', {}, relicLongText(d, me(run, seat).relics, true))),
-        who.length ? el('span', { class: 'relic-offer-who' }, who.join('、')) : '');
+          partnerOnly ? el('span', { class: 'pick-tile-note' }, t('同伴才用得到')) : '', el('em', {}, relicLong(d, me(run, seat).relics, true))),
+        who.length ? el('span', { class: 'relic-offer-who' }, listJoin(who)) : '');
       if (mine || r.relicSettled || iDown) b.setAttribute('disabled', 'disabled');
       else b.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
       box.append(b);
@@ -326,9 +329,9 @@ registerScreen('reward', (app, root, props) => {
   const missedId = iDown ? null : (r.potionMissed ?? (r.potionMissedSeats?.includes(seat) ? myPotion : null));
   const missed = missedId ? potionById[missedId] : undefined;
   if (missed && missedId) {
-    const label = (): Node[] => [el('b', {}, missedPotionLabel(r.potionAsk, missed.name)), el('em', {}, missed.text)];
+    const label = (): Node[] => [el('b', {}, missedPotionLabel(r.potionAsk, potionName(missed))), el('em', {}, potionText(missed))];
     const line = el('span', { class: 'reward-line', 'data-missed-potion': missedId }, ...label());
-    items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, missed.name), line));
+    items.append(el('div', { class: 'reward-item potion' }, icon(missed.art, potionName(missed)), line));
     const newId = missedId;
     // 350 毫秒內玩家可能已經按「繼續」回地圖：畫面換掉（這一行不在畫面上）就不問了（2026-09-02 稽核 M-1）；
     // 計時器到的時候再看一次記號：這 350 毫秒裡重畫過，那一次的計時器可能已經先開了視窗
@@ -349,9 +352,9 @@ registerScreen('reward', (app, root, props) => {
     }, 350);
   }
   const potion = myPotion && !missedId && !iDown ? potionById[myPotion] : undefined;
-  if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potion.name),
+  if (potion) items.append(el('div', { class: 'reward-item potion' }, icon(potion.art, potionName(potion)),
     el('span', { class: 'reward-line' },
-      el('b', {}, `獲得忍具「${potion.name}」`), el('em', {}, potion.text))));
+      el('b', {}, t('獲得忍具「{name}」', { name: potionName(potion) })), el('em', {}, potionText(potion)))));
 
   /**
    * 挑完牌（或跳過）才算這個節點結算完，這時候才存檔回地圖。
@@ -391,7 +394,7 @@ registerScreen('reward', (app, root, props) => {
   }
 
   // 標題依戰鬥種類換句話，打倒塔主不該跟打贏小老鼠共用同一句
-  const title = r.kind === '塔主' ? '打倒塔主了' : r.kind === '大魔物' ? '打倒大魔物' : '打贏了';
+  const title = r.kind === '塔主' ? t('打倒塔主了') : r.kind === '大魔物' ? t('打倒大魔物') : t('打贏了');
   /**
    * **魔物自己散掉那一場要走另一套文案與版面**（稽核 2026-09-10 高-1）。
    *
@@ -419,17 +422,17 @@ registerScreen('reward', (app, root, props) => {
       : poseArt('hero/ninja_eat');
   root.append(sceneView({
     art: middle,
-    speaker: r.escaped ? '牠散掉了' : title,
+    speaker: r.escaped ? t('牠散掉了') : title,
     // 倒下的人沒得挑（牌是灰的），不要寫「選一張牌帶走」（2026-09-22 連線盤點 問題 3）
-    text: r.escaped ? '一團煙散在空氣裡，什麼都沒剩下。走吧。'
-      : iDown ? '你倒下了，這次拿不到新牌。等同伴挑完就一起上樓。'
-      : waiting ? '挑好了，等同伴挑完就一起上樓。'
-      : myCards.length ? '選一張牌帶走，或是放棄。' : '收拾一下戰利品，繼續往上。',
+    text: r.escaped ? t('一團煙散在空氣裡，什麼都沒剩下。走吧。')
+      : iDown ? t('你倒下了，這次拿不到新牌。等同伴挑完就一起上樓。')
+      : waiting ? t('挑好了，等同伴挑完就一起上樓。')
+      : myCards.length ? t('選一張牌帶走，或是放棄。') : t('收拾一下戰利品，繼續往上。'),
     extra: [items],
     actions: [waiting || iDown
       // 已經挑完就只留一顆按不下去的鈕：兩個人得一起走，這裡不能讓任何一邊先跑。
       // 倒下的人也一樣：他那一票結算時本來就會被洗掉，按「放棄牌並跳過」只是看起來能走
-      ? el('button', { class: 'btn', disabled: 'disabled' }, !iDown ? '等對方…' : r.escaped ? '等同伴…' : '等同伴選…')
+      ? el('button', { class: 'btn', disabled: 'disabled' }, !iDown ? t('等對方…') : r.escaped ? t('等同伴…') : t('等同伴選…'))
       /*
        * **秘寶還沒挑就不放行**（稽核 2026-09-11 中-5）。
        *
@@ -438,9 +441,9 @@ registerScreen('reward', (app, root, props) => {
        * 過關三選一那邊本來就有同樣的擋法（`mustPickRelic`）。
        */
       : mustPickRelic
-        ? el('button', { class: 'btn', disabled: 'disabled' }, '先挑一件秘寶')
+        ? el('button', { class: 'btn', disabled: 'disabled' }, t('先挑一件秘寶'))
         : el('button', { class: 'btn primary', onclick: () => done(null) },
-          !r.escaped && myCards.length ? '放棄牌並跳過' : '繼續')],
+          !r.escaped && myCards.length ? t('放棄牌並跳過') : t('繼續'))],
     // 同伴投一票的安靜重畫：對白框與戰利品列不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）
     calm: app.redraw,
   }));

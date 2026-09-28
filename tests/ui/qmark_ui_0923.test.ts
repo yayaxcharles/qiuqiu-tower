@@ -135,7 +135,7 @@ describe('行腳商與路邊紙箱沿用罐頭鋪、紙箱畫面', () => {
     expect(SHOP).toContain('actions: mer ? [leaveBtn()] : [reshuffle, remove, serviceBtn(), leaveBtn()],');
     expect(SHOP).toContain("if (mer && intro) {");
     expect(SHOP).toContain("eventArtKey('q_merchant')");
-    expect(SHOP).toContain("(shopClosed(shop) ? (sold ? '買下了' : '收攤了') : undefined)");
+    expect(SHOP).toContain("(shopClosed(shop) ? (sold ? t('買下了') : t('收攤了')) : undefined)");
     // 劃掉的原價不吃罐頭鋪的秘寶（主控裁決第 5 條）
     expect(SHOP).toContain('(mer ? runMods(run).shopMul : shopMulFor(run, seat) *');
     expect(SHOP).toContain('const ledgerOn = (): boolean => !shop.merchant &&');

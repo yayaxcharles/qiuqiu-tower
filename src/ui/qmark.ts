@@ -4,6 +4,7 @@ import type { EventDef, MapNode, QmarkVariant, RunState } from '../engine/types'
 import { eventById } from '../content/events';
 import { artUrl } from './assets';
 import { el } from './dom';
+import { t, term } from '../i18n';
 
 /*
  * ===== 問號格變化的畫面那一半（2026-09-23 內容擴充第三批，設計稿 design3 3-3）=====
@@ -95,13 +96,14 @@ export function playQmarkReveal(layer: HTMLElement, variant: QmarkVariant): HTML
  * 走過、變過的那一格改講它變成了什麼（地圖上那格也換成實際的圖示，見 `screens/map.ts`）。
  */
 export function qmarkTip(run: RunState, n: MapNode): { title: string; body: string } {
-  if (n.variant) return { title: `問號格：${n.variant}`, body: `這一格原本是問號格，走進去變成了${n.variant}。` };
-  if (n.eventId && eventById[n.eventId]?.fixedFloor !== undefined) return { title: '問號格', body: '這一層是固定的事件，不會變。' };
+  if (n.variant) return { title: t('問號格：{variant}', { variant: term(n.variant) }), body: t('這一格原本是問號格，走進去變成了{variant}。', { variant: term(n.variant) }) };
+  if (n.eventId && eventById[n.eventId]?.fixedFloor !== undefined) return { title: t('問號格'), body: t('這一層是固定的事件，不會變。') };
   const pct = (p: number): number => Math.round(p * 100);
   return {
-    title: '問號格',
-    body: `通常是事件，偶爾會是伏擊、行腳商或路邊紙箱。現在走進問號格，約 ${pct(qmarkChance(run))}% 會變`
-      + `（每遇到一次一般事件多 ${pct(QMARK_STEP)}%、最多 ${pct(QMARK_CAP)}%，變過就回到 ${pct(QMARK_BASE)}%）。`
-      + (ambushAllowed(run, n) ? '' : '這一格不會是伏擊。'),
+    title: t('問號格'),
+    body: t('通常是事件，偶爾會是伏擊、行腳商或路邊紙箱。現在走進問號格，約 {pct}% 會變（每遇到一次一般事件多 {step}%、最多 {cap}%，變過就回到 {base}%）。{ambush}', {
+      pct: pct(qmarkChance(run)), step: pct(QMARK_STEP), cap: pct(QMARK_CAP), base: pct(QMARK_BASE),
+      ambush: ambushAllowed(run, n) ? '' : t('這一格不會是伏擊。'),
+    }),
   };
 }

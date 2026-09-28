@@ -1,6 +1,6 @@
 import { actWalkTransition } from '../acttransition';
 import { play } from '../audio';
-import { relicById, relicLongText } from '../../content/relics';
+import { relicById } from '../../content/relics';
 import { ACT_NAMES, addCard, advanceAct, relicForPartnerOnly, rollActCards, rollActCardsPerSeat, rollActRelics, takeRelic } from '../../engine/run';
 import { allVoted, onlyStanding } from '../../engine/vote';
 import { me } from '../../engine/runplayer';
@@ -14,6 +14,8 @@ import { cardNode } from '../cardview';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { preloadAct } from '../preload';
+import { t, term } from '../../i18n';
+import { relicLong, relicName, relicText } from '../../i18n/names';
 
 /**
  * 過關畫面：打倒第一、二關的關主之後（第三關直接進結算，不走這裡）。
@@ -95,15 +97,15 @@ registerScreen('actclear', (app, root, props) => {
     const hero = heroArtUrl(me(run, seat).hero, 'hero/ninja_win');
     const next = ACT_NAMES[run.act] ?? '塔頂';
     const stack = el('div', { class: 'loot-stack' },
-      el('p', { class: 'loot-above' }, def.text),
-      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: def.name }) : el('div', { class: 'chest-loot-missing' }),
-      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '秘寶'), el('b', { class: 'loot-name' }, def.name)));
+      el('p', { class: 'loot-above' }, relicText(def)),
+      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: relicName(def) }) : el('div', { class: 'chest-loot-missing' }),
+      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, t('秘寶')), el('b', { class: 'loot-name' }, relicName(def))));
     root.append(sceneView({
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
       speaker: heroSpeaker(),
-      text: lineFor(me(run, seat).hero, `關主留下的東西……「${def.name}」到手了喵！`),
-      actions: [el('button', { class: 'btn primary', onclick: go }, `帶著它上${next}`)],
+      text: lineFor(me(run, seat).hero, `關主留下的東西……「${def.name}」到手了喵！`),   // 角色台詞，維持中文原句不走 t()
+      actions: [el('button', { class: 'btn primary', onclick: go }, t('帶著它上{next}', { next: term(next) }))],
     }));
   };
 
@@ -120,7 +122,11 @@ registerScreen('actclear', (app, root, props) => {
     const next = ACT_NAMES[run!.act] ?? '塔頂';
     // 有秘寶可挑卻沒挑就不放行：原本按鈕文字只看有沒有選牌，一件塔主池秘寶按下去就無聲消失（體檢 2026-09-05）
     const mustPickRelic = picks.length > 0 && !pickedRelic;
-    return { label: sent ? '等同伴挑完…' : mustPickRelic ? '先挑一件秘寶' : pickedCard ? `帶著新招上${next}` : `出發，上${next}`, off: mustPickRelic || sent };
+    return {
+      label: sent ? t('等同伴挑完…') : mustPickRelic ? t('先挑一件秘寶')
+        : pickedCard ? t('帶著新招上{next}', { next: term(next) }) : t('出發，上{next}', { next: term(next) }),
+      off: mustPickRelic || sent,
+    };
   }
   function refresh(): void {
     // 這一下才變成選中的，拿掉 `kept`：它的勾章要彈出來（`kept` 是重畫前就選著的那張，見 screens.css）
@@ -155,10 +161,10 @@ registerScreen('actclear', (app, root, props) => {
       // 連線時清單照「有一位用得到」開，鎖住我的那件（封封的蓄氣秘寶給菲菲看）要講明白，不然她會以為挑了有用（主控 2026-09-23）
       const partnerOnly = relicForPartnerOnly(run, id, seat);
       const node = el('div', { class: `pick-tile${pickedRelic === id ? ` selected${calm ? ' kept' : ''}` : ''}${partnerOnly ? ' partner-only' : ''}` },
-        url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
-        el('b', {}, d.name),
-        partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
-        el('em', {}, relicLongText(d, me(run, seat).relics)));   // 過關三選一沒有行數限制，用長句看得到淨化的代價（2026-09-25 推前審查二 低-1）。師門那兩件多一段集到幾件（2026-09-23 第二批），挑的時候就看得到湊不湊得成
+        url.startsWith('data:') ? '' : el('img', { src: url, alt: relicName(d) }),
+        el('b', {}, relicName(d)),
+        partnerOnly ? el('span', { class: 'pick-tile-note' }, t('同伴才用得到')) : '',
+        el('em', {}, relicLong(d, me(run, seat).relics)));   // 過關三選一沒有行數限制，用長句看得到淨化的代價（2026-09-25 推前審查二 低-1）。師門那兩件多一段集到幾件（2026-09-23 第二批），挑的時候就看得到湊不湊得成
       if (!sent && !iDown) node.addEventListener('click', () => { pickedRelic = pickedRelic === id ? null : id; play('click'); refresh(); });
       tiles.set(id, node);
       relicRow.append(node);
@@ -180,14 +186,14 @@ registerScreen('actclear', (app, root, props) => {
     // 劇場版面：秘寶一排、牌一排立在畫面中央；說明與出發鈕在底下的帶子裡
     root.append(sceneView({
       art: el('div', { class: 'scene-picks' },
-        picks.length ? el('div', { class: 'pick-label' }, '挑一件秘寶') : '',
+        picks.length ? el('div', { class: 'pick-label' }, t('挑一件秘寶')) : '',
         picks.length ? relicRow : '',
-        cardPicks.length ? el('div', { class: 'pick-label' }, '挑一張牌（也可以不挑）') : '',
+        cardPicks.length ? el('div', { class: 'pick-label' }, t('挑一張牌（也可以不挑）')) : '',
         cardPicks.length ? cardRow : ''),
       // 文案 2026-09-11 改（使用者）：「破關」像在講整個遊戲通關，但這只是過了一關；
       // 「通過」才是「爬過這一段、還要繼續往上」的意思
-      speaker: `通過${ACT_NAMES[run.act - 1] ?? ''}`,
-      text: `${heroSpeaker()}歇了口氣，回復完體力，繼續往${NEXT_PLACE[run.act] ?? '塔頂'}前進。`,
+      speaker: t('通過{act}', { act: term(ACT_NAMES[run.act - 1] ?? '') }),
+      text: `${heroSpeaker()}歇了口氣，回復完體力，繼續往${NEXT_PLACE[run.act] ?? '塔頂'}前進。`,   // 場景敘事句，維持中文原句不走 t()
       actions: [goBtn = el('button', {
         class: 'btn primary' + (off ? ' disabled' : ''),
         ...(off ? { disabled: 'true' } : {}),
@@ -239,15 +245,15 @@ registerScreen('actclear', (app, root, props) => {
     const url = artUrl('icons', bossRelic.art);
     const hero = heroArtUrl(me(run, seat).hero, 'hero/ninja_win');
     const stack = el('div', { class: 'loot-stack' },
-      el('p', { class: 'loot-above' }, bossRelic.text),
-      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: bossRelic.name }) : el('div', { class: 'chest-loot-missing' }),
-      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '關主的信物'), el('b', { class: 'loot-name' }, bossRelic.name)));
+      el('p', { class: 'loot-above' }, relicText(bossRelic)),
+      !url.startsWith('data:') ? el('img', { class: 'chest-loot', src: url, alt: relicName(bossRelic) }) : el('div', { class: 'chest-loot-missing' }),
+      el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, t('關主的信物')), el('b', { class: 'loot-name' }, relicName(bossRelic))));
     root.append(sceneView({
       art: stack,
       portrait: hero.startsWith('data:') ? undefined : hero,
       speaker: heroSpeaker(),
-      text: lineFor(me(run, seat).hero, `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`),
-      actions: [el('button', { class: 'btn primary', onclick: () => { revealing = false; play('relic'); render(); } }, '收下')],
+      text: lineFor(me(run, seat).hero, `關主倒下的地方掉了東西……是「${bossRelic.name}」！這就是塔主的信物喵！`),   // 角色台詞，維持中文原句不走 t()
+      actions: [el('button', { class: 'btn primary', onclick: () => { revealing = false; play('relic'); render(); } }, t('收下'))],
     }));
     return;
   }

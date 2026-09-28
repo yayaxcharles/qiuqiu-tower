@@ -97,7 +97,8 @@ describe('斷線橫幅（低-3）', () => {
       return n;
     };
     const banner = await run<(app: unknown, s: string) => void>(
-      `${slice(LOBBY, 'function linkBanner(', '\n/*\n * 兩個座位各玩誰')}\nreturn linkBanner;`, { document, el });
+      `${slice(LOBBY, 'function linkBanner(', '\n/*\n * 兩個座位各玩誰')}\nreturn linkBanner;`,
+      { document, el, t: (zh: string, params?: Record<string, string | number>) => (params ? zh.replace(/\{(\w+)\}/g, (m, k) => (k in params ? String(params[k]) : m)) : zh) });
     const live = () => nodes.filter((n) => !n.removed);
     return { banner, live };
   }
