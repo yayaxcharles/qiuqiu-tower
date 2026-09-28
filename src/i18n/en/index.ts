@@ -2,7 +2,8 @@
 import type { LangPack } from '../index';
 import ui from './ui.json';
 import content from './content.json';
+import line from './lines.json';
 import { describeCardEn } from './cardtext';
 
-const pack: LangPack = { ui, ...content, describeCard: describeCardEn } as unknown as LangPack;
+const pack: LangPack = { ui, ...content, line, describeCard: describeCardEn } as unknown as LangPack;
 export default pack;

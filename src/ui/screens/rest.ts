@@ -295,7 +295,7 @@ registerScreen('rest', (app, root) => {
     if (miasma.length) {
       const incense = el('button', { class: 'btn two-line' },
         el('span', {}, t(PURIFY_REST_LABEL)), // i18n-dynamic (content/purify-text.ts PURIFY_REST_LABEL)
-        el('span', { class: 'sub' }, t(purifyRestSub(verb)))); // i18n-dynamic (content/purify-text.ts purifyRestSub)
+        el('span', { class: 'sub' }, t('這一格就不能打盹或{verb}了', { verb: term(verb) }))); // i18n-dynamic (content/purify-text.ts purifyRestSub)
       const go = (id: string | null): void => {
         if (!id || used) return;
         if (!act({ t: 'rest', seat, c: '淨化', r: id }, () => rest(run, '淨化', undefined, seat, id))) return;
@@ -372,7 +372,7 @@ registerScreen('rest', (app, root) => {
         if (a.seat !== seat) {
           mateDid = restMateNote(run, seat, a) || mateDid;
           // 被扶起來的那一位：扶人的那位講的那句也讓這邊聽到（他那邊的吐槽泡泡只在他自己的畫面上）
-          if (a.t === 'revive' && a.w === seat) { play('heal'); toast(pick(storyFor(run.players[a.seat]?.hero).reviveLines), term(heroName(run.players[a.seat]))); }
+          if (a.t === 'revive' && a.w === seat) { play('heal'); toast(pick(storyFor(run.players[a.seat]?.hero).reviveLines), heroName(run.players[a.seat])); }
           continue;
         }
         // 連線這三條原本都拿球球那份吐槽、拍醒的同伴一律寫「牠」（連線稽核 中-4）：改成照座位的角色

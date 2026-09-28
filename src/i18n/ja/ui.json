@@ -622,5 +622,9 @@
  "{name}：{text}{extra}": "{name}：{text}{extra}",
  "{who}：「{line}」": "{who}：「{line}」",
  "{short}：「{debt}」{note}": "{short}：「{debt}」{note}",
- "{name}：{text}{more}": "{name}：{text}{more}"
+ "{name}：{text}{more}": "{name}：{text}{more}",
+ "這一格就不能打盹或{verb}了": "このマスでは、うたた寝も{verb}もできない。",
+ "魔塔終於安靜了。": "魔塔はようやく静かになった。",
+ "{who}倒下了。": "{who}は倒れた。",
+ "請婆婆淨化：{price} 條小魚乾": "ばあさんに浄化してもらう：煮干し{price}本"
 }

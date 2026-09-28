@@ -14,7 +14,15 @@ import { HEROES } from '../../src/engine/hero';
 import { DEBUFFS } from '../../src/engine/types';
 import { DIFFICULTY_NAMES } from '../../src/content/difficulty';
 import { KEEPERS } from '../../src/content/keepers';
-import { ACT_NAMES } from '../../src/engine/run';
+import { ACT_NAMES, BOSS_PREFIXES } from '../../src/engine/run';
+import * as dialogueMod from '../../src/content/dialogue';
+import * as fengfengMod from '../../src/content/fengfeng-dialogue';
+import * as coopPairMod from '../../src/content/coop-pair-text';
+import * as echoesMod from '../../src/content/victory-echoes';
+import { fillEcho } from '../../src/content/victory-echoes';
+import * as purifyMod from '../../src/content/purify-text';
+import { castLineFor, lineFor } from '../../src/content/dialogue';
+import { encounters, encounterSkin, enemySkin } from '../../src/content/enemies';
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -125,4 +133,61 @@ export function contentSource(): ContentSource {
     for (const m of allMoves) move[m.label] = m.label;
   }
   return { term, gloss, card, relic, potion, enemy, move };
+}
+
+/** 把一個值（物件、陣列、字串）裡所有含中文的字串收進 `out` */
+function collectZh(v: unknown, out: Set<string>, seen = new WeakSet<object>()): void {
+  if (typeof v === 'string') { if (/[一-鿿]/.test(v)) out.add(v); return; }
+  if (!v || typeof v !== 'object' || seen.has(v as object)) return;
+  seen.add(v as object);
+  for (const x of Array.isArray(v) ? v : Object.values(v as Record<string, unknown>)) collectZh(x, out, seen);
+}
+
+/**
+ * 台詞（劇情、過場、戰鬥吐槽、魔物開場白與台詞泡泡、幻燈片、結局伏筆）：畫面上**最後顯示的那一句中文** → 譯文。
+ * 鍵是換過角色之後的句子（`lineFor`／`castLineFor` 的輸出），所以每位角色各自有一整句，英日不必再做「拿掉句尾喵」這種中文構詞。
+ * 收法寧多勿少：劇本模組匯出的每一句，加上每一句給四位角色各過一次 `lineFor`／`castLineFor` 的結果。
+ */
+export function lineSource(): string[] {
+  const raw = new Set<string>();
+  for (const mod of [dialogueMod, fengfengMod, coopPairMod, echoesMod]) collectZh(mod, raw);
+  for (const e of enemies) collectZh([e.line, e.lines ?? []], raw);
+  collectZh([encounters.map((enc) => enc.reinforce?.map((r) => r.line)), BOSS_PREFIXES.map((p) => p.line)], raw);   // 援兵登場句、關主前綴那一句（不收整個 encounters，會連「弱／中／強」這種分類標籤都抓進來）
+  for (const enc of encounters) for (const id of enc.enemies) for (const h of HEROES) {
+    const s = encounterSkin(enc, id, h) ?? enemySkin(id, h);
+    if (s) collectZh([s.line, s.lines], raw);
+  }
+  collectZh([purifyMod.PURIFY_NARRATION, purifyMod.TORTOISE_PURIFY_LINE, ...HEROES.map((h) => purifyMod.purifyLine(h))], raw);
+  // 畫面程式裡直接寫死、再交給 lineFor 的那幾句（戰鬥「有伏兵跳出來了喵！」之類），以及標了 L_ 的
+  for (const f of walk('src/ui')) {
+    for (const m of readFileSync(f, 'utf-8').matchAll(/(?:lineFor\([^,()]+(?:\([^()]*\))?,|L_\()\s*'((?:[^'\\\n]|\\.)*)'/g)) raw.add(unquote(m[1]!));
+  }
+  const out = new Set(raw);
+  for (const s of raw) for (const h of HEROES) { out.add(lineFor(h, s)); out.add(castLineFor(h, s)); }
+  // 結局伏筆的共用句帶 `{名}`、`{師}`：畫面上顯示的是換過主角名字的整句，所以鍵收換完的、範本本身不收
+  for (const s of raw) {
+    if (!/\{[名師]\}/.test(s)) continue;
+    out.delete(s);
+    for (const h of HEROES) out.add(fillEcho(s, h));
+  }
+  return [...out].filter((s) => /[一-鿿]/.test(s));
+}
+
+/** 給譯者看的：每句是誰講的（劇本裡 `{ speaker, text }` 那種；換過角色的句子記成那位角色） */
+export function lineSpeakers(): Record<string, string> {
+  const who: Record<string, string> = {};
+  const seen = new WeakSet<object>();
+  const walkObj = (v: unknown): void => {
+    if (!v || typeof v !== 'object' || seen.has(v as object)) return;
+    seen.add(v as object);
+    const o = v as { speaker?: unknown; text?: unknown };
+    if (typeof o.speaker === 'string' && typeof o.text === 'string') {
+      who[o.text] ??= o.speaker;
+      if (o.speaker === '球球') for (const h of HEROES) who[lineFor(h, o.text)] ??= ({ ninja: '球球', feifei: '菲菲', dangdang: '噹噹', fengfeng: '封封' } as Record<string, string>)[h]!;
+      else for (const h of HEROES) who[castLineFor(h, o.text)] ??= o.speaker;
+    }
+    for (const x of Array.isArray(v) ? v : Object.values(v as Record<string, unknown>)) walkObj(x);
+  };
+  for (const mod of [dialogueMod, fengfengMod, coopPairMod, echoesMod]) walkObj(mod);
+  return who;
 }

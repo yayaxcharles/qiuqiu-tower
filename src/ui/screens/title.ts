@@ -7,8 +7,14 @@ import { registerScreen } from '../app';
 import { hasSprite, artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
-import { t, term } from '../../i18n';
+import { getLang, t, term } from '../../i18n';
 import { langPicker } from '../langpicker';
+
+/** 「參上」貼圖照語言換（英日版的題字是 `tools/gen_cover_i18n.py` 重寫的，貓與煙塵同一張）；沒有那一版就用中文原圖 */
+function coverKey(key: string): string {
+  const lang = getLang();
+  return lang !== 'zh' && hasSprite(`${key}_${lang}`) ? `${key}_${lang}` : key;
+}
 
 registerScreen('title', (app, root) => {
   const startBtn = el('button', { class: 'btn primary' }, t('新的一局'));
@@ -107,14 +113,14 @@ registerScreen('title', (app, root) => {
          */
         // 她的「參上」貼圖沒進倉時退回勝利姿勢的立繪（矮一截）
         hasSprite('hero/feifei_cover')
-          ? el('img', { class: 'title-cat title-cat-second', src: artUrl('sprites', 'hero/feifei_cover'), alt: t('菲菲參上') })
+          ? el('img', { class: 'title-cat title-cat-second', src: artUrl('sprites', coverKey('hero/feifei_cover')), alt: t('菲菲參上') })
           : el('img', { class: 'title-cat title-cat-feifei', src: artUrl('sprites', 'hero/feifei_win'), alt: t('菲菲') }),
-        el('img', { class: 'title-cat', src: artUrl('sprites', 'hero/cover'), alt: t('球球參上') }),
+        el('img', { class: 'title-cat', src: artUrl('sprites', coverKey('hero/cover')), alt: t('球球參上') }),
         hasSprite('hero/dangdang_cover')
-          ? el('img', { class: 'title-cat title-cat-third', src: artUrl('sprites', 'hero/dangdang_cover'), alt: t('噹噹參上') })
+          ? el('img', { class: 'title-cat title-cat-third', src: artUrl('sprites', coverKey('hero/dangdang_cover')), alt: t('噹噹參上') })
           : el('img', { class: 'title-cat title-cat-third', src: heroArtUrl('dangdang', 'hero/ninja_win'), alt: t('噹噹') }),
         hasSprite('hero/fengfeng_cover')
-          ? el('img', { class: 'title-cat title-cat-fourth', src: artUrl('sprites', 'hero/fengfeng_cover'), alt: t('封封參上') })
+          ? el('img', { class: 'title-cat title-cat-fourth', src: artUrl('sprites', coverKey('hero/fengfeng_cover')), alt: t('封封參上') })
           : el('img', { class: 'title-cat title-cat-fourth', src: heroArtUrl('fengfeng', 'hero/ninja_win'), alt: t('封封') })),
       // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名。
       // 副標「－ 球球參上 －」2026-09-15 拿掉（使用者：第三個角色進來之後首頁不該只掛他的名字）

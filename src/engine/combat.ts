@@ -6,6 +6,7 @@ import { advanceMove, aliveEnemies, damageEnemy, damagePlayer, drawCards, findEn
 import { coopHpMul } from './coopscale';
 import { pickable, unitName } from './hero';
 import type { Hero } from './hero';
+import { E, H, K_, type LogArg } from './logfmt';
 import { cardStats, discardHand, moveCard } from './deck';
 import { applyEffects } from './effects';
 import type { Rng } from './rng';
@@ -91,7 +92,7 @@ export function startCombat(input: {
     const st = (cs.rng as unknown as { state?: unknown }).state;
     const seed = typeof st === 'number' ? st : (typeof st === 'object' && st !== null ? Object.values(st as Record<string, unknown>).reduce<number>((a, v) => a + (typeof v === 'number' ? v : 0), 0) : 0);
     e.line = pool.length ? pool[Math.abs(Math.floor(seed) + e.uid * 7) % pool.length] : def?.line;
-    log(cs, `${e.name}：${e.line ?? ''}`);
+    log(cs, '{e}：{line}', { e: E(e), line: { say: e.line ?? '' } });
   }
   /**
    * 飯糰上限加成（塔主令牌、九尾墜、魔氣護符）**刻意不演**。
@@ -112,7 +113,7 @@ export function startCombat(input: {
     // 暖毯自己有專屬紀錄句，只推清單讓畫面閃（稽核 2026-09-10 中-3）
     const wid = player.relics.find((id) => (relicById[id]?.hooks.restNextFightBlock ?? 0) > 0);
     if (wid) markRelic(cs, wid);
-    log(cs, `暖毯還熱著，先有 ${input.mods.startBlock} 點蜷縮`);
+    log(cs, '暖毯還熱著，先有 {n} 點蜷縮', { n: input.mods.startBlock });
   }
   startPlayerTurn(cs);
   return cs;
@@ -161,7 +162,7 @@ export function flushAllyRelics(cs: CombatState): void {
  */
 export function applyCarriedEffects(cs: CombatState, p: PlayerCombat, effects: Effect[], note: string): void {
   if (p.down || cs.phase !== 'player') return;
-  log(cs, `${unitName(p)}${note}`);
+  log(cs, '{who}{note}', { who: H(p), note: { tx: note } });
   applyEffects(cs, effects, { self: p, source: 'relic' });
 }
 
@@ -220,7 +221,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
       if (e && !e.dead) { addStatus(e, '中毒', pn.amount); markPoisoner(e, '中毒', p); applied += 1; }
     }
     if (applied > 0) {
-      log(cs, `針上的藥沾到了，多上了 ${pn.amount} 層中毒`);
+      log(cs, '針上的藥沾到了，多上了 {n} 層中毒', { n: pn.amount });
       p.poisonNextAttack = undefined;                // 真的上到才算用掉
     }
   }
@@ -260,7 +261,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
         && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
       w.firedAllyPlay = true;
       drawCards(cs, 1, w);
-      log(cs, `${unitName(w)}接上了節奏，多抽一張`);
+      log(cs, '{who}接上了節奏，多抽一張', { who: H(w) });
     }
     if (!junk && solo && snap.allyPlay && !w.firedAllyPlay && w === p
         && (snap.allyPlay === 'any' || type === snap.allyPlay)) {
@@ -275,7 +276,8 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
       w.firedSelfPlay = true;
       const to = mate ?? w;
       gainBlock(cs, to, 6);
-      log(cs, to === w ? '擋在前面，自己也穩住了' : `${unitName(w)}擋在前面，${unitName(to)}少挨了 6 點`);
+      if (to === w) log(cs, '擋在前面，自己也穩住了');
+      else log(cs, '{who}擋在前面，{mate}少挨了 6 點', { who: H(w), mate: H(to) });
     }
 
     /*
@@ -343,9 +345,13 @@ export function startJoinedSeat(cs: CombatState, p: PlayerCombat, startBlock = 0
     const wid = p.relics.find((id) => (relicById[id]?.hooks.restNextFightBlock ?? 0) > 0);
     if (wid) markRelic(cs, wid);
     // 兩個人都蓋了毯子時會有兩行一模一樣的句子，所以要寫是誰的（稽核 2026-09-13 低-6）
-    log(cs, cs.players.length > 1
-      ? `${unitName(p)}的暖毯還熱著，先有 ${startBlock} 點蜷縮`
-      : `暖毯還熱著，先有 ${startBlock} 點蜷縮`);
+    {
+      const multi = cs.players.length > 1;
+      const k = multi ? '{who}的暖毯還熱著，先有 {n} 點蜷縮' : '暖毯還熱著，先有 {n} 點蜷縮';
+      const params: Record<string, LogArg> = { n: startBlock };
+      if (multi) params['who'] = H(p);
+      log(cs, k, params);
+    }
   }
   startSeatTurn(cs, p);
 }
@@ -381,7 +387,12 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
     const n = p.energyNextTurn;
     p.energyNextTurn = undefined;
     const got = gainEnergy(cs, p, n);
-    if (got > 0) log(cs, `${cs.players.length > 1 ? unitName(p) : ''}上一回合留下的飯糰：多 ${got} 顆`);
+    if (got > 0) {
+      const k = cs.players.length > 1 ? '{who}上一回合留下的飯糰：多 {n} 顆' : '上一回合留下的飯糰：多 {n} 顆';
+      const params: Record<string, LogArg> = { n: got };
+      if (cs.players.length > 1) params['who'] = H(p);
+      log(cs, k, params);
+    }
   }
   /*
    * 飯糰留一口（2026-09-13）：**當場讀**有沒有同伴掛著這個能力，不是去領上一輪排好的東西。
@@ -403,7 +414,8 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
     if (hasMate ? o === p : o !== p) continue;       // 有同伴＝別人給我；沒同伴＝自己給自己
     gainEnergy(cs, p, 1);
     if (o.energyForAllyEachRound === 'draw') p.drawNextTurn += 1;
-    log(cs, o === p ? '自己留的那口飯糰，現在吃了' : `${unitName(o)}留的那口飯糰，${unitName(p)}拿到了`);
+    if (o === p) log(cs, '自己留的那口飯糰，現在吃了');
+    else log(cs, '{who}留的那口飯糰，{mate}拿到了', { who: H(o), mate: H(p) });
   }
   // 每輪監聽的次數重置。**只在這裡清**——不能因為對方出牌、按結束、撤回或畫面重繪就重置
   p.firedAllyPlay = undefined; p.firedSelfPlay = undefined; p.firedPoisonHit = undefined;
@@ -414,7 +426,13 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   // 套組的第一回合飯糰（師門，2026-09-23 第二批）：套裡那幾件一起閃，紀錄講是套組給的（不是某一件自己的效果）
   if (cs.turn === 1) for (const set of activeSets(p.relics)) {
     for (const r of setMembers(set)) if (p.relics.includes(r.id)) markRelic(cs, r.id);
-    log(cs, `${cs.players.length > 1 ? `${unitName(p)}的` : ''}${set}套組：第一回合多 ${RELIC_SETS[set].firstTurnEnergy} 顆飯糰`);
+    {
+      const multi = cs.players.length > 1;
+      const k = multi ? '{who}的{set}套組：第一回合多 {n} 顆飯糰' : '{set}套組：第一回合多 {n} 顆飯糰';
+      const params: Record<string, LogArg> = { set: { st: set }, n: RELIC_SETS[set].firstTurnEnergy };
+      if (multi) params['who'] = H(p);
+      log(cs, k, params);
+    }
   }
   // 回合開始的能力排在飽足設好之後：萬花筒抽到嘴饞扣的飯糰才不會被上一行蓋掉（審查 #15）
   for (const pw of p.powers) if (pw.trigger === 'turnStart') applyEffects(cs, pw.effects, { self: p, source: 'power' });
@@ -448,7 +466,7 @@ function startSeatTurn(cs: CombatState, p: PlayerCombat): void {
   }
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnStart) { log(cs, `「${curseName(c.cardId, p.hero)}」發作`); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
+    if (cu?.onTurnStart) { log(cs, '「{card}」發作', { card: { card: c.cardId, hero: p.hero } }); damagePlayer(cs, p, cu.onTurnStart, { direct: true, victim: p }); }
   }
 }
 
@@ -571,7 +589,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     counters[rid] = 0;
     ctx.doubleDamage = true;
     fireRelic(cs, rid, p);
-    log(cs, `${relicById[rid]!.name}：第 ${n} 張攻擊牌，傷害加倍`);
+    log(cs, '{relic}：第 {n} 張攻擊牌，傷害加倍', { relic: { relic: rid }, n });
   }
   p.cardsPlayedThisTurn += 1;
   (p.playedThisTurn ??= []).push({ uid: card.uid, cardId: card.cardId, upgraded: card.upgraded });
@@ -581,7 +599,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   const firstAttack = st.def.type === 'attack' && !p.attackedThisTurn;
   if (st.def.type === 'attack') p.attackedThisTurn = true;
   // 牌名也跟著角色換（`cardNameFor`）：升級的「＋」接在後面，跟 `cardStats` 同一套
-  log(cs, `${unitName(p)}打出「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」`);
+  log(cs, '{who}打出「{card}」', { who: H(p), card: { card: st.def.id, hero: p.hero, up: card.upgraded } });
   // 秘寶的第 N 張補抽排在牌效果之前：這張牌若要選牌，候選才不會被之後的補抽動到
   for (const rid of p.relics) {
     // 金爪套同時掛兩個第 N 張的掛鉤，分開叫會連印兩行「發動」（稽核 2026-09-10 中-2）
@@ -657,7 +675,12 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     const times = p.echoFirst;   // 先存起來：上限不能是活的，哪天有效果在重播中加到 echoFirst 就會跑不完（審查 低-2）
     let i = 0;
     for (; i < times && cs.phase === 'player' && !cs.pending; i++) {
-      log(cs, `影子分身：「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」又打了一次${times > 1 ? `（${i + 1}／${times}）` : ''}`);
+      {
+        const k = times > 1 ? '影子分身：「{card}」又打了一次（{i}／{times}）' : '影子分身：「{card}」又打了一次';
+        const params: Record<string, LogArg> = { card: { card: st.def.id, hero: p.hero, up: card.upgraded } };
+        if (times > 1) { params['i'] = i + 1; params['times'] = times; }
+        log(cs, k, params);
+      }
       const echoCtx: EffectCtx = { ...ctx, doubleDamage: false, combo: p.cardsPlayedThisTurn,
         qiBefore: Math.max(0, Math.min(12, p.qi ?? 0)) };
       delete echoCtx.qiSpent;
@@ -668,7 +691,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     }
     // 重播途中開了選牌選單（告退、拖字訣、讀心術在手牌空著時原打不問、重播才問）就停在這裡，
     // 剩下的不補跑——但要說出來，不然紀錄印了 1／2 之後永遠等不到 2／2（審查 低-1）
-    if (i < times && cs.pending) log(cs, `影子分身：這張牌要挑牌，剩下的 ${times - i} 次就不再打了`);
+    if (i < times && cs.pending) log(cs, '影子分身：這張牌要挑牌，剩下的 {n} 次就不再打了', { n: times - i });
   }
   /*
    * **監聽排在影子分身重播之後**（2026-09-13 稽核 中-4）。
@@ -702,7 +725,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
       if (t.dead) continue;
       addStatus(t, '中毒', p.poisonOnAttack);
       markPoisoner(t, '中毒', p);
-      log(cs, `針上的毒又滲了進去（${t.name}）`);
+      log(cs, '針上的毒又滲了進去（{e}）', { e: E(t) });
     }
   }
   // 打出攻擊牌之後的秘寶效果（逗貓棒、貓抓板）：牌效果算完才觸發，打贏了就不用
@@ -734,7 +757,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
       if (d?.hexOnSkill) giveCards(cs, e, d.hexOnSkill.cardId, d.hexOnSkill.n, 'draw', p);
       // 憤怒每回合最多觸發一次（跟毛線手套 onHit 的 hitRelicTurn 同一套）：三隻第二關關主主招都是三段，
       // 每張技能牌都 +1／+2 會讓「先擋再打」的牌組被判死刑（全面體檢 2026-09-05；下一輪平衡拍板）
-      if (d?.angerOnSkill && e.angerTurn !== cs.turn) { e.angerTurn = cs.turn; addStatus(e, '爪力', d.angerOnSkill); log(cs, `${e.name}被激怒了`); }
+      if (d?.angerOnSkill && e.angerTurn !== cs.turn) { e.angerTurn = cs.turn; addStatus(e, '爪力', d.angerOnSkill); log(cs, '{e}被激怒了', { e: E(e) }); }
     }
   }
   // 封封能力在原牌及既有反應完成後觸發；能力效果不會再回到 playCard，因此不遞迴。
@@ -844,7 +867,7 @@ export function beginEnemyTurn(cs: CombatState): boolean {
 function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
   for (const c of [...p.hand]) {
     const cu = cardById[c.cardId]?.curse;
-    if (cu?.onTurnEnd) { log(cs, `「${curseName(c.cardId, p.hero)}」發作`); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
+    if (cu?.onTurnEnd) { log(cs, '「{card}」發作', { card: { card: c.cardId, hero: p.hero } }); damagePlayer(cs, p, cu.onTurnEnd, { direct: true, victim: p }); }
   }
   if (cs.phase !== 'player') return;
   if (!p.attackedThisTurn) {
@@ -862,7 +885,7 @@ function endSeatTurn(cs: CombatState, p: PlayerCombat): void {
     if (got <= 0) continue;
     fireRelic(cs, rid, p);
     addStatus(p, '反彈', got);
-    log(cs, `${relicById[rid]!.name}：多出來的蜷縮磨成 ${got} 點反彈`);
+    log(cs, '{relic}：多出來的蜷縮磨成 {n} 點反彈', { relic: { relic: rid }, n: got });
   }
   // 只限本回合的能力到這裡就過期。放在「沒出攻擊牌」的結算之後：
   // 那一段也會觸發能力，先讓它算完再清，不然本回合最後一次會少算。
@@ -909,7 +932,7 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
     // 牠照樣進佇列跑 stepEnemyTurn（中毒、鱗甲、定身要正常結算），只靠 justRevived 跳過「出招」那一段（稽核 2026-09-04 M-1）
     advanceMove(cs, e);
     e.justRevived = true;
-    log(cs, `${e.name}又爬起來了`);
+    log(cs, '{e}又爬起來了', { e: E(e) });
   }
 
   cs.enemyActing = true;
@@ -944,7 +967,8 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
     if (came === 0) continue;
     const name = enemyById[r.enemyId]?.name ?? r.enemyId;
     // 紀錄照實際來了幾隻講（只來得及一隻就不要說兩隻，稽核 2026-09-04 低 12）
-    log(cs, came === (r.n ?? 1) && r.line ? r.line : `伏兵！${came > 1 ? `${came} 隻` : ''}${name}從煙裡跳了出來`);
+    if (came === (r.n ?? 1) && r.line) log(cs, r.line);
+    else log(cs, '伏兵！{n}{e}從煙裡跳了出來', { n: came > 1 ? `${came} 隻` : '', e: E({ enemyId: r.enemyId, name }) });
   }
   /**
    * 先手香（`skipEnemyTurn`）：這一輪整排魔物不出手。
@@ -1012,8 +1036,8 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     // 虛化（2026-09-03 菁英擴充）：牠的每個回合開始切換一次，所以是虛一回合、實一回合。
     // 開戰帶著虛化（makeEnemy），所以玩家的第一回合打不動牠，第二回合才是輸出窗口
     if (def?.phasing) {
-      if (getStatus(e, '虛化') > 0) { removeStatus(e, '虛化'); log(cs, `${e.name}實體化了，這回合打得進去`); }
-      else { addStatus(e, '虛化', 1); log(cs, `${e.name}變得半透明`); }
+      if (getStatus(e, '虛化') > 0) { removeStatus(e, '虛化'); log(cs, '{e}實體化了，這回合打得進去', { e: E(e) }); }
+      else { addStatus(e, '虛化', 1); log(cs, '{e}變得半透明', { e: E(e) }); }
     }
     /**
      * 被定住或睡著的這一拍，**每回合成長與震散都不跑**（稽核 2026-09-10 中-1）。
@@ -1042,7 +1066,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
           const cut = Math.min(n, getStatus(q, name));
           if (cut > 0) { addStatus(q, name, -cut); parts.push(`${cut} 點${name}`); }
         }
-        if (parts.length) log(cs, `${e.name}震散了${cs.players.length > 1 ? unitName(q) : '你'} ${parts.join('、')}`);
+        if (parts.length) log(cs, '{e}震散了{who} {parts}', { e: E(e), who: cs.players.length > 1 ? H(q) : { tx: K_('你') }, parts: { tx: parts.join('、') } });
       }
     }
     if (def?.strengthEveryNTurns && !frozen && e.turnCount % def.strengthEveryNTurns === 0) addStatus(e, '爪力', 1);
@@ -1063,21 +1087,21 @@ export function stepEnemyTurn(cs: CombatState): boolean {
     }
     damageEnemy(cs, e, tick + tickBonus, { direct: true });
     if (e.dead || cs.phase !== 'player') return true;
-    if (e.phase !== phaseBefore) { log(cs, `${e.name}換了個架勢`); decayTurnStatuses(e, ['定身']); return true; }
+    if (e.phase !== phaseBefore) { log(cs, '{e}換了個架勢', { e: E(e) }); decayTurnStatuses(e, ['定身']); return true; }
     // 出招途中換階段的偵測：被球球的反彈打過門檻（checkPhase 排好 onEnterMove）或血條式蹲下調息，
     // 尾端就不能再 advanceMove 把那招蓋掉（稽核 2026-09-04 H-1，反彈流打貓又時尾巴永遠放不出來的病根）
     const phaseAtAct = e.phase;
     // 沉睡：睡著的什麼都不做，每個牠的回合睡掉一層。**打痛牠會提早醒**（在 damageEnemy 裡處理，還會觸發 onWake）
     if (getStatus(e, '沉睡') > 0) {
       addStatus(e, '沉睡', -1);
-      log(cs, `${e.name}睡得很熟，什麼都沒做`);
+      log(cs, '{e}睡得很熟，什麼都沒做', { e: E(e) });
     }
     // 定身擋的是魔物**整個動作**，不只攻擊：偷小魚乾、召喚、疊防禦一律動不了
     // （原本只擋攻擊，使用者 2026-09-02 實玩：「定身敵人好像只能阻止攻擊？偷竊照偷」）
     else if (getStatus(e, '定身') > 0) {
       addStatus(e, '定身', -1);
       e.charged = false;   // 這一下被定掉，蓄力也一起作廢
-      log(cs, `${e.name}被定住了，這回合動不了`);
+      log(cs, '{e}被定住了，這回合動不了', { e: E(e) });
     } else if (skipAct) {
       // 剛爬起來的這一拍不出手，頭上排好的那招留到下回合
     } else {
@@ -1085,7 +1109,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       // 傷害與減益對每個站著的人各來一次（`ENEMY_HITS_EVERYONE`，使用者 2026-09-15）；`victim` 只給偷小魚乾那類單人效果
       const victim = pickVictim(cs);
       const hpBefore = new Map(cs.players.map((q) => [q, q.hp] as const));
-      if (e.move.learned) log(cs, `${e.name}照著打出「${e.move.label}」`);   // 照著學的（鏡中球球）：紀錄要寫是哪張牌
+      if (e.move.learned) log(cs, '{e}照著打出「{line}」', { e: E(e), line: { tx: e.move.label } });   // 照著學的（鏡中球球）：紀錄要寫是哪張牌
       runEnemyEffects(cs, e, e.move.effects, e.charged, victim);
       // 被打掉血的秘寶效果（毛線手套）：每個人每回合最多一次
       for (const q of cs.players) {
@@ -1108,7 +1132,7 @@ export function stepEnemyTurn(cs: CombatState): boolean {
       addStatus(e, '消散', -1);
       if (getStatus(e, '消散') === 0) {
         e.dead = true; e.escaped = true; e.faded = true;   // 自己散掉的才算「什麼都沒留下」（見 types.ts 的 faded）
-        log(cs, `${e.name}散去了`);
+        log(cs, '{e}散去了', { e: E(e) });
         markCombatWon(cs);
       }
     }
@@ -1164,7 +1188,7 @@ export function finishEnemyTurn(cs: CombatState): void {
        */
       const doomed = Math.max(0, p.block - keep);
       const got = Math.floor(doomed / conv.per) * conv.gain;
-      if (got > 0) { addStatus(p, '反彈', got); log(cs, `${unitName(p)}把擋下來的力道存成 ${got} 點反彈`); }
+      if (got > 0) { addStatus(p, '反彈', got); log(cs, '{who}把擋下來的力道存成 {n} 點反彈', { who: H(p), n: got }); }
     }
     p.blockToThornsThisTurn = undefined;
     p.block = Math.min(p.block, keep);
@@ -1228,8 +1252,10 @@ function transformCard(cs: CombatState, p: PlayerCombat, uid: number): void {
   const fresh: CardInstance = { uid: cs.nextCardUid++, cardId: def.id, upgraded: true };
   p.hand[i] = fresh;
   p.retained = p.retained.filter((u) => u !== uid);
-  const oldDef = cardById[old.cardId];
-  log(cs, `替換符：「${oldDef ? cardNameFor(oldDef, p.hero) : old.cardId}${old.upgraded ? '＋' : ''}」換成了「${cardNameFor(def, p.hero)}＋」`);
+  log(cs, '替換符：「{from}」換成了「{to}」', {
+    from: { card: old.cardId, hero: p.hero, up: old.upgraded },
+    to: { card: def.id, hero: p.hero, up: true },
+  });
 }
 
 /**
@@ -1274,7 +1300,7 @@ export function usePotion(cs: CombatState, potionId: string, targetUid?: number,
   const p = cs.players[seat]!;
   const def = potionById[potionId]!;
   p.potions.splice(p.potions.indexOf(potionId), 1);
-  log(cs, `${unitName(p)}用了「${def.name}」`);
+  log(cs, '{who}用了「{potion}」', { who: H(p), potion: { potion: potionId } });
   applyEffects(cs, def.effects, { self: p, targetUid, source: 'potion' });
   // 用忍具之後的秘寶效果（舊毛巾、貓薄荷煙斗、九命鈴）
   if (cs.phase === 'player') for (const rid of p.relics) { const h = relicById[rid]?.hooks.onPotionUse; if (h) { fireRelic(cs, rid, p); applyEffects(cs, h, { self: p, source: 'relic' }); } }

@@ -35,6 +35,7 @@ import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPh
 import { STATUS_UNIT } from '../cardtext';
 import { N_, t, term, moveLabelL, listJoin, clauseJoin, describeCardText } from '../../i18n';
 import { cardName, enemyName, relicName, potionName, potionText } from '../../i18n/names';
+import { logLine, moveName } from '../../i18n/speech';
 import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
@@ -1672,7 +1673,7 @@ registerScreen('combat', (app, root, props) => {
     const blkAll = m.effects.find(has('blockAllies'));
     const buffAll = m.effects.find(has('statusAllies'));
     const boom = m.effects.find(has('selfDestruct'));
-    let text = t('{glyph} {label}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveLabelL(m.label) });
+    let text = t('{glyph} {label}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveName(m, cs.player.hero) });
     if (getStatus(e, '沉睡') > 0) text = t('呼呼大睡');   // 睡著的什麼都不做（2026-09-02 第二波）
     else if (getStatus(e, '定身') > 0) text = t('被定住了');   // 定身擋整個動作（2026-09-02）
     else if (boom) text = t('攻 {n}（爆）', { n: dmgOf(boom) });
@@ -1687,7 +1688,7 @@ registerScreen('combat', (app, root, props) => {
     // 而那正是玩家要不要先清場、要不要囤防禦的判準
     else {
       const sum = m.effects.find(has('summon'));
-      if (sum) text = t('{glyph} {label}{tail}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveLabelL(m.label), tail: sum.n > 1 ? t(' {n} 隻', { n: sum.n }) : '' });
+      if (sum) text = t('{glyph} {label}{tail}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveName(m, cs.player.hero), tail: sum.n > 1 ? t(' {n} 隻', { n: sum.n }) : '' });
     }
     // 傷害那一行不能把同一招的其他事吃掉（審查 2026-09-15 中-1／中-2／低-8）：黑貓頭目的「分身」是 8 傷＋召 2 隻、
     // 河童的「拽走小魚乾」是 7 傷＋偷 20、「頂皿蓄水」是守 10＋回 10——牌子只寫「攻 8」「守 10」玩家會誤判
@@ -1710,7 +1711,7 @@ registerScreen('combat', (app, root, props) => {
     }
     if (e.charged && m.intent === 'attack') text += t('（蓄力）');
     // 照著學的招：牌子上先寫是哪張牌（回合開始就預告，玩家能應對——使用者 2026-09-08）
-    if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(m.label)) text = t('{label}｜{text}', { label: moveLabelL(m.label), text });
+    if (m.learned && getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0 && !text.includes(moveName(m, cs.player.hero))) text = t('{label}｜{text}', { label: moveName(m, cs.player.hero), text });
     // 看破／破功要寫在牌子上：使用者的朋友囤了十幾層隱身，看牌子只寫「攻 8×2」以為閃得掉，
     // 結果先被拍掉隱身再挨打（2026-09-03 回報）。牌子上先講，滑上去的提示再講細節
     if (getStatus(e, '定身') === 0) {
@@ -1738,7 +1739,7 @@ registerScreen('combat', (app, root, props) => {
       node.append(part === '（穿透）' ? el('span', { class: 'pierce' }, part) : part);
     }
     // 牌子上只寫得下「攻 4」這種短標籤，滑上去才講得完牠這一下實際會做什麼
-    attachTextTooltip(node, moveLabelL(m.label), describeMove(e));
+    attachTextTooltip(node, moveName(m, cs.player.hero), describeMove(e));
     return node;
   }
 
@@ -2396,7 +2397,7 @@ registerScreen('combat', (app, root, props) => {
         node.replaceWith(playerUnit(q));
       }
     }
-    box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
+    box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, logLine(l)))));
     chipLift.settle(field);   // 換掉的那幾格：牌子折幾排當場量好，後面量立繪位置的才準（見 `chipLift`）
     // 狀態列只在它畫的東西變了才重建（見 `hudKey`）
     const hudNow = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
@@ -2540,7 +2541,7 @@ registerScreen('combat', (app, root, props) => {
       box.append(force);
     }
     // 紀錄只留四行：六行時最後兩行會壓到球球的頭（2026-09-02 截圖檢查）
-    box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, l))));
+    box.append(endBtn, el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, logLine(l)))));
     if (tutStep >= 0) box.append(tutBar());
     const note = targetHint();
     if (note) box.append(note);

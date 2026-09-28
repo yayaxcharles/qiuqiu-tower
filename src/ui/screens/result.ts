@@ -12,7 +12,7 @@ import { sceneView } from '../scene';
 import { attachTextTooltip } from '../tooltip';
 import { me } from '../../engine/runplayer';
 import { heroName } from '../../engine/hero';
-import { t } from '../../i18n';
+import { t, term } from '../../i18n';
 import { relicName, relicText } from '../../i18n/names';
 
 registerScreen('result', (app, root) => {
@@ -67,7 +67,7 @@ registerScreen('result', (app, root) => {
   root.append(sceneView({
     portrait: hero.startsWith('data:') ? undefined : hero,
     speaker: won ? t('通關') : t('任務失敗'),
-    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : `${heroName(me(run, seat))}倒下了。`),   // 備援也要照角色（總稽核 C 低-5）——跟 lastWords 同一句話的性質，故事收尾句，不走 t()
+    text: lastWords ? `${lastWords}` : (won ? t('魔塔終於安靜了。') : t('{who}倒下了。', { who: term(heroName(me(run, seat))) })),   // 備援也要照角色（總稽核 C 低-5）；lastWords 是劇情句，畫面層（sceneView）照台詞表換
     extra: [
       el('div', { class: 'result-stats' },
         t('到達 {floor}F　打倒 {kills} 隻魔物　打了 {turns} 回合　出了 {cards} 張牌　牌組 {deck} 張', {

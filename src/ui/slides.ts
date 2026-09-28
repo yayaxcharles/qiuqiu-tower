@@ -4,6 +4,7 @@ import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hush, prefetch, say, voiceGroup } from './voicegate';
+import { lineDisplay, speakerDisplay } from '../i18n/speech';
 
 /**
  * 插圖幻燈片：整張劇情圖鋪滿舞台、台詞盒壓在下緣，點一下推進一句，
@@ -63,8 +64,8 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
       front = back;
       box.querySelector('.slide-box')?.classList.toggle('at-bottom', slides[cur.si]!.box === 'bottom');
     }
-    speaker.textContent = cur.l.speaker === '旁白' ? '' : cur.l.speaker;
-    text.textContent = cur.l.text;
+    speaker.textContent = cur.l.speaker === '旁白' ? '' : speakerDisplay(cur.l.speaker);
+    text.textContent = lineDisplay(cur.l.text);   // 配音照舊拿中文原句查表
     say(voiceOf(cur.l).group, cur.l.text);
     prefetch(flat.slice(i + 1, i + 3).map((x) => voiceOf(x.l)));
     box.classList.toggle('narration', cur.l.speaker === '旁白');

@@ -4,6 +4,7 @@ import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content
 import { encounterById, encountersOfPool, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
+import { E, log } from './logfmt';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
@@ -385,7 +386,7 @@ export function applyEncounterModifier(run: RunState, cs: CombatState): void {
   for (const e of cs.enemies) { mod.apply(e); e.name = mod.label + e.name; }
   // 比對「舊名字＋全形冒號」而不是只比名字：「老鼠」才不會把「老鼠將軍：…」那行也改掉
   cs.log = cs.log.map((l) => (oldNames.some((n) => l.startsWith(n + '：')) ? mod.label + l : l));
-  cs.log.push(`${mod.label}：${mod.desc}`);
+  log(cs, '{label}：{desc}', { label: { tx: mod.label }, desc: { tx: mod.desc } });
 }
 
 /**
@@ -414,7 +415,7 @@ export function applyBossPrefix(run: RunState, cs: CombatState): void {
   boss.name = p.label + boss.name;
   // startCombat 已經用舊名字印了開場白，一併改寫，紀錄裡才不會同一隻兩個名字（稽核 2026-09-04 中 9）
   cs.log = cs.log.map((l) => (l.startsWith(oldName + '：') ? boss.name + l.slice(oldName.length) : l));
-  cs.log.push(`${boss.name}：${p.line}`);
+  log(cs, '{e}：{line}', { e: E(boss), line: { say: p.line } });
 }
 
 export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): CombatRewards | null {

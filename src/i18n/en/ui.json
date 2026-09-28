@@ -622,5 +622,9 @@
  "{name}：{text}{extra}": "{name}: {text}{extra}",
  "{who}：「{line}」": "{who}: \"{line}\"",
  "{short}：「{debt}」{note}": "{short}: \"{debt}\"{note}",
- "{name}：{text}{more}": "{name}: {text}{more}"
+ "{name}：{text}{more}": "{name}: {text}{more}",
+ "這一格就不能打盹或{verb}了": "You can't nap or {verb} here.",
+ "魔塔終於安靜了。": "The Demon Tower has finally gone quiet.",
+ "{who}倒下了。": "{who} has fallen.",
+ "請婆婆淨化：{price} 條小魚乾": "Ask Granny to purify: {price} Dried Fish"
 }

@@ -131,14 +131,18 @@ function echoText(kind: EchoKind, hero: Hero, ctx: VictoryCtx): string | null {
  */
 export function victoryEchoes(hero: Hero, ctx: VictoryCtx, room: number): { kind: EchoKind; text: string }[] {
   const quota = Math.max(0, Math.min(MAX_ECHOES, room));
-  const name = heroName({ hero });
-  // 球球、菲菲開口閉口都叫「師父」，噹噹、封封叫「大俠貓」（各自那幾句本來就這樣寫）
-  const master = hero === 'ninja' || hero === 'feifei' ? '師父' : '大俠貓';
   const out: { kind: EchoKind; text: string }[] = [];
   for (const kind of PRIORITY) {
     if (out.length >= quota) break;
     const t = echoText(kind, hero, ctx);
-    if (t) out.push({ kind, text: t.replace(/\{名\}/g, name).replace(/\{師\}/g, master) });
+    if (t) out.push({ kind, text: fillEcho(t, hero) });
   }
   return out;
+}
+
+/** 共用句的 `{名}`、`{師}` 換成這位主角的名字與對師父的叫法（多語系抽取也用它，畫面上顯示的就是換完的這句） */
+export function fillEcho(text: string, hero: Hero): string {
+  // 球球、菲菲開口閉口都叫「師父」，噹噹、封封叫「大俠貓」（各自那幾句本來就這樣寫）
+  const master = hero === 'ninja' || hero === 'feifei' ? '師父' : '大俠貓';
+  return text.replace(/\{名\}/g, heroName({ hero })).replace(/\{師\}/g, master);
 }

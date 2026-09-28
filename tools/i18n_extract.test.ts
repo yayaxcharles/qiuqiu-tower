@@ -6,7 +6,7 @@
  */
 import { describe, it } from 'vitest';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { contentSource, uiKeys } from '../tests/i18n/source';
+import { contentSource, lineSource, lineSpeakers, uiKeys } from '../tests/i18n/source';
 
 declare const process: { env: Record<string, string | undefined> };
 
@@ -14,6 +14,8 @@ describe('多語系原文抽取', () => {
   it.skipIf(!process.env['I18N_EXTRACT'])('寫出 tools/i18n/source/content.zh.json', () => {
     mkdirSync('tools/i18n/source', { recursive: true });
     writeFileSync('tools/i18n/source/content.zh.json', JSON.stringify(contentSource(), null, 1) + '\n', 'utf-8');
+    writeFileSync('tools/i18n/source/lines.zh.json', JSON.stringify(Object.fromEntries(lineSource().map((k) => [k, k])), null, 1) + '\n', 'utf-8');
+    writeFileSync('tools/i18n/source/lines.who.json', JSON.stringify(lineSpeakers(), null, 1) + '\n', 'utf-8');
     writeFileSync('tools/i18n/source/ui.zh.json', JSON.stringify(Object.fromEntries(uiKeys().map((k) => [k, k])), null, 1) + '\n', 'utf-8');
   });
 });

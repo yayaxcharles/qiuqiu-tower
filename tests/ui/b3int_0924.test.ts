@@ -16,7 +16,7 @@ describe('罐頭鋪：婆婆的「請婆婆淨化」接上淨化那條線', () =
     expect(SHOP).toContain('const list = miasmaRelicsOf(run, seat);');
     expect(SHOP).toContain("if (!list.length) return '';");
     expect(SHOP).toContain('showPurifyPick(list, go, { cancellable: true })');
-    expect(SHOP).toContain("shop.purified ? t('這間已經淨化過了') : t(tortoisePurifyLabel(PURIFY_PRICE))");
+    expect(SHOP).toContain("shop.purified ? t('這間已經淨化過了') : t('請婆婆淨化：{price} 條小魚乾', { price: PURIFY_PRICE })");
     // 判準問引擎，不在畫面另寫一套
     expect(SHOP).toContain('!list.some((id) => canPurifyAtShop(run, shop, id, seat))');
     expect(tortoisePurifyLabel(PURIFY_PRICE)).toBe('請婆婆淨化：90 條小魚乾');

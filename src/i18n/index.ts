@@ -31,6 +31,8 @@ export interface LangPack {
   enemy: Readonly<Record<string, string>>;
   /** 魔物招式名：中文招式名 → 譯文 */
   move: Readonly<Record<string, string>>;
+  /** 台詞（劇情、吐槽、魔物台詞、幻燈片）：畫面上最後那句中文（換過角色之後的） → 譯文 */
+  line: Readonly<Record<string, string>>;
   /** 牌面規則文字的產生器（每個語言一套規則，不是逐句翻） */
   describeCard(def: CardDef, upgraded: boolean, plays: number): string;
   /** 單一條效果（能力牌掛在身上時的說明用） */
@@ -156,6 +158,10 @@ export function potionNameL(id: string, zh: string): string { return pack?.potio
 export function potionTextL(id: string, zh: string): string { return pack?.potion[id]?.[1] ?? zh; }
 export function enemyNameL(id: string, zh: string): string { return pack?.enemy[id] ?? zh; }
 export function moveLabelL(zh: string): string { return pack?.move[zh] ?? zh; }
+/** 一句台詞（鍵是畫面上最後那句中文；缺譯退回介面文字表，再退回中文） */
+export function lineL(zh: string): string { return pack ? (pack.line[zh] ?? pack.ui[zh] ?? zh) : zh; }
+/** 說話者的名字（角色、店主、旁白這類代號詞；魔物名由呼叫端先換） */
+export function speakerL(zh: string): string { return pack ? (pack.term[zh] ?? pack.line[zh] ?? zh) : zh; }
 
 /** 幾個子句接成一句（中文用「，」） */
 export function clauseJoin(items: readonly string[]): string {

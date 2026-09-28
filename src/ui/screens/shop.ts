@@ -285,7 +285,7 @@ registerScreen('shop', (app, root, props) => {
   function merchantDeal(): void { if (mer?.lines) say(pickLine(mer.lines.bought)); }
   /** 回地圖。行腳商那裡一樣都沒買就走，他丟下一句再走（設計稿 3-6）；客座店主那裡自己講離店那一句（`sayLeave`） */
   function leave(): void {
-    if (mer?.lines && !shop.anyBought) toast(mer.lines.left, term('行腳商'));
+    if (mer?.lines && !shop.anyBought) toast(mer.lines.left, '行腳商');
     app.backToMap();
     sayLeave();
   }
@@ -484,7 +484,7 @@ registerScreen('shop', (app, root, props) => {
       if (act({ t: 'purify', seat, id }, () => purifyAtShop(run, shop, id, seat)) && !coop) afterPurify(id);
     };
     const btn = el('button', { class: 'btn', onclick: () => (list.length === 1 ? go(list[0]!) : showPurifyPick(list, go, { cancellable: true })) },
-      shop.purified ? t('這間已經淨化過了') : t(tortoisePurifyLabel(PURIFY_PRICE))); // i18n-dynamic (content/purify-text.ts tortoisePurifyLabel)
+      shop.purified ? t('這間已經淨化過了') : t('請婆婆淨化：{price} 條小魚乾', { price: PURIFY_PRICE })); // i18n-dynamic (content/purify-text.ts tortoisePurifyLabel)
     if (iDown || !list.some((id) => canPurifyAtShop(run, shop, id, seat))) btn.setAttribute('disabled', 'disabled');
     return btn;
   }

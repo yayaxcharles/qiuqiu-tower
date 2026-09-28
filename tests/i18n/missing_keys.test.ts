@@ -6,7 +6,10 @@
  * 中文原句一改，舊譯文就對不上——這裡會紅，照著補譯就好。
  */
 import { describe, expect, it } from 'vitest';
-import { contentSource, uiKeys } from './source';
+import { contentSource, lineSource, uiKeys } from './source';
+import linesZh from '../../tools/i18n/source/lines.zh.json';
+import enLines from '../../src/i18n/en/lines.json';
+import jaLines from '../../src/i18n/ja/lines.json';
 import { format, t, _setPackForTest, term } from '../../src/i18n';
 import enUi from '../../src/i18n/en/ui.json';
 import enContent from '../../src/i18n/en/content.json';
@@ -36,6 +39,43 @@ describe('t() 與 format', () => {
     expect(format('Draw {n} {n|card|cards}', { n: 3 })).toBe('Draw 3 cards');
   });
 });
+
+describe('台詞：繁中一字不差', () => {
+  /*
+   * 英日的台詞是照「畫面上最後那句中文」（每位角色換過之後的整句）查的，繁中照舊由 `lineFor`／`castLineFor` 產生。
+   * 這裡把四位角色會看到的每一句中文跟存底（`tools/i18n/source/lines.zh.json`）比對：劇本或改寫規則一動，這條就紅，
+   * 看完差異確定是要改的，再跑 `I18N_EXTRACT=1 npx vitest run tools/i18n_extract.test.ts` 更新存底並補譯。
+   */
+  it('四位角色看到的每一句中文跟存底一樣', () => {
+    const now = [...lineSource()].sort();
+    const saved = Object.keys(linesZh).sort();
+    expect(now.filter((s) => !saved.includes(s)), '存底沒有的新句子').toEqual([]);
+    expect(saved.filter((s) => !now.includes(s)), '存底有、現在沒有的句子').toEqual([]);
+  });
+});
+
+for (const lang of ['en', 'ja'] as const) {
+  describe(`${lang} 台詞`, () => {
+    const lines = (lang === 'en' ? enLines : jaLines) as Record<string, string>;
+    it('每一句都有譯文、沒有過期的鍵', () => {
+      const src = lineSource();
+      const missing = src.filter((k) => !lines[k]);
+      expect(missing.length, `缺 ${missing.length} 句，例如：${missing.slice(0, 3).join(' / ')}`).toBe(0);
+      const live = new Set(src);
+      expect(Object.keys(lines).filter((k) => !live.has(k)), '過期的鍵').toEqual([]);
+    });
+    it('字形與參數', () => {
+      const bad: string[] = [];
+      for (const [k, v] of Object.entries(lines)) {
+        if (lang === 'en' && CJK.test(v)) bad.push(`${k} → ${v}`);
+        // 「這」在日文有正當用法（這う＝爬）；只擋沒接送假名的繁體字形
+        if (lang === 'ja' && ZH_ONLY.test(v.replace(/這[うっいえ]/g, ''))) bad.push(`${k} → ${v}`);
+        if ([...params(k)].some((p) => !params(v).has(p))) bad.push(`參數：${k} → ${v}`);
+      }
+      expect(bad).toEqual([]);
+    });
+  });
+}
 
 for (const lang of ['en', 'ja'] as const) {
   describe(`${lang} 語言包`, () => {
