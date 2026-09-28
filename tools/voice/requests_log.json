@@ -1,0 +1,496 @@
+{
+ "cap": 30,
+ "requests": [
+  {
+   "time": "2026-09-28T18:05:32",
+   "group": "ninja",
+   "role": "球球",
+   "try": 0,
+   "kind": "tts",
+   "chars": 213,
+   "lines": 10,
+   "result": "ok 38.2s"
+  },
+  {
+   "time": "2026-09-28T18:05:53",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 0,
+   "kind": "tts",
+   "chars": 250,
+   "lines": 10,
+   "result": "ok 50.7s"
+  },
+  {
+   "time": "2026-09-28T18:06:11",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 0,
+   "kind": "tts",
+   "chars": 234,
+   "lines": 10,
+   "result": "ok 40.0s"
+  },
+  {
+   "time": "2026-09-28T18:06:33",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 0,
+   "kind": "tts",
+   "chars": 301,
+   "lines": 10,
+   "result": "ok 51.8s"
+  },
+  {
+   "time": "2026-09-28T18:14:48",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 1,
+   "kind": "tts",
+   "chars": 250,
+   "lines": 10,
+   "result": "ok 49.7s"
+  },
+  {
+   "time": "2026-09-28T18:15:09",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 2,
+   "kind": "tts",
+   "chars": 250,
+   "lines": 10,
+   "result": "ok 51.1s"
+  },
+  {
+   "time": "2026-09-28T18:15:28",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 1,
+   "kind": "tts",
+   "chars": 234,
+   "lines": 10,
+   "result": "ok 43.0s"
+  },
+  {
+   "time": "2026-09-28T18:15:47",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 2,
+   "kind": "tts",
+   "chars": 234,
+   "lines": 10,
+   "result": "ok 43.4s"
+  },
+  {
+   "time": "2026-09-28T18:34:14",
+   "group": "cowcat_boss",
+   "role": "奶牛貓二當家",
+   "try": 100,
+   "kind": "tts",
+   "chars": 250,
+   "lines": 5,
+   "result": "ok 39.4s"
+  },
+  {
+   "time": "2026-09-28T18:35:45",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 101,
+   "kind": "tts",
+   "chars": 637,
+   "lines": 25,
+   "result": "ok 105.2s"
+  },
+  {
+   "time": "2026-09-28T18:38:25",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "tts",
+   "chars": 622,
+   "lines": 22,
+   "result": "timeout"
+  },
+  {
+   "time": "2026-09-28T18:39:02",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "quota_probe",
+   "chars": 2,
+   "lines": 22,
+   "result": "ok"
+  },
+  {
+   "time": "2026-09-28T18:41:23",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "tts",
+   "chars": 622,
+   "lines": 22,
+   "result": "timeout"
+  },
+  {
+   "time": "2026-09-28T18:41:43",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "quota_probe",
+   "chars": 2,
+   "lines": 22,
+   "result": "ok"
+  },
+  {
+   "time": "2026-09-28T18:44:23",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "tts",
+   "chars": 622,
+   "lines": 22,
+   "result": "timeout"
+  },
+  {
+   "time": "2026-09-28T18:44:38",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "quota_probe",
+   "chars": 2,
+   "lines": 22,
+   "result": "ok"
+  },
+  {
+   "time": "2026-09-28T18:46:54",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 102,
+   "kind": "tts",
+   "chars": 622,
+   "lines": 22,
+   "result": "ok 96.5s"
+  },
+  {
+   "time": "2026-09-28T18:47:52",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 103,
+   "kind": "tts",
+   "chars": 649,
+   "lines": 28,
+   "result": "ok 103.6s"
+  },
+  {
+   "time": "2026-09-28T18:49:00",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 104,
+   "kind": "tts",
+   "chars": 681,
+   "lines": 44,
+   "result": "ok 128.8s"
+  },
+  {
+   "time": "2026-09-28T18:49:50",
+   "group": "dangdang",
+   "role": "噹噹",
+   "try": 105,
+   "kind": "tts",
+   "chars": 313,
+   "lines": 16,
+   "result": "ok 56.4s"
+  },
+  {
+   "time": "2026-09-28T18:50:19",
+   "group": "daxia",
+   "role": "大俠貓（師父／走火入魔的塔主）",
+   "try": 106,
+   "kind": "tts",
+   "chars": 71,
+   "lines": 6,
+   "result": "ok 17.4s"
+  },
+  {
+   "time": "2026-09-28T18:50:37",
+   "group": "dragon_cat",
+   "role": "沉睡的龍貓",
+   "try": 107,
+   "kind": "tts",
+   "chars": 33,
+   "lines": 1,
+   "result": "ok 9.5s"
+  },
+  {
+   "time": "2026-09-28T18:51:26",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 108,
+   "kind": "tts",
+   "chars": 623,
+   "lines": 20,
+   "result": "ok 110.8s"
+  },
+  {
+   "time": "2026-09-28T18:52:26",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 109,
+   "kind": "tts",
+   "chars": 616,
+   "lines": 16,
+   "result": "ok 111.9s"
+  },
+  {
+   "time": "2026-09-28T18:53:26",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 110,
+   "kind": "tts",
+   "chars": 611,
+   "lines": 18,
+   "result": "ok 113.0s"
+  },
+  {
+   "time": "2026-09-28T18:54:28",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 111,
+   "kind": "tts",
+   "chars": 646,
+   "lines": 26,
+   "result": "ok 111.2s"
+  },
+  {
+   "time": "2026-09-28T18:55:35",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 112,
+   "kind": "tts",
+   "chars": 668,
+   "lines": 38,
+   "result": "ok 124.8s"
+  },
+  {
+   "time": "2026-09-28T18:56:27",
+   "group": "feifei",
+   "role": "菲菲",
+   "try": 113,
+   "kind": "tts",
+   "chars": 333,
+   "lines": 16,
+   "result": "ok 64.8s"
+  },
+  {
+   "time": "2026-09-28T18:57:22",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 114,
+   "kind": "tts",
+   "chars": 619,
+   "lines": 20,
+   "result": "ok 102.0s"
+  },
+  {
+   "time": "2026-09-28T18:58:19",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 115,
+   "kind": "tts",
+   "chars": 619,
+   "lines": 16,
+   "result": "ok 96.2s"
+  },
+  {
+   "time": "2026-09-28T18:59:11",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 116,
+   "kind": "tts",
+   "chars": 610,
+   "lines": 17,
+   "result": "ok 84.8s"
+  },
+  {
+   "time": "2026-09-28T19:00:11",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 117,
+   "kind": "tts",
+   "chars": 637,
+   "lines": 26,
+   "result": "ok 105.0s"
+  },
+  {
+   "time": "2026-09-28T19:01:12",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 118,
+   "kind": "tts",
+   "chars": 652,
+   "lines": 29,
+   "result": "ok 108.1s"
+  },
+  {
+   "time": "2026-09-28T19:02:06",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 119,
+   "kind": "tts",
+   "chars": 527,
+   "lines": 22,
+   "result": "ok 87.2s"
+  },
+  {
+   "time": "2026-09-28T19:02:46",
+   "group": "frog_daimyo",
+   "role": "蛙大名",
+   "try": 120,
+   "kind": "tts",
+   "chars": 185,
+   "lines": 5,
+   "result": "ok 38.4s"
+  },
+  {
+   "time": "2026-09-28T19:03:23",
+   "group": "hex_abbot",
+   "role": "詛咒老住持",
+   "try": 121,
+   "kind": "tts",
+   "chars": 292,
+   "lines": 7,
+   "result": "ok 61.6s"
+  },
+  {
+   "time": "2026-09-28T19:03:48",
+   "group": "iron_claw",
+   "role": "鐵爪機關貓",
+   "try": 122,
+   "kind": "tts",
+   "chars": 25,
+   "lines": 1,
+   "result": "ok 6.6s"
+  },
+  {
+   "time": "2026-09-28T19:04:28",
+   "group": "nekomata",
+   "role": "貓又婆婆",
+   "try": 123,
+   "kind": "tts",
+   "chars": 435,
+   "lines": 8,
+   "result": "ok 81.2s"
+  },
+  {
+   "time": "2026-09-28T19:05:23",
+   "group": "ninja",
+   "role": "球球",
+   "try": 124,
+   "kind": "tts",
+   "chars": 643,
+   "lines": 24,
+   "result": "ok 117.6s"
+  },
+  {
+   "time": "2026-09-28T19:06:24",
+   "group": "ninja",
+   "role": "球球",
+   "try": 125,
+   "kind": "tts",
+   "chars": 622,
+   "lines": 22,
+   "result": "ok 105.1s"
+  },
+  {
+   "time": "2026-09-28T19:07:27",
+   "group": "ninja",
+   "role": "球球",
+   "try": 126,
+   "kind": "tts",
+   "chars": 660,
+   "lines": 32,
+   "result": "ok 111.3s"
+  },
+  {
+   "time": "2026-09-28T19:08:26",
+   "group": "ninja",
+   "role": "球球",
+   "try": 127,
+   "kind": "tts",
+   "chars": 486,
+   "lines": 28,
+   "result": "ok 82.4s"
+  },
+  {
+   "time": "2026-09-28T19:08:55",
+   "group": "ninja_boss",
+   "role": "黑貓忍者頭目",
+   "try": 128,
+   "kind": "tts",
+   "chars": 29,
+   "lines": 1,
+   "result": "ok 6.2s"
+  },
+  {
+   "time": "2026-09-28T19:09:24",
+   "group": "orange_king",
+   "role": "橘皮大王",
+   "try": 129,
+   "kind": "tts",
+   "chars": 220,
+   "lines": 5,
+   "result": "ok 38.6s"
+  },
+  {
+   "time": "2026-09-28T19:10:03",
+   "group": "persian_lady",
+   "role": "波斯大小姐",
+   "try": 130,
+   "kind": "tts",
+   "chars": 286,
+   "lines": 6,
+   "result": "ok 44.4s"
+  },
+  {
+   "time": "2026-09-28T19:10:54",
+   "group": "tanuki_lord",
+   "role": "狸大人",
+   "try": 131,
+   "kind": "tts",
+   "chars": 450,
+   "lines": 8,
+   "result": "ok 72.0s"
+  },
+  {
+   "time": "2026-09-28T19:11:33",
+   "group": "villager",
+   "role": "村貓",
+   "try": 132,
+   "kind": "tts",
+   "chars": 114,
+   "lines": 2,
+   "result": "ok 18.5s"
+  },
+  {
+   "time": "2026-09-28T19:32:12",
+   "group": "fengfeng",
+   "role": "封封",
+   "try": 200,
+   "kind": "tts",
+   "chars": 31,
+   "lines": 1,
+   "result": "ok 4.8s"
+  },
+  {
+   "time": "2026-09-28T19:32:20",
+   "group": "ninja",
+   "role": "球球",
+   "try": 200,
+   "kind": "tts",
+   "chars": 11,
+   "lines": 1,
+   "result": "ok 5.2s"
+  }
+ ],
+ "used": 49
+}

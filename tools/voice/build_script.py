@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""把盤點（lines_zh.json）＋譯稿（ja\<說話者>.json）＋譯名表（ja\glossary.json）組成
-public/voice/script.json 與 docs/2026-09-28_日文配音台詞.md。**不呼叫任何語音合成服務。**
+tools/voice/script.json 與 docs/2026-09-28_日文配音台詞.md。**不呼叫任何語音合成服務。**
 
 格式照 F:\ClaudeWork\qiuqiu-side\public\voice\script.json（meta／groups／lines），多幾個欄位：
 - key：遊戲查表用的鍵＝「聲音角色|畫面上的中文」（見文件〈遊戲怎麼查〉）
@@ -30,12 +30,12 @@ GROUPS = OrderedDict([
  ("ninja", dict(name="球球", name_ja="キュウキュウ", voice="leda", lufs=-16,
    why="沿用《球球大冒險》同一個聲音：Leda（年輕、活潑、音調偏高），演女聲優配的少年",
    style="A cute, energetic boy ninja cat, about ten years old, with an anime boy voice performed by a female voice actor. Brave, impatient and a little cheeky, but soft and tearful when he talks about his master. The 'nya' at line ends is cute and natural. Battle cries are short and punchy; lines ending with …… are weak and out of breath. " + EACH)),
- ("feifei", dict(name="菲菲", name_ja="フェイフェイ", voice="achernar", lufs=-16,
-   why="Achernar（柔和、輕聲、音調偏高的女聲）→ 怕痛、說話先道歉的師妹",
-   style="A timid young Siamese cat girl, about ten, the ninja boy's junior. She is scared of pain, speaks softly, stutters when nervous, apologizes first and often trails off, but keeps going out of love for her master and senior brother. Gentle, slightly breathy anime girl voice; never shouts except in sudden fright. " + EACH)),
- ("dangdang", dict(name="噹噹", name_ja="ダンダン", voice="iapetus", lufs=-16,
-   why="Iapetus（清楚、俐落、中低音男聲）→ 話少、講實際事的修理匠",
-   style="A young tuxedo cat craftsman in his late teens who repairs things at the village gate and fights with copper arm guards. Few words, short blunt sentences, practical and steady; dry, low-key, but quietly caring. Calm young male anime voice; battle lines are firm, not shouted. " + EACH)),
+ ("feifei", dict(name="菲菲", name_ja="フェイフェイ", voice="zephyr", lufs=-16,
+   why="2026-09-28 使用者試聽選定：Zephyr（明亮、音調偏高女聲）＋怯懦小女孩語氣",
+   style="A timid, shy little girl, about eight to ten years old: small, soft, slightly high voice, a bit hesitant and nervous, often trailing off, polite and gentle, but with quiet resolve when it matters. Anime little-girl voice. Natural Japanese. Each line is separate; leave about one second of silence between lines.")),
+ ("dangdang", dict(name="噹噹", name_ja="ダンダン", voice="ja-jp-advisor-12", lufs=-16,
+   why="2026-09-28 使用者試聽選定：ja-jp-advisor-12（50 歲東京腔男聲）＋沉穩大叔語氣",
+   style="A calm, steady, dependable middle-aged man, like a reliable uncle or an older martial-arts senior: deep, relaxed, unhurried, few words, warm but firm, never shouting except for short battle warnings. Natural Japanese. Each line is separate; leave about one second of silence between lines.")),
  ("fengfeng", dict(name="封封", name_ja="フォンフォン", voice="schedar", lufs=-16,
    why="Schedar（平穩、均衡的中低音男聲）→ 冷靜、先看四周再開口的劍客",
    style="A calm orange-and-white swordsman cat, a young courier who escorts medicine and food over the mountain roads. Quiet, composed and gentle; checks the surroundings before speaking; never panics. Soft, even young male anime voice with a warm undertone. " + EACH)),
@@ -174,8 +174,8 @@ for sp, g in GROUPS.items():
     groups[sp] = {"role": sp, "name": g["name"], "name_ja": g["name_ja"], "lang": "ja", "voice": g["voice"],
                   "split": "align", "lufs": g["lufs"], "why": g["why"], "style": g["style"]}
 out = {"meta": meta, "groups": groups, "batches": batches, "lines": lines}
-(ROOT / "public" / "voice").mkdir(parents=True, exist_ok=True)
-(ROOT / "public" / "voice" / "script.json").write_text(json.dumps(out, ensure_ascii=False, indent=1, default=list), encoding="utf-8")
+(ROOT / "tools" / "voice").mkdir(parents=True, exist_ok=True)
+(ROOT / "tools" / "voice" / "script.json").write_text(json.dumps(out, ensure_ascii=False, indent=1, default=list), encoding="utf-8")
 
 # ---- 統計 ----
 def stat(filt):
@@ -199,7 +199,7 @@ doc = []
 A = doc.append
 A("# 爪破魔塔 日文配音台詞表（2026-09-28）\n")
 A("範圍（使用者裁定）：**只配主線過場與戰鬥吐槽**，不配旁白、隨機事件、商店、問號、連線雙人文字。念日文、畫面字幕照舊是中文。")
-A("這一版只是台詞稿，**還沒生成任何聲音、沒呼叫任何語音服務**。正本是 `public/voice/script.json`（本檔由 `tools/voice/build_script.py` 產生，改譯稿改 `tools/voice/ja/<角色>.json` 再重跑）。\n")
+A("這一版只是台詞稿，**還沒生成任何聲音、沒呼叫任何語音服務**。正本是 `tools/voice/script.json`（本檔由 `tools/voice/build_script.py` 產生，改譯稿改 `tools/voice/ja/<角色>.json` 再重跑）。\n")
 A("## 句數與字數\n")
 A("| 群組 | 角色 | 句數 | 日文字數 | 送念字數 | 請求數 |")
 A("|---|---|---|---|---|---|")
@@ -243,7 +243,7 @@ A("- 要接的地方（這一版**還沒實作**）：")
 A("  1. `src/ui/dialogue.ts` 的 `playDialogue` 裡的 `render()`：`text.textContent = l.text` 那一行之後播這一句；換句或關掉對白框時停掉上一句。「塔主」要知道是哪一隻：`SpeakerCast` 目前只帶名字與頭像，要多帶關主 id（`app.ts` 關主開場與倒下兩處、`combat.ts` 的 `bossPhaseTalk`）。")
 A("  2. `src/ui/dialogue.ts` 的 `toast()`（戰鬥、紙箱、貓窩吐槽）與 `bubbleAt`／`bubbleOverUnit`（關主換階段從頭上冒的那句）：呼叫端手上都有說話者名字，名字轉聲音角色（主角名→角色、關主名→關主 id）；關主倒下時名牌可能帶「暴怒的」前綴，建議改傳 id 不要靠名字。")
 A("  3. 幻燈片 `src/ui/slides.ts` 的 `playSlides` 顯示台詞的地方，同 1。")
-A("  4. 查表檔：生成後另出一份 `public/voice/index.json`（`key`→音檔路徑），遊戲開局載入；查不到就不播（旁白、事件、沒配的句子照舊安靜）。\n")
+A("  4. 查表檔：生成後另出一份 `public/voice/voice-map.json`（`key`→音檔路徑），遊戲開局載入；查不到就不播（旁白、事件、沒配的句子照舊安靜）。\n")
 A("## 沒有配、或沒辦法事先列出來的句子\n")
 A("- **連線劇情**：兩人同隊時整段換掉的序章、過關、結局、師父那場接話，以及逐句換口的混搭句，實跑盤點後比單人多 148 句（球球 40、菲菲 42、噹噹 35、封封 31）。範圍說不配連線文字，所以沒收；連線時這些句子會沒有聲音。")
 A("- **帶變數的句子**：過關拿到關主信物那兩句（`關主留下的東西……「秘寶名」到手了喵！`、`…是「秘寶名」！這就是塔主的信物喵！`，在 `actclear.ts`、`reward.ts`）裡面嵌了秘寶名稱，每位主角 2 種樣板 × 秘寶數量，沒有列。打完事件的「打贏了，拿到秘寶…」是系統提示，也沒列。")

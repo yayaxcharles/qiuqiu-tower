@@ -203,22 +203,22 @@
    "name": "菲菲",
    "name_ja": "フェイフェイ",
    "lang": "ja",
-   "voice": "achernar",
+   "voice": "zephyr",
    "split": "align",
    "lufs": -16,
    "why": "Achernar（柔和、輕聲、音調偏高的女聲）→ 怕痛、說話先道歉的師妹",
-   "style": "A timid young Siamese cat girl, about ten, the ninja boy's junior. She is scared of pain, speaks softly, stutters when nervous, apologizes first and often trails off, but keeps going out of love for her master and senior brother. Gentle, slightly breathy anime girl voice; never shouts except in sudden fright. Each line is a separate line of dialogue; leave about one second of silence between lines. Natural Tokyo Japanese, anime style."
+   "style": "A timid, shy little girl, about eight to ten years old: small, soft, slightly high voice, a bit hesitant and nervous, often trailing off, polite and gentle, but with quiet resolve when it matters. Anime little-girl voice. Natural Japanese. Each line is separate; leave about one second of silence between lines."
   },
   "dangdang": {
    "role": "dangdang",
    "name": "噹噹",
    "name_ja": "ダンダン",
    "lang": "ja",
-   "voice": "iapetus",
+   "voice": "ja-jp-advisor-12",
    "split": "align",
    "lufs": -16,
    "why": "Iapetus（清楚、俐落、中低音男聲）→ 話少、講實際事的修理匠",
-   "style": "A young tuxedo cat craftsman in his late teens who repairs things at the village gate and fights with copper arm guards. Few words, short blunt sentences, practical and steady; dry, low-key, but quietly caring. Calm young male anime voice; battle lines are firm, not shouted. Each line is a separate line of dialogue; leave about one second of silence between lines. Natural Tokyo Japanese, anime style."
+   "style": "A calm, steady, dependable middle-aged man, like a reliable uncle or an older martial-arts senior: deep, relaxed, unhurried, few words, warm but firm, never shouting except for short battle warnings. Natural Japanese. Each line is separate; leave about one second of silence between lines."
   },
   "fengfeng": {
    "role": "fengfeng",
