@@ -1,0 +1,47 @@
+[
+ {
+  "zh": "呱——本大名的池子，什麼時候輪到一隻小貓來撒野了？",
+  "ctx": [
+   "ninja/bossIntro:frog_daimyo#0",
+   "feifei/bossIntro:frog_daimyo#0",
+   "dangdang/bossIntro:frog_daimyo#0",
+   "fengfeng/bossIntro:frog_daimyo#0"
+  ]
+ },
+ {
+  "zh": "借過？上面那位紫眼睛的說了，一個都不許放上去。本大名答應過的事，呱，就要做到。",
+  "ctx": [
+   "ninja/bossIntro:frog_daimyo#2",
+   "feifei/bossIntro:frog_daimyo#2",
+   "dangdang/bossIntro:frog_daimyo#2",
+   "fengfeng/bossIntro:frog_daimyo#2"
+  ]
+ },
+ {
+  "zh": "來人！",
+  "ctx": [
+   "ninja/bossPhase2:frog_daimyo#0",
+   "feifei/bossPhase2:frog_daimyo#0",
+   "dangdang/bossPhase2:frog_daimyo#0",
+   "fengfeng/bossPhase2:frog_daimyo#0"
+  ]
+ },
+ {
+  "zh": "呱……本大名答應過的事，沒做到。",
+  "ctx": [
+   "ninja/bossDefeat:frog_daimyo#0",
+   "feifei/bossDefeat:frog_daimyo#0",
+   "dangdang/bossDefeat:frog_daimyo#0",
+   "fengfeng/bossDefeat:frog_daimyo#0"
+  ]
+ },
+ {
+  "zh": "罷了。你這膽子，本大名認了。上去吧，池子借你過。",
+  "ctx": [
+   "ninja/bossDefeat:frog_daimyo#1",
+   "feifei/bossDefeat:frog_daimyo#1",
+   "dangdang/bossDefeat:frog_daimyo#1",
+   "fengfeng/bossDefeat:frog_daimyo#1"
+  ]
+ }
+]

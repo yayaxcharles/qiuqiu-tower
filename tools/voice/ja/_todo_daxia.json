@@ -1,0 +1,56 @@
+[
+ {
+  "zh": "難逢敵手。",
+  "ctx": [
+   "ninja/victory:master:strength",
+   "ninja/bossIntro:tower_master#0",
+   "feifei/victory:master:strength",
+   "feifei/bossIntro:tower_master#0"
+  ]
+ },
+ {
+  "zh": "深藏不露。",
+  "ctx": [
+   "ninja/victory:master:stealth",
+   "ninja/victory:master:poison",
+   "ninja/bossPhase3:tower_master#0",
+   "feifei/victory:master:stealth"
+  ]
+ },
+ {
+  "zh": "在下不才。",
+  "ctx": [
+   "ninja/victory:master:thorns",
+   "ninja/victory:master:block",
+   "feifei/victory:master:thorns",
+   "feifei/victory:master:block"
+  ]
+ },
+ {
+  "zh": "承讓。",
+  "ctx": [
+   "ninja/victory:master:plain",
+   "feifei/victory:master:plain",
+   "dangdang/victory:master:plain",
+   "fengfeng/victory:master:plain"
+  ]
+ },
+ {
+  "zh": "退隱江湖。",
+  "ctx": [
+   "ninja/bossIntro:tower_master#2",
+   "feifei/bossIntro:tower_master#2",
+   "dangdang/bossIntro:tower_master#2",
+   "fengfeng/bossIntro:tower_master#2"
+  ]
+ },
+ {
+  "zh": "走火入魔。",
+  "ctx": [
+   "ninja/bossPhase2:tower_master#0",
+   "feifei/bossPhase2:tower_master#0",
+   "dangdang/bossPhase2:tower_master#0",
+   "fengfeng/bossPhase2:tower_master#0"
+  ]
+ }
+]

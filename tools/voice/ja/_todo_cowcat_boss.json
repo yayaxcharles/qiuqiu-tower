@@ -1,0 +1,47 @@
+[
+ {
+  "zh": "塔下那群傢伙攔不住你，算你有點本事。接下來，就由本二當家親自陪你過招。",
+  "ctx": [
+   "ninja/bossIntro:cowcat_boss#0",
+   "feifei/bossIntro:cowcat_boss#0",
+   "dangdang/bossIntro:cowcat_boss#0",
+   "fengfeng/bossIntro:cowcat_boss#0"
+  ]
+ },
+ {
+  "zh": "塔頂那位紫眼睛的大貓。他一句話，這座塔的傢伙都得聽。",
+  "ctx": [
+   "ninja/bossIntro:cowcat_boss#2",
+   "feifei/bossIntro:cowcat_boss#2",
+   "dangdang/bossIntro:cowcat_boss#2",
+   "fengfeng/bossIntro:cowcat_boss#2"
+  ]
+ },
+ {
+  "zh": "黑爪只是熱身，接下來換白爪！",
+  "ctx": [
+   "ninja/bossPhase2:cowcat_boss#0",
+   "feifei/bossPhase2:cowcat_boss#0",
+   "dangdang/bossPhase2:cowcat_boss#0",
+   "fengfeng/bossPhase2:cowcat_boss#0"
+  ]
+ },
+ {
+  "zh": "二當家……居然輸給你這種小不點。",
+  "ctx": [
+   "ninja/bossDefeat:cowcat_boss#0",
+   "feifei/bossDefeat:cowcat_boss#0",
+   "dangdang/bossDefeat:cowcat_boss#0",
+   "fengfeng/bossDefeat:cowcat_boss#0"
+  ]
+ },
+ {
+  "zh": "去吧。跟你講，上面那位的脾氣比我差一百倍。他一掌拍下來，連我都不敢站著。",
+  "ctx": [
+   "ninja/bossDefeat:cowcat_boss#1",
+   "feifei/bossDefeat:cowcat_boss#1",
+   "dangdang/bossDefeat:cowcat_boss#1",
+   "fengfeng/bossDefeat:cowcat_boss#1"
+  ]
+ }
+]
