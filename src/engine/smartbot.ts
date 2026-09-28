@@ -394,7 +394,8 @@ function damageTo(cs: CombatState, effects: Effect[], e: EnemyCombat, combo: num
       swing(getStatus(e, fx.name) * (fx.mul ?? 1) * (doubled ? 2 : 1), true);
     } else if (fx.kind === 'execByStatus') {
       // 一針斃命：毒夠多就直接了結，不夠就什麼都沒發生
-      if (getStatus(e, fx.name) >= e.hp) swing(e.hp, true);
+      // 至少要有 1 層才算（跟 `effects.ts` 同步）
+      if (getStatus(e, fx.name) > 0 && getStatus(e, fx.name) + (fx.bonus ?? 0) >= e.hp) swing(e.hp, true);
     } else if (fx.kind === 'damageSpendBlock') {
       /*
        * 噹噹：卸掉蜷縮打出去。**照實模擬「吃多少打多少」**，不要假設蜷縮夠——
@@ -518,8 +519,9 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
      * 可是上面那條「目標血少於 20 加 2 分」不管打不打得到都給，淨值 1.4 過了 0.5 的門檻——
      * 原本 600 局裡 21.8% 的卸蜷縮出招是撲空的。只管這兩種：其他牌 0 傷多半是目標有隱身，
      * 那邊本來就有「打掉那層隱身」的估法，不動它。
+     * 2026-09-28 加一針斃命：條件不成立整張撲空，原本 3000 局裡約一成五的出牌是撲空的
      */
-    if (st.effects.some((fx) => fx.kind === 'damageSpendBlock' || fx.kind === 'damageByOwnStatus')) {
+    if (st.effects.some((fx) => fx.kind === 'damageSpendBlock' || fx.kind === 'damageByOwnStatus' || fx.kind === 'execByStatus')) {
       const total = def.target === 'all'
         ? enemies.reduce((s, e) => s + damageTo(cs, st.effects, e, combo, p.doubleNext > 0, plays, false, p), 0)
         : best ? damageTo(cs, st.effects, best.e, combo, p.doubleNext > 0, plays, false, p) : 0;

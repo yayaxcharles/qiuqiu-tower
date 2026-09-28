@@ -5,6 +5,7 @@ import { Rng, seedFromString } from '../../src/engine/rng';
 import { cards } from '../../src/content/cards';
 import { deckJunk, handRated, rating, smartSeatAct } from '../../src/engine/smartbot';
 import { newRun } from '../../src/engine/run';
+import { addStatus } from '../../src/engine/statuses';
 import type { CombatState, EnemyMove, PlayerCombat } from '../../src/engine/types';
 
 /**
@@ -147,5 +148,23 @@ describe('量測工具 2026-09-22：封封專屬牌評分', () => {
     expect(rating('fengfeng_cunfeng')).toBe(3);
     // 偏弱的牌不進放生名單（2 分以下才是）
     for (const c of cards.filter((x) => x.hero === 'fengfeng' && x.pool !== '起手')) expect(rating(c.id), c.id).toBeGreaterThan(2);
+  });
+});
+
+// 2026-09-28 一針斃命改斬殺線：機器人要看得懂 bonus，不然量平衡時這張永遠只在「毒 ≥ 生命」才打
+describe('一針斃命斬殺線：機器人看得懂門檻', () => {
+  it('生命 25、中毒 15：落在「毒＋10」以內就打（沒算 bonus 的話不會打）', () => {
+    const { cs, p } = setup('feifei', ['feifei_yizhen'], { enemyHp: 25 });
+    addStatus(cs.enemies[0]!, '中毒', 15);
+    expect(nextPlay(cs, p)).toBe('feifei_yizhen');
+  });
+  it('生命 26、中毒 15：差一點，不打', () => {
+    const { cs, p } = setup('feifei', ['feifei_yizhen'], { enemyHp: 26 });
+    addStatus(cs.enemies[0]!, '中毒', 15);
+    expect(nextPlay(cs, p)).toBeNull();
+  });
+  it('沒中毒：生命再低也不打', () => {
+    const { cs, p } = setup('feifei', ['feifei_yizhen'], { enemyHp: 5 });
+    expect(nextPlay(cs, p)).toBeNull();
   });
 });

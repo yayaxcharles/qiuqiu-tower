@@ -181,8 +181,12 @@ export type Effect =
    * 基礎版在任何情況下都不會比升級版好。
    */
   | { kind: 'damageByStatus'; name: StatusName; consume?: boolean; mul?: number }
-  /** 層數 ≥ 目標現在的生命就直接打倒（一針斃命） */
-  | { kind: 'execByStatus'; name: StatusName }
+  /**
+   * 斬殺線（一針斃命）：目標現在的生命 ≤ 層數＋`bonus` 就直接打倒。
+   * 2026-09-28 加 `bonus`：原本是「層數 ≥ 生命」，而毒在魔物回合開頭先跳、跳完就死，
+   * 條件成立的那一下下回合本來就會死，這張等於白打（使用者選的改法 D）
+   */
+  | { kind: 'execByStatus'; name: StatusName; bonus?: number }
   /**
    * 屍爆（餘毒）：中毒的魔物被打倒時，把牠**剩下的層數**傳給其他還活著的。
    * `full` ＝每一隻都拿全額（升級版），沒有就平分。
