@@ -182,6 +182,39 @@ describe('配音播放', () => {
     expect(ctx.sources[0]!.stop).toHaveBeenCalled();
     expect(ctx.sources).toHaveLength(2);
   });
+
+  it('關主換階段那一串排隊：關主講完主角才回；排隊時亂入的吐槽跳過；等超過 4 秒的丟掉', async () => {
+    const { voice, ctx } = await setup();
+    let now = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => now);
+    const KEY_C = Object.keys(voiceMap)[2]!;
+    const [GC, TC] = [KEY_C.split('|')[0]!, KEY_C.slice(KEY_C.indexOf('|') + 1)];
+    voice.speak(GA, TA, 'queue');
+    await flush();
+    voice.speak(GB, TB, 'queue');          // 1.4 秒後主角回話：排著
+    voice.speak(GC, TC, 'bark');           // 同時冒的一般吐槽：跳過
+    await flush();
+    expect(ctx.sources).toHaveLength(1);
+    ctx.sources[0]!.onended?.();           // 關主講完
+    await flush();
+    expect(ctx.sources).toHaveLength(2);
+    expect(duck).not.toHaveBeenLastCalledWith(1);   // 接著講，音樂不先彈回來
+    // 過期：排了之後等超過 4 秒才輪到 → 不講
+    voice.speak(GC, TC, 'queue');
+    now += 4500;
+    ctx.sources[1]!.onended?.();
+    await flush();
+    expect(ctx.sources).toHaveLength(2);
+    expect(duck).toHaveBeenLastCalledWith(1);
+    // 最多排兩句
+    voice.speak(GA, TA, 'queue');
+    await flush();
+    for (const [g, t] of [[GB, TB], [GC, TC], [GA, TA]] as const) voice.speak(g, t, 'queue');
+    ctx.sources[2]!.onended?.(); await flush();
+    ctx.sources[3]!.onended?.(); await flush();
+    ctx.sources[4]!.onended?.(); await flush();
+    expect(ctx.sources).toHaveLength(5);
+  });
 });
 
 // ---- 首載不含配音 ----

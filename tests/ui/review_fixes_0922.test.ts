@@ -41,7 +41,7 @@ async function makeSpeak(overlayOpen: boolean) {
       coop: null, cs: { players: [{}] }, mySeat: 0,
       app: { stage: {} }, root: { querySelector: () => ({}) }, bossId: 'tanuki_lord',
       text: (l: Line) => l.text, name: (sp: string) => sp,
-      speakVoice: () => {}, voiceGroup: () => null,   // 配音（2026-09-28）不在這條測試的範圍
+      speakVoice: () => {}, voiceGroup: () => null, my: () => ({ hero: 'ninja' }),   // 配音（2026-09-28）不在這條測試的範圍
     });
   return { speak, toast, bubbleOverUnit };
 }

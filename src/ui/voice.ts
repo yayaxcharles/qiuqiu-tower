@@ -103,11 +103,24 @@ let token = 0;
 let current: { src: AudioBufferSourceNode; token: number } | null = null;
 /** 吐槽用：有一句在講（或正在準備講主線那句）就不插嘴 */
 let busy = false;
+/** 關主換階段那一串（`queue`）：前一句講完再接，最多排兩句、等超過 4 秒就不講了 */
+const QUEUE_MAX = 2;
+const QUEUE_MAX_WAIT_MS = 4000;
+const waiting: { group: string; text: string; at: number }[] = [];
+/** 前一句講完（或講不成）：排著的下一句還沒過期就接著講；有接上回 true */
+function playNext(): boolean {
+  while (waiting.length) {
+    const w = waiting.shift()!;
+    if (performance.now() - w.at <= QUEUE_MAX_WAIT_MS) { speak(w.group, w.text, 'queue'); return true; }
+  }
+  return false;
+}
 
 /** 停掉正在講的那句（不動音樂音量） */
 function halt(): void {
   token++;
   busy = false;
+  waiting.length = 0;
   const c = current;
   current = null;
   if (c) { try { c.src.onended = null; c.src.stop(); } catch { /* 已經停了 */ } }
@@ -120,15 +133,18 @@ onSoundOff(stopVoice);
 /**
  * 講一句。`kind`：
  * - `line`＝對白框／幻燈片那一句：先停掉前一句再講（點下一句就換）；
- * - `bark`＝戰鬥吐槽：已經有一句在講或在準備就跳過，準備太久也跳過，不排隊。
+ * - `bark`＝戰鬥吐槽：已經有一句在講或在準備就跳過，準備太久也跳過，不排隊；
+ * - `queue`＝關主換階段那一串（關主一句、主角回一句）：有一句在講就排隊等它講完，見 `waiting`。
  */
-export function speak(group: string | null, text: string, kind: 'line' | 'bark' = 'line'): void {
+export function speak(group: string | null, text: string, kind: 'line' | 'bark' | 'queue' = 'line'): void {
   if (!allowed()) return;
-  if (kind === 'bark' && (busy || !group || !text)) return;
+  if (kind !== 'line' && (!group || !text)) return;
+  if (kind === 'bark' && busy) return;
+  if (kind === 'queue' && busy) { if (waiting.length < QUEUE_MAX) waiting.push({ group: group!, text, at: performance.now() }); return; }
   if (kind === 'line') halt();   // 音樂先不還原：下一句多半馬上接著講，免得音量忽大忽小
   const my = token;
   // 這一句講不成：還是最新那一次才收尾（音樂還原、讓出位置給吐槽）
-  const giveUp = (): void => { if (my === token) { busy = false; if (!current) duckBgm(1); } };
+  const giveUp = (): void => { if (my === token) { busy = false; if (!current && !playNext()) duckBgm(1); } };
   if (!group || !text) { giveUp(); return; }
   busy = true;
   const t0 = performance.now();
@@ -139,11 +155,11 @@ export function speak(group: string | null, text: string, kind: 'line' | 'bark' 
     const out = my === token ? await audioOut() : null;
     const buf = out ? await loadClip(out.ctx, clip.file) : undefined;
     if (my !== token) return;
-    if (!out || !buf || !allowed() || (kind === 'bark' && performance.now() - t0 > BARK_MAX_WAIT_MS)) { giveUp(); return; }
+    if (!out || !buf || !allowed() || (kind !== 'line' && performance.now() - t0 > BARK_MAX_WAIT_MS)) { giveUp(); return; }
     const src = out.ctx.createBufferSource();
     src.buffer = buf;
     src.connect(out.out);
-    src.onended = () => { if (current?.src === src) { current = null; busy = false; duckBgm(1); } };
+    src.onended = () => { if (current?.src === src) { current = null; busy = false; if (!playNext()) duckBgm(1); } };
     current = { src, token: my };
     duckBgm(DUCK);
     src.start();
