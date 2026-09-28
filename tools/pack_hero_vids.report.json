@@ -1,0 +1,110 @@
+{
+ "atlases": {
+  "assets/motion/hero-vids/qiuqiu-claw-d.webp": {
+   "bytes": 269140,
+   "size": [
+    4025,
+    820
+   ],
+   "cells": 10
+  },
+  "assets/motion/hero-vids/qiuqiu-toss-d.webp": {
+   "bytes": 279980,
+   "size": [
+    3823,
+    837
+   ],
+   "cells": 11
+  },
+  "assets/motion/hero-vids/qiuqiu-hurt-d.webp": {
+   "bytes": 367836,
+   "size": [
+    3644,
+    820
+   ],
+   "cells": 15
+  },
+  "assets/motion/hero-vids/qiuqiu-defeat-d.webp": {
+   "bytes": 428518,
+   "size": [
+    4067,
+    1041
+   ],
+   "cells": 17
+  },
+  "assets/motion/hero-vids/qiuqiu-run-d.webp": {
+   "bytes": 287250,
+   "size": [
+    3967,
+    822
+   ],
+   "cells": 12
+  },
+  "assets/motion/hero-vids/qiuqiu-claw-m.webp": {
+   "bytes": 93158,
+   "size": [
+    1615,
+    334
+   ],
+   "cells": 5
+  },
+  "assets/motion/hero-vids/qiuqiu-toss-m.webp": {
+   "bytes": 112504,
+   "size": [
+    1886,
+    317
+   ],
+   "cells": 6
+  },
+  "assets/motion/hero-vids/qiuqiu-hurt-m.webp": {
+   "bytes": 125064,
+   "size": [
+    2281,
+    305
+   ],
+   "cells": 7
+  },
+  "assets/motion/hero-vids/qiuqiu-defeat-m.webp": {
+   "bytes": 146716,
+   "size": [
+    3287,
+    322
+   ],
+   "cells": 8
+  },
+  "assets/motion/hero-vids/qiuqiu-run-m.webp": {
+   "bytes": 105272,
+   "size": [
+    1629,
+    310
+   ],
+   "cells": 6
+  }
+ },
+ "scale": {
+  "attack1": 0.45368,
+  "attack3": 0.45368,
+  "toss": 0.52961,
+  "hurt": 0.45368,
+  "defeat": 0.45368,
+  "run": 0.45368
+ },
+ "frames": {
+  "desktop": {
+   "attack1": 5,
+   "attack3": 7,
+   "toss": 11,
+   "hurt": 15,
+   "defeat": 17,
+   "run": 12
+  },
+  "mobile": {
+   "attack1": 3,
+   "attack3": 3,
+   "toss": 6,
+   "hurt": 7,
+   "defeat": 8,
+   "run": 6
+  }
+ }
+}
