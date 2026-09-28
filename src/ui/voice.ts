@@ -1,6 +1,7 @@
-import { audioOut, onSoundOff, soundOn } from './audio';
+import { audioOut, onSoundOff } from './audio';
 import { duckBgm } from './bgm';
-import { fileUrl } from './assets';
+import { BUILD, fileUrl } from './assets';
+import { voiceAllowed } from './voicegate';
 
 /**
  * 日文配音（2026-09-28）：主線過場與戰鬥吐槽念日文，字幕照舊是中文。
@@ -11,55 +12,27 @@ import { fileUrl } from './assets';
  * - 走音效那一套音訊環境、接在音效總音量後面：**音效關了配音一定沒聲音**（使用者規則），手機第一次點擊解鎖也共用。
  *   另有自己的「語音」開關（預設開），只管配音。
  * - 同一時間只講一句；講話時背景音樂壓到一半、講完還原。
+ * - 這一支是按需載入的（`voicegate.ts` 第一次要講話才 import），開關與說話者判斷在那邊。
  */
 
-const STORE_KEY = 'qiuqiu.voice';
 /** 講話時背景音樂的音量倍率 */
 export const DUCK = 0.5;
 /** 吐槽等太久（查表或音檔還沒到）就不講了：畫面上那句早就換掉 */
 const BARK_MAX_WAIT_MS = 1500;
 /** 解碼好的音檔最多留幾份（一份單聲道幾秒，幾百 KB；全留會把手機記憶體吃光） */
-const KEEP = 32;
+export const KEEP = 32;
+/** 喚醒音訊環境最多等多久（手機背景回來偶爾卡住）：等不到這一句就不講 */
+const RESUME_MAX_WAIT_MS = 1500;
+
+/** 音訊出口，等太久就當作沒有 */
+function outSoon(): ReturnType<typeof audioOut> {
+  return Promise.race([audioOut(), new Promise<null>((res) => setTimeout(() => res(null), RESUME_MAX_WAIT_MS))]);
+}
 
 export interface VoiceClip { file: string; dur: number }
 
-function readEnabled(): boolean {
-  try { return window.localStorage.getItem(STORE_KEY) !== 'off'; } catch { return true; }
-}
-let enabled = readEnabled();
-
-export function voiceOn(): boolean { return enabled; }
-export function setVoiceOn(on: boolean): void {
-  enabled = on;
-  try { window.localStorage.setItem(STORE_KEY, on ? 'on' : 'off'); } catch { /* 存不了就算了 */ }
-  if (!on) stopVoice();
-}
-export function toggleVoice(): boolean { setVoiceOn(!enabled); return enabled; }
-
-/** 配音能不能出聲：音效開＋語音開 */
-function allowed(): boolean { return enabled && soundOn(); }
-
-// ---- 說話者 → 聲音角色 ----
-
-const HERO_BY_NAME: Record<string, string> = { 球球: 'ninja', 菲菲: 'feifei', 噹噹: 'dangdang', 封封: 'fengfeng' };
-
-/** 名牌上的主角名字 → 聲音角色（吐槽泡泡用；不是主角回 null） */
-export function heroVoice(name: string): string | null { return HERO_BY_NAME[name] ?? null; }
-
-/**
- * 劇本上的說話者 → 聲音角色，規則跟 `tools/voice/dump_lines.ts` 的 `keyOf` 一樣：
- * 「球球」不照字面播時是本機這一位（`hero`）；「塔主」是這一場的關主（師父 tower_master＝大俠貓）。
- */
-export function voiceGroup(speaker: string, o: { hero?: string | undefined; literal?: boolean; bossId?: string | undefined } = {}): string | null {
-  if (speaker === '旁白') return null;
-  if (speaker === '球球' && !o.literal) return o.hero ?? 'ninja';
-  if (HERO_BY_NAME[speaker]) return HERO_BY_NAME[speaker]!;
-  if (speaker === '大俠貓') return 'daxia';
-  if (speaker === '村貓') return 'villager';
-  if (speaker === '黑貓忍者頭目') return 'ninja_boss';
-  if (speaker === '塔主') return !o.bossId || o.bossId === 'tower_master' ? 'daxia' : o.bossId;
-  return null;
-}
+/** 配音能不能出聲：音效開＋語音開（開關在 `voicegate.ts`） */
+const allowed = voiceAllowed;
 
 // ---- 查表與音檔 ----
 
@@ -70,7 +43,8 @@ function loadMap(): Promise<Record<string, VoiceClip> | null> {
   if (!mapTask) {
     mapTask = (async () => {
       try {
-        const res = await fetch(fileUrl('voice/voice-map.json'));
+        // 夾這一版的打包編號：查表檔不加雜湊，不夾的話剛部署完十分鐘內會拿到舊表（同 assets.ts 的清單）
+        const res = await fetch(`${fileUrl('voice/voice-map.json')}${BUILD ? `?v=${BUILD}` : ''}`);
         if (!res.ok) return null;
         map = await res.json() as Record<string, VoiceClip>;
         return map;
@@ -152,7 +126,7 @@ export function speak(group: string | null, text: string, kind: 'line' | 'bark' 
     const m = await loadMap();
     const clip = m?.[`${group}|${text}`];
     if (!clip) { giveUp(); return; }          // 沒配的句子：安靜
-    const out = my === token ? await audioOut() : null;
+    const out = my === token ? await outSoon() : null;
     const buf = out ? await loadClip(out.ctx, clip.file) : undefined;
     if (my !== token) return;
     if (!out || !buf || !allowed() || (kind !== 'line' && performance.now() - t0 > BARK_MAX_WAIT_MS)) { giveUp(); return; }
@@ -171,7 +145,7 @@ export function prefetchVoice(items: readonly { group: string | null; text: stri
   if (!allowed() || items.every((x) => !x.group)) return;
   void (async () => {
     const m = await loadMap();
-    const out = m ? await audioOut() : null;
+    const out = m ? await outSoon() : null;
     if (!m || !out) return;
     for (const { group, text } of items) {
       const clip = group ? m[`${group}|${text}`] : undefined;

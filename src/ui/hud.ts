@@ -10,7 +10,7 @@ import { artUrl } from './assets';
 import { ACT_NAMES, potionCapacity } from '../engine/run';
 import { play, soundOn, toggleSound } from './audio';
 import { musicOn, musicVolume, setMusicVolume, toggleMusic } from './bgm';
-import { toggleVoice, voiceOn } from './voice';
+import { toggleVoice, voiceOn } from './voicegate';
 import { showDeckPicker } from './deckview';
 import { loadRun } from '../engine/save';
 import { encodeRun } from '../engine/sharecode';

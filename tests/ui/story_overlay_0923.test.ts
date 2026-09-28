@@ -38,7 +38,13 @@ vi.mock('../../src/ui/assets', () => ({
   artUrl: () => 'bg.webp', fileUrl: (p: string) => p, hasHeroSprite: () => false, heroArtUrl: () => 'hero.webp',
   localHero: () => 'ninja', localPartner: () => undefined, monsterUrl: () => 'monster.webp',
 }));
-vi.mock('../../src/ui/bgm', () => ({ pauseBgm: () => {}, setBgm: () => {}, duckBgm: () => {} }));
+vi.mock('../../src/ui/bgm', () => ({ pauseBgm: () => {}, setBgm: () => {} }));
+// 配音（2026-09-28）：只記叫了什麼，看對白收尾有沒有叫停
+const voice = vi.hoisted(() => ({ say: [] as string[], hush: 0 }));
+vi.mock('../../src/ui/voicegate', () => ({
+  say: (_g: string | null, t: string) => { voice.say.push(t); }, hush: () => { voice.hush += 1; }, prefetch: () => {},
+  voiceGroup: () => 'ninja', heroVoice: () => null,
+}));
 
 import { playSlides } from '../../src/ui/slides';
 import { playDialogue } from '../../src/ui/dialogue';
@@ -58,6 +64,22 @@ beforeEach(() => {
   setOverlayRoot(layer as unknown as HTMLElement);
 });
 afterEach(() => { closeStoryOverlays(); setOverlayRoot(null); vi.unstubAllGlobals(); });
+
+describe('配音跟著對白走（2026-09-28）', () => {
+  it('每句顯示時講、演完或被收掉都叫停', () => {
+    voice.say.length = 0; voice.hush = 0;
+    playDialogue([{ speaker: '球球', text: '一' }, { speaker: '球球', text: '二' }], () => {});
+    expect(voice.say).toEqual(['一']);
+    const tap = (t: number): void => boxes()[0]!.listeners['click']!({ timeStamp: performance.now() + t });
+    tap(60_000);
+    expect(voice.say).toEqual(['一', '二']);
+    tap(120_000);   // 連點保護：兩下要隔開
+    expect(voice.hush, '演完要停').toBe(1);
+    playSlides([{ img: 'story_1', lines: [{ speaker: '球球', text: '三' }] }], () => {});
+    closeStoryOverlays();
+    expect(voice.hush, '被收掉也要停').toBe(2);
+  });
+});
 
 describe('丟掉這一局時，劇情疊層整批收掉、不叫 onDone', () => {
   it('幻燈片、對白、過場影片同時開著：一次收乾淨，onDone 一個都不叫，畫面解鎖', () => {

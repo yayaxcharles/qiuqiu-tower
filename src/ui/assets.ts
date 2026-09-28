@@ -31,7 +31,7 @@ const SILHOUETTE = 'data:image/svg+xml;utf8,' + encodeURIComponent(
  * 不從那邊匯入是因為那支是連線專用、被切到另一個分塊，拉進來會把它整個併回首載的主程式。
  */
 declare const __BUILD_TAG__: string;
-const BUILD = typeof __BUILD_TAG__ === 'string' ? __BUILD_TAG__ : '';
+export const BUILD = typeof __BUILD_TAG__ === 'string' ? __BUILD_TAG__ : '';
 
 export async function loadManifest(): Promise<void> {
   // 清單讀不到就整組退回剪影，不能讓遊戲開不起來

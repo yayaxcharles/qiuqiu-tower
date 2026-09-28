@@ -37,7 +37,7 @@ import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
 import { showDeckPicker } from '../deckview';
 import { bubbleOverUnit, heroSpeaker, toast } from '../dialogue';
-import { speak as speakVoice, voiceGroup } from '../voice';
+import { say as speakVoice, voiceGroup } from '../voicegate';
 import { clear, el, keepLoops, stageFrame } from '../dom';
 import { play as sfx } from '../audio';
 import { enemyLeft, nextLineup, playerLeft, speechBubbleAt } from '../enemylayout';

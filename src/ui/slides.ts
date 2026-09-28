@@ -3,7 +3,7 @@ import { artUrl } from './assets';
 import { el } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
-import { prefetchVoice, speak, stopVoice, voiceGroup } from './voice';
+import { hush, prefetch, say, voiceGroup } from './voicegate';
 
 /**
  * 插圖幻燈片：整張劇情圖鋪滿舞台、台詞盒壓在下緣，點一下推進一句，
@@ -47,7 +47,7 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
     imgA, imgB, el('div', { class: 'dialogue-box slide-box' }, speaker, text, hint));
   // 配音：幻燈片的說話者都是照字面寫的（序章、過關、結局）
   const voiceOf = (l: DialogueLine): { group: string | null; text: string } => ({ group: voiceGroup(l.speaker, { literal: true }), text: l.text });
-  prefetchVoice(flat.slice(0, 3).map((x) => voiceOf(x.l)));
+  prefetch(flat.slice(0, 3).map((x) => voiceOf(x.l)));
   let front = imgA;
   let shownSlide = -1;
   const render = (): void => {
@@ -65,17 +65,17 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
     }
     speaker.textContent = cur.l.speaker === '旁白' ? '' : cur.l.speaker;
     text.textContent = cur.l.text;
-    speak(voiceOf(cur.l).group, cur.l.text);
-    prefetchVoice(flat.slice(i + 1, i + 3).map((x) => voiceOf(x.l)));
+    say(voiceOf(cur.l).group, cur.l.text);
+    prefetch(flat.slice(i + 1, i + 3).map((x) => voiceOf(x.l)));
     box.classList.toggle('narration', cur.l.speaker === '旁白');
   };
   // 這一局被丟掉（連線斷了回標題）時整段收掉、不叫 onDone（見 overlay.ts 的 `closeWithStory`，2026-09-23 稽核 高-1）
-  const forget = closeWithStory(() => { if (ended) return; ended = true; stopVoice(); box.remove(); unlockScreen(); });
+  const forget = closeWithStory(() => { if (ended) return; ended = true; hush(); box.remove(); unlockScreen(); });
   const end = (): void => {
     if (ended) return;
     ended = true;
     forget();
-    stopVoice();
+    hush();
     unlockScreen();
     /*
      * **回呼先叫、這一層後收**（2026-09-23 實機驗收 M-2 同型）：回呼換的畫面（過關畫面、地圖）就畫在這一層底下，

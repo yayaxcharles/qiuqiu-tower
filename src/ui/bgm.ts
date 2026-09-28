@@ -44,7 +44,8 @@ export function setMusicVolume(v: number): void {
   volume = Math.max(0, Math.min(100, Math.round(v)));
   try { window.localStorage.setItem(VOL_KEY, String(volume)); } catch { /* 存不了就算了 */ }
   // 正在淡入淡出就把過場砍掉直接設定——使用者在拉的時候要立刻聽到差別
-  if (el && !el.paused) { window.clearInterval(fadeTimer); swapping = false; el.volume = level(); }
+  // 正在淡出換曲就不插手：砍掉的話「淡完接下一首」那一步跟著不見，新曲永遠不會開始（新曲淡入本來就照新音量）
+  if (el && !el.paused && !swapping) { window.clearInterval(fadeTimer); el.volume = level(); }
 }
 
 /**

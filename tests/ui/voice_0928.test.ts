@@ -38,7 +38,7 @@ describe('查表的每一句都走得到', () => {
   });
 
   it('遊戲端的說話者判斷跟盤點腳本一致', async () => {
-    const { voiceGroup, heroVoice } = await import('../../src/ui/voice');
+    const { voiceGroup, heroVoice } = await import('../../src/ui/voicegate');
     expect(voiceGroup('旁白')).toBeNull();
     expect(voiceGroup('球球', { hero: 'feifei' })).toBe('feifei');
     expect(voiceGroup('球球', { hero: 'feifei', literal: true })).toBe('ninja');
@@ -59,7 +59,7 @@ describe('查表的每一句都走得到', () => {
 
 // ---- 播放 ----
 
-vi.mock('../../src/ui/assets', () => ({ fileUrl: (path: string) => `/${path}` }));
+vi.mock('../../src/ui/assets', () => ({ fileUrl: (path: string) => `/${path}`, BUILD: 'b1' }));
 const duck = vi.fn();
 vi.mock('../../src/ui/bgm', () => ({ duckBgm: (k: number) => duck(k) }));
 
@@ -103,7 +103,7 @@ describe('配音播放', () => {
     vi.stubGlobal('AudioContext', TestAudioContext);
     fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => ({
       ok: true,
-      json: async () => (String(url).endsWith('voice-map.json') ? voiceMap : {}),
+      json: async () => (String(url).includes('voice-map.json') ? voiceMap : {}),
       arrayBuffer: async () => new ArrayBuffer(1),
     } as Response));
     vi.stubGlobal('fetch', fetcher);
@@ -113,10 +113,11 @@ describe('配音播放', () => {
   async function setup() {
     const audio = await import('../../src/ui/audio');
     const voice = await import('../../src/ui/voice');
+    const gate = await import('../../src/ui/voicegate');
     audio.unlockOnFirstGesture();
     events.dispatchEvent(new Event('pointerdown'));
     await flush();
-    return { audio, voice, ctx: TestAudioContext.instances[0]! };
+    return { audio, voice, gate, ctx: TestAudioContext.instances[0]! };
   }
   const voiceFetches = () => fetcher.mock.calls.filter(([u]) => String(u).includes('/voice/'));
 
@@ -124,7 +125,7 @@ describe('配音播放', () => {
     const voice = await import('../../src/ui/voice');
     voice.speak(GA, TA);
     await flush();
-    expect(fetcher.mock.calls.filter(([u]) => String(u).includes('/voice/') && !String(u).endsWith('voice-map.json'))).toHaveLength(0);
+    expect(fetcher.mock.calls.filter(([u]) => String(u).includes('/voice/') && !String(u).includes('voice-map.json'))).toHaveLength(0);
     expect(TestAudioContext.instances).toHaveLength(0);
   });
 
@@ -134,7 +135,7 @@ describe('配音播放', () => {
     await flush();
     expect(ctx.sources).toHaveLength(1);
     expect(ctx.sources[0]!.start).toHaveBeenCalledOnce();
-    expect(voiceFetches().map(([u]) => String(u))).toEqual(['/voice/voice-map.json', `/${voiceMap[KEY_A]!.file}`]);
+    expect(voiceFetches().map(([u]) => String(u))).toEqual(['/voice/voice-map.json?v=b1', `/${voiceMap[KEY_A]!.file}`]);   // 查表夾打包編號
     expect(duck).toHaveBeenLastCalledWith(0.5);
     ctx.sources[0]!.onended?.();
     expect(duck).toHaveBeenLastCalledWith(1);
@@ -153,13 +154,88 @@ describe('配音播放', () => {
   });
 
   it('語音開關關掉也不出聲，音效照常', async () => {
-    const { audio, voice, ctx } = await setup();
-    voice.setVoiceOn(false);
+    const { audio, gate, ctx } = await setup();
+    gate.setVoiceOn(false);
     expect(store['qiuqiu.voice']).toBe('off');
-    voice.speak(GA, TA);
+    gate.say(GA, TA);
     await flush();
     expect(ctx.sources).toHaveLength(0);
     expect(audio.soundOn()).toBe(true);
+    gate.setVoiceOn(true);
+    gate.say(GA, TA);   // 經過按需載入也講得出來
+    await flush();
+    expect(ctx.sources).toHaveLength(1);
+  });
+
+  it('按需載入：播放本體還沒載好就叫停（換句、關對白框），那一句之後不會冒出來', async () => {
+    const { gate, ctx } = await setup();
+    gate.say(GA, TA);
+    gate.hush();
+    await flush();
+    expect(ctx.sources).toHaveLength(0);
+  });
+
+  it('音檔還在下載時叫停：舊的那句下載完也不播', async () => {
+    const { voice, ctx } = await setup();
+    let release!: () => void;
+    const hold = new Promise<void>((r) => { release = r; });
+    const base = fetcher.getMockImplementation()!;
+    fetcher.mockImplementation(async (u, ...r) => { if (String(u).endsWith('.mp3')) await hold; return base(u, ...r); });
+    voice.speak(GA, TA);
+    await flush();
+    voice.stopVoice();
+    release();
+    await flush();
+    expect(ctx.sources).toHaveLength(0);
+    expect(duck).not.toHaveBeenCalledWith(0.5);
+  });
+
+  it('音檔 404 或解不開：安靜、音樂不留在壓低、吐槽的位置讓出來', async () => {
+    const { voice, ctx } = await setup();
+    const base = fetcher.getMockImplementation()!;
+    fetcher.mockImplementation(async (u, ...r) => (String(u).includes(voiceMap[KEY_A]!.file) ? { ok: false } as Response : base(u, ...r)));
+    voice.speak(GA, TA, 'bark');
+    await flush();
+    expect(ctx.sources).toHaveLength(0);
+    ctx.decodeAudioData.mockRejectedValueOnce(new Error('壞檔'));
+    voice.speak(GB, TB, 'line');
+    await flush();
+    expect(ctx.sources).toHaveLength(0);
+    expect(duck).not.toHaveBeenCalledWith(0.5);
+    voice.speak(GB, TB, 'bark');   // 壞檔沒被快取住、位置也讓出來了：這次講得出來
+    await flush();
+    expect(ctx.sources).toHaveLength(1);
+  });
+
+  it('喚醒音訊環境卡住：等 1.5 秒就放棄這一句，之後照常', async () => {
+    const { voice, ctx } = await setup();
+    vi.useFakeTimers();
+    try {
+      ctx.state = 'suspended';
+      ctx.resume.mockImplementation(() => new Promise(() => {}));
+      voice.speak(GA, TA, 'bark');
+      await flush();
+      vi.advanceTimersByTime(1600);
+      await flush();
+      expect(ctx.sources).toHaveLength(0);
+      ctx.state = 'running';
+      voice.speak(GB, TB, 'bark');
+      await flush();
+      expect(ctx.sources).toHaveLength(1);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('解碼好的音檔最多留 32 份：最舊的被擠掉要重抓，最近的不重抓', async () => {
+    const { voice, ctx } = await setup();
+    const keys = Object.keys(voiceMap).filter((k, i, all) => all.findIndex((x) => voiceMap[x]!.file === voiceMap[k]!.file) === i).slice(0, voice.KEEP + 1);
+    const say = (k: string): void => voice.speak(k.split('|')[0]!, k.slice(k.indexOf('|') + 1));
+    for (const k of keys) { say(k); await flush(); ctx.sources.at(-1)!.onended?.(); }
+    const count = (k: string): number => fetcher.mock.calls.filter(([u]) => String(u) === `/${voiceMap[k]!.file}`).length;
+    say(keys.at(-1)!); await flush();
+    expect(count(keys.at(-1)!)).toBe(1);
+    say(keys[0]!); await flush();
+    expect(count(keys[0]!)).toBe(2);
+    expect(ctx.sources).toHaveLength(keys.length + 2);
   });
 
   it('查不到的句子安靜、不下載音檔', async () => {
