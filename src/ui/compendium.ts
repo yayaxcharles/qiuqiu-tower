@@ -81,7 +81,7 @@ export function showCompendium(): void {
         el('span', { class: 'comp-note' }, POOL_NOTE[pool] ?? '')));
       const row = el('div', { class: 'comp-grid' });
       // 同池內照稀有度排：常見→罕見→稀有，找牌時比較有秩序
-      const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+      const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2 };
       for (const def of [...group].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
         row.append(cardNode(def, { small: true, upgraded, hero: who }));
       grid.append(row);
@@ -93,7 +93,7 @@ export function showCompendium(): void {
         el('span', { class: 'comp-pool' }, `雙人（${coop.length}）`),
         el('span', { class: 'comp-note' }, '兩個人一起爬塔才會出現在獎勵與罐頭鋪')));
       const row = el('div', { class: 'comp-grid' });
-      const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+      const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2 };
       for (const def of [...coop].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
         row.append(cardNode(def, { small: true, upgraded, hero: who }));
       grid.append(row);

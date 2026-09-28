@@ -374,7 +374,7 @@ describe('球球完整動作合約', () => {
       jiuweiquan: 'uppercut',
     };
     const eligibleAttackIds = cards
-      .filter((card) => card.type === '攻擊' && card.hero !== 'feifei' && card.hero !== 'dangdang' && card.hero !== 'fengfeng')
+      .filter((card) => card.type === 'attack' && card.hero !== 'feifei' && card.hero !== 'dangdang' && card.hero !== 'fengfeng')
       .map((card) => card.id)
       .sort();
     expect(Object.keys(expectedAttacks).sort()).toEqual(eligibleAttackIds);

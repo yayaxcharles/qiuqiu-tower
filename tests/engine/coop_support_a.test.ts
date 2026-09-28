@@ -53,12 +53,12 @@ function play(cs: CombatState, who: PlayerCombat, id: string, target?: number, u
 
 describe('連線支援牌 A 批：六張都在，規格對得上交辦單', () => {
   const SPEC: [string, string, number, string, string][] = [
-    ['bangnidianyixia', '幫你墊一下', 1, '攻擊', '常見'],
-    ['shoujiewoyixia', '手借我一下', 1, '技能', '罕見'],
-    ['huannieduochoudian', '換你多抽點', 0, '技能', '常見'],
-    ['wobangnishouwei', '我幫你收尾', 1, '攻擊', '罕見'],
-    ['huannimangyixia', '換你忙一下', 1, '技能', '稀有'],
-    ['genzhewoduohao', '跟著我躲好', 0, '技能', '罕見'],
+    ['bangnidianyixia', '幫你墊一下', 1, 'attack', 'common'],
+    ['shoujiewoyixia', '手借我一下', 1, 'skill', 'uncommon'],
+    ['huannieduochoudian', '換你多抽點', 0, 'skill', 'common'],
+    ['wobangnishouwei', '我幫你收尾', 1, 'attack', 'uncommon'],
+    ['huannimangyixia', '換你忙一下', 1, 'skill', 'rare'],
+    ['genzhewoduohao', '跟著我躲好', 0, 'skill', 'uncommon'],
   ];
 
   for (const [id, name, cost, type, rarity] of SPEC) {

@@ -55,7 +55,7 @@ describe('難度表', () => {
   it('罐頭鋪：難度 4 貴一成；壞事件掉血乘 1.5', () => {
     const r = newRun('shop', 4); const r1 = newRun('shop', 1);
     const s = makeShop(r), s1 = makeShop(r1);
-    const base: Record<string, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
+    const base: Record<string, number> = { common: 50, uncommon: 75, rare: 150 };
     for (const c of s.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * 1.1 * (c.sale ?? 1)));   // 特價格再乘折數（2026-09-04）
     for (const c of s1.cards) expect(c.price).toBe(Math.round(base[c.def.rarity]! * (c.sale ?? 1)));
     applyRunEffects(r, [{ kind: 'damage', n: 10 }]); applyRunEffects(r1, [{ kind: 'damage', n: 10 }]);

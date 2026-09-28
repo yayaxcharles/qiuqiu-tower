@@ -82,7 +82,7 @@ describe('combat motion confirmation and victory flow', () => {
       applied: [{ a: { t: 'card', seat: 0, u: 42, g: 99 } }], handsBefore: [[card]],
       locallyPlayedMotion: { take: () => local }, localCardMotionKey: (uid: number) => `card:${uid}`,
       alreadyShown: false, mine: true, remoteBefore: {}, Date: { now: () => 1000 + motionMs(600) },
-      cardStats: () => ({ def: { type: '攻擊' }, effects: [] }), heroOf: () => 'dangdang', cardPose: () => ({ attack: true }),
+      cardStats: () => ({ def: { type: 'attack' }, effects: [] }), heroOf: () => 'dangdang', cardPose: () => ({ attack: true }),
       // 2026-09-22 批次 proj：連線單張那條也要帶丟出去的是什麼（近身連拳什麼都不飛）
       projectileForCard: () => undefined, projectileForPotion: () => undefined,
       settle: (_before: unknown, opts: typeof confirmation) => { confirmation = opts; }, render() {}, finishApplied() {},

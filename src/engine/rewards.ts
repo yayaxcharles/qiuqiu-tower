@@ -57,19 +57,19 @@ export interface CombatRewards {
   potionPerSeat?: (string | null)[];
 }
 
-const RARITY_ODDS: [Rarity, number][] = [['常見', 65], ['罕見', 30], ['稀有', 5]];
+const RARITY_ODDS: [Rarity, number][] = [['common', 65], ['uncommon', 30], ['rare', 5]];
 /**
  * 中後期的戰鬥獎勵抽好一點的牌。300 局實測玩家最常死在弱怪換中怪的斷層，
  * 病根之一是「牌組長不大」：整關都用 65% 常見的表，抽十次還是一堆基本牌
  * （使用者的原話：「卡牌獲取的手段不夠，牌組養不起來就打不過了」）。
  */
-const RARITY_ODDS_LATE: [Rarity, number][] = [['常見', 40], ['罕見', 45], ['稀有', 15]];
+const RARITY_ODDS_LATE: [Rarity, number][] = [['common', 40], ['uncommon', 45], ['rare', 15]];
 
 /** `rareBonus`＝稀有保底加的權重（見 RunState.rarePity）：連續沒開出稀有，稀有那格越來越大 */
 function rollRarity(rng: Rng, available: Set<Rarity>, late = false, rareBonus = 0, odds?: readonly [Rarity, number][]): Rarity {
   const table = (odds ?? (late ? RARITY_ODDS_LATE : RARITY_ODDS))
     .filter(([r]) => available.has(r))
-    .map(([r, w]): [Rarity, number] => [r, r === '稀有' ? w + rareBonus : w]);
+    .map(([r, w]): [Rarity, number] => [r, r === 'rare' ? w + rareBonus : w]);
   const total = table.reduce((s, [, w]) => s + w, 0);
   let r = rng.next() * total;
   for (const [rar, w] of table) { r -= w; if (r < 0) return rar; }
@@ -122,7 +122,7 @@ export function rollRelic(rng: Rng, pool: RelicPool, owned: string[], heroes: re
  * 而稀有度正是照那個標價分的，等於價格已經跟著稀有度走；再乘一次倍率就是把同一件事算兩遍，
  * 還會動到既有 35 支凍結的數值。畫面在貨架上標出稀有度（`ui/screens/shop.ts`）。
  */
-export const POTION_RARITY_ODDS: readonly [Rarity, number][] = [['常見', 65], ['罕見', 27], ['稀有', 8]];
+export const POTION_RARITY_ODDS: readonly [Rarity, number][] = [['common', 65], ['uncommon', 27], ['rare', 8]];
 
 /**
  * 這支忍具**這幾位都用得到**嗎（`PotionDef.notFor`）。

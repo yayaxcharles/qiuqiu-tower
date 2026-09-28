@@ -242,7 +242,7 @@ const nameFor = (hero: string | undefined, id: string): string => {
 };
 /** 出牌時擺什麼姿勢 */
 function cardPose(hero: Hero, def: CardDef, effects: readonly Effect[] = def.effects): { pose: string; attack: boolean } {
-  const attack = def.type === '攻擊';
+  const attack = def.type === 'attack';
   if (THROW_CARDS.has(def.id)) return { pose: posePick(hero, 'throw', POSE.attack), attack };
   if (attack) { const fam = ATTACK_POSE[def.id]; return { pose: fam ? posePick(hero, fam, POSE.attack) : POSE.attack, attack: true }; }
   if (EAT_CARDS.has(def.id)) return { pose: posePick(hero, 'eat', posePick(hero, 'skill', POSE.attack)), attack: false };
@@ -252,7 +252,7 @@ function cardPose(hero: Hero, def: CardDef, effects: readonly Effect[] = def.eff
   const skillFam = SKILL_POSE[def.id];
   if (skillFam) return { pose: posePick(hero, skillFam, posePick(hero, 'skill', POSE.attack)), attack: false };
   // 能力牌一律凝神（吸貓大法也是能力牌，打出當下不回血，不算吃）；會抽牌的技能牌翻卷軸；其餘施術
-  if (def.type === '能力') return { pose: posePick(hero, 'focus', posePick(hero, 'skill', POSE.attack)), attack: false };
+  if (def.type === 'power') return { pose: posePick(hero, 'focus', posePick(hero, 'skill', POSE.attack)), attack: false };
   if (effects.some((e) => e.kind === 'draw')) return { pose: posePick(hero, 'scroll', posePick(hero, 'skill', POSE.attack)), attack: false };   // 看實際效果：替身術＋、偷吃術＋升級才抽牌
   return { pose: posePick(hero, 'skill', POSE.attack), attack: false };
 }
@@ -2811,7 +2811,7 @@ registerScreen('combat', (app, root, props) => {
     const chk = canPlay(cs, uid, targetUid, mySeat);
     if (!chk.ok) { hint = chk.reason; render(); return; }
     const motion = motionForCard(my(), card);
-    const motionTrip = motion ? prepareMelee(mySeat, motion, targetUid, st.def.type === '攻擊') : undefined;
+    const motionTrip = motion ? prepareMelee(mySeat, motion, targetUid, st.def.type === 'attack') : undefined;
     const motionToken = motion && session ? ++nextMotionPresentationToken : undefined;
     if (motion && motionToken !== undefined) {
       locallyPlayedMotion.record(localCardMotionKey(uid), {
@@ -4369,7 +4369,7 @@ registerScreen('combat', (app, root, props) => {
               action ??= motionForPotion(frame.player, frame.a.id);
             }
             if (frame.a.t === 'card' && frame.card && frame.player) {
-              attack = cardStats(frame.card).def.type === '攻擊';
+              attack = cardStats(frame.card).def.type === 'attack';
               action ??= motionForCard(frame.player, frame.card);
               if (action && !trip) trip = prepareMelee(seat, action, frame.a.g, attack);
             }
@@ -4505,8 +4505,8 @@ registerScreen('combat', (app, root, props) => {
         if (action) incomingMotion = {
           seat: a.seat,
           action,
-          attack: cardStats(card).def.type === '攻擊',
-          trip: prepareMelee(a.seat, action, a.g, cardStats(card).def.type === '攻擊'),
+          attack: cardStats(card).def.type === 'attack',
+          trip: prepareMelee(a.seat, action, a.g, cardStats(card).def.type === 'attack'),
           projectile: q ? projectileForCard(q, card, action) : undefined,
         };
       }
@@ -4529,7 +4529,7 @@ registerScreen('combat', (app, root, props) => {
           impactElapsed: ownImpactElapsed,
           impactApproach: incomingMotion?.trip?.plan.approachMs ?? ownImpactApproach,
           impactSeat: incomingMotion?.seat ?? mySeat,
-          impactAttack: incomingMotion?.attack ?? (ownCard ? cardStats(ownCard).def.type === '攻擊' : false),
+          impactAttack: incomingMotion?.attack ?? (ownCard ? cardStats(ownCard).def.type === 'attack' : false),
           impactProjectile: incomingMotion ? incomingMotion.projectile : ownImpactProjectile,
         });
         // 主機自己出的動作會在外層 act → settle 重畫；先畫會讓血條提前扣血再回升。

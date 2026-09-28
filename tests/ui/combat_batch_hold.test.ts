@@ -78,7 +78,7 @@ describe('連線批次演出與回合暫停', () => {
     });
 
     link.hold = true;
-    const first = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === '攻擊')!;
+    const first = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === 'attack')!;
     expect(host.submit({ t: 'card', seat: 0, u: first.uid, g: hostCs.enemies[0]!.uid })).toBe(true);
     expect(host.submit({ t: 'ready', seat: 0, on: true })).toBe(true);
     expect(host.submit({ t: 'force', seat: 0, w: 1 })).toBe(true);
@@ -91,7 +91,7 @@ describe('連線批次演出與回合暫停', () => {
     endTurn(hostCs);
     host.release();
     link.hold = false;
-    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === '攻擊')!;
+    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === 'attack')!;
     expect(host.submit({ t: 'card', seat: 0, u: next.uid, g: hostCs.enemies[0]!.uid })).toBe(true);
     expect(guestCs.turn).toBe(1);
     expect(failures).toEqual([]);

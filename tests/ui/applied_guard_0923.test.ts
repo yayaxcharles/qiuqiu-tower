@@ -85,7 +85,7 @@ describe('低-2：收回合那一刻 hold() 之後準備演出丟例外，照常
 
     // 主機出一張攻擊牌、舉手、替客戶端收回合：客戶端那邊一次補齊三號，走批次重播那條
     link.hold = true;
-    const first = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === '攻擊')!;
+    const first = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === 'attack')!;
     expect(host.submit({ t: 'card', seat: 0, u: first.uid, g: hostCs.enemies[0]!.uid })).toBe(true);
     expect(host.submit({ t: 'ready', seat: 0, on: true })).toBe(true);
     expect(host.submit({ t: 'force', seat: 0, w: 1 })).toBe(true);
@@ -97,7 +97,7 @@ describe('低-2：收回合那一刻 hold() 之後準備演出丟例外，照常
     endTurn(hostCs); host.release();
     expect(guestCs.turn, '客戶端照常收了這一回合').toBe(hostCs.turn);
     link.hold = false;
-    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === '攻擊')!;
+    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === 'attack')!;
     expect(host.submit({ t: 'card', seat: 0, u: next.uid, g: hostCs.enemies[0]!.uid })).toBe(true);
     expect(combatFingerprint(guestCs), '兩台互等：客戶端還停在 held，這張在排隊').toBe(combatFingerprint(hostCs));
     expect(failures).toEqual([]);
@@ -146,7 +146,7 @@ describe('低-2：收回合那一刻 hold() 之後準備演出丟例外，照常
     endTurn(hostCs); host.release();
     expect(guestCs.turn, '客戶端只放開、沒跑魔物回合，就停在上一回合').toBe(hostCs.turn);
     link.hold = false;
-    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === '攻擊')!;
+    const next = hostCs.players[0]!.hand.find((card) => cardStats(card).def.type === 'attack')!;
     expect(host.submit({ t: 'card', seat: 0, u: next.uid, g: hostCs.enemies[0]!.uid })).toBe(true);
     expect(failures, '兩台分岔、跳紅色橫幅').toEqual([]);
     expect(combatFingerprint(guestCs)).toBe(combatFingerprint(hostCs));

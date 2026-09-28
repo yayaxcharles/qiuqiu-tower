@@ -66,7 +66,7 @@ export const BLESSINGS: readonly BlessingDef[] = [
   // ===== 換牌：改自己的牌組 =====
   { id: 'bless_scissors', cls: '換牌', art: 'codex/bless_scissors', effects: [], pick: { kind: 'remove', n: 2 } },
   { id: 'bless_notes', cls: '換牌', art: 'codex/bless_notes', effects: [], pick: { kind: 'upgrade', n: 1, upTo: true } },
-  { id: 'bless_moves', cls: '換牌', art: 'codex/bless_moves', effects: [], pick: { kind: 'choose', n: 3, pool: '忍術', rarity: '罕見' } },
+  { id: 'bless_moves', cls: '換牌', art: 'codex/bless_moves', effects: [], pick: { kind: 'choose', n: 3, pool: '忍術', rarity: 'uncommon' } },
   { id: 'bless_doodle', cls: '換牌', art: 'codex/bless_doodle', effects: [], pick: { kind: 'transform', n: 1 } },
   // ===== 代價：好東西，但要付一樣 =====
   { id: 'bless_treasure', cls: '代價', art: 'codex/bless_treasure',
@@ -84,7 +84,7 @@ export const BLESSINGS: readonly BlessingDef[] = [
     { max: 4, effects: [{ kind: 'fish', n: 50 }] },
     { max: 6, effects: [{ kind: 'relic', pool: '常見' }] },
   ] },
-  { id: 'bless_scroll', cls: '賭運氣', art: 'codex/bless_scroll', effects: [{ kind: 'addRandomCard', pool: '忍術', rarity: '稀有' }] },
+  { id: 'bless_scroll', cls: '賭運氣', art: 'codex/bless_scroll', effects: [{ kind: 'addRandomCard', pool: '忍術', rarity: 'rare' }] },
   { id: 'bless_wine', cls: '賭運氣', art: 'codex/bless_wine',
     effects: [{ kind: 'gamble', p: 0.5, win: [{ kind: 'maxHp', n: 8 }], lose: [{ kind: 'maxHp', n: -3 }] }] },
 ];

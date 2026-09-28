@@ -76,7 +76,7 @@ describe('戰鬥裡寫死 cs.player 的六處', () => {
     cs.enemies[0]!.enemyId = hexer.id;
     const a = seat(cs, 0); const b = seat(cs, 1);
     const pileA = a.drawPile.length; const pileB = b.drawPile.length;
-    const skill = b.hand.find((x) => cardById[x.cardId]?.type === '技能' && cardById[x.cardId]?.target !== 'enemy')!;
+    const skill = b.hand.find((x) => cardById[x.cardId]?.type === 'skill' && cardById[x.cardId]?.target !== 'enemy')!;
     expect(skill, '手上沒有技能牌，這條在測空氣').toBeDefined();
     expect(playCard(cs, skill.uid, undefined, 1)).toBe(true);
     expect(a.drawPile.length, '爛牌塞進了座位 0 的牌堆').toBe(pileA);

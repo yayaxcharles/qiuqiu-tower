@@ -135,7 +135,7 @@ export function rating(cardId: string): number {
   const def = cardById[cardId];
   if (!def) return 0;
   if (def.pool === '壞毛病') return -10;
-  return RATING[cardId] ?? (def.rarity === '稀有' ? 7 : def.rarity === '罕見' ? 5 : 4);
+  return RATING[cardId] ?? (def.rarity === 'rare' ? 7 : def.rarity === 'uncommon' ? 5 : 4);
 }
 
 /*
@@ -678,7 +678,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         const qiNow = Math.max(0, p.qi ?? 0);
         if (room > 0 && p.fullMoonTurn !== cs.turn
             && p.relics.some((id) => { const t = relicById[id]?.hooks.qiReachDoubleNext; return t !== undefined && qiNow < t && Math.min(12, qiNow + fx.n) >= t; })
-            && p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊')) v += 6;
+            && p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === 'attack')) v += 6;
         value += v;
         break;
       }
@@ -714,10 +714,10 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
         break;
       }
       case 'immuneThisTurn': value += incoming * (lowHp ? 3 : 1.2); break;
-      case 'doubleNextAttack': value += p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊') ? 6 : 0; break;
+      case 'doubleNextAttack': value += p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === 'attack') ? 6 : 0; break;
       case 'selfDamage': value -= fx.amount * (danger ? 3 : 0.8); break;
       case 'endTurn': endsTurn = true; break;
-      case 'noAttacksThisTurn': value -= p.hand.filter((h) => cardById[h.cardId]?.type === '攻擊').length * 2; break;
+      case 'noAttacksThisTurn': value -= p.hand.filter((h) => cardById[h.cardId]?.type === 'attack').length * 2; break;
       case 'stealBlock': value += (target !== undefined ? enemies.find((e) => e.uid === target)?.block ?? 0 : 0) * 1.2; break;
       case 'cleanse': value += Object.entries(p.statuses).filter(([k, v]) => (DEBUFFS as readonly string[]).includes(k) && (v ?? 0) > 0).length * 4; break;
       case 'doubleStatus': {
@@ -798,7 +798,7 @@ function evaluate(cs: CombatState, c: CardInstance, incoming: number, hits: numb
       case 'energyTransfer': break;                         // 單人時不轉，真的是 0
       case 'doubleNextAttackAlly':
         // 跟 `doubleNextAttack` 同一套：手上還有別的攻擊牌才有價值
-        value += p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === '攻擊') ? 6 : 0;
+        value += p.hand.some((h) => h.uid !== c.uid && cardById[h.cardId]?.type === 'attack') ? 6 : 0;
         break;
       case 'drawAllyIfTargetStatus': {
         const t = target !== undefined ? enemies.find((e) => e.uid === target) : undefined;
@@ -1080,7 +1080,7 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
      */
     if (kinds.includes('cleanse')) {
       const after = decayedDefender(p);
-      const attacks = p.hand.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+      const attacks = p.hand.filter((c) => cardById[c.cardId]?.type === 'attack').length;
       const other = getStatus(p, '翻肚') + getStatus(p, '懶洋洋') + getStatus(p, '炸毛') + getStatus(p, '定身');
       if (getStatus(p, '中毒') >= 4 || (getStatus(after, '翻肚') > 0 && incoming >= 9)
         || (getStatus(p, '定身') > 0 && attacks >= 2) || other >= 3) return drink(id);
@@ -1110,7 +1110,7 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
     if (kinds.includes('immuneThisTurn') && !p.immune && incoming >= 15 && p.hp - (incoming - p.block) <= p.maxHp * 0.4) return drink(id);
     // 分身油：下一擊加倍，關主戰蓄力那一拍最有價值；手上得真的有攻擊牌打得出去
     if (kinds.includes('doubleNextAttack') && boss && p.doubleNext === 0 && p.energy >= 1
-      && p.hand.some((c) => cardById[c.cardId]?.type === '攻擊' && cardStats(c).effects.some((f) => f.kind === 'damage' && f.amount >= 10))) return drink(id);
+      && p.hand.some((c) => cardById[c.cardId]?.type === 'attack' && cardStats(c).effects.some((f) => f.kind === 'damage' && f.amount >= 10))) return drink(id);
     // 定身釘：只有七成會中，所以留到「下一拍會被打很痛」時用
     if (def.effects.some((f) => f.kind === 'status' && f.target !== 'self' && f.name === '定身')
       && incoming >= 12 && p.hp - (incoming - p.block) <= p.maxHp * 0.45) {
@@ -1178,7 +1178,7 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
     const mirror = def.effects.find((f) => f.kind === 'removeStatuses' && f.target === 'all');
     if (mirror) {
       const stealth = enemies.reduce((n, e) => n + getStatus(e, '隱身'), 0);
-      const attackReady = p.hand.some((c) => cardById[c.cardId]?.type === '攻擊' && canPlay(cs, c.uid, enemies[0]?.uid, seat).ok);
+      const attackReady = p.hand.some((c) => cardById[c.cardId]?.type === 'attack' && canPlay(cs, c.uid, enemies[0]?.uid, seat).ok);
       if (enemies.some((e) => getStatus(e, '虛化') > 0) || stealth >= 2 || (stealth >= 1 && attackReady)) return drink(id);
       continue;
     }
@@ -1284,7 +1284,7 @@ function maybePotion(cs: CombatState, incoming: number, seat = 0): boolean {
     }
     // 千針膏（整場每張攻擊牌再上 2 層毒）：長的仗越早喝越賺——關主、大魔物戰前兩回合；一般戰魔物血還厚、手上有兩張以上攻擊牌才喝
     if (kinds.includes('poisonOnAttack')) {
-      const attacks = p.hand.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+      const attacks = p.hand.filter((c) => cardById[c.cardId]?.type === 'attack').length;
       if ((bigFight && cs.turn <= 2) || (enemies.reduce((s, e) => s + e.hp, 0) >= 40 && attacks >= 2)) return drink(id);
     }
     // 以牙還牙粉（反彈回敬多打 4）：身上要真的有反彈才有用；這一拍要挨兩下以上、或是關主／大魔物戰
@@ -1379,14 +1379,14 @@ export function pickCard(run: RunState, choices: { id: string }[], seat = 0,
   /** 每一張都加這麼多（夢枕的三張都是升級版：+1，跟牌組評分 `c.upgraded ? 1 : 0` 同一把尺；2026-09-24 b3int） */
   bonus = 0): string | null {
   let best: { id: string; v: number } | null = null;
-  const attacks = me(run, seat).deck.filter((c) => cardById[c.cardId]?.type === '攻擊').length;
+  const attacks = me(run, seat).deck.filter((c) => cardById[c.cardId]?.type === 'attack').length;
   const skills = me(run, seat).deck.length - attacks;
   for (const ch of choices) {
     const def = cardById[ch.id];
     if (!def) continue;
     let v = rating(ch.id) + bonus;
-    if (def.type === '攻擊' && attacks < skills) v += 1;
-    if (def.type !== '攻擊' && skills < attacks - 2) v += 1;
+    if (def.type === 'attack' && attacks < skills) v += 1;
+    if (def.type !== 'attack' && skills < attacks - 2) v += 1;
     if (me(run, seat).deck.filter((c) => c.cardId === ch.id).length >= 2) v -= 2;
     if (!best || v > best.v) best = { id: ch.id, v };
   }
@@ -1475,7 +1475,7 @@ export function eventValue(run: RunState, effects: RunEffect[], costFish: number
       case 'fishHalve': v -= me(run, seat).fish * 0.5 * 0.35; break;
       case 'maxHp': v += fx.n * 2.2; break;
       case 'addCard': v += cardById[fx.cardId]?.pool === '壞毛病' ? -28 : 6; break;
-      case 'addRandomCard': v += fx.rarity === '罕見' ? 8 : fx.rarity === '稀有' ? 14 : 4; break;
+      case 'addRandomCard': v += fx.rarity === 'uncommon' ? 8 : fx.rarity === 'rare' ? 14 : 4; break;
       case 'removeCard': v += removed++ < junk ? 18 : 2; break;
       case 'upgradeCard': v += upgraded++ < upgradable ? 16 : 0; break;
       // 隨機一件：這一位抽得到的那幾件的平均事件分（2026-09-23 量尺；原本一律 24／34，不看角色也不看身上有什麼）

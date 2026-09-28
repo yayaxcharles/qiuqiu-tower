@@ -50,6 +50,8 @@ const INTENT_TEXT: Readonly<Record<string, string>> = {
 };
 
 /** 條件句裡的「再」：「造成 6 點傷害；蜷縮大於 10 的話，**再**造成 6 點傷害」 */
+const TYPE_ZH: Readonly<Record<string, string>> = { attack: '攻擊', skill: '技能', power: '能力' };
+
 function again(s: string): string {
   return /^(造成|獲得|抽|回復)/.test(s) ? `再${s}` : s;
 }
@@ -359,7 +361,7 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const scope = fx.thisTurn ? '這回合內，' : '';
       if (fx.trigger === 'afterCard') {
         const condition = fx.minQiSpent ? `花至少 ${fx.minQiSpent} 點蓄氣的` : '';
-        return `${scope}${fx.oncePerTurn ? '每回合第一次' : '每次'}打出${condition}${fx.cardType ?? ''}牌後，${inner}`
+        return `${scope}${fx.oncePerTurn ? '每回合第一次' : '每次'}打出${condition}${fx.cardType ? TYPE_ZH[fx.cardType] : ''}牌後，${inner}`
           + (fx.maxPerTurn !== undefined ? `（每回合最多 ${fx.maxPerTurn} 次）` : '')
           + (fx.sameNameMax ? '（同名取高）' : '');
       }

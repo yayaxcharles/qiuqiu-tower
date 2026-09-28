@@ -57,12 +57,12 @@ function nextRound(cs: CombatState): void {
 
 describe('C 批六張：規格對得上交辦單', () => {
   const SPEC: [string, string, number, string, string][] = [
-    ['xianbangniliuzhe', '先幫你留著', 1, '技能', '常見'],
-    ['nimangwobuwei', '你忙我補位', 1, '能力', '稀有'],
-    ['fantuanliuyikou', '飯糰留一口', 1, '能力', '罕見'],
-    ['youwozaiqianmian', '有我在前面', 1, '能力', '稀有'],
-    ['biepengzhenjian', '別碰針尖喔', 1, '技能', '罕見'],
-    ['woyouxianbeihao', '一起準備好', 2, '能力', '稀有'],   // 2026-09-14 使用者改名（原「我有先備好」）
+    ['xianbangniliuzhe', '先幫你留著', 1, 'skill', 'common'],
+    ['nimangwobuwei', '你忙我補位', 1, 'power', 'rare'],
+    ['fantuanliuyikou', '飯糰留一口', 1, 'power', 'uncommon'],
+    ['youwozaiqianmian', '有我在前面', 1, 'power', 'rare'],
+    ['biepengzhenjian', '別碰針尖喔', 1, 'skill', 'uncommon'],
+    ['woyouxianbeihao', '一起準備好', 2, 'power', 'rare'],   // 2026-09-14 使用者改名（原「我有先備好」）
   ];
   for (const [id, name, cost, type, rarity] of SPEC) {
     it(`${name}：費用、類型、稀有度、連線旗標`, () => {

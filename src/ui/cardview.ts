@@ -5,6 +5,7 @@ import { attachCardPeek } from './cardpeek';
 import { cardNameFor } from '../content/cards';
 import { describeCard, upgradedChangedChars } from './cardtext';
 import { el } from './dom';
+import { cardTypeLabel } from '../i18n';
 import { markupKeywords } from './tooltip';
 
 export interface CardViewOpts {
@@ -73,7 +74,7 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
     el('img', { class: 'card-art', src: artUrl('cards', cardArtKey(def.art, opts.hero, opts.partnerHero)), alt: def.name, draggable: 'false' }),
     el('div', { class: 'card-name' }, cardNameFor(def, opts.hero ?? localHero()) + (upgraded ? '＋' : '')),
     el('div', { class: 'card-text' }, markupKeywords(describeCard(def, upgraded, plays), changed)),
-    el('div', { class: 'card-type' }, def.type));
+    el('div', { class: 'card-type' }, cardTypeLabel(def.type)));
 
   if (uid !== null) node.dataset['uid'] = String(uid);
   const onClick = opts.onClick;

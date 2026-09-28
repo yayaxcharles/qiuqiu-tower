@@ -411,7 +411,7 @@ describe('新秘寶 9 件的掛鉤（新P）', () => {
       eliteSeen += 1;
       if (!e.potion) eliteNone += 1;
     }
-    expect(rarities.has('常見'), '不再升成罕見以上：常見的也抽得到').toBe(true);
+    expect(rarities.has('common'), '不再升成罕見以上：常見的也抽得到').toBe(true);
     expect(eliteSeen, '前提：樣本裡有大魔物格').toBeGreaterThan(10);
     expect(eliteNone, '大魔物那幾場不保證（照常五成擲）').toBeGreaterThan(0);
   });

@@ -119,7 +119,7 @@ export const events: EventDef[] = [
         result: '菲菲把牆上的針一根根拔下，連同線頭收好。她吃了些小魚乾，再把剩下的裝進袋子。菲菲：「師兄的頭巾又破了。等找到他，再替他補。」', resultArt: 'feifei_trace_r0' },
       // 標籤照實際效果寫（使用者 2026-09-14 裁定改標籤）：原本寫「下一場魔物更強、小魚乾加倍」，那套玩法從來沒做，旗標也沒人讀
       { label: '照著痕跡追上去（最多失去 5 點生命；隨機獲得 1 張罕見忍術牌、獲得 60 條小魚乾）',
-        outcome: [{ kind: 'flag', name: 'feifei_chasing' }, { kind: 'damage', n: 5 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }, { kind: 'fish', n: 60 }],
+        outcome: [{ kind: 'flag', name: 'feifei_chasing' }, { kind: 'damage', n: 5 }, { kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }, { kind: 'fish', n: 60 }],
         result: '菲菲追著痕跡跑過轉角，被木箱絆得擦破膝蓋。盡頭只留著一卷忍術和一袋小魚乾。菲菲：「還是沒追上……至少他往這邊走，沒有找錯。」', resultArt: 'feifei_trace_r1' },
     ] },
   { id: 'feifei_brew', title: '調藥', hero: 'feifei',
@@ -129,7 +129,7 @@ export const events: EventDef[] = [
         outcome: [{ kind: 'upgradeCard' }],
         result: '她把草葉搗成濃汁，就著燈火替針尖一根根上藥。菲菲：「比平常那批濃，分量得減一點。」', resultArt: 'feifei_brew_r0' },
       { label: '直接嚼一口試毒性（最多失去 8 點生命、獲得 1 張稀有牌）',
-        outcome: [{ kind: 'damage', n: 8 }, { kind: 'addRandomCard', pool: '絕學', rarity: '稀有' }],
+        outcome: [{ kind: 'damage', n: 8 }, { kind: 'addRandomCard', pool: '絕學', rarity: 'rare' }],
         result: '她猶豫了好一會，仍咬下一點草葉。苦澀伴著刺痛湧上來，她彎下身乾嘔，眼淚直掉。等到能握筆了，她才把反應記進本子。菲菲：「記下來了……不要再試第二次。」', resultArt: 'feifei_brew_r1' },
       { label: '不要碰（無效果）',
         outcome: [],
@@ -144,7 +144,7 @@ export const events: EventDef[] = [
     text: '菲菲在舊櫃裡找到一條乾淨布條，正好能換掉手上滲血的繃帶。轉身時，針袋卻被櫃角勾破，毒針從破口探了出來。她趕緊拎住袋口。布條只有這一截，包了傷口，就不夠補袋子。',
     choices: [
       { label: '布條拿來補針袋（獲得 1 張罕見的忍術牌）',
-        outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }],
+        outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }],
         result: '她用布條封住破口，試了幾次取針的角度，才把袋子繫回腰邊。菲菲：「至少不會再扎到手。這個傷口，得等下一站再處理。」', resultArt: 'feifei_pouch_r0' },
       { label: '布條拿來包紮（回復 18 點生命）',
         outcome: [{ kind: 'heal', n: 18 }],
@@ -218,7 +218,7 @@ export const events: EventDef[] = [
     choices: [
       { label: '練到天黑（自選升級至多 1 張牌；最多失去 6 點生命）', outcome: [{ kind: 'upgradeCard' }, { kind: 'damage', n: 6 }],
         result: '球球對著木靶一枚接一枚地射，射到靶架上的燈籠都亮了起來。臉頰擦破了皮，貼著一塊布，汗一直往下滴，最後一枚總算正中靶心。球球：「中了！這次是真的中了喵！」', resultArt: 'ninja_target_r0' },
-      { label: '撿還能用的暗器（隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }],
+      { label: '撿還能用的暗器（隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }],
         // 撿到的是隨機一張罕見忍術牌（可能是「先睡了」那種跟暗器無關的），所以台詞不指名哪一招（實機驗收 2026-09-23）
         result: '球球從靶上拔下幾枚手裏劍，斷掉的丟在地上，挑出三枚還能用的，握在手裡掂了掂。球球：「還能用的都帶走，說不定哪天用得上喵。」', resultArt: 'ninja_target_r1' },
       { label: '走開（無效果）', outcome: [],
@@ -257,7 +257,7 @@ export const events: EventDef[] = [
   { id: 'blocked', title: '此路不通',
     text: '樓梯被一座垃圾山堵住了。山頂插著一塊新木牌，寫著「此路不通」——木牌是新的，垃圾卻是舊的，是有人故意擋在這裡。破木板底下露出一卷忍術卷軸；旁邊還有一條小走道，看起來繞得過去。',
     choices: [
-      { label: '翻過垃圾山（最多失去 6 點生命；隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'damage', n: 6 }, { kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }], result: '球球抓住卷軸，腳下卻一滑，滾到了垃圾山另一邊。牠坐起來揉揉肩膀，卷軸還好好地抱在懷裡。球球：「痛死了，早知道就踩穩再拿喵。」', resultArt: 'blocked_r0' },
+      { label: '翻過垃圾山（最多失去 6 點生命；隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'damage', n: 6 }, { kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }], result: '球球抓住卷軸，腳下卻一滑，滾到了垃圾山另一邊。牠坐起來揉揉肩膀，卷軸還好好地抱在懷裡。球球：「痛死了，早知道就踩穩再拿喵。」', resultArt: 'blocked_r0' },
       { label: '從旁邊繞過去（無效果）', outcome: [], result: '球球沿著旁邊的小走廊繞過垃圾山，回到樓梯前。球球：「這邊明明能走，差點白爬一趟喵。」' },
     ] },
   { id: 'seclusion', title: '閉關',
@@ -334,7 +334,7 @@ export const events: EventDef[] = [
     choices: [
       { label: '爬到頂端取物（最多失去 10 點生命，隨機獲得 1 件常見秘寶）', outcome: [{ kind: 'damage', n: 10 }, { kind: 'relic', pool: '常見' }],
         result: '球球攀到貓抓柱頂端，伸爪扯下裝著秘寶的小包。麻繩磨得前腿一路發燙。球球：「拿到了，可是爪子好痛喵。」', resultArt: 'cat_tower_r0' },
-      { label: '照著底部爪痕練習（隨機獲得 1 張罕見絕學牌）', outcome: [{ kind: 'addRandomCard', pool: '絕學', rarity: '罕見' }],
+      { label: '照著底部爪痕練習（隨機獲得 1 張罕見絕學牌）', outcome: [{ kind: 'addRandomCard', pool: '絕學', rarity: 'uncommon' }],
         result: '球球照著底部的爪痕練習，從抬爪到收勢，總算把這一招學了下來。球球：「原來爪痕是照順序留的喵。」', resultArt: 'cat_tower_r1' },
     ] },
 
@@ -395,7 +395,7 @@ export const events: EventDef[] = [
       // 謝禮的 20 條小魚乾原本只寫在結果裡、選項上看不到（使用者 2026-09-10）
       { label: '上前協助救出小貓（獲得 20 條小魚乾，回復 15 點生命）', outcome: [{ kind: 'heal', n: 15 }, { kind: 'fish', n: 20 }],
         result: '球球扶住小貓，和母貓一起把牠帶出欄杆。母貓拿傷藥替球球處理舊傷，又送上 20 條小魚乾。球球：「下次別往那麼窄的地方鑽了喵。」', resultArt: 'stuck_kitten_r0' },
-      { label: '觀察牠縮身脫困的動作（隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }],
+      { label: '觀察牠縮身脫困的動作（隨機獲得 1 張罕見忍術牌）', outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }],
         result: '母貓教小貓轉過肩膀，讓牠從欄杆間退了出來。球球看得仔細，也跟著練習轉身，學會了一招忍術。球球：「先轉肩膀，身子就過得去了喵。」', resultArt: 'stuck_kitten_r1' },
     ] },
 

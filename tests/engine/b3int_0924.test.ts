@@ -87,7 +87,7 @@ describe('阿福的換招與祝福的塗鴉本共用一份換牌規則（`run.ts
       for (const c of cards) {
         const curse = c.pool === '壞毛病';
         const old = cards.filter((d) => d.pool === '忍術' && d.id !== c.id && pickable(d, hero, run.players.length)
-          && (curse ? d.rarity === '常見' : d.rarity !== '常見')).map((d) => d.id);
+          && (curse ? d.rarity === 'common' : d.rarity !== 'common')).map((d) => d.id);
         expect(swapCandidates(run, c.id, 0).map((d) => d.id), `${players} 人 ${h} ${c.id}`).toEqual(old);
         n += 1;
       }

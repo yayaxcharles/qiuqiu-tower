@@ -84,7 +84,7 @@ describe('補一針', () => {
 
   it('牌面：1 費常見攻擊，上毒跟抽牌用分號切開（不會被讀成「有毒才上毒」）', () => {
     const c = cardById['feifei_buyizhen']!;
-    expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([1, '攻擊', '常見', '忍術', 'feifei', 'enemy']);
+    expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([1, 'attack', 'common', '忍術', 'feifei', 'enemy']);
     expect(describeCard(c, false)).toBe('造成 4 點傷害；目標身上有中毒就抽 1 張牌；給目標 2 層中毒。');
     expect(describeCard(c, true)).toBe('造成 6 點傷害；目標身上有中毒就抽 1 張牌；給目標 3 層中毒。');
   });
@@ -131,7 +131,7 @@ describe('看準破綻', () => {
 
   it('牌面：罕見技能、要選一隻', () => {
     const c = cardById['feifei_kanzhun']!;
-    expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([0, '技能', '罕見', '忍術', 'feifei', 'enemy']);
+    expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([0, 'skill', 'uncommon', '忍術', 'feifei', 'enemy']);
     expect(describeCard(c, false)).toBe('目標身上有中毒就抽 2 張牌。消耗。');
     expect(describeCard(c, true)).toBe('目標身上有中毒就抽 2 張牌；給目標 3 層中毒。消耗。');
   });
@@ -189,12 +189,12 @@ describe('越撒越順手', () => {
 
   it('升級只降費用：2→1，效果不變', () => {
     const c = cardById['feifei_yuesa']!;
-    expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([2, '能力', '稀有', '絕學', 'feifei', 'self']);
+    expect([c.cost, c.type, c.rarity, c.pool, c.hero, c.target]).toEqual([2, 'power', 'rare', '絕學', 'feifei', 'self']);
     expect(cardStats(inst('feifei_yuesa', 1, true)).cost).toBe(1);
     expect(cardStats(inst('feifei_yuesa', 1, true)).effects).toEqual(cardStats(inst('feifei_yuesa', 1)).effects);
     const fx = c.effects[0]!;
     expect(fx.kind === 'power' && [fx.trigger, fx.cardType, fx.oncePerTurn, fx.minQiSpent, fx.sameNameMax])
-      .toEqual(['afterCard', '技能', undefined, undefined, undefined]);
+      .toEqual(['afterCard', 'skill', undefined, undefined, undefined]);
     expect(describeCard(c, false)).toBe('每次打出技能牌後，全體魔物獲得 1 層中毒（每回合最多 5 次）。');
 
     const cs = fight(['feifei_yuesa', 'feifei_tuikai'], { upgraded: ['feifei_yuesa'] });
@@ -243,8 +243,8 @@ describe('誰拿得到', () => {
   });
 
   it('出牌動作：補一針借飛針的單手彈針；看準破綻、越撒越順手走她的結印（都有逐格素材，不退回靜態立繪）', () => {
-    expect(companionCardAction('feifei', 'feifei_buyizhen', { cardType: '攻擊' })).toBe('shuriken');
-    expect(companionCardAction('feifei', 'feifei_kanzhun', { cardType: '技能' })).toBe('seal');
-    expect(companionCardAction('feifei', 'feifei_yuesa', { cardType: '能力' })).toBe('seal');
+    expect(companionCardAction('feifei', 'feifei_buyizhen', { cardType: 'attack' })).toBe('shuriken');
+    expect(companionCardAction('feifei', 'feifei_kanzhun', { cardType: 'skill' })).toBe('seal');
+    expect(companionCardAction('feifei', 'feifei_yuesa', { cardType: 'power' })).toBe('seal');
   });
 });

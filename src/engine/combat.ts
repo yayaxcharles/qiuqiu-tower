@@ -213,7 +213,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
    *     記的是**出手的那位**，跟 `poisonOnAttack` 同口徑。
    */
   const pn = p.poisonNextAttack;
-  if (pn && damaged.length > 0 && (type === '攻擊' || pn.anyDamage)) {
+  if (pn && damaged.length > 0 && (type === 'attack' || pn.anyDamage)) {
     let applied = 0;
     for (const uid of new Set(damaged.map((h) => h.uid))) {
       const e = cs.enemies.find((x) => x.uid === uid);
@@ -246,7 +246,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
     /*
      * **用快照判斷「這張牌打之前就掛著」**（2026-09-13 稽核 中-1）。
      *
-     * 第一版靠 `if (type === '能力') return;` 擋「能力牌自己觸發自己」，
+     * 第一版靠 `if (type === 'power') return;` 擋「能力牌自己觸發自己」，
      * 卻把**整類**能力牌一起排除了——升級版牌面寫「不限類型」，同伴打馬步、運功、
      * 千針萬毒那 19 張能力牌卻一次都不會觸發。跟影子分身那次是同一型的錯。
      * 改看快照之後，自觸發自然被擋掉（打出來的當下快照裡還沒有它），能力牌也不必整類排除。
@@ -287,7 +287,7 @@ function coopWatchers(cs: CombatState, p: PlayerCombat, type: string,
      *   - 升級版不限出手的人、技能傷害也算，但**每輪仍合計一次**。
      */
     const byOk = snap.poisonHit === 'both' || solo || w !== p;
-    const typeOk = snap.poisonHit === 'both' || type === '攻擊';
+    const typeOk = snap.poisonHit === 'both' || type === 'attack';
     if (snap.poisonHit && !w.firedPoisonHit && byOk && typeOk
         && damaged.some((h) => (poisonBefore.get(h.uid) ?? 0) > 0)) {
       w.firedPoisonHit = true;
@@ -464,10 +464,10 @@ export function canPlay(cs: CombatState, uid: number, targetUid?: number, seat =
   if (!card) return { ok: false, reason: '不在手牌' };
   const st = cardStats(card);
   if (st.keywords.includes('不可打出')) return { ok: false, reason: '不可打出' };
-  if (st.def.type === '攻擊' && p.noAttacks) return { ok: false, reason: '本回合不能再打攻擊牌' };
+  if (st.def.type === 'attack' && p.noAttacks) return { ok: false, reason: '本回合不能再打攻擊牌' };
   // 球球被定身：這回合攻擊牌整排打不出（毛線球怪的「纏住」）。
   // 這一側漏了很久——引擎本來只實作魔物被定身那一半，玩家身上的定身完全沒作用
-  if (st.def.type === '攻擊' && getStatus(p, '定身') > 0) return { ok: false, reason: '被定住了，這回合打不出攻擊牌' };
+  if (st.def.type === 'attack' && getStatus(p, '定身') > 0) return { ok: false, reason: '被定住了，這回合打不出攻擊牌' };
   /*
    * 「取高」比的是**能力的內容**，不是有沒有磨過（2026-09-23 稽核 引擎 低-2）：
    * 絕學·藏鋒的升級只降費用，掛上去的能力跟基礎版一模一樣。原本只看 `upgraded`，
@@ -527,7 +527,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   }
   p.energy -= chk.cost;
   p.hand.splice(p.hand.indexOf(card), 1);
-  const toExhaust = st.keywords.includes('消耗') || st.def.type === '能力';
+  const toExhaust = st.keywords.includes('消耗') || st.def.type === 'power';
   (toExhaust ? p.exhaustPile : p.discardPile).push(card);
   const mateAtPlay = cs.players.find((q) => q !== p && !q.down) ?? p;
   const ctx: EffectCtx = { self: p, targetUid, cardUid: uid, cardId: st.def.id, cardUpgraded: card.upgraded,
@@ -545,13 +545,13 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     ctx.targetPoisonBefore = t ? getStatus(t, '中毒')
       : Math.max(0, ...cs.enemies.filter((e) => !e.dead).map((e) => getStatus(e, '中毒')));
   }
-  if (st.def.type === '攻擊' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
-  if (st.def.type === '攻擊' && p.nextAttackBonus !== undefined) {
+  if (st.def.type === 'attack' && p.doubleNext > 0) { ctx.doubleDamage = true; p.doubleNext = 0; }
+  if (st.def.type === 'attack' && p.nextAttackBonus !== undefined) {
     ctx.nextAttackBonus = p.nextAttackBonus;
     p.nextAttackBonus = undefined;
   }
   // 秘笈自己有專屬紀錄句，只推清單讓畫面閃（稽核 2026-09-10 中-3）
-  if (st.def.type === '攻擊' && p.firstAttackDouble) {
+  if (st.def.type === 'attack' && p.firstAttackDouble) {
     ctx.doubleDamage = true; p.firstAttackDouble = false;
     const mid = p.relics.find((id) => relicById[id]?.hooks.firstAttackDouble);
     if (mid) markRelic(cs, mid);
@@ -562,7 +562,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * 計數在 `p.relicCounters`（開打時從整局抄進來、`finishCombat` 寫回去），所以進指紋、也跟著存檔走。
    * 已經被蓄力／秘笈加倍的那一張也照樣算掉（加倍不疊加，跟那兩種同一條規矩：`doubleDamage` 是旗標不是倍數）。
    */
-  if (st.def.type === '攻擊') for (const rid of p.relics) {
+  if (st.def.type === 'attack') for (const rid of p.relics) {
     const n = relicById[rid]?.hooks.attackCounterDouble;
     if (!n) continue;
     const counters = (p.relicCounters ??= {});
@@ -578,8 +578,8 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   cs.cardsPlayed += 1;
   p.firstCardPlayed = true;
   p.firstCardEver = true;
-  const firstAttack = st.def.type === '攻擊' && !p.attackedThisTurn;
-  if (st.def.type === '攻擊') p.attackedThisTurn = true;
+  const firstAttack = st.def.type === 'attack' && !p.attackedThisTurn;
+  if (st.def.type === 'attack') p.attackedThisTurn = true;
   // 牌名也跟著角色換（`cardNameFor`）：升級的「＋」接在後面，跟 `cardStats` 同一套
   log(cs, `${unitName(p)}打出「${cardNameFor(st.def, p.hero)}${card.upgraded ? '＋' : ''}」`);
   // 秘寶的第 N 張補抽排在牌效果之前：這張牌若要選牌，候選才不會被之後的補抽動到
@@ -645,7 +645,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * 掛兩張影子分身之後變成每回合 +3／+3，第 14 回合貓步 33、一張金鐘罩擋 150 點
    * （沒有影子分身時是 13 與 30）。一張 3 費牌換五倍，不是「再打一次」該有的量。
    */
-  if (p.echoFirst && !p.echoUsed && st.def.type !== '能力'
+  if (p.echoFirst && !p.echoUsed && st.def.type !== 'power'
       && !st.effects.some((e) => e.kind === 'echoFirst')
       && cs.phase === 'player' && !cs.pending) {
     /*
@@ -689,7 +689,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
    * 排在牌效果**之後**：這樣「見血封喉」引爆的是打之前的層數，不會把這一層也算進去——
    * 不然同一張牌會自己餵自己。打贏了就不用補。
    */
-  if (st.def.type === '攻擊' && p.poisonOnAttack && cs.phase === 'player') {
+  if (st.def.type === 'attack' && p.poisonOnAttack && cs.phase === 'player') {
     /*
      * **打全體的牌就發給全體**（稽核 2026-09-12 中-11）。
      * 原本只看 `targetUid`，而撒針、針雨、全撒了這些 `target: 'all'` 的牌
@@ -706,7 +706,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
     }
   }
   // 打出攻擊牌之後的秘寶效果（逗貓棒、貓抓板）：牌效果算完才觸發，打贏了就不用
-  if (st.def.type === '攻擊' && cs.phase === 'player') {
+  if (st.def.type === 'attack' && cs.phase === 'player') {
     for (const rid of p.relics) {
       const h = relicById[rid]?.hooks.onAttackPlayed;
       if (!h || (h.firstEachTurn && !firstAttack) || (h.chance !== undefined && !cs.rng.chance(h.chance))) continue;
@@ -727,7 +727,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   // 打出**技能**牌會惹到的兩種魔物（2026-09-02 第二波）：
   // 詛咒（詛咒神官、詛咒老住持）＝往你的抽牌堆洗爛牌；憤怒（赤鬼武夫）＝牠自己 +爪力。
   // 能力牌不算——規格只點名技能牌；戰鬥雜牌（黏液、眼冒金星）也不算，不然「打出去就消耗」對詛咒魔物會變成打一張補一張（稽核 2026-09-04 午後 高-1）
-  if (st.def.type === '技能' && !st.def.combatOnly && cs.phase === 'player') {
+  if (st.def.type === 'skill' && !st.def.combatOnly && cs.phase === 'player') {
     for (const e of aliveEnemies(cs)) {
       const d = enemyById[e.enemyId];
       // 爛牌塞進**打技能牌那位**的牌堆（連線稽核 高-14：原本塞進座位 0 的）

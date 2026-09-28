@@ -114,7 +114,7 @@ registerScreen('debug', (app, root) => {
     const mine = cards.filter((c) => !c.combatOnly && !c.hidden && inHeroCollection(c, hero));
     body.append(el('p', { class: 'dbg-note' }, `${mine.length} 張（這位角色拿得到的）。左邊基礎、右邊升級版。`));
     const grid = el('div', { class: 'dbg-cards' });
-    const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+    const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2 };
     for (const def of [...mine].sort((a, b) => (a.pool < b.pool ? -1 : a.pool > b.pool ? 1 : (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))) {
       grid.append(el('div', { class: 'dbg-pair' },
         cardNode(def, { small: true, hero }),

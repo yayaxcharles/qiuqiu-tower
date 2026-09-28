@@ -1,3 +1,4 @@
+import { rarityLabel } from '../../i18n';
 import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
@@ -251,7 +252,7 @@ registerScreen('shop', (app, root, props) => {
       sale ? saleTag(sold ? undefined : sale) : ledgerTag(sold),
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
-      rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarity) : '',
+      rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarityLabel(rarity)) : '',
       limited ? el('div', { class: 'potion-rarity rarity-limited' }, '店長私藏') : '',
       el('div', { class: 'small', title: full ?? text }, text),   // 貨架上最多四行（screens.css），全文放在滑鼠提示
       priceNode(price, sold, base, sale, soldText, item));

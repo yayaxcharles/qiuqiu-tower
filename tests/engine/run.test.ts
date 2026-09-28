@@ -230,8 +230,8 @@ describe('事件結果', () => {
     applyRunEffects(run, [{ kind: 'fishHalve' }]); expect(me(run).fish).toBe(20);
     applyRunEffects(run, [{ kind: 'maxHp', n: 5 }]); expect(me(run).maxHp).toBe(81); expect(me(run).hp).toBe(49);
     applyRunEffects(run, [{ kind: 'addCard', cardId: 'zhongji' }]); expect(me(run).deck.some((c) => c.cardId === 'zhongji')).toBe(true);
-    applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }]);
-    expect(cardById[me(run).deck.at(-1)!.cardId]?.rarity).toBe('罕見');
+    applyRunEffects(run, [{ kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }]);
+    expect(cardById[me(run).deck.at(-1)!.cardId]?.rarity).toBe('uncommon');
     applyRunEffects(run, [{ kind: 'potions', n: 2 }]); expect(me(run).potions.length).toBe(2);
     expect(applyRunEffects(run, [{ kind: 'removeCard' }])).toEqual({ needs: 'removeCard', n: 1 });
     expect(applyRunEffects(run, [{ kind: 'upgradeCard' }])).toEqual({ needs: 'upgradeCard', n: 1 });

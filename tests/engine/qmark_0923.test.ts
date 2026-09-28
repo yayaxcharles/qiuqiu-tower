@@ -338,12 +338,12 @@ describe('行腳商（設計稿 3-2）', () => {
       expect(shops).toHaveLength(2);
       shops.forEach((s, seat) => {
         expect(s.merchant).toBe(true);
-        expect(s.cards.map((c) => c.def.rarity)).toEqual(['罕見', '稀有']);
+        expect(s.cards.map((c) => c.def.rarity)).toEqual(['uncommon', 'rare']);
         for (const c of s.cards) expect(!c.def.hero || c.def.hero === (seat === 0 ? 'ninja' : 'fengfeng')).toBe(true);
         expect(s.relics).toHaveLength(1);
         expect(['常見', '大魔物']).toContain(relicById[s.relics[0]!.id]!.pool);
         expect(s.potions).toHaveLength(2);
-        for (const x of s.potions) expect(potionById[x.id]!.rarity).not.toBe('常見');
+        for (const x of s.potions) expect(potionById[x.id]!.rarity).not.toBe('common');
         expect(s.entryFee).toBeUndefined();
       });
     }

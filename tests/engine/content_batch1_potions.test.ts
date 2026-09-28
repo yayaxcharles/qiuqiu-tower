@@ -136,27 +136,27 @@ describe('稀有度', () => {
   // 2026-09-23 第二批 +6：常見 +2（便當、傳功丹）、罕見 +2（照妖鏡、替換符）、稀有 +2（回魂香、迷魂香）
   it('51 支分級：常見 24、罕見 18、稀有 9；稀有照提案那 6 支＋火雷珠＋第二批兩支', () => {
     const n = (r: Rarity): number => potions.filter((p) => p.rarity === r).length;
-    expect([n('常見'), n('罕見'), n('稀有')]).toEqual([24, 18, 9]);
-    expect(potions.filter((p) => p.rarity === '稀有').map((p) => p.id).sort())
+    expect([n('common'), n('uncommon'), n('rare')]).toEqual([24, 18, 9]);
+    expect(potions.filter((p) => p.rarity === 'rare').map((p) => p.id).sort())
       .toEqual(['clone_oil', 'daze_incense', 'first_incense', 'iron_salve', 'nine_lives', 'revive_incense', 'revive_pill', 'secret_scroll', 'thunder_bead']);
   });
 
   it('殺戮尖塔的慣例「越稀有越貴」照樣成立：三級的平均標價由低到高（我們不另外乘倍率，理由見 POTION_RARITY_ODDS）', () => {
     const avg = (r: Rarity): number => { const ps = potions.filter((p) => p.rarity === r); return ps.reduce((s, p) => s + (p.price ?? 45), 0) / ps.length; };
-    expect(avg('常見')).toBeLessThan(avg('罕見'));
-    expect(avg('罕見')).toBeLessThan(avg('稀有'));
+    expect(avg('common')).toBeLessThan(avg('uncommon'));
+    expect(avg('uncommon')).toBeLessThan(avg('rare'));
   });
 
   it('權重 65／27／8：抽四萬次，每一級的比例落在一個百分點內', () => {
-    expect(POTION_RARITY_ODDS).toEqual([['常見', 65], ['罕見', 27], ['稀有', 8]]);
+    expect(POTION_RARITY_ODDS).toEqual([['common', 65], ['uncommon', 27], ['rare', 8]]);
     for (const hero of ['ninja', 'fengfeng'] as const) {
       const rng = new Rng(seedFromString(`rarity-${hero}`));
-      const count: Record<Rarity, number> = { 常見: 0, 罕見: 0, 稀有: 0 };
+      const count: Record<Rarity, number> = { common: 0, uncommon: 0, rare: 0 };
       const N = 40_000;
       for (let i = 0; i < N; i++) count[potionById[rollPotion(rng, [hero])]!.rarity] += 1;
-      expect(Math.abs(count['常見'] / N - 0.65), `${hero} 常見 ${count['常見'] / N}`).toBeLessThan(0.01);
-      expect(Math.abs(count['罕見'] / N - 0.27), `${hero} 罕見 ${count['罕見'] / N}`).toBeLessThan(0.01);
-      expect(Math.abs(count['稀有'] / N - 0.08), `${hero} 稀有 ${count['稀有'] / N}`).toBeLessThan(0.01);
+      expect(Math.abs(count['common'] / N - 0.65), `${hero} 常見 ${count['common'] / N}`).toBeLessThan(0.01);
+      expect(Math.abs(count['uncommon'] / N - 0.27), `${hero} 罕見 ${count['uncommon'] / N}`).toBeLessThan(0.01);
+      expect(Math.abs(count['rare'] / N - 0.08), `${hero} 稀有 ${count['rare'] / N}`).toBeLessThan(0.01);
     }
   });
 
@@ -165,7 +165,7 @@ describe('稀有度', () => {
     const count = new Map<string, number>();
     const N = 40_000;
     for (let i = 0; i < N; i++) { const id = rollPotion(rng, ['ninja']); count.set(id, (count.get(id) ?? 0) + 1); }
-    const rare = potions.filter((x) => x.rarity === '稀有');
+    const rare = potions.filter((x) => x.rarity === 'rare');
     for (const p of rare) {
       expect(Math.abs((count.get(p.id) ?? 0) / N - 0.08 / rare.length), p.id).toBeLessThan(0.004);
     }
@@ -281,7 +281,7 @@ describe('存檔相容', () => {
     expect(back, '舊存檔被判成壞檔').not.toBeNull();
     const p = me(back!);
     expect(p.potions).toEqual(['smoke_bomb', 'revive_pill', 'your_way']);
-    expect(p.potions.map((id) => potionById[id]!.rarity)).toEqual(['常見', '稀有', '罕見']);
+    expect(p.potions.map((id) => potionById[id]!.rarity)).toEqual(['common', 'rare', 'uncommon']);
     expect(p.relics).toEqual(['backstep', 'tuna_can', 'coin_jar', 'master_seal']);
     // 讀回來之後照常開店（新忍具、稀有度抽法都接得上）、照常進戰鬥
     expect(makeShop(back!).potions).toHaveLength(3);
