@@ -12,7 +12,7 @@ import { motionMs } from '../../src/ui/motion-speed';
  * 對照表不能不見、節奏不能變長、命中那格要對準、圖集不能進開場下載、新圖壞了要退回原本的動作。
  */
 const ROOT = join(__dirname, '..', '..');
-const VIDS_ACTIONS = ['attack1', 'attack3', 'toss', 'hurt', 'defeat', 'run'];
+const VIDS_ACTIONS = ['attack1', 'attack2', 'attack3', 'attack4', 'toss', 'hurt', 'defeat', 'run'];
 
 type Frame = { rect: number[]; pivot: number[]; duration: number; src: number };
 type Motion = { texture: string; scale: number; loop: boolean; frames: Frame[]; releaseTimes?: number[] };
@@ -27,7 +27,7 @@ const total = (motion: { frames: readonly { duration: number }[] }): number =>
   Math.round(motion.frames.reduce((sum, frame) => sum + frame.duration * 1000, 0));
 
 describe('球球新動作資料', () => {
-  it('兩套（電腦每秒 24 格、手機每秒 12 格）都有六個動作，圖集檔都在', () => {
+  it('兩套（電腦每秒 24 格、手機每秒 12 格）都有八個動作，圖集檔都在', () => {
     expect(variants.desktop.fps).toBe(24);
     expect(variants.mobile.fps).toBe(12);
     for (const variant of ['desktop', 'mobile'] as const) {
@@ -45,7 +45,9 @@ describe('球球新動作資料', () => {
     const mobile = heroVidsMotionsFrom(vidsData, 'mobile');
     const old: Record<string, number> = {
       attack1: motionMs(total(oldActions.attack1!)),
+      attack2: motionMs(total(oldActions.attack2!)),
       attack3: motionMs(total(oldActions.attack3!)),
+      attack4: motionMs(total(oldActions.attack4!)),
       toss: motionMs(total(oldActions.toss!)),
       defeat: motionMs(total(oldActions.defeat!)),
       run: total(oldActions.run!),          // 跑步不加速
@@ -61,7 +63,7 @@ describe('球球新動作資料', () => {
     }
   });
 
-  it('命中那一格剛好在原本寫死的命中時間開始（貓抓 70／100 毫秒、空手擲出手 240 毫秒，都是原速）', () => {
+  it('命中那一格剛好在原本寫死的命中時間開始（貓抓 70／90／100／160 毫秒、空手擲出手 240 毫秒，都是原速）', () => {
     const desktop = heroVidsMotionsFrom(vidsData, 'desktop');
     const hitAt = (action: string, sourceMs: number): number => {
       const index = starts(desktop[action]!).indexOf(motionMs(sourceMs));
@@ -70,6 +72,8 @@ describe('球球新動作資料', () => {
     };
     expect(hitAt('attack1', 70)).toBe(30);     // 揮爪_v2a 第 30 格＝爪痕最大
     expect(hitAt('attack3', 100)).toBe(30);
+    expect(hitAt('attack2', 90)).toBe(36);     // 貓抓B_flow_omni_v1 第 36 格＝爪痕在身前
+    expect(hitAt('attack4', 160)).toBe(36);
     expect(hitAt('toss', 240)).toBe(34);       // 前投空手_v1 第 34 格出手
     expect(desktop.toss!.releaseTimes).toEqual([motionMs(240)]);
   });
@@ -168,7 +172,9 @@ describe('球球新動作接上遊戲', () => {
     expect(lastTexture()).toContain('hero-vids/qiuqiu-hurt-d.webp');
     // 沒有新片的動作、待機照舊
     motion.createQiuqiuActor({ action: 'attack2' });
-    expect(lastTexture()).toContain('assets/motion/qiuqiu/claw_2_sheet.webp');
+    expect(lastTexture()).toContain('hero-vids/qiuqiu-clawb-d.webp');
+    motion.createQiuqiuActor({ action: 'seal' });
+    expect(lastTexture()).toContain('assets/motion/qiuqiu/seal_sheet.webp');
     motion.createQiuqiuActor({ action: 'idle' });
     expect(lastTexture()).toContain('assets/motion/qiuqiu/idle_hurt_sheet.webp');
     expect(motion.qiuqiuMotionDuration('hurt')).toBe(650);

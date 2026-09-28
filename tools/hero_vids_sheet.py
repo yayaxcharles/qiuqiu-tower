@@ -18,7 +18,7 @@ UI = ROOT / "src" / "ui"
 STEP_MS = 50
 CELL_W, CELL_H, BASE_Y = 230, 330, 300
 SPEED = 1.5
-NAMES = {"attack1": "貓抓 A（attack1）", "attack3": "貓抓 A 長（attack3）", "toss": "空手擲（toss）", "dash": "衝刺（dash）",
+NAMES = {"attack1": "貓抓 A（attack1）", "attack3": "貓抓 A 長（attack3）", "attack2": "貓抓 B（attack2）", "attack4": "貓抓 B 長（attack4）", "toss": "空手擲（toss）", "dash": "衝刺（dash）",
          "hurt": "挨打（hurt）", "defeat": "倒下（defeat）", "run": "跑（run，循環）"}
 
 

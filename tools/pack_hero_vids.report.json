@@ -8,6 +8,14 @@
    ],
    "cells": 10
   },
+  "assets/motion/hero-vids/qiuqiu-clawb-d.webp": {
+   "bytes": 303786,
+   "size": [
+    4084,
+    852
+   ],
+   "cells": 12
+  },
   "assets/motion/hero-vids/qiuqiu-toss-d.webp": {
    "bytes": 279980,
    "size": [
@@ -48,6 +56,14 @@
    ],
    "cells": 5
   },
+  "assets/motion/hero-vids/qiuqiu-clawb-m.webp": {
+   "bytes": 91268,
+   "size": [
+    1514,
+    320
+   ],
+   "cells": 5
+  },
   "assets/motion/hero-vids/qiuqiu-toss-m.webp": {
    "bytes": 112504,
    "size": [
@@ -84,6 +100,8 @@
  "scale": {
   "attack1": 0.45368,
   "attack3": 0.45368,
+  "attack2": 0.45206,
+  "attack4": 0.45206,
   "toss": 0.52961,
   "hurt": 0.45368,
   "defeat": 0.45368,
@@ -93,6 +111,8 @@
   "desktop": {
    "attack1": 5,
    "attack3": 7,
+   "attack2": 5,
+   "attack4": 9,
    "toss": 11,
    "hurt": 15,
    "defeat": 17,
@@ -101,6 +121,8 @@
   "mobile": {
    "attack1": 3,
    "attack3": 3,
+   "attack2": 3,
+   "attack4": 3,
    "toss": 6,
    "hurt": 7,
    "defeat": 8,

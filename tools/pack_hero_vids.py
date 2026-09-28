@@ -58,6 +58,10 @@ ACTIONS: dict[str, dict] = {
     "attack1": {"clip": "揮爪_v2a", "keys": [(18, 0), (30, 0.07), (46, 0.18), (72, 0.30)]},
     # attack3 同一支片、起手拉長一點：0.42 秒、命中 100 毫秒
     "attack3": {"clip": "揮爪_v2a", "keys": [(12, 0), (30, 0.10), (48, 0.28), (72, 0.42)]},
+    # 貓抓 B（2026-09-28 晚用 Google Flow 的 Omni 模型、4 秒、參考圖當開始影格生的：貓抓B_flow_omni_v1）：
+    # 第 36 格＝爪痕在身前最大；第 60 格左右回到架式。attack2 原速 0.34 秒、命中 90；attack4 0.52 秒、命中 160
+    "attack2": {"clip": "貓抓B_flow_omni_v1", "keys": [(24, 0), (36, 0.09), (44, 0.2), (60, 0.34)]},
+    "attack4": {"clip": "貓抓B_flow_omni_v1", "keys": [(18, 0), (36, 0.16), (46, 0.34), (62, 0.52)]},
     # 空手擲：第 34 格出手（橫向捲軸標的 release 1.42 秒）；現在 0.71 秒、出手 240、命中 410 毫秒
     "toss": {"clip": "前投空手_v1", "keys": [(14, 0), (34, 0.24), (48, 0.52), (66, 0.71)],
              "impactTimes": [410], "releaseTimes": [240]},
@@ -259,7 +263,7 @@ def main() -> None:
         print(f"{vname}: {total / 1024 / 1024:.2f} MB")
 
 
-SLUGS = {"揮爪_v2a": "claw", "前投空手_v1": "toss", "受傷_v1": "hurt", "倒下_v1": "defeat", "跑步_v1": "run"}
+SLUGS = {"揮爪_v2a": "claw", "貓抓B_flow_omni_v1": "clawb", "前投空手_v1": "toss", "受傷_v1": "hurt", "倒下_v1": "defeat", "跑步_v1": "run"}
 
 
 def clip_slug(clip: str) -> str:

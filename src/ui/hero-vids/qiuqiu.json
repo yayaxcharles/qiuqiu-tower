@@ -192,6 +192,216 @@
       }
      ]
     },
+    "attack2": {
+     "texture": "assets/motion/hero-vids/qiuqiu-clawb-d.webp",
+     "scale": 0.625,
+     "loop": false,
+     "frames": [
+      {
+       "rect": [
+        0,
+        0,
+        364,
+        428
+       ],
+       "pivot": [
+        202.47,
+        418.65
+       ],
+       "duration": 0.09,
+       "src": 24
+      },
+      {
+       "rect": [
+        366,
+        0,
+        454,
+        402
+       ],
+       "pivot": [
+        179.47,
+        399.65
+       ],
+       "duration": 0.055,
+       "src": 36
+      },
+      {
+       "rect": [
+        822,
+        0,
+        432,
+        398
+       ],
+       "pivot": [
+        200.47,
+        395.65
+       ],
+       "duration": 0.055,
+       "src": 40
+      },
+      {
+       "rect": [
+        1256,
+        0,
+        438,
+        398
+       ],
+       "pivot": [
+        206.47,
+        395.65
+       ],
+       "duration": 0.07,
+       "src": 44
+      },
+      {
+       "rect": [
+        1696,
+        0,
+        369,
+        424
+       ],
+       "pivot": [
+        204.47,
+        421.65
+       ],
+       "duration": 0.07,
+       "src": 60
+      }
+     ]
+    },
+    "attack4": {
+     "texture": "assets/motion/hero-vids/qiuqiu-clawb-d.webp",
+     "scale": 0.625,
+     "loop": false,
+     "frames": [
+      {
+       "rect": [
+        2067,
+        0,
+        318,
+        408
+       ],
+       "pivot": [
+        170.47,
+        405.65
+       ],
+       "duration": 0.053333,
+       "src": 18
+      },
+      {
+       "rect": [
+        0,
+        0,
+        364,
+        428
+       ],
+       "pivot": [
+        202.47,
+        418.65
+       ],
+       "duration": 0.053333,
+       "src": 24
+      },
+      {
+       "rect": [
+        2387,
+        0,
+        346,
+        408
+       ],
+       "pivot": [
+        213.47,
+        405.65
+       ],
+       "duration": 0.053333,
+       "src": 30
+      },
+      {
+       "rect": [
+        366,
+        0,
+        454,
+        402
+       ],
+       "pivot": [
+        179.47,
+        399.65
+       ],
+       "duration": 0.06,
+       "src": 36
+      },
+      {
+       "rect": [
+        2735,
+        0,
+        470,
+        399
+       ],
+       "pivot": [
+        196.47,
+        396.65
+       ],
+       "duration": 0.06,
+       "src": 39
+      },
+      {
+       "rect": [
+        3207,
+        0,
+        438,
+        398
+       ],
+       "pivot": [
+        206.47,
+        395.65
+       ],
+       "duration": 0.06,
+       "src": 43
+      },
+      {
+       "rect": [
+        3647,
+        0,
+        435,
+        399
+       ],
+       "pivot": [
+        203.47,
+        396.65
+       ],
+       "duration": 0.06,
+       "src": 46
+      },
+      {
+       "rect": [
+        0,
+        430,
+        354,
+        422
+       ],
+       "pivot": [
+        199.47,
+        419.65
+       ],
+       "duration": 0.06,
+       "src": 54
+      },
+      {
+       "rect": [
+        356,
+        430,
+        362,
+        416
+       ],
+       "pivot": [
+        194.47,
+        413.65
+       ],
+       "duration": 0.06,
+       "src": 62
+      }
+     ]
+    },
     "toss": {
      "texture": "assets/motion/hero-vids/qiuqiu-toss-d.webp",
      "scale": 0.625,
@@ -1096,6 +1306,104 @@
        ],
        "duration": 0.14,
        "src": 48
+      }
+     ]
+    },
+    "attack2": {
+     "texture": "assets/motion/hero-vids/qiuqiu-clawb-m.webp",
+     "scale": 0.833333,
+     "loop": false,
+     "frames": [
+      {
+       "rect": [
+        0,
+        0,
+        272,
+        320
+       ],
+       "pivot": [
+        151.85,
+        313.49
+       ],
+       "duration": 0.09,
+       "src": 24
+      },
+      {
+       "rect": [
+        274,
+        0,
+        340,
+        301
+       ],
+       "pivot": [
+        134.85,
+        299.49
+       ],
+       "duration": 0.11,
+       "src": 36
+      },
+      {
+       "rect": [
+        616,
+        0,
+        328,
+        298
+       ],
+       "pivot": [
+        154.85,
+        296.49
+       ],
+       "duration": 0.14,
+       "src": 44
+      }
+     ]
+    },
+    "attack4": {
+     "texture": "assets/motion/hero-vids/qiuqiu-clawb-m.webp",
+     "scale": 0.833333,
+     "loop": false,
+     "frames": [
+      {
+       "rect": [
+        946,
+        0,
+        238,
+        306
+       ],
+       "pivot": [
+        127.85,
+        304.49
+       ],
+       "duration": 0.16,
+       "src": 18
+      },
+      {
+       "rect": [
+        274,
+        0,
+        340,
+        301
+       ],
+       "pivot": [
+        134.85,
+        299.49
+       ],
+       "duration": 0.18,
+       "src": 36
+      },
+      {
+       "rect": [
+        1186,
+        0,
+        326,
+        299
+       ],
+       "pivot": [
+        152.85,
+        297.49
+       ],
+       "duration": 0.18,
+       "src": 46
       }
      ]
     },
