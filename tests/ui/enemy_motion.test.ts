@@ -228,7 +228,7 @@ describe('敵人逐格畫布', () => {
   });
 
   it('依原圖朝向逐動作面向左側，換待機、攻擊、受擊時腳底不跳位', () => {
-    for (const kind of ['rat', 'ninja'] as EnemyMotionKind[]) {
+    for (const kind of ['rat', 'ninja'] as const) {
       const actor = motion.createEnemyMotionActor(kind);
       const canvas = canvases.at(-1)!;
       const initialTransform = canvas.style.transform;

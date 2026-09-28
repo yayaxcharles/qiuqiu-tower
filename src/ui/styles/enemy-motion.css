@@ -14,3 +14,17 @@
      要 !important：combat.css 裡掛在 .sprite 上的動畫選擇器權重都比這條高（例如 .combat .unit.enemy.boss-fall.downed .sprite） */
   animation: none !important;
 }
+
+/*
+ * 兩隻魔王倒地演整段爆炸（2026-09-28 試做，combat.ts 的 finishEnemyMotion 掛 `motion-death`）。
+ * 原本倒下是整隻 0.8 秒溶解（大魔物）或 1.7 秒慢倒（塔主），會把爆炸砍在半路；
+ * 這裡把整隻的淡出關掉、停在最後一格（趴著冒煙／頭暈轉圈），換場時跟著整個畫面走。
+ * 名字、血條、狀態牌照樣收起來。`.gone` 沒有 `.dead` 時原本是透明的（重畫那一拍），這裡也要看得見。
+ */
+.combat .unit.enemy.motion-death {
+  animation: none !important;
+  opacity: 1 !important;
+  pointer-events: none;
+}
+.combat .unit.enemy.motion-death :is(.name, .chips, .hpbar, .intent) { opacity: 0; transition: opacity .3s; }
+.combat .unit.enemy.motion-death .ground-shadow { animation: none; opacity: .45; }

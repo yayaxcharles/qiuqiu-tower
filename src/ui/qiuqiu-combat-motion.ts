@@ -7,7 +7,7 @@ import {
   type CompanionMotionKind,
   type CompanionMotionAction,
 } from './companion-motion';
-import { enemyMotionDuration, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
+import { enemyMotionDuration, isBossMotionKind, type EnemyMotionAction, type EnemyMotionKind } from './enemy-motion';
 import { isFeifeiNeedleAction } from './feifei-needle-patterns';
 import type { MotionMeleePlan } from './qiuqiu-melee';
 
@@ -219,6 +219,24 @@ export function motionStillPlaying(states: Iterable<Readonly<{ active: boolean; 
   return false;
 }
 
+/**
+ * 魔王倒地的爆炸還要演多久才換場（2026-09-28 試做：鐵爪機關貓、掃地機器人王）。
+ * 爆炸演完、最後一格再停 `BOSS_DEATH_HOLD_MS` 才走；背景分頁看不到，不等（同 `motionStillPlaying`）。
+ */
+export const BOSS_DEATH_HOLD_MS = 300;
+export function bossDeathMotionLeft(
+  states: Iterable<Readonly<{ kind: EnemyMotionKind; action: EnemyMotionAction; busyUntil: number }>>,
+  now: number,
+  hidden = typeof document !== 'undefined' && document.hidden === true,
+): number {
+  if (hidden) return 0;
+  let left = 0;
+  for (const state of states) {
+    if (state.action === 'knockdown' && isBossMotionKind(state.kind)) left = Math.max(left, state.busyUntil + BOSS_DEATH_HOLD_MS - now);
+  }
+  return left;
+}
+
 /** 敵人逐格不能被通用 650ms 收姿勢計時提早截斷。 */
 export function qiuqiuEnemyMotionHold(kind: EnemyMotionKind, action: EnemyMotionAction, baseMs: number): number {
   return Math.max(baseMs, enemyMotionDuration(kind, action));
@@ -302,10 +320,21 @@ export function buildFeifeiStatusImpactPlan(
 }
 
 /** 只把有同源逐格素材的普通怪交給敵人動作層。 */
-export function qiuqiuEnemyMotionKind(enemyId: string): EnemyMotionKind | undefined {
+export function qiuqiuEnemyMotionKind(enemyId: string, phase = 0): EnemyMotionKind | undefined {
   if (enemyId === 'rat' || enemyId === 'rat_guard') return 'rat';
   if (enemyId === 'black_ninja' || enemyId === 'black_ninja_elite' || enemyId === 'sparring_partner') return 'ninja';
+  // 兩隻魔王（2026-09-28 試做，素材從橫向捲軸搬來）：鐵爪外殼彈開（第二階段）換成另一套
+  if (enemyId === 'iron_claw') return phase > 0 ? 'iron_claw_p2' : 'iron_claw';
+  if (enemyId === 'roomba_king') return 'roomba_king';
   return undefined;
+}
+
+/** 開打時要先下載哪幾套：鐵爪兩個階段一起抓，變身那一刻才不會退回靜態圖 */
+export function qiuqiuEnemyMotionKinds(enemyId: string): EnemyMotionKind[] {
+  const first = qiuqiuEnemyMotionKind(enemyId, 0);
+  if (!first) return [];
+  const second = qiuqiuEnemyMotionKind(enemyId, 1);
+  return second && second !== first ? [first, second] : [first];
 }
 
 /**

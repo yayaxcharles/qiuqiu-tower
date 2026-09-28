@@ -31,7 +31,7 @@ import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../status-kind';
 import { createChipsLift } from '../chiplift';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
-import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool } from '../assets';
+import { artUrl, decodeAll, hasMonsterPose, hasHeroSprite, heroArtUrl, monsterPhaseKey, monsterUrl, hasSprite, type DecodePool, type MonsterPose } from '../assets';
 import { STATUS_UNIT, describeCard } from '../cardtext';
 import { cardNode } from '../cardview';
 import { matePlays } from '../mateplay';
@@ -64,7 +64,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionDuration, enemyMotionReady, isBossMotionKind, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -75,11 +75,13 @@ import {
   LocalMotionPresentationQueue,
   motionPresentationMatches,
   motionStillPlaying,
+  bossDeathMotionLeft,
   qiuqiuConsumedStealth,
   qiuqiuEnemyBlocked,
   qiuqiuEnemyMotionAllowed,
   qiuqiuEnemyMotionHold,
   qiuqiuEnemyMotionKind,
+  qiuqiuEnemyMotionKinds,
   qiuqiuMotionBatchBoundaries,
   qiuqiuRestMotionAction,
   qiuqiuShouldPlayHurt,
@@ -682,9 +684,7 @@ registerScreen('combat', (app, root, props) => {
   // 丟出去的東西的圖（每張幾 KB，連線時同伴丟的也要有，所以全部先載）
   if (motionEnabled) preloadProjectiles();
   if (qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
-    const requested = [...new Set(cs.enemies
-      .map((enemy) => qiuqiuEnemyMotionKind(enemy.enemyId))
-      .filter((kind): kind is EnemyMotionKind => kind !== undefined))];
+    const requested = [...new Set(cs.enemies.flatMap((enemy) => qiuqiuEnemyMotionKinds(enemy.enemyId)))];
     if (requested.some((kind) => !enemyMotionReady(kind))) {
       void preloadEnemyMotion(requested).then(() => {
         if (app.cs === cs && !ended) render();
@@ -929,7 +929,8 @@ registerScreen('combat', (app, root, props) => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
     state.action = action;
-    state.busyUntil = action === 'attack' ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
+    state.busyUntil = action === 'attack' || (action === 'knockdown' && isBossMotionKind(state.kind))
+      ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
     state.actor.play(action);
     if (action === 'attack') {
       const expectedEnd = state.busyUntil;
@@ -945,6 +946,16 @@ registerScreen('combat', (app, root, props) => {
   const finishEnemyMotion = (uid: number): void => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
+    /*
+     * 兩隻魔王（2026-09-28 試做）：倒地是一整段爆炸（約 2.7 秒），演完停在最後一格，畫布不收——
+     * 溶解與關主慢倒由 `motion-death` 類別關掉（enemy-motion.css），換場時跟著整個畫面走。
+     * 打死那一拍重畫時可能已經開演了，這裡不要從頭再播一次。
+     */
+    if (isBossMotionKind(state.kind)) {
+      if (state.action !== 'knockdown') playEnemyMotion(uid, 'knockdown');
+      root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('motion-death');
+      return;
+    }
     playEnemyMotion(uid, 'knockdown');
     const timer = window.setTimeout(() => {
       motionImpactTimers.delete(timer);
@@ -961,7 +972,7 @@ registerScreen('combat', (app, root, props) => {
       box.classList.remove('has-enemy-motion');
       return;
     }
-    const kind = qiuqiuEnemyMotionKind(e.enemyId);
+    const kind = qiuqiuEnemyMotionKind(e.enemyId, e.phase);
     if (!kind || !enemyMotionReady(kind)) {
       disposeEnemyMotion(e.uid);
       box.classList.remove('has-enemy-motion');
@@ -975,11 +986,23 @@ registerScreen('combat', (app, root, props) => {
       state = { kind, actor: createEnemyMotionActor(kind), action, busyUntil: 0 };
       enemyMotionActors.set(e.uid, state);
     }
+    const boss = isBossMotionKind(kind);
     const action: EnemyMotionAction = e.dead && !fallingUids.has(e.uid) ? 'knockdown'
-      : hurtSet.has(e.uid) ? 'hurt'
+      // 魔王沒有受擊片段：挨打時待機照跑不重來，紅閃＋抖動照舊由 combat.css 掛在畫布上
+      : hurtSet.has(e.uid) ? (boss ? 'idle' : 'hurt')
         : acting.get(e.uid)?.attacked ? 'attack' : 'idle';
     const keepAttack = action === 'idle' && state.action === 'attack' && state.busyUntil > performance.now();
     if (!keepAttack && state.action !== action) playEnemyMotion(e.uid, action);
+    if (boss && action === 'knockdown') box.closest('.unit')?.classList.add('motion-death');
+    /*
+     * 魔王縮起來防禦（例：鐵爪的「收爪」）沒有逐格片段：這一拍交還靜態的防禦立繪，
+     * 跟旁邊「防禦 12」的牌子對得上（跟原本一樣）。畫布只是先不掛上去，動作的進度留著。
+     */
+    if (boss && !e.dead && !keepAttack && action === 'idle' && enemyStaticPose(e) === 'block') {
+      box.classList.remove('has-enemy-motion');
+      state.actor.element.remove();
+      return;
+    }
     box.classList.add('has-enemy-motion');
     box.append(state.actor.element);
   };
@@ -1751,9 +1774,15 @@ registerScreen('combat', (app, root, props) => {
       return artUrl('sprites', bossIdle(e.phase));
     }
     if (!def) return monsterUrl('', 'idle');
+    return monsterUrl(artOfEnemy(e), enemyStaticPose(e));
+  }
+
+  /** 一般魔物這一拍的靜態姿勢（立繪用；逐格的魔王縮起來防禦時也看它，見 mountEnemyMotion） */
+  function enemyStaticPose(e: EnemyCombat): MonsterPose {
+    const act = acting.get(e.uid);
     const art = artOfEnemy(e);
     // 順序（出招 → 挨打 → 防禦 → 待機）與理由都在 `monsterpose.ts`，那邊有測試釘著
-    return monsterUrl(art, monsterPose({
+    return monsterPose({
       attacking: !!act?.attacked, hurt: hurtSet.has(e.uid), dead: e.dead, block: e.block,
       /**
        * 這一拍的防禦是不是**被動長出來的**（稽核 2026-09-10 中-1 的修正）。
@@ -1765,7 +1794,7 @@ registerScreen('combat', (app, root, props) => {
        */
       passiveBlock: !acting.get(e.uid)?.blocked && (getStatus(e, '鱗甲') > 0 || getStatus(e, '不壞身') > 0),
       has: (pose) => hasMonsterPose(art, pose),
-    }));
+    });
   }
 
   /**
@@ -3591,7 +3620,13 @@ registerScreen('combat', (app, root, props) => {
             fallingUids.delete(e.uid);
             live.classList.remove('falling');
             if (bossFallUids.has(e.uid)) sfx('enemy_down');
-            else { live.classList.add('dead'); burst(live, 'smoke', 160); sfx('enemy_down'); }
+            else {
+              live.classList.add('dead');
+              // 逐格的魔王自己會演爆炸，小怪化成的那團煙會蓋在爆炸上面，不放（2026-09-28 試做）
+              const motionDeath = enemyMotionActors.get(e.uid);
+              if (!motionDeath || !isBossMotionKind(motionDeath.kind)) burst(live, 'smoke', 160);
+              sfx('enemy_down');
+            }
             finishEnemyMotion(e.uid);
           };
           const after = !delayedImpact && !throwFlight && staged.length > 1 ? (staged.length - 1) * 150 : 0;
@@ -3915,6 +3950,9 @@ registerScreen('combat', (app, root, props) => {
         }
         if (wait > 0) { window.setTimeout(finish, wait + 30); return; }
       }
+      // 魔王倒地的爆炸（2026-09-28 試做）還沒演完就再等它（跟勝利動作同時在跑，不是接在後面）
+      const deathLeft = bossDeathMotionLeft(enemyMotionActors.values(), performance.now());
+      if (deathLeft > 0) { window.setTimeout(finish, deathLeft); return; }
       app.afterCombat(bonusFish, bonusUpgrades);
     };
     window.setTimeout(finish, bossWon ? 2400 : 1300);

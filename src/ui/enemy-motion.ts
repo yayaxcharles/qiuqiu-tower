@@ -4,7 +4,17 @@ import './styles/enemy-motion.css';
 import { decodedAtlas, imageLoaded, prepareDecodedAtlas } from './decoded-atlas';
 import { loadHeavy } from './heavy-lane';
 
-export type EnemyMotionKind = 'rat' | 'ninja';
+/**
+ * 兩隻魔王（鐵爪機關貓兩個階段、掃地機器人王）的逐格動作是從橫向捲軸搬來的（2026-09-28 試做）。
+ * 牠們的格子資料放在另一份 JSON、**開打那一刻才用動態載入抓**（`boss-motion-data.json`，
+ * 由 `tools/pack_boss_motion.py` 產生），不進開場的主程式；圖集也一樣只在那一場才下載。
+ */
+export const BOSS_MOTION_KINDS = ['iron_claw', 'iron_claw_p2', 'roomba_king'] as const;
+export type BossMotionKind = typeof BOSS_MOTION_KINDS[number];
+export type EnemyMotionKind = 'rat' | 'ninja' | BossMotionKind;
+export function isBossMotionKind(kind: EnemyMotionKind): kind is BossMotionKind {
+  return (BOSS_MOTION_KINDS as readonly string[]).includes(kind);
+}
 export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup';
 
 type MotionFrame = {
@@ -25,7 +35,8 @@ type MotionKind = {
   native_height: number;
   default_height: number;
   mirror: boolean;
-  actions: Record<EnemyMotionAction, Motion>;
+  /** 魔王只有待機、出招、挨打、倒地四段；缺的動作一律退回待機（`motionOf`） */
+  actions: Partial<Record<EnemyMotionAction, Motion>> & { idle: Motion };
 };
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
@@ -39,7 +50,32 @@ const ACTIONS: readonly EnemyMotionAction[] = [
   'knockdown',
   'getup',
 ];
-const kinds = motionData.kinds as unknown as Record<EnemyMotionKind, MotionKind>;
+const kinds: Partial<Record<EnemyMotionKind, MotionKind>> = { ...(motionData.kinds as unknown as Record<'rat' | 'ninja', MotionKind>) };
+let bossData: Promise<void> | null = null;
+
+/** 魔王的格子資料：第一次用到才抓。抓失敗就清掉、下一場再試（期間照舊畫靜態立繪） */
+function ensureKindData(kind: EnemyMotionKind): Promise<void> {
+  if (kinds[kind]) return Promise.resolve();
+  bossData ??= import('./boss-motion-data.json').then((module) => {
+    const data = ((module as { default?: unknown }).default ?? module) as { kinds: Record<BossMotionKind, MotionKind> };
+    Object.assign(kinds, data.kinds);
+  }).catch((error: unknown) => { bossData = null; throw error; });
+  return bossData;
+}
+
+function kindOf(kind: EnemyMotionKind): MotionKind {
+  const data = kinds[kind];
+  if (!data) throw new Error(`敵人動作資料還沒載入：${kind}`);
+  return data;
+}
+
+function motionOf(kind: MotionKind, action: EnemyMotionAction): Motion {
+  return kind.actions[action] ?? kind.actions.idle;
+}
+
+function actionsOf(kind: MotionKind): Motion[] {
+  return ACTIONS.map((action) => kind.actions[action]).filter((motion): motion is Motion => motion !== undefined);
+}
 const images = new Map<string, HTMLImageElement>();
 const readyKinds = new Set<EnemyMotionKind>();
 const kindLoads = new Map<EnemyMotionKind, Promise<void>>();
@@ -72,9 +108,7 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
   if (readyKinds.has(kind)) return;
   const pending = kindLoads.get(kind);
   if (pending) return pending;
-  const textures = new Set<string>();
-  for (const action of ACTIONS) textures.add(kinds[kind].actions[action].texture);
-  const load = Promise.all([...textures].map(async (texture) => {
+  const load = ensureKindData(kind).then(() => Promise.all([...new Set(actionsOf(kindOf(kind)).map((motion) => motion.texture))].map(async (texture) => {
     const image = imageFor(texture);
     await loadHeavy(image, fileUrl(texture), true);   // 排到了、網址設好了（還在排隊的圖沒有網址，底下會當成壞圖）
     // 只等載好、不呼叫 decode()：畫布不吃 decode() 的結果，白解一次還多占記憶體（見 decoded-atlas.ts 的 `imageLoaded`）。
@@ -83,7 +117,7 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
     // 等解好才算這類魔物就緒：開戰那一刻就要畫老鼠，沒等的話第一格會在主執行緒當場解碼（實機追蹤）。
     // 開戰就要畫＝「正要用」：插隊、解好不會一進來就被當罕用圖放掉；最多等 0.8 秒，網路卡住就照舊畫 <img>
     await Promise.race([prepareDecodedAtlas(image, true), new Promise<void>((done) => setTimeout(done, 800))]);
-  })).then(() => { readyKinds.add(kind); });
+  }))).then(() => { readyKinds.add(kind); });
   kindLoads.set(kind, load);
   try { await load; } finally { kindLoads.delete(kind); }
 }
@@ -95,7 +129,8 @@ export async function preloadEnemyMotion(
 }
 
 export function enemyMotionDuration(kind: EnemyMotionKind, action: EnemyMotionAction): number {
-  return Math.round(timingFor(kinds[kind].actions[action]).total);
+  const data = kinds[kind];
+  return data ? Math.round(timingFor(motionOf(data, action)).total) : 0;
 }
 
 function motionBounds(kind: MotionKind, wantedHeight: number): Bounds {
@@ -104,8 +139,7 @@ function motionBounds(kind: MotionKind, wantedHeight: number): Bounds {
   let maxX = -Infinity;
   let maxY = -Infinity;
   const heightScale = wantedHeight / kind.native_height;
-  for (const action of ACTIONS) {
-    const motion = kind.actions[action];
+  for (const motion of actionsOf(kind)) {
     const scale = motion.scale * heightScale;
     const mirror = motion.mirror ?? kind.mirror;
     for (const frame of motion.frames) {
@@ -145,7 +179,7 @@ export function createEnemyMotionActor(
   play(action: EnemyMotionAction): void;
   dispose(): void;
 } {
-  const kindData = kinds[kind];
+  const kindData = kindOf(kind);
   const wantedHeight = Math.max(1, options.height ?? kindData.default_height);
   const bounds = motionBounds(kindData, wantedHeight);
   const width = bounds.maxX - bounds.minX;
@@ -158,7 +192,7 @@ export function createEnemyMotionActor(
   const canvas = document.createElement('canvas');
   canvas.className = 'enemy-motion';
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', kind === 'rat' ? '老鼠敵人' : '忍者敵人');
+  canvas.setAttribute('aria-label', kind === 'rat' ? '老鼠敵人' : kind === 'ninja' ? '忍者敵人' : kind === 'roomba_king' ? '掃地機器人王' : '鐵爪機關貓');
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
   canvas.style.transform = `translateX(${-foot.x}px)`;
@@ -178,7 +212,7 @@ export function createEnemyMotionActor(
   let drawnFrame: MotionFrame | undefined;
 
   const draw = (frameIndex: number): void => {
-    const motion = kindData.actions[action];
+    const motion = motionOf(kindData, action);
     const frame = motion.frames[frameIndex] ?? motion.frames[0];
     if (!frame) return;
     if (drawnMotion === motion && drawnFrame === frame) return;
@@ -216,7 +250,7 @@ export function createEnemyMotionActor(
     if (disposed) return;
     if (startedAt === null) startedAt = now;
     const elapsed = Math.max(0, now - startedAt);
-    const current = kindData.actions[action];
+    const current = motionOf(kindData, action);
     draw(frameAt(current, elapsed));
     // 只有一格的循環（兩種魔物的待機都是）畫好就不會再變：不必每一拍都醒來（2026-09-23 效能）。
     // 場上每一隻都在每一拍要下一格的話，主執行緒整場都停不下來，CSS 動畫也被拖著每一拍重算樣式
