@@ -27,16 +27,19 @@ const HEROES: readonly Hero[] = ['qiuqiu', 'feifei', 'dangdang', 'fengfeng'];
 /** 每位換成新片的動作（清單.md 總結：菲菲沒有空手擲、封封沒有重劈，照舊用原本的圖；待機維持停格呼吸） */
 const VIDS_ACTIONS: Readonly<Record<Hero, readonly string[]>> = {
   qiuqiu: ['attack1', 'attack2', 'attack3', 'attack4', 'toss', 'hurt', 'defeat', 'run', 'seal', 'guard', 'win', 'focus', 'dash'],
-  feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'hurt', 'defeat', 'run'],
+  feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'hurt', 'run'],
   dangdang: ['guard', 'punch', 'focus', 'palm', 'win', 'shoulder', 'hurt', 'defeat', 'run'],
-  fengfeng: ['slash', 'sheath', 'focus', 'guard', 'win', 'thrust', 'hurt', 'defeat', 'run'],
+  fengfeng: ['focus', 'guard', 'win', 'thrust', 'hurt', 'run'],
 };
-/** 沒有新片、一定要留在原本那套的（對照表多出來也算錯：例如把舊的空手擲蓋掉） */
+/**
+ * 沒有新片、一定要留在原本那套的（對照表多出來也算錯：例如把舊的空手擲蓋掉）。
+ * 2026-09-29 審查後退回舊圖：菲菲、封封倒下（往前撲、躺得比舊版長）、封封平斬（像刺）與收刀（收完轉身接不回待機）
+ */
 const KEEP_OLD: Readonly<Record<Hero, readonly string[]>> = {
   qiuqiu: ['idle', 'shuriken', 'kick', 'eat', 'taiji'],
-  feifei: ['idle', 'toss', 'kick', 'roll', 'eat', 'needle_combo'],
+  feifei: ['idle', 'toss', 'kick', 'roll', 'eat', 'needle_combo', 'defeat'],
   dangdang: ['idle', 'toss', 'kick', 'counter', 'dodge', 'eat', 'rapid_combo'],
-  fengfeng: ['idle', 'toss', 'heavy_slash', 'sweep', 'double_slash', 'dodge', 'eat'],
+  fengfeng: ['idle', 'toss', 'heavy_slash', 'sweep', 'double_slash', 'dodge', 'eat', 'slash', 'sheath', 'defeat'],
 };
 
 type Frame = { rect: number[]; pivot: number[]; duration: number; src: number };
@@ -108,7 +111,7 @@ describe('命中那一格剛好在原本寫死的命中時間開始（原速毫�
     // 彈針第 36 格手伸直（程式的針從這裡飛出去）；爪擊第 24 格；結印第 28 格＝分身停住的那格（原速 170）
     feifei: [['shuriken', 285, 36], ['attack1', 340, 24], ['seal', 170, 28]],
     dangdang: [['punch', 300, 28], ['palm', 340, 32], ['shoulder', 360, 50]],
-    fengfeng: [['slash', 300, 36], ['thrust', 300, 45]],
+    fengfeng: [['thrust', 300, 45]],
   };
   it.each(HEROES)('%s', (hero) => {
     const desktop = heroVidsMotionsFrom(FILES[hero], 'desktop');
@@ -117,6 +120,21 @@ describe('命中那一格剛好在原本寫死的命中時間開始（原速毫�
       expect(index, `${hero} ${action}`).toBeGreaterThan(0);
       expect((desktop[action]!.frames[index] as unknown as Frame).src, `${hero} ${action}`).toBe(src);
     }
+  });
+});
+
+describe('2026-09-29 閘門審查修的兩處跳格', () => {
+  const srcs = (hero: Hero, action: string): number[] => variantsOf(hero).desktop.actions[action]!.frames.map((f) => f.src);
+  it('球球勝利起跳那段（第 20～25 格）一格都不跳，不然一格就高 20%', () => {
+    const s = srcs('qiuqiu', 'win');
+    const at = s.indexOf(20);
+    expect(s.slice(at, at + 6)).toEqual([20, 21, 22, 23, 24, 25]);
+  });
+  it('菲菲挨打從站姿（第 24 格）開始，不用衝擊光貼著手的第 27～28 格', () => {
+    const s = srcs('feifei', 'hurt');
+    expect(s[0]).toBe(24);
+    expect(s).not.toContain(27);
+    expect(s).not.toContain(28);
   });
 });
 
@@ -275,7 +293,7 @@ const KINDS: readonly Kind[] = ['feifei', 'dangdang', 'fengfeng'];
 const PROBE: Readonly<Record<Kind, { vids: [string, string]; old: [string, string] }>> = {
   feifei: { vids: ['attack1', 'feifei-claw-d.webp'], old: ['toss', 'assets/motion/feifei/toss.webp'] },
   dangdang: { vids: ['punch', 'dangdang-punch-d.webp'], old: ['kick', 'assets/motion/dangdang/kick_shoulder.webp'] },
-  fengfeng: { vids: ['slash', 'fengfeng-slash-d.webp'], old: ['heavy_slash', 'assets/motion/fengfeng/heavy_slash.webp'] },
+  fengfeng: { vids: ['thrust', 'fengfeng-thrust-d.webp'], old: ['slash', 'assets/motion/fengfeng/slash.webp'] },
 };
 const CARD_ACTIONS: Readonly<Record<Kind, readonly string[]>> = {
   feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'defeat', 'clone', 'toss', 'kick'],

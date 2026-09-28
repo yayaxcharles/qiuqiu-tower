@@ -67,10 +67,10 @@
      "cells": 11
     },
     "assets/motion/hero-vids/qiuqiu-win-d.webp": {
-     "bytes": 436122,
+     "bytes": 431486,
      "size": [
-      4063,
-      848
+      4016,
+      850
      ],
      "cells": 19
     },
@@ -155,10 +155,10 @@
      "cells": 6
     },
     "assets/motion/hero-vids/qiuqiu-win-m.webp": {
-     "bytes": 168768,
+     "bytes": 166094,
      "size": [
-      2607,
-      316
+      2553,
+      319
      ],
      "cells": 10
     },
@@ -184,7 +184,7 @@
     "mobile": 1.11
    },
    "decodedMB": {
-    "desktop": 113.6,
+    "desktop": 113.4,
     "mobile": 23.0
    },
    "size": {
@@ -348,20 +348,12 @@
      "cells": 20
     },
     "assets/motion/hero-vids/feifei-hurt-d.webp": {
-     "bytes": 395604,
+     "bytes": 445248,
      "size": [
-      3843,
-      796
+      3981,
+      802
      ],
-     "cells": 15
-    },
-    "assets/motion/hero-vids/feifei-defeat-d.webp": {
-     "bytes": 430514,
-     "size": [
-      3757,
-      955
-     ],
-     "cells": 19
+     "cells": 17
     },
     "assets/motion/hero-vids/feifei-run-d.webp": {
      "bytes": 285292,
@@ -412,20 +404,12 @@
      "cells": 10
     },
     "assets/motion/hero-vids/feifei-hurt-m.webp": {
-     "bytes": 134208,
+     "bytes": 151522,
      "size": [
-      2202,
+      2382,
       303
      ],
-     "cells": 7
-    },
-    "assets/motion/hero-vids/feifei-defeat-m.webp": {
-     "bytes": 149220,
-     "size": [
-      3288,
-      323
-     ],
-     "cells": 9
+     "cells": 8
     },
     "assets/motion/hero-vids/feifei-run-m.webp": {
      "bytes": 105354,
@@ -437,12 +421,12 @@
     }
    },
    "downloadMB": {
-    "desktop": 2.67,
-    "mobile": 0.99
+    "desktop": 2.3,
+    "mobile": 0.87
    },
    "decodedMB": {
-    "desktop": 88.9,
-    "mobile": 20.1
+    "desktop": 75.7,
+    "mobile": 16.3
    },
    "size": {
     "shuriken": {
@@ -487,13 +471,6 @@
      "own": 0.44698,
      "display": 0.44698
     },
-    "defeat": {
-     "rough": 0.45324,
-     "head": 1.014,
-     "corr": 0.986,
-     "own": 0.44698,
-     "display": 0.44698
-    },
     "run": {
      "rough": 0.45161,
      "head": 1.024,
@@ -515,8 +492,7 @@
      "guard": 12,
      "attack1": 11,
      "win": 20,
-     "hurt": 15,
-     "defeat": 19,
+     "hurt": 17,
      "run": 12
     },
     "mobile": {
@@ -525,8 +501,7 @@
      "guard": 6,
      "attack1": 7,
      "win": 10,
-     "hurt": 7,
-     "defeat": 9,
+     "hurt": 8,
      "run": 6
     }
    }
@@ -784,22 +759,6 @@
   },
   "fengfeng": {
    "atlases": {
-    "assets/motion/hero-vids/fengfeng-slash-d.webp": {
-     "bytes": 302786,
-     "size": [
-      3730,
-      762
-     ],
-     "cells": 12
-    },
-    "assets/motion/hero-vids/fengfeng-sheath-d.webp": {
-     "bytes": 232780,
-     "size": [
-      3947,
-      433
-     ],
-     "cells": 9
-    },
     "assets/motion/hero-vids/fengfeng-focus-d.webp": {
      "bytes": 351430,
      "size": [
@@ -840,14 +799,6 @@
      ],
      "cells": 15
     },
-    "assets/motion/hero-vids/fengfeng-defeat-d.webp": {
-     "bytes": 374870,
-     "size": [
-      4081,
-      608
-     ],
-     "cells": 19
-    },
     "assets/motion/hero-vids/fengfeng-run-d.webp": {
      "bytes": 272902,
      "size": [
@@ -855,22 +806,6 @@
       389
      ],
      "cells": 12
-    },
-    "assets/motion/hero-vids/fengfeng-slash-m.webp": {
-     "bytes": 110558,
-     "size": [
-      2025,
-      287
-     ],
-     "cells": 6
-    },
-    "assets/motion/hero-vids/fengfeng-sheath-m.webp": {
-     "bytes": 94778,
-     "size": [
-      1676,
-      325
-     ],
-     "cells": 5
     },
     "assets/motion/hero-vids/fengfeng-focus-m.webp": {
      "bytes": 128784,
@@ -912,14 +847,6 @@
      ],
      "cells": 7
     },
-    "assets/motion/hero-vids/fengfeng-defeat-m.webp": {
-     "bytes": 128890,
-     "size": [
-      2805,
-      293
-     ],
-     "cells": 9
-    },
     "assets/motion/hero-vids/fengfeng-run-m.webp": {
      "bytes": 98090,
      "size": [
@@ -930,28 +857,14 @@
     }
    },
    "downloadMB": {
-    "desktop": 2.76,
-    "mobile": 1.03
+    "desktop": 1.89,
+    "mobile": 0.71
    },
    "decodedMB": {
-    "desktop": 87.3,
-    "mobile": 20.0
+    "desktop": 60.4,
+    "mobile": 12.5
    },
    "size": {
-    "slash": {
-     "rough": 0.45161,
-     "head": 1.054,
-     "corr": 0.982,
-     "own": 0.42848,
-     "display": 0.42848
-    },
-    "sheath": {
-     "rough": 0.4484,
-     "head": 0.965,
-     "corr": 0.941,
-     "own": 0.46466,
-     "display": 0.46466
-    },
     "focus": {
      "rough": 0.45161,
      "head": 1.054,
@@ -987,13 +900,6 @@
      "own": 0.43258,
      "display": 0.42848
     },
-    "defeat": {
-     "rough": 0.45161,
-     "head": 1.054,
-     "corr": 0.982,
-     "own": 0.42848,
-     "display": 0.42848
-    },
     "run": {
      "rough": 0.45,
      "head": 1.044,
@@ -1010,25 +916,19 @@
    },
    "frames": {
     "desktop": {
-     "slash": 12,
-     "sheath": 9,
      "focus": 16,
      "guard": 12,
      "win": 20,
      "thrust": 11,
      "hurt": 15,
-     "defeat": 19,
      "run": 12
     },
     "mobile": {
-     "slash": 6,
-     "sheath": 5,
      "focus": 8,
      "guard": 7,
      "win": 10,
      "thrust": 6,
      "hurt": 7,
-     "defeat": 9,
      "run": 6
     }
    }
