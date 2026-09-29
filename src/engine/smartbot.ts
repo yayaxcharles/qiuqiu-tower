@@ -114,7 +114,8 @@ const RATING: Record<string, number> = {
   fengfeng_sanlian: 5,     // 連環三劍（+0.14；每段 1 起時 −0.22，改 2 起）
   fengfeng_yikouqi: 5,     // 一口氣（+0.16；基礎 4／每點 2 時 −0.41、基礎 3／每點 3 時 −0.51，改基礎 6）
   // 2026-09-29「守著蓄氣，出劍花氣」：改了數值的幾張照同一個方法重量（smart／smartB 各 600 局），分數寫在上面各行的括號裡；
-  // 只改升級數字的那幾張沒重量，分數照舊
+  // 只改升級數字的那幾張沒重量，分數照舊。新牌氣貫長虹 +0.80 → 6
+  fengfeng_guanhong: 6,    // 絕學·氣貫長虹（+0.80）
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,

@@ -83,7 +83,7 @@ describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
    * 2026-09-22：原本各少 1，全部 +1。
    * 2026-09-29「守著蓄氣，出劍花氣」：花氣攻擊升級改成加每點（原本升級只加基本傷害、係數跟沒升級一樣），
    * 多段的（連環三劍、雙段劍）與順手一劍、開山、兩張下一擊準備不加；
-   * 探步劍、挑開改成花氣；退步守勢、劍鞘架擋、振袖收劍、我護著你走改成「蜷縮＋獲得蓄氣」，不再花氣。
+   * 探步劍、挑開改成花氣、新牌氣貫長虹加進來；退步守勢、劍鞘架擋、振袖收劍、我護著你走改成「蜷縮＋獲得蓄氣」，不再花氣。
    */
   const PER_QI: Record<string, [number, number]> = {
     fengfeng_pingzhan: [3, 4], fengfeng_hengsao: [2, 3], fengfeng_tabu: [3, 4], fengfeng_huibu: [3, 4], fengfeng_chuantang: [3, 4],
@@ -92,9 +92,9 @@ describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
     // 2026-09-25 補的三張：連環三劍每段每點 1（三段合計 3）
     fengfeng_shunjian: [3, 3], fengfeng_sanlian: [1, 1], fengfeng_yikouqi: [3, 4],
     // 2026-09-29
-    fengfeng_tanbu: [3, 4], fengfeng_tiaokai: [3, 4],
+    fengfeng_tanbu: [3, 4], fengfeng_tiaokai: [3, 4], fengfeng_guanhong: [3, 5],
   };
-  it('每一張花氣牌（含連線專用兩張、2026-09-25 補的三張、2026-09-29 改的兩張）逐張、升級前後的係數，沒有漏掉任何一張', () => {
+  it('每一張花氣牌（含連線專用兩張、2026-09-25 補的三張、2026-09-29 改的三張）逐張、升級前後的係數，沒有漏掉任何一張', () => {
     const spenders = Object.values(cardById).filter((d) => d.effects.some((e) =>
       e.kind === 'damageSpendQi' || e.kind === 'blockSpendQi' || e.kind === 'nextAttackBonusSpendQi')).map((d) => d.id);
     expect(spenders.sort()).toEqual(Object.keys(PER_QI).sort());

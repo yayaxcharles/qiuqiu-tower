@@ -963,7 +963,7 @@ export const cards: readonly CardDef[] = [
     effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 10 }],
     upgrade: { effects: [{ kind: 'damageSpendBlock', all: true, mul: 2 }, { kind: 'selfDamage', amount: 6 }] } },
 
-  // ===== 封封：蓄氣劍客 35 張（規格：docs/fengfeng-integration-contract.md；2026-09-25 補三張花氣打傷害）=====
+  // ===== 封封：蓄氣劍客 36 張（規格：docs/fengfeng-integration-contract.md；2026-09-25 補三張花氣打傷害；2026-09-29 補氣貫長虹）=====
   /*
    * **2026-09-22 平衡調整（使用者裁定「方案三」）**：修好量測機器人之後封封平均只爬到 17.9 層，
    * 球球 22.4 層。病根是蓄氣換算划不來——花一張牌、一顆飯糰存下的氣，換回來的傷害跟直接打差不多，
@@ -981,6 +981,7 @@ export const cards: readonly CardDef[] = [
    *   ① 攻擊全部花氣（探步劍、挑開原本是固定傷害，改成花氣；沒有氣也打得出去，只剩基本傷害）
    *   ② 防禦改成「蜷縮＋獲得蓄氣」，不再花氣換蜷縮（護身、退步守勢、劍鞘架擋、振袖收劍、我護著你走、換手握劍）
    *   ③ 花氣攻擊的升級改成加「每點蓄氣的傷害」，基本傷害不動；多段的（連環三劍、雙段劍）改成升上限，不加每點
+   *   ④ 新牌「絕學·氣貫長虹」：1 費用盡蓄氣，沒有基本傷害
    * 引擎規則（`damageSpendQi`、`gainQi`、一次花 4 點以上 ×1.3）都沒動；`blockSpendQi` 現在沒有牌在用，引擎留著。
    * 前後牌面對照與量測見 `docs/封封蓄氣改版_20260929.md`。
    */
@@ -1100,6 +1101,13 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damageSpendQi', amount: 12, perQi: 4, maxQi: 8 }, { kind: 'ifSpentQiAtLeast', min: 6, then: [{ kind: 'draw', n: 2 }] }] } },
   { id: 'fengfeng_yiqichushou', name: '現在一起上', cost: 2, type: 技, rarity: 'rare', pool: '絕學', hero: 'fengfeng', target: 'self', art: 'card/fengfeng_yiqichushou', coop: true, keywords: ['消耗'],
     effects: [{ kind: 'nextAttackBonusSpendQi', amount: 2, perQi: 2, maxQi: 4, recipients: 'selfAndAlly' }], upgrade: { cost: 1 } },
+  /*
+   * 2026-09-29「守著蓄氣，出劍花氣」補的絕學：1 費用盡蓄氣，**沒有基本傷害**（0 氣＝0 傷害），
+   * 全靠平常守出來的氣。一次花 4 點以上照樣吃憋氣 ×1.3。卡圖另外生（生好之前暫用斷流那張）。
+   */
+  { id: 'fengfeng_guanhong', name: '絕學·氣貫長虹', cost: 1, type: 攻, rarity: 'rare', pool: '絕學', hero: 'fengfeng', target: 'enemy', art: 'card/fengfeng_guanhong',
+    effects: [{ kind: 'damageSpendQi', amount: 0, perQi: 3, allQi: true }],
+    upgrade: { effects: [{ kind: 'damageSpendQi', amount: 0, perQi: 5, allQi: true }] } },
 
 ];
 

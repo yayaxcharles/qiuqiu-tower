@@ -51,11 +51,13 @@ const EXPECT: Record<string, EnemyEffect[] | null> = {
   fengfeng_jizhong: null,
   fengfeng_pozhen: [{ kind: 'damage', amount: 36 }],
   fengfeng_yiqichushou: null,
+  // 2026-09-29 新牌：用盡蓄氣，跟斷流、開山、一口氣一樣不學
+  fengfeng_guanhong: null,
 };
 
 describe('鏡中影子學封封的牌', () => {
-  it('35 張逐張都有明確轉譯或明確略過', () => {
-    expect(HERS).toHaveLength(35);
+  it('36 張逐張都有明確轉譯或明確略過', () => {
+    expect(HERS).toHaveLength(36);
     expect(Object.keys(EXPECT).sort()).toEqual([...HERS].sort());
     for (const id of HERS) expect(learnCard(inst(id, 1)), id).toEqual(EXPECT[id]);
   });
@@ -89,6 +91,7 @@ describe('鏡中影子學封封的牌', () => {
   it('消耗全部蓄氣的絕學比照噹噹的卸光不學（使用者 2026-09-21）；有上限的照上限學', () => {
     expect(learnCard(inst('fengfeng_duanliu', 1, true))).toBeNull();
     expect(learnCard(inst('fengfeng_kaishan', 1, true))).toBeNull();
+    expect(learnCard(inst('fengfeng_guanhong', 1, true))).toBeNull();
     // 破陣＋ 2026-09-29 改成 12＋4×8
     expect(learnCard(inst('fengfeng_pozhen', 1, true))).toEqual([{ kind: 'damage', amount: 44 }]);
   });

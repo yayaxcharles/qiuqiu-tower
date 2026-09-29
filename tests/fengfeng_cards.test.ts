@@ -11,10 +11,10 @@ const IDS = [
   'fengfeng_zhuanshen', 'fengfeng_changxi', 'fengfeng_zhenshou', 'fengfeng_xunxi',
   'fengfeng_shoushi', 'fengfeng_kanshi', 'fengfeng_youbian', 'fengfeng_jiewo',
   'fengfeng_husong', 'fengfeng_yikouqi', 'fengfeng_duanliu', 'fengfeng_kaishan', 'fengfeng_cunfeng',
-  'fengfeng_lianxi', 'fengfeng_jizhong', 'fengfeng_pozhen', 'fengfeng_yiqichushou',
+  'fengfeng_lianxi', 'fengfeng_jizhong', 'fengfeng_pozhen', 'fengfeng_yiqichushou', 'fengfeng_guanhong',
 ] as const;
 
-describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害）', () => {
+describe('封封角色與 36 張牌資料（2026-09-25 補三張花氣打傷害；2026-09-29 補氣貫長虹）', () => {
   it('角色、起手牌與舊劍穗固定', () => {
     expect(HEROES).toContain('fengfeng');
     expect(starterDeckFor('fengfeng')).toEqual([
@@ -29,7 +29,7 @@ describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害�
     expect(relicById['old_sword_tassel']!.hooks.turnStart).toEqual([{ kind: 'gainQi', n: 1 }]);
   });
 
-  it('只有 35 張封封專屬牌，圖鍵與取得條件一致', () => {
+  it('只有 36 張封封專屬牌，圖鍵與取得條件一致', () => {
     const own = cardsForHero('fengfeng').filter((c) => c.hero === 'fengfeng');
     expect(own.map((c) => c.id)).toEqual(IDS);
     for (const id of IDS) {
@@ -72,10 +72,12 @@ describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害�
       ['kaishan', '絕學·開山', 3, 2, 'attack', 'rare'], ['cunfeng', '絕學·藏鋒', 2, 1, 'power', 'rare'],
       ['lianxi', '絕學·連息', 1, undefined, 'power', 'rare'], ['jizhong', '集中精神', 0, undefined, 'skill', 'rare'],
       ['pozhen', '絕學·破陣', 2, undefined, 'attack', 'rare'], ['yiqichushou', '現在一起上', 2, 1, 'skill', 'rare', true],
+      // 2026-09-29「守著蓄氣，出劍花氣」補的絕學：1 費
+      ['guanhong', '絕學·氣貫長虹', 1, undefined, 'attack', 'rare'],
     ];
     // 一列漏掉就少驗一張而且照樣綠燈（2026-09-22 審查抓到：行尾註解把探步劍吃掉了），所以先數張數
-    expect(rows).toHaveLength(35);
-    expect(new Set(rows.map((r) => r[0])).size).toBe(35);
+    expect(rows).toHaveLength(36);
+    expect(new Set(rows.map((r) => r[0])).size).toBe(36);
     for (const [suffix, name, cost, upCost, type, rarity, coop] of rows) {
       const d = cardById[`fengfeng_${suffix}`]!;
       expect([d.name, d.cost, d.upgrade.cost, d.type, d.rarity, !!d.coop], suffix)
@@ -85,7 +87,7 @@ describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害�
     }
   });
 
-  it('35 張普通與升級效果逐欄固定，C17 明確先蜷縮後蓄氣', () => {
+  it('36 張普通與升級效果逐欄固定，C17 明確先蜷縮後蓄氣', () => {
     // 2026-09-22 平衡調整：花蓄氣的牌每點蓄氣多 1 點，下面的 `perQi` 全部是新數值（契約表是改之前的）
     const fx = (id: string, up = false) => up
       ? (cardById[id]!.upgrade.effects ?? cardById[id]!.effects)
@@ -149,5 +151,8 @@ describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害�
     expect(fx('fengfeng_yikouqi')).toEqual([{ kind: 'damageSpendQi', amount: 6, perQi: 3, allQi: true }]);
     expect(fx('fengfeng_yikouqi', true)).toEqual([{ kind: 'damageSpendQi', amount: 6, perQi: 4, allQi: true }]);
     expect(fx('fengfeng_yiqichushou')).toEqual([{ kind: 'nextAttackBonusSpendQi', amount: 2, perQi: 2, maxQi: 4, recipients: 'selfAndAlly' }]);
+    // 2026-09-29 新牌：用盡蓄氣、沒有基本傷害
+    expect(fx('fengfeng_guanhong')).toEqual([{ kind: 'damageSpendQi', amount: 0, perQi: 3, allQi: true }]);
+    expect(fx('fengfeng_guanhong', true)).toEqual([{ kind: 'damageSpendQi', amount: 0, perQi: 5, allQi: true }]);
   });
 });

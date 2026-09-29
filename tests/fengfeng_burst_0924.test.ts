@@ -66,6 +66,13 @@ describe('憋氣：一次花 4 點以上 ×1.3', () => {
     }
   });
 
+  // 2026-09-29 新牌絕學·氣貫長虹：沒有基本傷害、用盡蓄氣，4 點以上照樣 ×1.3
+  it('氣貫長虹：0 氣 0 傷害、3 氣 9、4 氣 15（12×1.3）、12 氣 46；升級每點 5：4 氣 26', () => {
+    const fx = cardById['fengfeng_guanhong']!.effects[0] as { amount: number; perQi: number };
+    const up = cardById['fengfeng_guanhong']!.upgrade.effects![0] as { amount: number; perQi: number };
+    expect([qiAmount(fx, 0), qiAmount(fx, 3), qiAmount(fx, 4), qiAmount(fx, 12)]).toEqual([0, 9, 15, 46]);
+    expect(qiAmount(up, 4)).toBe(26);   // 20×1.3
+  });
 
   // 使用者 2026-09-24 晚：「每張牌都寫上花四點以上 ×1.3 太累了……在角色說明之類的地方寫清楚」
   it('牌面不再每張寫門檻；規則寫在名詞表「蓄氣」，選角畫面與戰鬥的蓄氣牌子都引用那一條', () => {

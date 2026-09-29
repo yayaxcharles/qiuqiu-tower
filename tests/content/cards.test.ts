@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 12、忍術 146、絕學 66、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 12、忍術 146、絕學 67、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     // 起手 3→6：2026-09-12 菲菲的三種起手牌（飛針、退開、淬毒）
     // 6→9：2026-09-17 噹噹的三種起手牌（正拳、架盤、回敬）
@@ -19,11 +19,11 @@ describe('牌資料', () => {
     // 141→143、絕學 65→66：2026-09-25 菲菲補爪力牌的缺那三張毒系牌（補一針、看準破綻進忍術，越撒越順手進絕學）
     // 143→146：2026-09-25 封封補三張花氣打傷害（順手一劍、連環三劍、一口氣）
     expect(count('忍術')).toBe(146);   // 119→141：封封 22 張非起手忍術
-    expect(count('絕學')).toBe(66);   // 58→65：封封 7 張絕學
+    expect(count('絕學')).toBe(67);   // 58→65：封封 7 張絕學；66→67：2026-09-29 封封補絕學·氣貫長虹
     // 壞毛病 8→10：2026-09-02 第二波魔物塞牌用的黏液、眼冒金星（`combatOnly`，只有戰鬥中拿得到）
     expect(count('壞毛病')).toBe(10);
     expect(cards.filter((c) => c.combatOnly).map((c) => c.id)).toEqual(['slime_card', 'dazed_card']);
-    expect(cards.length).toBe(234);   // 196→228：2026-09-20 封封 32 張；228→231：2026-09-25 菲菲三張毒系牌；231→234：同日封封三張
+    expect(cards.length).toBe(235);   // 196→228：2026-09-20 封封 32 張；228→231：2026-09-25 菲菲三張毒系牌；231→234：同日封封三張；234→235：2026-09-29 封封氣貫長虹
   });
   it('id 與名稱不重複', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
