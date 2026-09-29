@@ -248,7 +248,7 @@ export function lineSpeakers(): Record<string, string> {
  * 隨機事件的文案（第三片，2026-09-29）：畫面上**最後顯示的那一句中文** → 譯文（跟台詞一樣照最後那句查）。
  * 收法：事件資料本身（標題、開場、按鈕標籤、結果——球球的原句），加上四份角色對照表、條件提示、抽獎後句、
  * 鏡子走廊表的每個值，再把球球原句給四位主角各過一次 `eventTextFor`（換名字、換引號那條路）。
- * 帶 `{同伴}`／`{稱}`／`{對方}` 的連線句照原樣收（畫面層先翻、再填稱呼，見 `i18n/speech.ts` 的 `coopFillL`）。
+ * 帶 `{同伴}`／`{稱}`／`{對方}` 的連線句照原樣收（畫面層先翻、再填稱呼，見 `i18n/speech.ts` 的 `callL／coopFill(…, loc)`）。
  */
 export function eventSource(): string[] {
   const originals = new Set<string>();
