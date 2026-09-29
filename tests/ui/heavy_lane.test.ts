@@ -232,7 +232,8 @@ describe('小圖先到', () => {
 
 describe('接線', () => {
   it('主程式開機的量速度、讓路、音樂延後：行為在 `netspeed_0923.test.ts`；這裡只確認動作試玩頁不掛（那一頁只看動作）', () => {
-    expect(MAIN.indexOf('probeNetSpeed()')).toBeGreaterThan(MAIN.indexOf("has('motion-preview')"));
+    // 2026-09-29 起帶參數（`probeNetSpeed(titleArt)`：封面圖到齊才開始計時），只比開頭
+    expect(MAIN.indexOf('probeNetSpeed(')).toBeGreaterThan(MAIN.indexOf("has('motion-preview')"));
     expect(MAIN.indexOf('holdHeavyLane()')).toBeGreaterThan(MAIN.indexOf("has('motion-preview')"));
   });
 

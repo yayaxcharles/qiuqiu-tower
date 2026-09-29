@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   localHero: vi.fn(),
   preloadArt: vi.fn(),
   preloadAct: vi.fn(),
+  whenTitleArtReady: vi.fn(),
   preloadQiuqiuMotion: vi.fn(),
   preloadCompanionMotion: vi.fn(),
   startMotionPreview: vi.fn(),
@@ -23,6 +24,8 @@ vi.mock('../../src/ui/assets', () => ({
   loadManifest: mocks.loadManifest, localHero: mocks.localHero, preloadArt: mocks.preloadArt,
 }));
 vi.mock('../../src/ui/preload', () => ({ preloadAct: mocks.preloadAct }));
+// 封面圖到齊才開始背景預載（2026-09-29）：替身直接回「到齊了」
+vi.mock('../../src/ui/titleart', () => ({ whenTitleArtReady: mocks.whenTitleArtReady }));
 vi.mock('../../src/ui/audio', () => ({ unlockOnFirstGesture: vi.fn() }));
 // `deferBgm`：慢網路時背景音樂等開場那批圖到齊才開始（2026-09-23 內容擴充第〇批）。假模組少了它，開頁那段非同步會丟未處理的錯，推送閘門判紅
 vi.mock('../../src/ui/bgm', () => ({ unlockBgmOnFirstGesture: vi.fn(), deferBgm: vi.fn() }));
@@ -51,6 +54,7 @@ beforeEach(() => {
   mocks.localHero.mockReturnValue('ninja');
   mocks.preloadArt.mockResolvedValue(undefined);
   mocks.preloadAct.mockResolvedValue(undefined);
+  mocks.whenTitleArtReady.mockResolvedValue(undefined);
   mocks.startMotionPreview.mockResolvedValue(undefined);
   mocks.preloadQiuqiuMotion.mockReturnValue(new Promise<void>(() => {}));
   mocks.preloadCompanionMotion.mockReturnValue(new Promise<void>(() => {}));
@@ -82,6 +86,22 @@ describe('動作模式不阻塞標題啟動', () => {
     await vi.waitFor(() => expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title'));
     expect(mocks.preloadArt).toHaveBeenCalledTimes(1);
     expect(mocks.preloadAct).not.toHaveBeenCalled();
+  });
+
+  /*
+   * 封面圖到齊才開始背景預載（2026-09-29 效能：封面早一點出來）。慢網路下原本封面四隻貓要跟開場那一批搶頻寬，
+   * 封面出現後 2 秒才到齊。改回「封面一出來就開抓」，這一條就紅。
+   */
+  it('封面那幾張還沒到齊：封面照樣出來，但背景預載還不開始；到齊了才開始', async () => {
+    let ready!: () => void;
+    mocks.whenTitleArtReady.mockReturnValue(new Promise<void>((r) => { ready = r; }));
+    await import('../../src/main');
+    await vi.waitFor(() => expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title'));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(mocks.preloadArt).not.toHaveBeenCalled();
+    ready();
+    await vi.waitFor(() => expect(mocks.preloadArt).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(mocks.preloadAct).toHaveBeenCalledExactlyOnceWith(1));
   });
 
   it('關閉動作時正常顯示標題且不預載逐格動作', async () => {

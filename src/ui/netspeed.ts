@@ -28,10 +28,28 @@ export function knownNetSpeed(): NetSpeed | null { return known; }
 
 type Conn = { saveData?: boolean; effectiveType?: string };
 
-/** 開始量（主程式開機、開場那一批開抓的同時叫）。回傳結果 */
-export function probeNetSpeed(): Promise<NetSpeed> {
+/**
+ * 開始量（主程式開機時叫）。回傳結果。
+ *
+ * `startAfter`（2026-09-29 效能：封面早一點出來）：開場那一批改成**等封面圖到齊才開抓**，
+ * 量的 2.5 秒也要從那一刻才開始算——從開機就算的話，量到的是封面那幾張之後的空檔，快網路會被誤判成慢
+ *（慢了就會限大圖集、壓音樂，寬頻玩家的逐格動作反而晚到）。
+ * 給了就**先進入「還在量」**（`netSpeed()` 等著、`knownNetSpeed()` 回 null），等它結束才開始計時；
+ * 這段時間裡開局的 `preloadHeroArt` 問速度會等到真的量完，不會拿到預設的「快」。
+ */
+export function probeNetSpeed(startAfter?: Promise<unknown>): Promise<NetSpeed> {
   known = null;
-  verdict = new Promise<NetSpeed>((resolve) => {
+  if (startAfter) {
+    verdict = startAfter.then(() => undefined, () => undefined).then(() => measure());
+    return verdict;
+  }
+  verdict = measure();
+  return verdict;
+}
+
+function measure(): Promise<NetSpeed> {
+  known = null;
+  return new Promise<NetSpeed>((resolve) => {
     let observer: PerformanceObserver | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const decide = (v: NetSpeed): void => {
@@ -58,7 +76,6 @@ export function probeNetSpeed(): Promise<NetSpeed> {
     } catch { decide('fast'); return; }
     timer = setTimeout(() => decide(bytes >= FAST_BYTES ? 'fast' : 'slow'), WINDOW_MS);
   });
-  return verdict;
 }
 
 /** 測試用：直接指定結果 */

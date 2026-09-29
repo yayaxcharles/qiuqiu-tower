@@ -19,6 +19,7 @@ vi.mock('../../src/ui/assets', () => ({
   preloadArt: () => new Promise<void>((r) => { boot.opening = r; }),
 }));
 vi.mock('../../src/ui/preload', () => ({ preloadAct: () => Promise.resolve() }));
+vi.mock('../../src/ui/titleart', () => ({ whenTitleArtReady: () => Promise.resolve() }));
 vi.mock('../../src/ui/audio', () => ({ unlockOnFirstGesture: vi.fn() }));
 vi.mock('../../src/ui/bgm', () => ({ unlockBgmOnFirstGesture: vi.fn(), deferBgm: (p: Promise<unknown>) => { boot.deferred.push(p); } }));
 vi.mock('../../src/ui/netspeed', () => ({ probeNetSpeed: () => new Promise((r) => { boot.speed = r; }) }));
