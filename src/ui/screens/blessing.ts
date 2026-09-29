@@ -65,7 +65,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
   const partnerName = partner ? term(heroName(partner)) : '';   // 英日顯示同伴的譯名（繁中 `term` 原樣回中文）
   // 英日：整句照最後那句中文查譯文；繁中 `currentPack()` 是 null，原樣回
   const say = (s: string): string => (currentPack() ? lineL(s) : s);
-  const blessName = (id: string): string => say(blessName(id));
+  const blessName = (id: string): string => say(BLESS_NAMES[id] ?? id);
   const blessLoc = (): BlessLoc | undefined => (currentPack() ? { line: lineL, term, relic: (r) => ({ name: relicName(r), text: relicText(r) }) } : undefined);
   /** 我送出去、還沒繞回來（連線）：這段時間四張都點不動 */
   let sent = false;
