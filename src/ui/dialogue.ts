@@ -7,6 +7,7 @@ import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay
 import { heroVoice, hush, prefetch, say, voiceGroup } from './voicegate';
 // 多語系（2026-09-29 第二片）：台詞與名字只在顯示那一刻換語言；配音照舊拿中文原句查表（念的永遠是日文配音）
 import { lineDisplay, speakerDisplay } from '../i18n/speech';
+import { t } from '../i18n';
 
 /**
  * 全螢幕對白疊層，點一下下一句；播完自己移除再叫 onDone。
@@ -141,7 +142,7 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
   const text = el('div', { class: 'dialogue-text' });
   // 提示分成「字」跟「腳印」兩塊：腳印要自己跳，字不要跟著動
   const hint = el('div', { class: 'dialogue-hint' },
-    el('span', {}, '點一下繼續'), el('i', { class: 'paw' }));
+    el('span', {}, t('點一下繼續')), el('i', { class: 'paw' }));
   box.append(portrait, el('div', { class: 'dialogue-box' }, speaker, text, hint));
   // 配音（voice.ts）：每句的聲音角色，跟木牌同一套判斷
   const hero = localHero();

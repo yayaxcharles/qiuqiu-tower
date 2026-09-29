@@ -71,7 +71,7 @@ describe('事件畫面的接線（讀原始碼）', () => {
   it('條件選項：金底標籤、按鈕下面一行「因為…」、事件開頭接提示句', () => {
     expect(ev).toContain("el('span', { class: 'choice-tag' }");
     expect(ev).toContain("el('span', { class: 'choice-why' }, condWhyLine(");
-    expect(ev).toContain('const opening = evText(ev.text) + hints.join(\'\');');
+    expect(ev).toContain('const opening = sentenceJoin([evText(ev.text), ...hints]);');
     expect(ev).toMatch(/condHint\(ev\.id, me\(run, bySelf \? seat : gate\.by!\)\.hero\)/);
     expect(lf(CSS)).toContain('.scene-actions .btn .choice-tag');
     expect(lf(CSS)).toContain('.scene-actions .btn .choice-why');
@@ -83,7 +83,7 @@ describe('事件畫面的接線（讀原始碼）', () => {
     // 2026-09-23 b2fin 起按鈕走 `labelText`（同伴讓條件選項出現時改口），其餘仍是 `evText(labelRaw(i))`
     expect(ev).toContain('labelText(index) + ');
     expect(ev).toContain('return theirs ?? evText(labelRaw(i));');
-    expect(ev).toContain('coopFill(mine, me(run, seat).hero, partner.hero)');
+    expect(ev).toContain('coopFill(mine, me(run, seat).hero, partner.hero, loc)');
   });
 
   it('連線限定事件兩位立繪站兩邊（本機在左、同伴在右）', () => {

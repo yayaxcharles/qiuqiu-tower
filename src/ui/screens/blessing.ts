@@ -20,6 +20,7 @@ import { sceneView } from '../scene';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { relicName, potionName } from '../../i18n/names';
 import { t, term } from '../../i18n';
+import { logLine, noteJoin } from '../../i18n/speech';
 
 /**
  * 開局祝福：大俠貓留下的包袱（2026-09-23 內容擴充第三批 新A，設計稿 design3 第二節）。**延後載入**（`main.ts` 的 `registerLazyScreen`；
@@ -42,11 +43,11 @@ function farewell(def: BlessingDef, hero: string | undefined, notes: readonly st
     return t('拿到{kind}「{name}」', { kind: term(g.kind), name });
   });
   const missed = gains.filter((g) => g.missed).length;
-  const all = [...notes, ...got, ...(missed ? [t('忍具帶滿了，還有 {n} 個收不下', { n: missed })] : [])];
-  // `potions` 那一支已經自己寫了「帶滿了」那一句，不重複：`notes`（引擎固定清單，來源 `net`／`potions` 模組）
-  // 跟這裡組的那句都以中文「忍具帶滿了」開頭才比對得到，只在繁中語系下生效；其他語言頂多多顯示一行，不影響資料
+  // 引擎的提示（`note()`）先照語言重組；跟這裡組的「忍具帶滿了」同一句時，換成同一種語言後字串一樣，`Set` 就併掉了
+  const all = [...notes.map(logLine), ...got, ...(missed ? [t('忍具帶滿了，還有 {n} 個收不下', { n: missed })] : [])];
+  // `potions` 那一支已經自己寫了「帶滿了」那一句，不重複：繁中另外用「忍具帶滿了」開頭比對（句子尾巴的數字可能不同）
   const lines = [...new Set(all)].filter((ln, i, arr) => !(ln.startsWith('忍具帶滿了') && arr.findIndex((x) => x.startsWith('忍具帶滿了')) !== i));
-  if (lines.length) window.setTimeout(() => notice(lines.join('；')), 300);
+  if (lines.length) window.setTimeout(() => notice(noteJoin(lines)), 300);
 }
 
 function blessingScreen(app: App, root: HTMLElement): void {

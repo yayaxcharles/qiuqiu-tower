@@ -5,6 +5,7 @@ import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hush, prefetch, say, voiceGroup } from './voicegate';
 import { lineDisplay, speakerDisplay } from '../i18n/speech';
+import { t } from '../i18n';
 
 /**
  * 插圖幻燈片：整張劇情圖鋪滿舞台、台詞盒壓在下緣，點一下推進一句，
@@ -43,7 +44,7 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
   const imgB = el('img', { class: 'slide-img', alt: '' }) as HTMLImageElement;   // 交叉淡入用的第二層
   const speaker = el('div', { class: 'dialogue-speaker' });
   const text = el('div', { class: 'dialogue-text' });
-  const hint = el('div', { class: 'dialogue-hint' }, el('span', {}, '點一下繼續'), el('i', { class: 'paw' }));
+  const hint = el('div', { class: 'dialogue-hint' }, el('span', {}, t('點一下繼續')), el('i', { class: 'paw' }));
   const box = el('div', { class: 'slide-overlay' },
     imgA, imgB, el('div', { class: 'dialogue-box slide-box' }, speaker, text, hint));
   // 配音：幻燈片的說話者都是照字面寫的（序章、過關、結局）

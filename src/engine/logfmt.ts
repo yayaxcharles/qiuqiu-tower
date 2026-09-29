@@ -34,8 +34,8 @@ export type LogArg =
   | { say: string }
   /** 一小段帶參數的句型（畫面用 t() 翻、再填自己的參數；例：「{n} 點{st}」） */
   | { sub: string; p: Readonly<Record<string, LogArg>> }
-  /** 一串東西，中文用「、」接 */
-  | { ls: LogArg[] };
+  /** 一串東西，中文用「、」接（`sep` 可換成「與」之類；英日照語言自己接） */
+  | { ls: LogArg[]; sep?: string };
 
 export interface LogEv { k: string; p?: Readonly<Record<string, LogArg>> }
 
@@ -51,7 +51,7 @@ export function argZh(a: LogArg): string {
   if ('tx' in a) return a.tx;
   if ('say' in a) return a.say;
   if ('sub' in a) return fill(a.sub, a.p, argZh);
-  return a.ls.map(argZh).join('、');
+  return a.ls.map(argZh).join(a.sep ?? '、');
 }
 
 /** 句型填參數（`{名稱}` 換成參數；找不到的原樣留著） */
@@ -77,6 +77,17 @@ export function log(cs: CombatState, k: string, p?: Readonly<Record<string, LogA
   if (p) remember(line, { k, p });
   cs.log.push(line);
   return line;
+}
+
+/**
+ * 畫面上「實際發生了什麼」的提示（事件結果、祝福、走進格子）：跟戰鬥紀錄同一套。
+ * 中文句子照舊放進 `notes`（畫面上好幾處照它判斷），句型與參數另外記下，畫面用 `logLine(那一句)` 照語言顯示。
+ */
+export function note(notes: string[] | undefined, k: string, p?: Readonly<Record<string, LogArg>>): void {
+  if (!notes) return;
+  const line = fill(k, p, argZh);
+  if (p) remember(line, { k, p });
+  notes.push(line);
 }
 
 /** 魔物參數的簡寫 */

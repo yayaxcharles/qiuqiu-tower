@@ -12,7 +12,7 @@ import { potionById } from '../content/potions';
 import { relicById } from '../content/relics';
 import { heroName, HEROES } from '../engine/hero';
 import { logEvent, fill, type LogArg } from '../engine/logfmt';
-import { currentPack, format, lineL, listJoin, moveLabelL, speakerL, t, term } from './index';
+import { currentPack, format, getLang, lineL, listJoin, moveLabelL, speakerL, t, term } from './index';
 import { ENCOUNTER_MODIFIERS } from '../content/modifiers';
 import { BOSS_PREFIXES } from '../engine/run';
 import { cardName, enemyName, potionName, relicName } from './names';
@@ -106,4 +106,22 @@ export function logLine(zh: string): string {
     if (zh.startsWith(label)) { const rest = render(zh.slice(label.length)); if (rest !== undefined) return t(label) + rest; }
   }
   return t(zh);
+}
+
+/** 連線稱呼與名字（球球、師妹、同伴、你）：先查名字表、再查介面表；查不到原樣 */
+export function callL(zh: string): string {
+  const a = term(zh);
+  return a !== zh ? a : t(zh);
+}
+
+/** 幾句話接成一段（事件開場、結果）：中文與日文直接接；英文句與句之間補一個空格，空的不算 */
+export function sentenceJoin(parts: readonly string[]): string {
+  const xs = parts.filter(Boolean);
+  return xs.join(currentPack() && getLang() === 'en' ? ' ' : '');
+}
+
+/** 幾則「實際發生了什麼」的提示接成一行（事件結果、祝福）：每則照語言重組（已經翻好的原樣過），中文用「；」、英文用「; 」 */
+export function noteJoin(items: readonly string[]): string {
+  const shown = items.map(logLine);
+  return shown.join(currentPack() && getLang() === 'en' ? '; ' : '；');
 }

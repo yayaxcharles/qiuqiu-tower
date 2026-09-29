@@ -69,7 +69,7 @@ describe('連線時同伴讓條件選項出現：結果文字寫同伴做的事'
 
   it('三條結果路（一般結算、連線學招、連線學招都不要）都照 resultHero 寫；沒有漏掉的', () => {
     // 稀有事件那條線在後面接了「抽到之後的那一句」（2026-09-24 b3int 合併）
-    expect(EV).toContain('const resultText = evText(rawResult, resultHero) + lotteryAfter(');
+    expect(EV).toContain('const resultText = sentenceJoin([evText(rawResult, resultHero), ');
     expect(EV.split('evText(raw, resultHero)').length - 1).toBe(2);
     expect(EV).not.toMatch(/evText\(raw(?:Result)?\)/);
   });
@@ -102,7 +102,7 @@ describe('連線時同伴讓條件選項出現：結果文字寫同伴做的事'
   it('evText 的角色參數只換「照誰的版本」，連線的稱呼記號照舊站在本機這一位', () => {
     const f = body('  const evText = (t: string, hero = me(run, seat).hero): string => {', '  ', ';');
     expect(f).toContain('eventTextFor(hero, t)');
-    expect(f).toContain('coopFill(mine, me(run, seat).hero, partner.hero)');
+    expect(f).toContain('coopFill(mine, me(run, seat).hero, partner.hero, loc)');
   });
 });
 
@@ -142,7 +142,7 @@ describe('連線時同伴讓條件選項出現：標籤照實際達成的人寫'
   it('畫面接線：只有同伴讓它出現（by 不是本機）才換，按鈕與擲骰那一句都走同一支', () => {
     const f = body('  const labelText = (i: number): string => {', '  ', ';');
     expect(f).toContain('c?.requires ? choiceGate(run, c, seat).by : undefined');
-    expect(f).toContain("by !== undefined && by !== seat && partner ? partnerCondLabel(evd.id, me(run, seat).hero, partner.hero) : undefined");
+    expect(f).toContain("by !== undefined && by !== seat && partner ? partnerCondLabel(evd.id, me(run, seat).hero, partner.hero, eventLoc()) : undefined");
     expect(f).toContain('return theirs ?? evText(labelRaw(i));');
     expect(EV).toContain('labelText(index) + ');
     expect(EV).toContain('label: labelText(chosen)');

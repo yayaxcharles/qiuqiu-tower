@@ -1,6 +1,7 @@
 import type { Hero } from '../engine/hero';
 import type { BlessClass } from './blessings';
 import { relicById } from './relics';
+import type { RelicDef } from '../engine/types';
 
 /**
  * 開局祝福的文字（2026-09-23 內容擴充第三批，設計稿 design3 2-2、2-4）。
@@ -23,7 +24,7 @@ export const BLESS_NAMES: Readonly<Record<string, string>> = {
  * 卡面說明。`{招式}`＝這一位的招式牌叫什麼：噹噹是「拳腳」、其餘照事件的講法寫「忍術」
  *（主控裁決第 10 條「噹噹的卡面照角色出兩種字」；跟 `event-text-b2.ts` 只換噹噹那兩處同一套）。
  */
-const BLESS_CARD_TEXT: Readonly<Record<string, string>> = {
+export const BLESS_CARD_TEXT: Readonly<Record<string, string>> = {
   bless_rations: '生命上限與當前生命各 +3。',
   bless_coins: '獲得 45 條小魚乾。',
   bless_potions: '隨機獲得 2 個忍具。',
@@ -43,10 +44,16 @@ const BLESS_CARD_TEXT: Readonly<Record<string, string>> = {
   bless_wine: '50%機率：生命上限與當前生命各 +8；50%機率：生命上限 −3。',
 };
 
-export function blessCardText(id: string, hero: string | undefined): string {
+/** 英日顯示：整句照最後那句中文查譯文（保留 `{招式}`、`{秘寶}`、`{秘寶說明}` 記號）、記號再填翻好的招式名與秘寶名、說明；繁中不傳 */
+export interface BlessLoc { line: (zh: string) => string; term: (zh: string) => string; relic: (r: RelicDef) => { name: string; text: string } }
+
+export function blessCardText(id: string, hero: string | undefined, loc?: BlessLoc): string {
   const relic = relicById['master_bracer'];
-  return (BLESS_CARD_TEXT[id] ?? '').replace(/\{招式\}/g, hero === 'dangdang' ? '拳腳' : '忍術')
-    .replace('{秘寶}', relic?.name ?? '沾了魔氣的舊護腕').replace('{秘寶說明}', relic?.text ?? '每場戰鬥開始時獲得 3 點爪力與 2 層翻肚。');
+  const tpl = BLESS_CARD_TEXT[id] ?? '';
+  const src = loc ? loc.line(tpl) : tpl;
+  const move = hero === 'dangdang' ? '拳腳' : '忍術';
+  const r = relic && loc ? loc.relic(relic) : { name: relic?.name ?? '沾了魔氣的舊護腕', text: relic?.text ?? '每場戰鬥開始時獲得 3 點爪力與 2 層翻肚。' };
+  return src.replace(/\{招式\}/g, loc ? loc.term(move) : move).replace('{秘寶}', r.name).replace('{秘寶說明}', r.text);
 }
 
 /** 開場：對白框裡旁白一段＋角色一句（設計稿 2-4） */

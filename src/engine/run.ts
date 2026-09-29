@@ -4,7 +4,7 @@ import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content
 import { encounterById, encountersOfPool, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
-import { E, log } from './logfmt';
+import { E, log, note, type LogArg } from './logfmt';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
@@ -1481,32 +1481,31 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
   const interactive = (e: RunEffect): boolean => e.kind === 'chooseCard' || e.kind === 'removeCard' || e.kind === 'upgradeCard';
   const deferred: RunEffect[] = fightIdx >= 0 ? effects.filter((e) => e.kind !== 'fight' && e.kind !== 'flag' && !interactive(e)) : [];
   const now = fightIdx >= 0 ? effects.filter((e) => e.kind === 'fight' || e.kind === 'flag' || interactive(e)) : effects;
-  if (deferred.length) notes?.push('獎勵要打贏才拿得到');
+  if (deferred.length) note(notes, '獎勵要打贏才拿得到');
   for (const fx of now) {
     switch (fx.kind) {
-      case 'heal': { const got = Math.min(me(run, seat).maxHp, me(run, seat).hp + fx.n) - me(run, seat).hp; me(run, seat).hp += got; if (got > 0) notes?.push(`回復了 ${got} 點生命`); break; }
-      case 'healPercent': { const got = Math.min(me(run, seat).maxHp, me(run, seat).hp + Math.floor(me(run, seat).maxHp * fx.p)) - me(run, seat).hp; me(run, seat).hp += got; if (got > 0) notes?.push(`回復了 ${got} 點生命`); break; }
+      case 'heal': { const got = Math.min(me(run, seat).maxHp, me(run, seat).hp + fx.n) - me(run, seat).hp; me(run, seat).hp += got; if (got > 0) note(notes, '回復了 {n} 點生命', { n: got }); break; }
+      case 'healPercent': { const got = Math.min(me(run, seat).maxHp, me(run, seat).hp + Math.floor(me(run, seat).maxHp * fx.p)) - me(run, seat).hp; me(run, seat).hp += got; if (got > 0) note(notes, '回復了 {n} 點生命', { n: got }); break; }
       // 難度 4 起壞事件更壞：掉血乘 1.5、賭博成功率乘 0.7
-      case 'damage': { const lost = me(run, seat).hp - Math.max(1, me(run, seat).hp - Math.round(fx.n * (runMods(run).unlucky ? 1.5 : 1))); me(run, seat).hp -= lost; if (lost > 0) notes?.push(`受了 ${lost} 點傷害`); break; }
-      case 'fish': { const before = me(run, seat).fish; me(run, seat).fish = Math.max(0, me(run, seat).fish + fx.n); const d = me(run, seat).fish - before; if (d > 0) notes?.push(`拿到 ${d} 條小魚乾`); else if (d < 0) notes?.push(`少了 ${-d} 條小魚乾`); break; }
-      case 'fishHalve': { const gone = me(run, seat).fish - Math.floor(me(run, seat).fish / 2); me(run, seat).fish -= gone; if (gone > 0) notes?.push(`分出去 ${gone} 條小魚乾`); break; }
+      case 'damage': { const lost = me(run, seat).hp - Math.max(1, me(run, seat).hp - Math.round(fx.n * (runMods(run).unlucky ? 1.5 : 1))); me(run, seat).hp -= lost; if (lost > 0) note(notes, '受了 {n} 點傷害', { n: lost }); break; }
+      case 'fish': { const before = me(run, seat).fish; me(run, seat).fish = Math.max(0, me(run, seat).fish + fx.n); const d = me(run, seat).fish - before; if (d > 0) note(notes, '拿到 {n} 條小魚乾', { n: d }); else if (d < 0) note(notes, '少了 {n} 條小魚乾', { n: -d }); break; }
+      case 'fishHalve': { const gone = me(run, seat).fish - Math.floor(me(run, seat).fish / 2); me(run, seat).fish -= gone; if (gone > 0) note(notes, '分出去 {n} 條小魚乾', { n: gone }); break; }
       case 'maxHp':
         me(run, seat).maxHp += fx.n; me(run, seat).hp = Math.min(me(run, seat).maxHp, me(run, seat).hp + Math.max(0, fx.n));
-        notes?.push(`最大生命 ${fx.n >= 0 ? '+' : ''}${fx.n}`);
+        note(notes, '最大生命 {n}', { n: `${fx.n >= 0 ? '+' : ''}${fx.n}` });
         break;
       case 'addCard':
         addCard(run, fx.cardId, false, seat);
         // 壞毛病是被塞進來的，講法要跟「學會了」分開，玩家才知道自己是賺到還是中招
-        notes?.push(cardById[fx.cardId]?.pool === '壞毛病'
-          ? `牌組被塞了一張「${cardName(fx.cardId, heroOf(me(run, seat)))}」`
-          : `學會了「${cardName(fx.cardId, heroOf(me(run, seat)))}」`);
+        note(notes, cardById[fx.cardId]?.pool === '壞毛病' ? '牌組被塞了一張「{card}」' : '學會了「{card}」',
+          { card: { card: fx.cardId, hero: heroOf(me(run, seat)) } });
         break;
       case 'addRandomCard': {
         // `combatOnly` 的戰鬥雜牌（黏液、眼冒金星）只有魔物塞得進來，事件不能抽到
         const pool = cards.filter((c) => c.pool === fx.pool && pickable(c, heroOf(me(run, seat)), run.players.length) && (!fx.rarity || c.rarity === fx.rarity));
         // 牌名要過 `cardNameFor`（2026-09-13 稽核 低-1）：玩菲菲撿到醉拳，提示寫「絕學·醉拳」、
         // 牌組裡那張卻叫「絕學·亂針」。`hero_text_scan` 只掃 `src/ui`，掃不到引擎這一側
-        if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id, false, seat); notes?.push(`撿到了「${cardNameFor(def, heroOf(me(run, seat)))}」`); }
+        if (pool.length) { const def = runRng(run).pick(pool); addCard(run, def.id, false, seat); note(notes, '撿到了「{card}」', { card: { card: def.id, hero: heroOf(me(run, seat)) } }); }
         break;
       }
       // 同一種連寫幾次就累加張數；換成另一種就重算（目前沒有事件混用，但規矩要成立）
@@ -1533,7 +1532,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
          * 上限扣到 1 以下會直接死人，所以夾在 1。
          */
         const pool = me(run, seat).relics.filter((id) => relicById[id]?.pool !== '起始');
-        if (!pool.length) { notes?.push('身上沒有可以交出去的秘寶'); return null; }
+        if (!pool.length) { note(notes, '身上沒有可以交出去的秘寶'); return null; }
         const id = runRng(run).pick(pool);
         dropRelic(run, id, seat, notes);
         // **交出去的那件要排除在換回來的兩件之外**（稽核 2026-09-11 低-1）：
@@ -1541,7 +1540,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         // 約一成機率原封不動換回同一件；而 `takeRelic` 拿到加最大生命的秘寶還會順便補血，
         // 交出去再換回來等於白賺一次回血。記在這裡，`relic` 那一支會把它一起排除。
         excludeRelics.push(id);
-        notes?.push(`交出了「${relicById[id]?.name ?? id}」`);
+        note(notes, '交出了「{relic}」', { relic: { relic: id } });
         break;
       }
       case 'relic': {
@@ -1553,7 +1552,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
          */
         const id = rollRelic(runRng(run), fx.pool, [...me(run, seat).relics, ...excludeRelics], [heroOf(me(run, seat))]);
         if (id) { takeRelic(run, id, seat); gains?.push({ kind: '秘寶', id }); }
-        else notes?.push('這一池的秘寶都拿過了，沒有新的可拿');   // 收齊整池才會踩到，但不能靜靜什麼都不給（2026-09-02 稽核 L-4）
+        else note(notes, '這一池的秘寶都拿過了，沒有新的可拿');   // 收齊整池才會踩到，但不能靜靜什麼都不給（2026-09-02 稽核 L-4）
         break;
       }
       case 'potions': {
@@ -1565,7 +1564,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
           const id = rollPotion(rng, [heroOf(me(run, seat))]);   // 直接塞給這一位的，只看這一位的角色（跟上面 `relic` 同一條，2026-09-23）
           if (addPotion(run, id, seat)) gains?.push({ kind: '忍具', id }); else { full += 1; gains?.push({ kind: '忍具', id, missed: true }); }
         }
-        if (full > 0) notes?.push(`忍具帶滿了，還有 ${full} 個收不下`);
+        if (full > 0) note(notes, '忍具帶滿了，還有 {n} 個收不下', { n: full });
         break;
       }
       case 'fight': {
@@ -1594,7 +1593,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         // 輸的那邊效果常常是空的——玩家按下去只看到圖換了一張，會以為按了沒反應
         // 贏的那邊如果是小魚乾，把數字寫進去（使用者 2026-09-03：掀碗後沒感受到贏還是輸）
         const prize = won ? fx.win.reduce((sum, e) => sum + (e.kind === 'fish' ? e.n : 0), 0) : 0;
-        notes?.push(won ? (prize > 0 ? `中了！贏了 ${prize} 條小魚乾` : '中了！') : '沒中……');
+        note(notes, won ? (prize > 0 ? '中了！贏了 {n} 條小魚乾' : '中了！') : '沒中……', { n: prize });
         // **座位一定要傳下去**（稽核第三輪 高-1）：不傳的話座位 1 賭贏的小魚乾與秘寶
         // 全進座位 0 的包包、賭輸的壞毛病也塞進座位 0 的牌組，而他自己的畫面照樣寫著「中了！」。
         // 兩台錯得一模一樣所以不會分岔，但那是實打實的資料錯亂。
@@ -1614,30 +1613,30 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
           const alt = rollRelic(runRng(run), fx.fallbackPool, me(run, seat).relics, [heroOf(me(run, seat))]);
           if (alt) {
             takeRelic(run, alt, seat); gains?.push({ kind: '秘寶', id: alt });
-            if (rd) notes?.push(`已經有「${rd.name}」了，改拿「${relicById[alt]?.name ?? alt}」`);
+            if (rd) note(notes, '已經有「{relic}」了，改拿「{alt}」', { relic: { relic: fx.id }, alt: { relic: alt } });
             break;
           }
         }
         me(run, seat).fish += fx.fallbackFish;
-        notes?.push(rd ? `已經有「${rd.name}」了，改拿 ${fx.fallbackFish} 條小魚乾` : `拿到 ${fx.fallbackFish} 條小魚乾`);
+        note(notes, rd ? '已經有「{relic}」了，改拿 {n} 條小魚乾' : '拿到 {n} 條小魚乾', { relic: { relic: fx.id }, n: fx.fallbackFish });
         break;
       }
       case 'loseRelicId': {
         // 交出指定那一件；身上沒有就跳過（連線時兩人都跑一次，沒有那件的人照樣拿其他好處）
         if (!me(run, seat).relics.includes(fx.id)) break;
         dropRelic(run, fx.id, seat, notes);
-        notes?.push(`交出了「${relicById[fx.id]?.name ?? fx.id}」`);
+        note(notes, '交出了「{relic}」', { relic: { relic: fx.id } });
         break;
       }
       case 'losePotion': {
         // 交出身上**價格最低**的一支；同價取最後拿到的（陣列越後面越晚拿到）。身上沒有就什麼都沒少
         const p = me(run, seat);
-        if (!p.potions.length) { notes?.push('身上沒有忍具，沒被拿走什麼'); break; }
+        if (!p.potions.length) { note(notes, '身上沒有忍具，沒被拿走什麼'); break; }
         const price = (pid: string): number => potions.find((x) => x.id === pid)?.price ?? 45;
         let worst = p.potions.length - 1;
         for (let k = p.potions.length - 2; k >= 0; k--) if (price(p.potions[k]!) < price(p.potions[worst]!)) worst = k;
         const gone = p.potions.splice(worst, 1)[0]!;
-        notes?.push(`少了忍具「${potions.find((x) => x.id === gone)?.name ?? gone}」`);
+        note(notes, '少了忍具「{potion}」', { potion: { potion: gone } });
         break;
       }
       case 'nextFight': {
@@ -1648,9 +1647,18 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         p.nextFight = [...(p.nextFight ?? []), { note: fx.note, effects: fx.effects, ...(n > 1 ? { left: n } : {}) }];
         // 給魔物的（護身符的翻肚）另外講，不寫成「獲得」；只給自己的那幾種（便當）講法一個字都沒變
         const foe = (e: Effect): boolean => e.kind === 'status' && e.target !== 'self';
-        const parts = fx.effects.filter((e) => !foe(e)).map((e) => (e.kind === 'status' ? `${e.amount} 點${e.name}` : e.kind === 'block' ? `${e.amount} 點蜷縮` : '')).filter(Boolean);
-        const foes = fx.effects.filter(foe).map((e) => (e.kind === 'status' ? `${e.amount} 層${e.name}` : ''));
-        notes?.push(`${n > 1 ? `接下來 ${n} 場` : '下一場'}戰鬥開始時${parts.length ? `獲得${parts.join('與')}` : ''}${foes.length ? `${parts.length ? '，' : ''}給全體魔物${foes.join('與')}` : ''}`);
+        const parts: LogArg[] = [];
+        for (const e of fx.effects) {
+          if (foe(e)) continue;
+          if (e.kind === 'status') parts.push({ sub: '{n} 點{st}', p: { n: e.amount, st: { st: e.name } } });
+          else if (e.kind === 'block') parts.push({ sub: '{n} 點{st}', p: { n: e.amount, st: { st: '蜷縮' } } });
+        }
+        const foes: LogArg[] = fx.effects.filter(foe).flatMap((e) => (e.kind === 'status' ? [{ sub: '{n} 層{st}', p: { n: e.amount, st: { st: e.name } } } as LogArg] : []));
+        note(notes, '{when}戰鬥開始時{gain}{foe}', {
+          when: n > 1 ? { sub: '接下來 {n} 場', p: { n } } : { tx: '下一場' },
+          gain: parts.length ? { sub: '獲得{ls}', p: { ls: { ls: parts, sep: '與' } } } : '',
+          foe: foes.length ? { sub: parts.length ? '，給全體魔物{ls}' : '給全體魔物{ls}', p: { ls: { ls: foes, sep: '與' } } } : '',
+        });
         break;
       }
       /*
@@ -1664,7 +1672,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         let row = fx.table[fx.table.length - 1];
         for (const t of fx.table) { roll -= Math.max(0, t.w); if (roll < 0) { row = t; break; } }
         if (!row) break;
-        notes?.push(row.tier);
+        note(notes, row.tier);
         const o = applyRunEffects(run, row.effects, notes, gains, seat); if (o) outcome = o;   // 座位照樣傳下去（`gamble` 那條的教訓）
         break;
       }
@@ -1673,7 +1681,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         if (!mine.length) {
           // 紫霧②：身上一件都沒有就改成自選移除 1 張牌（跟 `removeCard` 同一條：接在學招後面或累加張數）
           if (fx.orRemove) { const o = applyRunEffects(run, [{ kind: 'removeCard' }], notes, gains, seat); if (o) outcome = o; }
-          else notes?.push('身上沒有沾了魔氣的東西');
+          else note(notes, '身上沒有沾了魔氣的東西');
           break;
         }
         if (fx.n === 'all' || mine.length === 1) { for (const id of mine) purifyRelic(run, id, seat, notes); break; }
@@ -1683,7 +1691,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
       case 'loseAllPotions': {
         const n = me(run, seat).potions.length;
         me(run, seat).potions = [];
-        notes?.push(n ? `忍具全部泡壞了（失去 ${n} 個）` : '身上沒有忍具，沒東西泡壞');
+        note(notes, n ? '忍具全部泡壞了（失去 {n} 個）' : '身上沒有忍具，沒東西泡壞', { n });
         break;
       }
       case 'relicMiasma': {
@@ -1691,7 +1699,7 @@ export function applyRunEffects(run: RunState, effects: RunEffect[], notes?: str
         const owned = me(run, seat).relics;
         const cands = Object.keys(MIASMA_PURE).filter((id) => relicById[id] && !owned.includes(id) && !owned.includes(MIASMA_PURE[id]!)
           && relicOk(relicById[id]!, [heroOf(me(run, seat))]));
-        if (!cands.length) { me(run, seat).fish += fx.fallbackFish; notes?.push(`沾了魔氣的東西都拿過了，改拿 ${fx.fallbackFish} 條小魚乾`); break; }
+        if (!cands.length) { me(run, seat).fish += fx.fallbackFish; note(notes, '沾了魔氣的東西都拿過了，改拿 {n} 條小魚乾', { n: fx.fallbackFish }); break; }
         const id = runRng(run).pick(cands);
         takeRelic(run, id, seat);
         gains?.push({ kind: '秘寶', id });
@@ -1724,15 +1732,15 @@ function dropRelic(run: RunState, id: string, seat: number, notes?: string[]): v
   if (me(run, seat).potions.length > cap) {
     // **掉的是最便宜的那幾支**，不是最後拿到的（複核 2026-09-11 低-3）：
     // 砍陣列尾巴等於砍掉剛在罐頭鋪花 80 條小魚乾買的那支，而玩家沒有任何選擇餘地
-    const dropped: string[] = [];
+    const dropped: LogArg[] = [];
     while (me(run, seat).potions.length > cap) {
       const price = (pid: string): number => potions.find((x) => x.id === pid)?.price ?? 45;
       let worst = 0;
       for (let k = 1; k < me(run, seat).potions.length; k++) if (price(me(run, seat).potions[k]!) < price(me(run, seat).potions[worst]!)) worst = k;
-      dropped.push(potions.find((x) => x.id === me(run, seat).potions[worst])?.name ?? me(run, seat).potions[worst]!);
+      dropped.push({ potion: me(run, seat).potions[worst]! });
       me(run, seat).potions.splice(worst, 1);
     }
-    notes?.push(`忍具袋子小了，放不下的${dropped.join('、')}掉了出來`);
+    note(notes, '忍具袋子小了，放不下的{ls}掉了出來', { ls: { ls: dropped } });
   }
 }
 
@@ -1841,7 +1849,7 @@ export function purifyRelic(run: RunState, id: string, seat = 0, notes?: string[
   const d = (relicById[pure]!.hooks.maxHp ?? 0) - (relicById[id]?.hooks.maxHp ?? 0);
   if (d > 0) { p.maxHp += d; if (!p.down) p.hp = Math.min(p.maxHp, p.hp + d); }
   else if (d < 0) { p.maxHp = Math.max(1, p.maxHp + d); if (!p.down) p.hp = Math.max(1, Math.min(p.hp, p.maxHp)); }
-  notes?.push(`「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]!.name}」了`);
+  note(notes, '「{a}」淨化成「{b}」了', { a: { relic: id }, b: { relic: pure } });
   return true;
 }
 
@@ -1877,7 +1885,7 @@ function qmarkHealOnEnter(run: RunState, notes: string[] | undefined, viewer: nu
     if (!n) return;
     const got = Math.min(p.maxHp, p.hp + n) - p.hp;
     p.hp += got;
-    if (i === viewer && got > 0) notes?.push(`平安繩：回復了 ${got} 點生命`);
+    if (i === viewer && got > 0) note(notes, '平安繩：回復了 {n} 點生命', { n: got });
   });
 }
 
@@ -1922,11 +1930,11 @@ export function stampVisit(run: RunState, seat: number, keeper: string, notes?: 
   if (cur & STAMP_DONE || cur & bit) return;
   const next = cur | bit;
   const n = [1, 2, 4, 8].filter((b) => next & b).length;
-  if (n < 3) { c[id] = next; notes?.push(`集章卡蓋了第 ${n} 個章`); return; }
+  if (n < 3) { c[id] = next; note(notes, '集章卡蓋了第 {n} 個章', { n }); return; }
   c[id] = next | STAMP_DONE;
   const got = rollRelic(branch(run, 'stamp', seat), '塔主', p.relics, [heroOf(p)]);
   if (got) takeRelic(run, got, seat);
-  notes?.push(got ? `集章卡集滿三個章：拿到「${relicById[got]?.name ?? got}」，之後罐頭鋪的商品打九折` : '集章卡集滿三個章：之後罐頭鋪的商品打九折');
+  note(notes, got ? '集章卡集滿三個章：拿到「{relic}」，之後罐頭鋪的商品打九折' : '集章卡集滿三個章：之後罐頭鋪的商品打九折', got ? { relic: { relic: got } } : undefined);
 }
 
 /**
