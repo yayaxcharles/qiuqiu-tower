@@ -69,8 +69,12 @@ function mountArrow(b) { arrowOff = new AbortController(); mounted.push({ box: b
 ${snippet}
 return { set(t, h = '', step = -1) { targeting = t; hint = h; tutStep = step; }, patchTargeting };`;
   const compiled = await transformWithOxc(code, 'combat-target-patch.ts');
+  // 沒載語言包時 t() 就是中文原句代參數（i18n/index.ts 的行為），這裡直接照做即可，不必拉真的 i18n 模組
+  const t = (zh: string, params?: Record<string, string | number>): string =>
+    params ? zh.replace(/\{(\w+)\}/g, (m, k) => (k in params ? String(params[k]) : m)) : zh;
+  const term = (zh: string): string => zh;
   const bindings = {
-    el, render, hideTooltip, mounted,
+    el, render, hideTooltip, mounted, t, term,
     root: { querySelector: (sel: string) => (hasScreen && sel === '.combat' ? s.box : null) },
     cs: { enemies: [{ uid: 1, dead: false }, { uid: 2, dead: true }, { uid: 3, dead: false }] },
     setTargeting: vi.fn(), tutDone: vi.fn(), TUT_TEXT: ['一', '二', '三'],

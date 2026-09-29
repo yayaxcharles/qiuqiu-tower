@@ -1,6 +1,8 @@
+import { listJoin, t } from '../../i18n';
+import { relicLong, relicName } from '../../i18n/names';
 import { play } from '../audio';
 import { pick, storyFor } from '../../content/dialogue';
-import { relicById, relicLongText } from '../../content/relics';
+import { relicById } from '../../content/relics';
 import { heroesIn, openChest, openChestCoop, openRoadsideBox, openRoadsideBoxCoop, relicForPartnerOnly, runRng } from '../../engine/run';
 import { settleRelicPicks, relicOutcomeText } from '../../engine/rewards';
 import { allVoted, onlyStanding } from '../../engine/vote';
@@ -50,7 +52,10 @@ registerScreen('chest', (app, root, props) => {
   const offers: string[] = coop ? (road ? openRoadsideBoxCoop(run, bonusAll) : openChestCoop(run, bonusAll)) : [];
   const coopBonus = bonusAll.filter((b) => b.seat === seat);
   const bonusLine = (got: readonly { id: string }[]): HTMLElement | '' => (got.length
-    ? el('p', { class: 'event-note' }, `${relicById['box_in_box']?.name ?? ''}：箱子裡還藏著一個小箱子，多拿到「${got.map((b) => relicById[b.id]?.name ?? b.id).join('」「')}」`) : '');
+    ? el('p', { class: 'event-note' }, t('{box}：箱子裡還藏著一個小箱子，多拿到「{names}」', {
+      box: (() => { const d = relicById['box_in_box']; return d ? relicName(d) : ''; })(),
+      names: got.map((b) => { const d = relicById[b.id]; return d ? relicName(d) : b.id; }).join('」「'),
+    })) : '');
   /*
    * 結算只能跑一次（它會擲骰，跑兩次亂數就多走一步）。
    *
@@ -122,7 +127,7 @@ registerScreen('chest', (app, root, props) => {
   if (!closed.startsWith('data:')) {
     renderHud(app, root);
     if (!road) chestLine();
-    const box = el('img', { class: 'event-art chest-closed', src: closed, alt: '沒開過的紙箱' });
+    const box = el('img', { class: 'event-art chest-closed', src: closed, alt: t('沒開過的紙箱') });
     const scene = el('div', { class: 'chest-scene chest-waiting' }, box);
     let opened = false;
     const open = (): void => {
@@ -149,9 +154,9 @@ registerScreen('chest', (app, root, props) => {
     scene.addEventListener('click', open);
     root.append(sceneView({
       art: scene,
-      speaker: road ? '路邊紙箱' : '紙箱',
-      text: road ? road.opening : '箱子還封著，上面貼了一條膠帶。',
-      actions: [el('button', { class: 'btn primary', onclick: open }, '打開箱子')],
+      speaker: road ? t('路邊紙箱') : t('紙箱'),
+      text: road ? road.opening : t('箱子還封著，上面貼了一條膠帶。'),
+      actions: [el('button', { class: 'btn primary', onclick: open }, t('打開箱子'))],
     }));
     return;
   }
@@ -194,14 +199,14 @@ registerScreen('chest', (app, root, props) => {
     if (hasScene) {
       art = el('div', { class: 'chest-scene chest-opened' },
         el('img', { class: 'event-art', src: sceneArt, alt: '' }),
-        hasLoot ? el('img', { class: 'chest-loot in-beam', src: url, alt: def.name })
+        hasLoot ? el('img', { class: 'chest-loot in-beam', src: url, alt: relicName(def) })
           : def ? el('div', { class: 'chest-loot in-beam chest-loot-missing' }) : '');
     } else if (hasLoot) {
       // 舊版面（插圖沒生好時的退路）
       art = el('div', { class: 'loot-stack' },
-        el('p', { class: 'loot-above' }, relicLongText(def, me(run, seat).relics, true)),
-        el('img', { class: 'chest-loot', src: url, alt: def.name }),
-        el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, '秘寶'), el('b', { class: 'loot-name' }, def.name)));
+        el('p', { class: 'loot-above' }, relicLong(def, me(run, seat).relics, true)),
+        el('img', { class: 'chest-loot', src: url, alt: relicName(def) }),
+        el('div', { class: 'loot-below' }, el('span', { class: 'loot-kind' }, t('秘寶')), el('b', { class: 'loot-name' }, relicName(def))));
     } else {
       art = '';
     }
@@ -223,19 +228,19 @@ registerScreen('chest', (app, root, props) => {
      */
     if (hasScene && def && art instanceof HTMLElement) {
       art.append(el('div', { class: 'chest-loot-line' },
-        el('span', { class: 'loot-kind' }, '秘寶'),
-        el('b', { class: 'loot-name' }, def.name),
-        el('span', { class: 'loot-text' }, relicLongText(def, me(run, seat).relics, true))));   // 沾魔氣的補「可淨化成…」（2026-09-25）
+        el('span', { class: 'loot-kind' }, t('秘寶')),
+        el('b', { class: 'loot-name' }, relicName(def)),
+        el('span', { class: 'loot-text' }, relicLong(def, me(run, seat).relics, true))));   // 沾魔氣的補「可淨化成…」（2026-09-25）
     }
 
     root.append(sceneView({
       art,
-      speaker: '紙箱',
+      speaker: t('紙箱'),
       // 空箱現在幾乎碰不到了：`openChest` 會從常見一路退到大魔物、塔主池，
       // 三池 64 件全部收齊才會真的空（使用者 2026-09-10：「紙箱節點是一定有寶物」）
-      text: def ? `${heroSpeaker()}把箱子翻了個底朝天，找到了——` : '紙箱是空的——塔裡的秘寶全被你搬光了，裡面只剩一堆碎紙。',
+      text: def ? t('{who}把箱子翻了個底朝天，找到了——', { who: heroSpeaker() }) : t('紙箱是空的——塔裡的秘寶全被你搬光了，裡面只剩一堆碎紙。'),
       extra: [bonusLine(bonus)],
-      actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, '繼續')],
+      actions: [el('button', { class: 'btn primary', onclick: () => app.backToMap() }, t('繼續'))],
     }));
   }
 
@@ -258,16 +263,16 @@ registerScreen('chest', (app, root, props) => {
       const d = relicById[id];
       if (!d) continue;
       const url = artUrl('icons', d.art);
-      const who = picks.map((v, i) => (v === id ? (i === seat ? '你' : '同伴') : '')).filter(Boolean);
+      const who = picks.map((v, i) => (v === id ? (i === seat ? t('你') : t('同伴')) : '')).filter(Boolean);
       const got = taken.includes(id);
       // 鎖住我、只有同伴用得到的那件要講明白（推前審查 2026-09-23 中-1，照過關三選一的做法）：清單照「有一位用得到」開
       const partnerOnly = relicForPartnerOnly(run, id, seat);
       const slot = el('button', { class: `chest-offer${myPick === id ? ' picked' : ''}${got ? ' got' : ''}${partnerOnly ? ' partner-only' : ''}` },
-        url.startsWith('data:') ? '' : el('img', { src: url, alt: d.name }),
-        el('b', {}, d.name),
-        partnerOnly ? el('span', { class: 'pick-tile-note' }, '同伴才用得到') : '',
-        el('span', { class: 'small' }, relicLongText(d, me(run, seat).relics, true)),
-        who.length ? el('span', { class: 'chest-offer-who' }, who.join('、')) : '');
+        url.startsWith('data:') ? '' : el('img', { src: url, alt: relicName(d) }),
+        el('b', {}, relicName(d)),
+        partnerOnly ? el('span', { class: 'pick-tile-note' }, t('同伴才用得到')) : '',
+        el('span', { class: 'small' }, relicLong(d, me(run, seat).relics, true)),
+        who.length ? el('span', { class: 'chest-offer-who' }, listJoin(who)) : '');
       if (!myPick && !settled && !me(run, seat).down) slot.addEventListener('click', () => { play('click'); coop.pick('relic', id); });
       else slot.setAttribute('disabled', 'disabled');
       row.append(slot);
@@ -285,15 +290,15 @@ registerScreen('chest', (app, root, props) => {
     //（罐頭鋪的「逛好了」本來就這樣做，紙箱漏了；稽核 2026-09-11 中-10）
     const iSaidDone = doneSeats.has(seat);
     const go = el('button', { class: 'btn primary', onclick: () => { if (settled && !iSaidDone) coop.submitRun({ t: 'done', seat }); } },
-      iSaidDone ? '等對方…' : settled ? '繼續' : waiting ? '等同伴挑…' : '先挑一件');
+      iSaidDone ? t('等對方…') : settled ? t('繼續') : waiting ? t('等同伴挑…') : t('先挑一件'));
     if (!settled || iSaidDone) go.setAttribute('disabled', 'disabled');
     root.append(sceneView({
       art,
-      speaker: '紙箱',
-      text: offers.length === 0 ? '紙箱是空的——塔裡的秘寶全被你搬光了。'
-        : settled ? '兩個人各拿了一件，走吧。'
-          : waiting ? '挑好了，等同伴挑完就一起分。'
-            : offers.length > 1 ? '箱子裡有兩件，一人一件——挑你要的那件。' : '只開出一件，兩個人搶——擲骰決定給誰。',
+      speaker: t('紙箱'),
+      text: offers.length === 0 ? t('紙箱是空的——塔裡的秘寶全被你搬光了。')
+        : settled ? t('兩個人各拿了一件，走吧。')
+          : waiting ? t('挑好了，等同伴挑完就一起分。')
+            : offers.length > 1 ? t('箱子裡有兩件，一人一件——挑你要的那件。') : t('只開出一件，兩個人搶——擲骰決定給誰。'),
       extra: [bonusLine(coopBonus)],
       actions: [go],
     }));

@@ -635,7 +635,7 @@ export function companionCardAction(
     const listed = DANGDANG_CARD_ACTION[cardId] ?? DANGDANG_SHARED_ACTION.get(cardId);
     if (listed) return listed;
     // 沒列到的（打得出去的戰鬥雜牌、以後新加的牌）照規則配，不再退回靜態立繪（2026-09-22 晚）
-    if (options.cardType === '攻擊') return DANGDANG_ATTACK_FAMILY[options.poseFamily ?? ''] ?? 'palm';
+    if (options.cardType === 'attack') return DANGDANG_ATTACK_FAMILY[options.poseFamily ?? ''] ?? 'palm';
     if (options.poseFamily === 'qinggong') return 'dodge';
     if (options.hasBlock) return 'guard';
     if (EAT_CARDS.has(cardId) || options.hasHeal) return 'eat';
@@ -648,8 +648,8 @@ export function companionCardAction(
     // 吼（含獅吼功）、太極是新畫的、劍不出鞘；輕功沿用閃身；借力使力（攻擊牌裡的太極）沿用回步刺。
     if (options.poseFamily === 'roar') return 'roar';
     if (options.poseFamily === 'qinggong') return 'dodge';
-    if (options.poseFamily === 'taiji') return options.cardType === '攻擊' ? 'retreat_thrust' : 'taiji';
-    if (options.cardType === '攻擊') {
+    if (options.poseFamily === 'taiji') return options.cardType === 'attack' ? 'retreat_thrust' : 'taiji';
+    if (options.cardType === 'attack') {
       if (options.poseFamily === 'dash') return 'thrust';
       if (options.poseFamily === 'kick') return 'sweep';
       if (options.poseFamily === 'punch') return 'heavy_slash';
@@ -669,7 +669,7 @@ export function companionCardAction(
   // 吼（含獅吼功）、太極是新畫的；輕功沿用後退閃躲。
   if (options.poseFamily === 'roar') return 'roar';
   if (options.poseFamily === 'qinggong') return 'roll';
-  if (options.cardType === '攻擊') {
+  if (options.cardType === 'attack') {
     // 借力使力（攻擊牌裡的太極）與踢技一樣收一記踢；其餘（爪、衝撞、拳、沒有家族的連線支援牌）一律爪擊
     // （2026-09-22 前衝撞、拳與連線支援牌選不到動作，出牌時退回靜態立繪）
     if (options.poseFamily === 'kick' || options.poseFamily === 'taiji') return 'kick';

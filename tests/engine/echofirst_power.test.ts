@@ -42,7 +42,7 @@ function play(cs: ReturnType<typeof beginCombat>, id: string, target?: number, u
 describe('影子分身碰到能力牌', () => {
   it('能力牌不會被重播（打馬步就是一次）', () => {
     const { cs, p } = setup();
-    expect(cardById['mabu']!.type, '馬步不是能力牌了？那這條要重寫').toBe('能力');
+    expect(cardById['mabu']!.type, '馬步不是能力牌了？那這條要重寫').toBe('power');
     p.echoFirst = 1;
     p.cardsPlayedThisTurn = 0;
     p.echoUsed = false;
@@ -63,7 +63,7 @@ describe('影子分身碰到能力牌', () => {
 
   it('封印解除再也堆不起來：打它不重播，之後那張牌才重播一次', () => {
     const { cs, p } = setup();
-    expect(cardById['fengyin']!.type).toBe('能力');
+    expect(cardById['fengyin']!.type).toBe('power');
     p.echoFirst = 2;                       // 兩張影子分身
     p.cardsPlayedThisTurn = 0;
     p.echoUsed = false;

@@ -5,6 +5,8 @@ import { el, stageFrame } from './dom';
 import { eventNow, gateAccept, newClickGate } from './clickgate';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { heroVoice, hush, prefetch, say, voiceGroup } from './voicegate';
+// 多語系（2026-09-29 第二片）：台詞與名字只在顯示那一刻換語言；配音照舊拿中文原句查表（念的永遠是日文配音）
+import { lineDisplay, speakerDisplay } from '../i18n/speech';
 
 /**
  * 全螢幕對白疊層，點一下下一句；播完自己移除再叫 onDone。
@@ -152,8 +154,8 @@ export function playDialogue(lines: DialogueLine[], onDone: () => void, cast?: {
     // 「塔主」有指定本人時換成本人：第一關打貓又婆婆，卻掛師父的臉跟「塔主」木牌，
     // 玩家會以為在跟師父講話（使用者實玩回報）
     const who = l.speaker === '塔主' ? cast?.['塔主'] : undefined;
-    speaker.textContent = l.speaker === '旁白' ? '' : (who?.name ?? (l.speaker === '球球' && !literal ? heroSpeaker() : l.speaker));
-    text.textContent = l.text;
+    speaker.textContent = l.speaker === '旁白' ? '' : speakerDisplay(who?.name ?? (l.speaker === '球球' && !literal ? heroSpeaker() : l.speaker));
+    text.textContent = lineDisplay(l.text);
     say(voiceOf(l).group, l.text);
     prefetch(lines.slice(i + 1, i + 3).map(voiceOf));
     box.classList.toggle('narration', l.speaker === '旁白');
@@ -214,7 +216,7 @@ export function bubbleAt(text: string, speaker: string, headX: number, headY: nu
   // 特別高的立繪（師父）頭頂離狀態列不到 74 像素，照算會壓在狀態列上：先壓到狀態列下緣，蓋到意圖牌再交給下面挪開（2026-09-22 晚）
   let top = Math.max(TOP_MIN, Math.round(headY - 74));
   const t = el('div', { class: 'toast bubble-at tail-right', style: `right:${Math.round(1280 - headX - 34)}px; top:${top}px` },
-    speaker ? el('b', {}, `${speaker}：`) : '', text);
+    speaker ? el('b', {}, `${speakerDisplay(speaker)}：`) : '', lineDisplay(text));
   layer.append(t);
   // 高大魔物頭上的意圖牌正好在泡泡該在的地方（畫面盤點 2026-09-22 低-13）：蓋到就挪開（挪法見 bubbleClearOf）
   const clear = bubbleClearOf({ left: t.offsetLeft, top: t.offsetTop, right: t.offsetLeft + t.offsetWidth, bottom: t.offsetTop + t.offsetHeight }, avoid, TOP_MIN);
@@ -317,7 +319,7 @@ export const NOTICE_YIELD_MS = 1500;
 /** 淡出多久（樣式表 `.notice` 的 `transition: opacity .4s`，多留 0.1 秒才拔） */
 const NOTICE_FADE_MS = 500;
 function showNotice(layer: HTMLElement, text: string): void {
-  const t = el('div', { class: 'notice' }, text);
+  const t = el('div', { class: 'notice' }, lineDisplay(text));
   layer.append(t);
   noticeNow = { el: t, text, out: 0, gone: 0, outAt: 0 };
   hideNoticeIn(noticeNow, noticeStayMs(text));
@@ -347,7 +349,7 @@ export function toast(text: string, speaker = '', at?: { left: number } | { righ
   if (!text) return;
   const layer = overlayRoot();
   if (!layer) return;
-  const t = el('div', { class: 'toast' }, speaker ? el('b', {}, `${speaker}：`) : '', text);
+  const t = el('div', { class: 'toast' }, speaker ? el('b', {}, `${speakerDisplay(speaker)}：`) : '', lineDisplay(text));
   // 主角的吐槽念出來（查不到就安靜；已經有一句在講就不插嘴，見 voice.ts）
   say(heroVoice(speaker), text, 'bark');
   // 戰鬥裡的泡泡要從說話那一格冒出來（連線盤點 2026-09-22 問題 5）：樣式表寫死的 left 200 只對得上單機那一格。

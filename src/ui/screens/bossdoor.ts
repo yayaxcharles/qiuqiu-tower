@@ -5,6 +5,7 @@ import { battleBgKey, battleBgStyle, bossDoorKey } from '../screenbg';
 import { el } from '../dom';
 import { renderHud } from '../hud';
 import { warmSlides } from '../preload';
+import { t as i18nT } from '../../i18n';
 
 /**
  * 關主戰前的那扇門（使用者 2026-09-10：「睡覺補完後，加上打王前的過渡，
@@ -74,8 +75,8 @@ registerScreen('bossdoor', (app, root, props) => {
     el('img', { class: 'door-leaf right', src: door, alt: '' }),
     el('div', { class: 'door-glow' }),
     el('div', { class: 'door-hint' },
-      el('p', { class: 'door-line' }, '出現一扇門擋住了去路，門後方似乎有股強大的氣息。'),
-      el('button', { class: 'btn primary', onclick: open }, '推開門')));
+      el('p', { class: 'door-line' }, i18nT('出現一扇門擋住了去路，門後方似乎有股強大的氣息。')),
+      el('button', { class: 'btn primary', onclick: open }, i18nT('推開門'))));
   scene.addEventListener('click', open);
   root.append(scene);
 });

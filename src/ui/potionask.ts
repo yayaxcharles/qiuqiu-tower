@@ -9,6 +9,8 @@
  * 「換了」要在按下去的當下就記，不能等自己那則動作繞回來再推（客戶端要等主機編號，
  * 那段空檔一重畫就再問一次；上一格事件頁遲到的換忍具也會被誤認成這一頁的回答）。
  */
+import { t } from '../i18n';
+
 export type PotionAsk = 'asking' | 'swapped' | 'declined';
 
 /** 這一次畫面要不要排問話 */
@@ -18,7 +20,7 @@ export function shouldAskPotion(ask: PotionAsk | undefined): boolean {
 
 /** 收不下的那支忍具，那一列寫什麼 */
 export function missedPotionLabel(ask: PotionAsk | undefined, name: string): string {
-  if (ask === 'swapped') return `換成了「${name}」`;
-  if (ask === 'declined') return `沒有換，放棄了「${name}」`;
-  return `忍具帶滿了，「${name}」收不下`;
+  if (ask === 'swapped') return t('換成了「{name}」', { name });
+  if (ask === 'declined') return t('沒有換，放棄了「{name}」', { name });
+  return t('忍具帶滿了，「{name}」收不下', { name });
 }

@@ -5,6 +5,7 @@ import './ui/styles/combat.css';
 import './ui/styles/screens.css';
 import './ui/styles/phone.css';   // 手機橫拿的字級與按鈕（2026-09-23），排最後才蓋得過前面幾份
 import { App } from './ui/app';
+import { initLang } from './i18n';
 import { registerLazyScreen } from './ui/lazy-screen';
 import { loadEventScreen } from './ui/event-loader';
 import { loadManifest, preloadArt } from './ui/assets';
@@ -39,7 +40,8 @@ registerLazyScreen('debug', () => import('./ui/screens/debug'), '正在準備除
 registerLazyScreen('lobby', () => import('./ui/screens/lobby'), '正在準備合作大廳……');
 
 async function boot(): Promise<void> {
-  await loadManifest();
+  // 語言包跟素材清單一起等（沒存過語言＝繁中，不用等）
+  await Promise.all([loadManifest(), initLang()]);
   // 圖片離線快取：看過的圖留在本機，推新版只重下換過的那幾張（2026-09-24 使用者「優化載入的速度」）
   registerAssetCache();
   applyArtVars();
@@ -117,4 +119,23 @@ async function boot(): Promise<void> {
     ? Promise.race([opening, new Promise<void>((r) => window.setTimeout(r, 90_000))]) : undefined)));
 }
 
-void boot();
+/**
+ * 開場必要的檔載不到（斷網、CDN 抖動、快取壞掉）：不要留一片空白，寫一段字加一顆重新整理鈕。
+ * 三種語言都寫（這時語言包不一定載得到）。用原生 DOM，不靠任何還沒載好的東西。
+ */
+function showBootError(error: unknown): void {
+  console.error('開場失敗', error);
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;background:#1b2a4a;color:#f3ead6;font:16px/1.7 sans-serif;text-align:center';
+  const msg = document.createElement('div');
+  msg.style.whiteSpace = 'pre-line';
+  msg.textContent = '載入失敗，請檢查網路後重新整理。\nFailed to load. Please check your connection and reload.\n読み込みに失敗しました。通信を確認して再読み込みしてください。';
+  const btn = document.createElement('button');
+  btn.textContent = '重新整理 / Reload / 再読み込み';
+  btn.style.cssText = 'font:inherit;padding:8px 22px;cursor:pointer';
+  btn.addEventListener('click', () => window.location.reload());
+  box.append(msg, btn);
+  (document.getElementById('app') ?? document.body).append(box);
+}
+
+boot().catch(showBootError);

@@ -224,7 +224,7 @@ describe('每張打得出去的牌都選到有素材的動作', () => {
     expect(using('ninja', 'qiuqiu', 'qinggong')).toEqual(['diaohu', 'gaotui', 'qinggong', 'taxue', 'yixing', 'zhanshu']);
     // 能力牌一律運氣：球球牌池裡的能力牌，除了原本就逐張指定結印的影子分身
     expect(using('ninja', 'qiuqiu', 'focus')).toEqual(deckCards('ninja')
-      .filter((def) => def.type === '能力' && def.id !== 'yingzi').map((def) => def.id).sort());
+      .filter((def) => def.type === 'power' && def.id !== 'yingzi').map((def) => def.id).sort());
     expect(qiuqiuCardAction('yingzi', undefined, 0)).toBe('seal');
     expect(using('ninja', 'qiuqiu', 'focus')).toHaveLength(13);
     expect(using('ninja', 'qiuqiu', 'scroll')).toEqual(['doumao', 'qianliyan', 'tuozi', 'zhexienixianchi']);

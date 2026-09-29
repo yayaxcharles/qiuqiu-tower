@@ -216,10 +216,10 @@ const HEAL_EFFECTS: ReadonlySet<string> = new Set(['heal', 'healAlly']);
  * 有蜷縮的擺架式（跟淡定、鐵布衫同一套）；回血的吃（三隻同伴也是這條）；會抽牌的翻卷軸；其餘結印（跟替身術同一套）。
  */
 function qiuqiuRuleAction(poseFamily: string | undefined, card: QiuqiuCardInfo | undefined): QiuqiuAction | null {
-  if (!card?.type || card.type === '攻擊') return null;
+  if (!card?.type || card.type === 'attack') return null;
   const family = poseFamily === undefined ? undefined : SKILL_FAMILY_ACTIONS[poseFamily];
   if (family) return family;
-  if (card.type === '能力') return 'focus';
+  if (card.type === 'power') return 'focus';
   const kinds = (card.effects ?? []).map((effect) => effect.kind);
   if (kinds.some((kind) => BLOCK_EFFECTS.has(kind))) return 'guard';
   if (kinds.some((kind) => HEAL_EFFECTS.has(kind))) return 'eat';

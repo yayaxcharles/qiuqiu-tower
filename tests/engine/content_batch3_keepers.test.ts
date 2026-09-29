@@ -118,8 +118,8 @@ describe('貨架照店主排（design3 4-2）', () => {
       expect(relicById[shop.relics[0]!.id]?.pool).toBe('常見');
       expect(shop.relics.some((r) => r.limited)).toBe(false);
       expect(shop.potions).toHaveLength(6);
-      expect(shop.potions.filter((p) => rarity(p.id) === '稀有').length).toBeGreaterThanOrEqual(1);
-      expect(shop.potions.filter((p) => rarity(p.id) === '罕見').length).toBeGreaterThanOrEqual(2);
+      expect(shop.potions.filter((p) => rarity(p.id) === 'rare').length).toBeGreaterThanOrEqual(1);
+      expect(shop.potions.filter((p) => rarity(p.id) === 'uncommon').length).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -129,8 +129,8 @@ describe('貨架照店主排（design3 4-2）', () => {
       me(run).fish = 500;
       expect(reshuffleShop(run, shop)).toBe(true);
       expect(shop.potions).toHaveLength(6);
-      expect(shop.potions.filter((p) => rarity(p.id) === '稀有').length).toBeGreaterThanOrEqual(1);
-      expect(shop.potions.filter((p) => rarity(p.id) === '罕見').length).toBeGreaterThanOrEqual(2);
+      expect(shop.potions.filter((p) => rarity(p.id) === 'rare').length).toBeGreaterThanOrEqual(1);
+      expect(shop.potions.filter((p) => rarity(p.id) === 'uncommon').length).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -276,7 +276,7 @@ describe('阿福的「舊招換新招」', () => {
       expect(now.cardId).toBe(got);
       expect(now.upgraded).toBe(false);
       const def = cardById[got!]!;
-      expect(['罕見', '稀有']).toContain(def.rarity);
+      expect(['uncommon', 'rare']).toContain(def.rarity);
       expect(def.pool).toBe('忍術');
       expect(!def.hero || def.hero === heroOf(me(run))).toBe(true);
       expect(cardNameFor(def, hero)).not.toBe(cardNameFor(cardById[oldId]!, hero));
@@ -298,7 +298,7 @@ describe('阿福的「舊招換新招」', () => {
   it('壞毛病換成常見；錢不夠、別家店都換不了', () => {
     const { run, shop } = shopOf('junk', 'sw-curse');
     const curse = addCard(run, Object.values(cardById).find((c) => c.pool === '壞毛病')!.id);
-    expect(swapCandidates(run, curse.cardId).every((c) => c.rarity === '常見')).toBe(true);
+    expect(swapCandidates(run, curse.cardId).every((c) => c.rarity === 'common')).toBe(true);
     me(run).fish = 39;
     expect(canSwap(run, shop, curse.uid)).toBe(false);
     me(run).fish = 40;

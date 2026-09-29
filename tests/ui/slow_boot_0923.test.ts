@@ -9,6 +9,9 @@ const boot = vi.hoisted(() => ({
   opening: null as null | (() => void),
   deferred: [] as Promise<unknown>[],
 }));
+vi.mock('../../src/i18n', () => ({
+  initLang: () => Promise.resolve(), t: (zh: string) => zh, term: (zh: string) => zh, N_: (zh: string) => zh,
+}));
 vi.mock('../../src/ui/app', () => ({ App: class { show = vi.fn(); } }));
 vi.mock('../../src/ui/lazy-screen', () => ({ registerLazyScreen: vi.fn() }));
 vi.mock('../../src/ui/assets', () => ({

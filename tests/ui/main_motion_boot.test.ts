@@ -11,8 +11,12 @@ const mocks = vi.hoisted(() => ({
   preloadQiuqiuMotion: vi.fn(),
   preloadCompanionMotion: vi.fn(),
   startMotionPreview: vi.fn(),
+  initLang: vi.fn(),
 }));
 
+vi.mock('../../src/i18n', () => ({
+  initLang: mocks.initLang, t: (zh: string) => zh, term: (zh: string) => zh, N_: (zh: string) => zh,
+}));
 vi.mock('../../src/ui/app', () => ({ App: class { show = mocks.show; } }));
 vi.mock('../../src/ui/lazy-screen', () => ({ registerLazyScreen: vi.fn() }));
 vi.mock('../../src/ui/assets', () => ({
@@ -43,6 +47,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.resetAllMocks();
   mocks.loadManifest.mockResolvedValue(undefined);
+  mocks.initLang.mockResolvedValue(undefined);
   mocks.localHero.mockReturnValue('ninja');
   mocks.preloadArt.mockResolvedValue(undefined);
   mocks.preloadAct.mockResolvedValue(undefined);

@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+import { potionName, potionText } from '../i18n/names';
 import { potionById } from '../content/potions';
 import { replacePotion } from '../engine/run';
 import type { App } from './app';
@@ -44,16 +46,16 @@ export function showPotionSwap(run: RunState, newId: string, onDone: (index: num
     const p = potionById[id];
     if (!p) return;
     list.append(el('button', { class: 'swap-item', onclick: () => dismiss(i) },
-      icon(p.art, p.name),
-      el('div', { class: 'swap-text' }, el('b', {}, p.name), el('em', {}, p.text)),
-      el('span', { class: 'swap-go' }, '換掉這支')));
+      icon(p.art, potionName(p)),
+      el('div', { class: 'swap-text' }, el('b', {}, potionName(p)), el('em', {}, potionText(p))),
+      el('span', { class: 'swap-go' }, t('換掉這支'))));
   });
   overlay.append(el('div', { class: 'modal swap-modal' },
     // 一次收到兩支以上時標「第 1／2 支」：玩家才知道換完這支還有下一支要問（使用者 2026-09-06：以為換完一支就結束）
-    el('h2', { class: 'modal-title' }, `忍具帶滿了。要用「${def.name}」換掉哪一支？${opts.progress ? `（${opts.progress}）` : ''}`),
-    el('div', { class: 'swap-new' }, icon(def.art, def.name), el('div', { class: 'swap-text' }, el('b', {}, def.name), el('em', {}, def.text))),
+    el('h2', { class: 'modal-title' }, t('忍具帶滿了。要用「{name}」換掉哪一支？{progress}', { name: potionName(def), progress: opts.progress ? `（${opts.progress}）` : '' })),
+    el('div', { class: 'swap-new' }, icon(def.art, potionName(def)), el('div', { class: 'swap-text' }, el('b', {}, potionName(def)), el('em', {}, potionText(def)))),
     list,
-    el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: () => dismiss(-1) }, '不換，放棄新的'))));
+    el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: () => dismiss(-1) }, t('不換，放棄新的')))));
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(-1); });
   layer.append(overlay);
   lockScreen();

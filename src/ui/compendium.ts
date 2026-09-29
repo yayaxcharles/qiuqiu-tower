@@ -1,3 +1,4 @@
+import { N_, t, term } from '../i18n';
 import { cards, inHeroCollection } from '../content/cards';
 import { el } from './dom';
 import { cardNode } from './cardview';
@@ -15,10 +16,10 @@ import { HEROES, heroName, type Hero } from '../engine/hero';
  */
 const POOL_ORDER = ['起手', '忍術', '絕學', '壞毛病'] as const;
 const POOL_NOTE: Record<string, string> = {
-  起手: '開局的十張牌就從這裡來',
-  忍術: '一般戰鬥獎勵、罐頭鋪常見貨',
-  絕學: '大魔物、事件、過關獎勵的高階牌',
-  壞毛病: '事件踩雷才會拿到的牌，靠貓窩或事件移除',
+  起手: N_('開局的十張牌就從這裡來'),
+  忍術: N_('一般戰鬥獎勵、罐頭鋪常見貨'),
+  絕學: N_('大魔物、事件、過關獎勵的高階牌'),
+  壞毛病: N_('事件踩雷才會拿到的牌，靠貓窩或事件移除'),
 };
 
 /**
@@ -34,8 +35,8 @@ const POOL_NOTE: Record<string, string> = {
  * 契約的「不新增劍術牌池」講的是規則用的池子，這裡只是顯示的字。
  */
 export function poolNameFor(pool: string, hero: string): string {
-  if (pool !== '忍術') return pool;
-  return NINJUTSU_TITLE[hero as Hero] ?? pool;   // 不認得的值照舊寫「忍術」
+  if (pool !== '忍術') return term(pool);
+  return term(NINJUTSU_TITLE[hero as Hero] ?? pool);   // 不認得的值照舊寫「忍術」
 }
 // `Record<Hero, …>`（2026-09-23 health H-2 第 2 塊）：原本是三元式，加第五隻貓漏了會默默寫「忍術」；現在 tsc 會擋。
 // 菲菲 2026-09-23 改叫「暗器」（主控裁定比照噹噹、封封）：她的牌名早就拿掉「忍術·」，`cards.ts` 自己也寫「她走暗器、他走拳腳」，
@@ -77,11 +78,11 @@ export function showCompendium(): void {
       const group = cards.filter((c) => c.pool === pool && !c.combatOnly && !c.hidden && !c.coop && forWho(c));
       if (!group.length) continue;
       grid.append(el('div', { class: 'comp-section' },
-        el('span', { class: 'comp-pool' }, `${poolNameFor(pool, who)}（${group.length}）`),
-        el('span', { class: 'comp-note' }, POOL_NOTE[pool] ?? '')));
+        el('span', { class: 'comp-pool' }, t('{name}（{n}）', { name: poolNameFor(pool, who), n: group.length })),
+        el('span', { class: 'comp-note' }, t(POOL_NOTE[pool] ?? ''))));
       const row = el('div', { class: 'comp-grid' });
       // 同池內照稀有度排：常見→罕見→稀有，找牌時比較有秩序
-      const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+      const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2 };
       for (const def of [...group].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
         row.append(cardNode(def, { small: true, upgraded, hero: who }));
       grid.append(row);
@@ -90,10 +91,10 @@ export function showCompendium(): void {
     const coop = cards.filter((c) => c.coop && !c.combatOnly && !c.hidden && forWho(c));
     if (coop.length) {
       grid.append(el('div', { class: 'comp-section' },
-        el('span', { class: 'comp-pool' }, `雙人（${coop.length}）`),
-        el('span', { class: 'comp-note' }, '兩個人一起爬塔才會出現在獎勵與罐頭鋪')));
+        el('span', { class: 'comp-pool' }, t('{name}（{n}）', { name: term('雙人'), n: coop.length })),
+        el('span', { class: 'comp-note' }, t('兩個人一起爬塔才會出現在獎勵與罐頭鋪'))));
       const row = el('div', { class: 'comp-grid' });
-      const rank: Record<string, number> = { 常見: 0, 罕見: 1, 稀有: 2 };
+      const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2 };
       for (const def of [...coop].sort((a, b) => (rank[a.rarity] ?? 9) - (rank[b.rarity] ?? 9)))
         row.append(cardNode(def, { small: true, upgraded, hero: who }));
       grid.append(row);
@@ -105,7 +106,7 @@ export function showCompendium(): void {
 
   // 看誰的牌。正式角色直接排成按鈕，一眼看得出現在在看誰，也少一次點擊。
   const heroBtns = HEROES.map((h) => {
-    const b = el('button', { class: 'btn small comp-hero' }, heroName({ hero: h }));
+    const b = el('button', { class: 'btn small comp-hero' }, term(heroName({ hero: h })));
     b.addEventListener('click', () => {
       if (who === h) return;
       who = h;
@@ -116,12 +117,12 @@ export function showCompendium(): void {
     return b;
   });
 
-  const close = el('button', { class: 'btn small comp-close' }, '✕ 關閉');
+  const close = el('button', { class: 'btn small comp-close' }, `✕ ${t('關閉')}`);
   const box = el('div', { class: 'compendium' },
     el('div', { class: 'comp-head' },
-      el('span', { class: 'comp-title' }, '卡牌圖鑑'),
+      el('span', { class: 'comp-title' }, t('卡牌圖鑑')),
       el('span', { class: 'comp-heroes' }, ...heroBtns),
-      el('label', { class: 'comp-upg', for: 'comp-upg' }, check, '顯示升級版（＋）'),
+      el('label', { class: 'comp-upg', for: 'comp-upg' }, check, t('顯示升級版（＋）')),
       close),
     grid);
 

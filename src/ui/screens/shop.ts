@@ -1,7 +1,9 @@
+import { rarityLabel, t, term } from '../../i18n';
+import { cardName, potionName, potionText, relicLong, relicName } from '../../i18n/names';
 import { play } from '../audio';
 import { dialogue } from '../../content/dialogue';
 import { potionById } from '../../content/potions';
-import { MIASMA_PURE, ownsRelic, relicById, relicLongText } from '../../content/relics';
+import { MIASMA_PURE, ownsRelic, relicById } from '../../content/relics';
 import { PURIFY_PRICE, RESHUFFLE_COST, buyCard, buyPotion, buyRelic, buyRemove, buySwap, canPurifyAtShop, canSwap, keeperFirstMeet, keeperMulFor, makeShops, miasmaRelicsOf, notMyCard, potionCapacity, priceFor, purifyAtShop, removePrice, reshuffleShop, runMods, shopClosed, shopMulFor, shopService, type ShopStock } from '../../engine/run';
 import { TORTOISE_PURIFY_LINE, purifyLine, tortoisePurifyLabel } from '../../content/purify-text';
 import { showPurifyPick } from '../purifypick';
@@ -11,7 +13,7 @@ import { heroSpeaker, notice, toast } from '../dialogue';
 import { KEEPERS } from '../../content/keepers';
 import type { GuestKeeper } from '../../content/shop-text';
 import { loadShopText, shopTextNow } from '../shop-text-loader';
-import { cardById, cardNameFor } from '../../content/cards';
+import { cardById } from '../../content/cards';
 import { heroOf } from '../../engine/hero';
 import type { RunAction } from '../../net/runaction';
 import { showPotionSwap } from '../potionswap';
@@ -83,11 +85,11 @@ registerScreen('shop', (app, root, props) => {
   type Talk = { text: string; reply?: string };
   const chatterPick = Math.random();   // 碎念挑哪一句只是畫面的事，跟橘貓老闆那句同一個做法（不動整局亂數）
   function openingTalk(): Talk {
-    const t = guest ? shopTextNow()?.KEEPER_TEXT[guest] : undefined;
+    const kt = guest ? shopTextNow()?.KEEPER_TEXT[guest] : undefined;
     if (!guest) return { text: line };
-    if (!t) return { text: '……' };   // 台詞還在路上（地圖上多半早就抓好了）：先只放名字與木牌，到了再補
-    const h = t.byHero[hero];
-    return firstMeet ? { text: h.enter[0], reply: h.enter[1] } : { text: t.chatter[Math.floor(chatterPick * t.chatter.length)] ?? '' };
+    if (!kt) return { text: t('……') };   // 台詞還在路上（地圖上多半早就抓好了）：先只放名字與木牌，到了再補
+    const h = kt.byHero[hero];
+    return firstMeet ? { text: h.enter[0], reply: h.enter[1] } : { text: kt.chatter[Math.floor(chatterPick * kt.chatter.length)] ?? '' };
   }
   /*
    * 第一次見到這位的旁白放畫面正上方那一條（`notice`），不放進對白框：對白框只擠得下兩行（店主一句＋自己回一句），
@@ -218,23 +220,23 @@ registerScreen('shop', (app, root, props) => {
    * 價錢牌：特價的把原價劃掉、特價紅字放大（使用者 2026-09-04：「要明顯」）。
    * 店主的帳本（第一件半價）、批發箱（忍具半價）打的折也一樣劃掉原價（2026-09-23 第二批）：只看「比原價便宜」，不分是誰給的。
    */
-  function priceNode(price: number, sold: boolean, base?: number, sale?: number, soldText = '賣掉了', item?: object): HTMLElement {
+  function priceNode(price: number, sold: boolean, base?: number, sale?: number, soldText = t('賣掉了'), item?: object): HTMLElement {
     if (sold) return el('div', { class: 'price' }, soldText);
     // 行腳商劃掉的原價只乘難度（他不吃零錢罐、錢袋那些，原價也不該照它們算）
     // 掌櫃的加價算進「原價」（2026-09-23 第三批）：不然特價那格劃掉的是沒加價的數，跟打完折的價錢對不起來；婆婆的七五折照樣算折扣、劃掉原價
     const orig = base === undefined ? price
       : Math.round(base * (mer ? runMods(run).shopMul : shopMulFor(run, seat) * Math.max(1, item ? keeperMulFor(shop, item) : 1)));
     if (base !== undefined && (sale || price < orig)) {
-      return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, `${price} 條小魚乾`));
+      return el('div', { class: 'price sale' }, el('s', {}, String(orig)), el('b', {}, t('{price} 條小魚乾', { price })));
     }
-    return el('div', { class: 'price' }, `${price} 條小魚乾`);
+    return el('div', { class: 'price' }, t('{price} 條小魚乾', { price }));
   }
-  const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, `特價 ${Math.round(sale * 10)} 折`) : '');
+  const saleTag = (sale?: number): HTMLElement | '' => (sale ? el('div', { class: 'sale-tag' }, t('特價 {n} 折', { n: Math.round(sale * 10) })) : '');
   /** 帳本的半價還沒用掉：每一格掛一個小牌子，讓人知道「現在買哪一件都半價」 */
   const ledgerOn = (): boolean => !shop.merchant && !shop.anyBought && me(run, seat).relics.some((id) => relicById[id]?.hooks.shopFirstItemHalf);
   /** 行腳商收攤了：買下的那格寫「買下了」、其他格子寫「收攤了」（`shopClosed`） */
-  const closedText = (sold: boolean): string | undefined => (shopClosed(shop) ? (sold ? '買下了' : '收攤了') : undefined);
-  const ledgerTag = (sold: boolean): HTMLElement | '' => (!sold && ledgerOn() ? el('div', { class: 'sale-tag ledger' }, '第一件半價') : '');
+  const closedText = (sold: boolean): string | undefined => (shopClosed(shop) ? (sold ? t('買下了') : t('收攤了')) : undefined);
+  const ledgerTag = (sold: boolean): HTMLElement | '' => (!sold && ledgerOn() ? el('div', { class: 'sale-tag ledger' }, t('第一件半價')) : '');
 
   function stall(key: string, name: string, text: string, price: number,
     sold: boolean, blocked: boolean, buy: () => void, base?: number, sale?: number, soldText?: string,
@@ -251,8 +253,8 @@ registerScreen('shop', (app, root, props) => {
       sale ? saleTag(sold ? undefined : sale) : ledgerTag(sold),
       icon(key, name),
       el('div', { class: 'shop-name' }, name),
-      rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarity) : '',
-      limited ? el('div', { class: 'potion-rarity rarity-limited' }, '店長私藏') : '',
+      rarity ? el('div', { class: `potion-rarity rarity-${rarity}` }, rarityLabel(rarity)) : '',
+      limited ? el('div', { class: 'potion-rarity rarity-limited' }, t('店長私藏')) : '',
       el('div', { class: 'small', title: full ?? text }, text),   // 貨架上最多四行（screens.css），全文放在滑鼠提示
       priceNode(price, sold, base, sale, soldText, item));
     if (!sold && !blocked && afford && !iDown) node.addEventListener('click', buy);
@@ -290,10 +292,10 @@ registerScreen('shop', (app, root, props) => {
 
   /** 離開：單機直接走；連線要兩個人都按了才一起上樓 */
   function leaveBtn(): HTMLElement {
-    if (!coop) return el('button', { class: 'btn primary', onclick: leave }, mer ? '走了' : '離開');
+    if (!coop) return el('button', { class: 'btn primary', onclick: leave }, mer ? t('走了') : t('離開'));
     const mine = done.has(seat);
     const btn = el('button', { class: 'btn primary', onclick: () => { if (!mine) coop.submitRun({ t: 'done', seat }); } },
-      mine ? '等同伴逛完…' : '逛好了');
+      mine ? t('等同伴逛完…') : t('逛好了'));
     if (mine) btn.setAttribute('disabled', 'disabled');
     return btn;
   }
@@ -324,9 +326,9 @@ registerScreen('shop', (app, root, props) => {
       const url = artUrl('bg', eventArtKey('q_merchant'));
       root.append(sceneView({
         art: url.startsWith('data:') ? '' : el('img', { class: 'event-art', src: url, alt: '' }),
-        speaker: '行腳商',
+        speaker: term('行腳商'),
         text: mer.opening,
-        actions: [el('button', { class: 'btn primary', onclick: () => { intro = false; play('click'); render(); } }, '看看貨架（只能挑一樣）')],
+        actions: [el('button', { class: 'btn primary', onclick: () => { intro = false; play('click'); render(); } }, t('看看貨架（只能挑一樣）'))],
         calm,
       }));
       return;
@@ -343,7 +345,7 @@ registerScreen('shop', (app, root, props) => {
       const slot = el('div', { class: `shop-item card-item${gone ? ' sold' : buyable ? '' : ' poor'}${it.sale && !it.sold ? ' on-sale' : ''}` },
         it.sale ? saleTag(it.sold ? undefined : it.sale) : ledgerTag(it.sold),
         cardNode(it.upgraded ? { uid: -1, cardId: it.def.id, upgraded: true } : it.def, { small: true, disabled: !buyable, onClick: () => { act({ t: 'buy', seat, k: 'card', i }, () => buyCard(run, shop, i, seat)) && bought('buy'); } }),   // 升級格照＋版畫
-        theirs && !it.sold ? el('div', { class: 'price' }, '同伴的牌') : priceNode(price, gone, it.base, it.sale, closedText(it.sold), it));
+        theirs && !it.sold ? el('div', { class: 'price' }, t('同伴的牌')) : priceNode(price, gone, it.base, it.sale, closedText(it.sold), it));
       // 停用的牌面 cardNode 自己把點擊吃掉了，買不起要在外框接才收得到
       if (!gone && !buyable) slot.addEventListener('click', () => setMood('no'));
       cards.append(slot);
@@ -358,9 +360,9 @@ registerScreen('shop', (app, root, props) => {
       // 已經有的秘寶買不下去（buyRelic 會擋），當成賣掉，不要讓玩家白按
       const owned = ownsRelic(me(run, seat).relics, it.id);   // 淨化版在身上也算有（推前審查五 高-3，跟 `buyRelic` 同一個判準）
       // 自己已經有、架上卻還沒賣掉的，寫「你已經有了」：寫「賣掉了」的話同伴明明還買得到（連線稽核 高-8）
-      relics.append(stall(d.art, d.name, relicLongText(d, me(run, seat).relics, true), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
+      relics.append(stall(d.art, relicName(d), relicLong(d, me(run, seat).relics, true), priceFor(run, it, seat, shop), it.sold || owned || closed, false,
         () => { act({ t: 'buy', seat, k: 'relic', i }, () => buyRelic(run, shop, i, seat)) && bought('relic'); }, it.base, it.sale,
-        closedText(it.sold) ?? (!it.sold && owned ? '你已經有了' : undefined), undefined, !!it.limited, it, relicLongText(d, me(run, seat).relics)));
+        closedText(it.sold) ?? (!it.sold && owned ? t('你已經有了') : undefined), undefined, !!it.limited, it, relicLong(d, me(run, seat).relics)));
     });
     const potions = el('div', { class: 'shop-row' });
     shop.potions.forEach((it, i) => {
@@ -370,7 +372,7 @@ registerScreen('shop', (app, root, props) => {
       const full = me(run, seat).potions.length >= potionCapacity(run, seat);
       const price = priceFor(run, it, seat, shop);
       const poor = me(run, seat).fish < price;
-      potions.append(stall(d.art, d.name, full ? `${d.text}（帶滿了，買了要換掉一支）` : d.text, price, it.sold || closed, poor,
+      potions.append(stall(d.art, potionName(d), full ? t('{text}（帶滿了，買了要換掉一支）', { text: potionText(d) }) : potionText(d), price, it.sold || closed, poor,
         () => {
           if (!full) { act({ t: 'buy', seat, k: 'potion', i }, () => buyPotion(run, shop, i, undefined, seat)) && bought('buy'); return; }
           showPotionSwap(run, it.id, (idx) => { if (idx >= 0) act({ t: 'buy', seat, k: 'potion', i, r: idx }, () => buyPotion(run, shop, i, idx, seat)) && bought('buy'); }, { apply: false, seat });
@@ -381,7 +383,7 @@ registerScreen('shop', (app, root, props) => {
     // 阿福那間放生半價（2026-09-23 第三批）：價錢一律問 `removePrice(…, shop)`，按鈕、確認框、引擎同一個數
     const releaseCost = removePrice(run, seat, shop);
     const pickRelease = (): void => showDeckPicker({
-      title: `放生一張牌（${releaseCost} 條小魚乾）`, cards: me(run, seat).deck, pickable: true, cancellable: true,
+      title: t('放生一張牌（{cost} 條小魚乾）', { cost: releaseCost }), cards: me(run, seat).deck, pickable: true, cancellable: true,
       onPick: (uid) => {
         const c = uid === null ? undefined : me(run, seat).deck.find((x) => x.uid === uid);
         if (uid === null || !c) { render(); return; }
@@ -393,14 +395,15 @@ registerScreen('shop', (app, root, props) => {
         });
       },
     });
+    const removeNote = me(run, seat).relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined) ? t('（會員價，不再漲）') : K.removeMul < 1 ? t('（半價）') : '';
     const remove = el('button', {
       class: 'btn',
       onclick: () => pickRelease(),
-    }, `放生一張牌：${releaseCost} 條小魚乾${me(run, seat).relics.some((id) => relicById[id]?.hooks.removeCostFixed !== undefined) ? '（會員價，不再漲）' : K.removeMul < 1 ? '（半價）' : ''}`);
+    }, t('放生一張牌：{cost} 條小魚乾{note}', { cost: releaseCost, note: removeNote }));
     if (iDown || me(run, seat).fish < releaseCost || me(run, seat).deck.length === 0) remove.setAttribute('disabled', 'disabled');
     // 重整貨架：75 條、每店一次，牌／秘寶／忍具沒賣掉的格子全部換一批（2026-09-07 從「只換牌格」擴大）。重整不算「買了一樣」
     const reshuffle = el('button', { class: 'btn', onclick: () => { act({ t: 'shuffle', seat }, () => reshuffleShop(run, shop, seat)) && bought('buy', false); } },
-      shop.reshuffled ? '貨架已重整過' : `重整貨架：${RESHUFFLE_COST} 條小魚乾`);
+      shop.reshuffled ? t('貨架已重整過') : t('重整貨架：{cost} 條小魚乾', { cost: RESHUFFLE_COST }));
     // 有沒有東西可換要看三區加總，不能只看牌格（稽核 2026-09-07 中 1）：
     // 牌全買光但秘寶或忍具還在架上時，引擎讓你換、按鈕卻是灰的，等於這次改動玩家碰不到
     const anyLeft = [...shop.cards, ...shop.relics, ...shop.potions].some((it) => !it.sold);
@@ -410,22 +413,22 @@ registerScreen('shop', (app, root, props) => {
     // 放生與離開兩顆鈕排在對白框裡。本來是一塊面板把店景遮掉大半、老闆縮在角落配一顆小泡泡。
     // 客座店主的招牌木牌（2026-09-23 第三批）掛在新牌那座架子上緣的右邊（跟左邊「新牌」同一塊木牌料）：掛在架子上，不多佔一排的高度。
     // 婆婆的六格忍具跟秘寶排同一排（七格並排）：設計稿寫兩排三格，實機排兩排會整排沉到對白框底下（報告有截圖）
-    const cardShelf = shelf('新牌', cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`);
-    if (K.sign) cardShelf.append(el('div', { class: 'shelf-label shop-sign' }, K.sign));
+    const cardShelf = shelf(t('新牌'), cards, `shelf-cards${shop.cards.length >= 6 ? ' six' : ''}`);
+    if (K.sign) cardShelf.append(el('div', { class: 'shelf-label shop-sign' }, t(K.sign))); // i18n-dynamic (content/keepers.ts KeeperDef.sign)
     const goods = el('div', { class: 'scene-goods' },
       cardShelf,
       // 珍品架多一格時六格並排，格子縮一點；再加店長私藏（2026-09-23 第二批）七格並排，再縮一級。
       // 第三批起數「秘寶＋忍具」一共幾格（婆婆一件秘寶＋六支忍具＝七格）：橘貓老闆的忍具永遠三格，算出來跟以前一樣
-      el('div', { class: `shop-shelves${shop.relics.length + shop.potions.length >= 6 ? ' six' : ''}${shop.relics.length + shop.potions.length >= 7 ? ' seven' : ''}` }, shelf('秘寶', relics), shelf('忍具', potions)));
-    const t = talk ?? openingTalk();
+      el('div', { class: `shop-shelves${shop.relics.length + shop.potions.length >= 6 ? ' six' : ''}${shop.relics.length + shop.potions.length >= 7 ? ' seven' : ''}` }, shelf(t('秘寶'), relics), shelf(t('忍具'), potions)));
+    const cur = talk ?? openingTalk();
     root.append(sceneView({
       art: goods,
       portrait: keeperArt(),
-      speaker: mer ? '行腳商' : K.name,
+      speaker: mer ? term('行腳商') : term(K.name), // i18n-dynamic (content/keepers.ts KeeperDef.name)
       // 行腳商那裡不是客座店主，`openingTalk` 回的就是 `line`（`say` 換過的那一句）
-      text: iDown ? `${heroSpeaker()}倒在門口，只能看著同伴逛。` : t.text,   // 倒下的可能是菲菲（連線稽核 中-5）
+      text: iDown ? t('{who}倒在門口，只能看著同伴逛。', { who: heroSpeaker() }) : cur.text,   // 倒下的可能是菲菲（連線稽核 中-5）
       // 自己回的那一句（2026-09-23 第三批）：名字寫本機這一位（`heroSpeaker`），台詞照角色挑（`shop-text.ts`）
-      extra: !iDown && t.reply ? [el('div', { class: 'dialogue-text scene-text shop-reply' }, `${heroSpeaker()}：「${t.reply}」`)] : [],
+      extra: !iDown && cur.reply ? [el('div', { class: 'dialogue-text scene-text shop-reply' }, t('{who}：「{line}」', { who: heroSpeaker(), line: cur.reply }))] : [],
       // 行腳商沒有放生、沒有重整貨架（設計稿 3-2）
       actions: mer ? [leaveBtn()] : [reshuffle, remove, serviceBtn(), leaveBtn()],
       calm,
@@ -457,17 +460,18 @@ registerScreen('shop', (app, root, props) => {
     const svc = shopService(shop);
     if (svc?.kind === 'purify') return purifyBtn();
     if (!svc || svc.kind !== 'swap') return '';
-    const btn = el('button', { class: 'btn', onclick: () => pickSwap(svc.cost) }, shop.serviced ? '這間已經換過一招了' : `${svc.label}：${svc.cost} 條小魚乾`);
+    const svcLabel = t(svc.label); // i18n-dynamic (content/keepers.ts KeeperDef.service.label)
+    const btn = el('button', { class: 'btn', onclick: () => pickSwap(svc.cost) }, shop.serviced ? t('這間已經換過一招了') : t('{label}：{cost} 條小魚乾', { label: svcLabel, cost: svc.cost }));
     if (iDown || !me(run, seat).deck.some((c) => canSwap(run, shop, c.uid, seat))) btn.setAttribute('disabled', 'disabled');
     return btn;
   }
   const pickSwap = (cost: number): void => showDeckPicker({
-    title: `舊招換新招（${cost} 條小魚乾）：挑一張，換成隨機一張罕見以上的牌`, cards: me(run, seat).deck, pickable: true, cancellable: true,
+    title: t('舊招換新招（{cost} 條小魚乾）：挑一張，換成隨機一張罕見以上的牌', { cost }), cards: me(run, seat).deck, pickable: true, cancellable: true,
     onPick: (uid) => {
       const c = uid === null ? undefined : me(run, seat).deck.find((x) => x.uid === uid);
       const def = c ? cardById[c.cardId] : undefined;
       if (uid === null || !c || !def) { render(); return; }
-      pendingService = { kind: 'swap', uid, oldName: cardNameFor(def, hero) };
+      pendingService = { kind: 'swap', uid, oldName: cardName(def, hero) };
       if (act({ t: 'buy', seat, k: 'swap', u: uid }, () => buySwap(run, shop, uid, seat) !== null) && !coop) afterService();
       else render();   // 換不成（錢不夠、連線斷著）或連線送出去等繞回來：照樣把牌組視窗收掉後的畫面重畫一次
     },
@@ -480,14 +484,15 @@ registerScreen('shop', (app, root, props) => {
       if (act({ t: 'purify', seat, id }, () => purifyAtShop(run, shop, id, seat)) && !coop) afterPurify(id);
     };
     const btn = el('button', { class: 'btn', onclick: () => (list.length === 1 ? go(list[0]!) : showPurifyPick(list, go, { cancellable: true })) },
-      shop.purified ? '這間已經淨化過了' : tortoisePurifyLabel(PURIFY_PRICE));
+      shop.purified ? t('這間已經淨化過了') : t('請婆婆淨化：{price} 條小魚乾', { price: PURIFY_PRICE })); // i18n-dynamic (content/purify-text.ts tortoisePurifyLabel)
     if (iDown || !list.some((id) => canPurifyAtShop(run, shop, id, seat))) btn.setAttribute('disabled', 'disabled');
     return btn;
   }
   /** 淨化好了：系統提示哪一件變成哪一件、婆婆那句＋自己回一句、那一格閃白金光（單機當下叫；連線等動作繞回來才叫） */
   function afterPurify(id: string): void {
     const pure = MIASMA_PURE[id] ?? '';
-    notice(`「${relicById[id]?.name ?? id}」淨化成「${relicById[pure]?.name ?? pure}」了。`);
+    const before = relicById[id]; const after = relicById[pure];
+    notice(t('「{from}」淨化成「{to}」了。', { from: before ? relicName(before) : id, to: after ? relicName(after) : pure }));
     talk = { text: TORTOISE_PURIFY_LINE, reply: purifyLine(hero) };
     flashPure = pure;
     countBuy();   // 服務也算「買了一樣」（design3 4-5）
@@ -503,7 +508,7 @@ registerScreen('shop', (app, root, props) => {
     const text = shopTextNow();
     const now = me(run, seat).deck.find((x) => x.uid === s.uid);
     const def = now ? cardById[now.cardId] : undefined;
-    if (def) notice(`「${s.oldName}」換成了「${cardNameFor(def, hero)}」`);
+    if (def) notice(t('「{from}」換成了「{to}」', { from: s.oldName, to: cardName(def, hero) }));
     if (text) talk = { text: (talk ?? openingTalk()).text, reply: text.SWAP_LINES[hero] };
     // 服務也算「買了一樣」（design3 4-5）。連線時由 `onRunApplied` 叫、它自己會重畫，這裡不重畫
     countBuy();
@@ -512,10 +517,10 @@ registerScreen('shop', (app, root, props) => {
   }
   /** 帶「山賊的欠條」第一次進門那一句：客座店主講自己的（design3 4-5），橘貓老闆照舊 */
   function sayDebt(): void {
-    const t = guest ? shopTextNow()?.KEEPER_TEXT[guest] : undefined;
+    const kt = guest ? shopTextNow()?.KEEPER_TEXT[guest] : undefined;
     const fee = shop.entryFee ?? 0;
-    if (t) notice(`${t.short}：「${t.debt}」${fee < 10 ? `（身上只有 ${fee} 條，全收走了）` : ''}`);
-    else notice(`老闆認得那張欠條，先收走 ${fee} 條小魚乾`);
+    if (kt) notice(t('{short}：「{debt}」{note}', { short: kt.short, debt: kt.debt, note: fee < 10 ? t('（身上只有 {fee} 條，全收走了）', { fee }) : '' }));
+    else notice(t('老闆認得那張欠條，先收走 {fee} 條小魚乾', { fee }));
   }
 
   if (coop) {

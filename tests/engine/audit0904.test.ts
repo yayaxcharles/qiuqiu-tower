@@ -104,9 +104,9 @@ describe('稽核 2026-09-04', () => {
     for (let i = 0; i < 600; i++) {
       const run = newRun(`m4-${i}`); run.act = 3;
       const shop = makeShop(run);
-      expect(shop.cards.filter((c) => c.def.rarity === '稀有').length).toBeGreaterThanOrEqual(2);
+      expect(shop.cards.filter((c) => c.def.rarity === 'rare').length).toBeGreaterThanOrEqual(2);
       const j = shop.cards.find((c) => c.def.pool === '絕學');
-      if (j) { jue++; if (j.def.rarity === '稀有') jueRare++; }
+      if (j) { jue++; if (j.def.rarity === 'rare') jueRare++; }
     }
     expect(jue).toBeGreaterThan(150);
     expect(jueRare / jue, '第三關機率表稀有 40%，保底不該把絕學推到六七成').toBeLessThan(0.52);

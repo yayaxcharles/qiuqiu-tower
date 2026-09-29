@@ -1,4 +1,4 @@
-import { cardById, cardNameFor } from '../content/cards';
+import { cardById } from '../content/cards';
 import { sharpenVerb } from '../engine/hero';
 import { localHero } from './assets';
 import type { CardInstance } from '../engine/types';
@@ -6,6 +6,8 @@ import { cardNode } from './cardview';
 import { el } from './dom';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { hideTooltip } from './tooltip';
+import { t } from '../i18n';
+import { cardName } from '../i18n/names';
 
 /**
  * 升級前的確認視窗：把「現在」與「升級後」兩張牌並排放出來，看清楚再決定。
@@ -37,18 +39,18 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
 
   const pair = el('div', { class: 'confirm-pair' },
     el('div', { class: 'confirm-side' },
-      el('div', { class: 'confirm-label' }, '現在'),
+      el('div', { class: 'confirm-label' }, t('現在')),
       cardNode({ ...card, upgraded: false })),
     el('div', { class: 'confirm-arrow' }, '→'),
     el('div', { class: 'confirm-side after' },
-      el('div', { class: 'confirm-label' }, `${sharpenVerb(localHero())}之後`),
+      el('div', { class: 'confirm-label' }, t('{verb}之後', { verb: t(sharpenVerb(localHero())) })), // i18n-dynamic (src/engine/hero.ts:109)
       cardNode({ ...card, upgraded: true })));
 
   overlay.append(el('div', { class: 'modal' },
-    el('h2', { class: 'modal-title' }, `要把「${cardNameFor(def, localHero())}」磨利嗎？`),
+    el('h2', { class: 'modal-title' }, t('要把「{name}」磨利嗎？', { name: cardName(def, localHero()) })),
     pair,
     el('div', { class: 'modal-foot' },
-      el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),
+      el('button', { class: 'btn', onclick: () => dismiss(false) }, t('再看看')),
       el('button', {
         class: 'btn primary',
         // 成交要看得到：升級後那張閃一下金光再收，不要按完畫面就跳走
@@ -57,7 +59,7 @@ export function showUpgradeConfirm(card: CardInstance, onDone: (ok: boolean) => 
           pair.querySelector('.confirm-side.after .card')?.classList.add('forged');
           window.setTimeout(() => dismiss(true), 420);
         },
-      }, '就磨這張'))));
+      }, t('就磨這張')))));
   // 點旁邊的黑幕＝取消。這一步沒有「非選不可」的情境，一律放行
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(false); });
   layer.append(overlay);
@@ -81,11 +83,11 @@ export function showRemoveConfirm(card: CardInstance, cost: number, onDone: (ok:
   const dismiss = (ok: boolean): void => { if (done) return; done = true; forget(); overlay.remove(); unlockScreen(); hideTooltip(); onDone(ok); };
   const shown = cardNode(card);
   overlay.append(el('div', { class: 'modal' },
-    el('h2', { class: 'modal-title' }, `要放生「${cardNameFor(def, localHero())}${card.upgraded ? '＋' : ''}」嗎？`),
-    el('div', { class: 'confirm-pair' }, el('div', { class: 'confirm-side' }, el('div', { class: 'confirm-label' }, `花 ${cost} 條小魚乾，這張牌從牌組裡永遠拿掉`), shown)),
+    el('h2', { class: 'modal-title' }, t('要放生「{name}{plus}」嗎？', { name: cardName(def, localHero()), plus: card.upgraded ? '＋' : '' })),
+    el('div', { class: 'confirm-pair' }, el('div', { class: 'confirm-side' }, el('div', { class: 'confirm-label' }, t('花 {cost} 條小魚乾，這張牌從牌組裡永遠拿掉', { cost })), shown)),
     el('div', { class: 'modal-foot' },
-      el('button', { class: 'btn', onclick: () => dismiss(false) }, '再看看'),
-      el('button', { class: 'btn primary', onclick: () => { overlay.style.pointerEvents = 'none'; shown.classList.add('released'); window.setTimeout(() => dismiss(true), 300); } }, '放生'))));
+      el('button', { class: 'btn', onclick: () => dismiss(false) }, t('再看看')),
+      el('button', { class: 'btn primary', onclick: () => { overlay.style.pointerEvents = 'none'; shown.classList.add('released'); window.setTimeout(() => dismiss(true), 300); } }, t('放生')))));
   overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(false); });
   layer.append(overlay);
   lockScreen();

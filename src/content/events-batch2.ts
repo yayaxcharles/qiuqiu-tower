@@ -171,7 +171,7 @@ export const batch2Events: EventDef[] = [
         outcome: [{ kind: 'damage', n: 10 }, { kind: 'upgradeCard' }, { kind: 'upgradeCard' }],
         result: '', resultArt: 'wooden_men_alley_r0' },
       { label: '鑽到機關底下撿零件（隨機獲得 1 張罕見忍術牌、獲得 25 條小魚乾）',
-        outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: '罕見' }, { kind: 'fish', n: 25 }],
+        outcome: [{ kind: 'addRandomCard', pool: '忍術', rarity: 'uncommon' }, { kind: 'fish', n: 25 }],
         result: '', resultArt: 'wooden_men_alley_r1' },
       { label: '掀開牆上的木板，關掉總開關（進入戰鬥；勝利後隨機獲得 1 件常見秘寶）',
         outcome: [{ kind: 'relic', pool: '常見' }, { kind: 'fight', encounterId: 'wood_dummy', bonusFish: 0 }],

@@ -181,12 +181,30 @@ function usablePlayer(p: Partial<RunPlayer> | undefined): boolean {
 
 function finiteNum(v: unknown): boolean { return typeof v === 'number' && Number.isFinite(v); }
 
+/*
+ * 稀有度與牌型改用英文代號（2026-09-29 多語系第一片）。舊存檔裡「等打完這場再給」的效果（`pendingAfterFight`
+ * 的隨機給牌帶稀有度）與下一場的效果（`nextFight` 裡能力牌的 `cardType`）還是中文，整份走一遍換掉，不必升版本。
+ */
+const OLD_CODES: Readonly<Record<string, string>> = { 常見: 'common', 罕見: 'uncommon', 稀有: 'rare', 攻擊: 'attack', 技能: 'skill', 能力: 'power' };
+function migrateCodes(v: unknown): void {
+  if (!v || typeof v !== 'object') return;
+  if (Array.isArray(v)) { for (const x of v) migrateCodes(x); return; }
+  const o = v as Record<string, unknown>;
+  for (const k of Object.keys(o)) {
+    const x = o[k];
+    if ((k === 'rarity' || k === 'cardType') && typeof x === 'string' && OLD_CODES[x]) o[k] = OLD_CODES[x];
+    else migrateCodes(x);
+  }
+}
+
 export function checkRun(input: Partial<RunState>): RunState | null {
   // 第 1 版（每人一份的家當攤在最上層）先搬進 players[0]，之後一律照第 2 版驗
   const ver = (input as { version?: unknown }).version;
   const run: Partial<RunState> = ver === 1 ? migrateV1(input as unknown as Partial<RunV1>) : input;
   if (run.version !== 2 || !run.map || !run.rng) return null;
   if (!Array.isArray(run.players) || run.players.length < 1) return null;
+  migrateCodes(run.players);
+  migrateCodes(run.pendingAfterFight);
   /*
    * 武士球球（`samurai`）與他的「甲」2026-09-22 整套拆掉了（使用者裁定）。舊存檔裡的他本來就是
    * 同一隻球球換打法、起手牌也是球球那份，所以讀回來直接當忍者球球續玩，不判成壞檔。

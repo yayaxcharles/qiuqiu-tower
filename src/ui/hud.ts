@@ -2,7 +2,7 @@ import type { PlayerCombat, RunState } from '../engine/types';
 import { DIFFICULTY_TEXT, difficultyName } from '../content/difficulty';
 import { potionById } from '../content/potions';
 import { showCompendium } from './compendium';
-import { activeSets, isMiasma, relicById, relicLongText, RELIC_SETS, setCount } from '../content/relics';
+import { activeSets, isMiasma, relicById, RELIC_SETS, setCount } from '../content/relics';
 import { relicCounter, relicSpent } from '../engine/counters';
 import { notice } from './dialogue';
 import type { App } from './app';
@@ -19,6 +19,8 @@ import { lockScreen, overlayRoot, unlockScreen } from './overlay';
 import { showRelicList } from './reliclist';
 import { attachTextTooltip, attachTooltip, hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
+import { t, term } from '../i18n';
+import { potionName, potionText, relicLong, relicName } from '../i18n/names';
 
 /**
  * 上方狀態列：樓層、生命、小魚乾、秘寶、忍具、牌組、種子。
@@ -81,12 +83,12 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
   const pct = me(run, seat).maxHp > 0 ? Math.max(0, Math.round((me(run, seat).hp / me(run, seat).maxHp) * 100)) : 0;
   const hp = el('div', { class: 'hud-hp' },
     el('div', { class: 'hud-hp-bar', style: `width:${pct}%` }),
-    el('span', {}, `${me(run, seat).hp} / ${me(run, seat).maxHp} 生命`));
+    el('span', {}, t('{hp} / {max} 生命', { hp: me(run, seat).hp, max: me(run, seat).maxHp })));
 
   const fish = el('div', { class: 'hud-fish' },
     el('img', { src: artUrl('icons', 'icon/fish'), alt: '' }),
     el('span', {}, String(fishNow)));
-  attachTooltip(fish, '小魚乾');
+  attachTooltip(fish, t('小魚乾'));
   const diff = lastFish && lastFish.seed === run.seed ? fishNow - lastFish.n : 0;
   if (diff !== 0) {
     fish.classList.add(diff > 0 ? 'gain' : 'spend');
@@ -106,13 +108,13 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
     const fresh = me(run, seat).relics.filter((id) => !seenRelics.has(id));
     for (const set of activeSets(me(run, seat).relics)) {
       const before = [...seenRelics];
-      if (fresh.some((id) => relicById[id]?.set === set) && setCount(set, before) < RELIC_SETS[set].need) notice(`${set}套組湊成了：${RELIC_SETS[set].text}`);
+      if (fresh.some((id) => relicById[id]?.set === set) && setCount(set, before) < RELIC_SETS[set].need) notice(t('{set}套組湊成了：{text}', { set: term(set), text: t(RELIC_SETS[set].text) })); // i18n-dynamic (src/content/relics.ts RELIC_SETS)
     }
   }
   const piggy = me(run, seat).relics.find((id) => relicById[id]?.hooks.nodeCounterFish);
   const piggyNow = piggy ? me(run, seat).counters?.[piggy] ?? 0 : 0;
   if (piggy && lastPiggy && lastPiggy.seed === run.seed && piggyNow < lastPiggy.n) {
-    notice(`${relicById[piggy]!.name}滿了，倒出 ${relicById[piggy]!.hooks.nodeCounterFish!.fish} 條小魚乾`);
+    notice(t('{name}滿了，倒出 {n} 條小魚乾', { name: relicName(relicById[piggy]!), n: relicById[piggy]!.hooks.nodeCounterFish!.fish }));
   }
   lastPiggy = piggy ? { seed: run.seed, n: piggyNow } : null;
   // 最多畫 8 件、最新的排前面，其餘收成「+N」（使用者 2026-09-06：秘寶沒有上限，十幾件會把狀態列擠爆）；
@@ -128,7 +130,8 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
     // `data-relic`：戰鬥畫面靠它找到「剛剛發動的那一件」讓它閃一下（見 combat.ts 的 `flashRelics`）
     // 沾了魔氣的掛一個小紫火（`miasma`）、次數用完的變灰（`spent`，箱中箱）：2026-09-23 第三批
     const spent = relicSpent(id, me(run, seat));
-    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}${isMiasma(id) ? ' miasma' : ''}${spent ? ' spent' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, r.name.slice(0, 2)) : el('img', { src: url, alt: r.name }));
+    const rName = relicName(r);
+    const node = el('div', { class: `hud-relic${fresh ? ' fresh' : ''}${isMiasma(id) ? ' miasma' : ''}${spent ? ' spent' : ''}`, 'data-relic': id }, url.startsWith('data:') ? el('span', { class: 'hud-relic-name' }, rName.slice(0, 2)) : el('img', { src: url, alt: rName }));
     // 計數型秘寶：右下角疊目前數到幾（2026-09-23 第二批，圖上留了空角，見 `engine/counters.ts`）
     const count = relicCounter(id, me(run, seat), combat);
     if (count !== null) node.append(el('span', { class: 'relic-count' }, String(count)));
@@ -136,7 +139,7 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
     // 玩家滑過去等不到就以為「這格根本沒有說明」。改用遊戲自己的提示框，滑到就立刻出現。
     // 名稱走標題、說明走內文，不再串成「名稱：說明」一長條——秘寶說明有時兩三句，擠成一行讀不動。
     // 套組的秘寶多一段「【師門 n／3】…」（2026-09-23 第二批）；計數型的補一句目前數到幾
-    attachTextTooltip(node, r.name, relicLongText(r, me(run, seat).relics) + (spent ? '（用完了）' : count !== null ? `（${r.hooks.chestExtra ? '還剩' : '目前數到'} ${count}${r.hooks.chestExtra ? ' 次' : ''}）` : ''));
+    attachTextTooltip(node, rName, relicLong(r, me(run, seat).relics) + (spent ? t('（用完了）') : count !== null ? t('（{word} {n}{unit}）', { word: r.hooks.chestExtra ? t('還剩') : t('目前數到'), n: count, unit: r.hooks.chestExtra ? t('次') : '' }) : ''));
     node.addEventListener('click', () => showRelicList(run, seat));
     relics.append(node);
   }
@@ -157,56 +160,56 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
     const slot = el('div', { class: `hud-potion${p ? '' : locked ? ' locked' : ' empty'}` }, locked ? '🔒' : '');
     // 提示只掛在有東西或鎖住的格子上：空格掛了也只會跳出一個沒內容的框，反而讓人以為那格有東西。
     if (id && p) {
-      slot.append(el('img', { src: artUrl('icons', p.art), alt: p.name }));
-      attachTextTooltip(slot, p.name, p.text);
-    } else if (locked) attachTextTooltip(slot, '這一格鎖住了', '宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。');
+      slot.append(el('img', { src: artUrl('icons', p.art), alt: potionName(p) }));
+      attachTextTooltip(slot, potionName(p), potionText(p));
+    } else if (locked) attachTextTooltip(slot, t('這一格鎖住了'), t('宗師以上只能帶兩支忍具；拿到忍具袋或九命鈴會多出格子。'));
     potions.append(slot);
   }
 
   const deckBtn = el('button', {
     class: 'btn small',
     onclick: () => showDeckPicker({
-      title: `牌組（${me(run, seat).deck.length} 張）`, cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ },
+      title: t('牌組（{n} 張）', { n: me(run, seat).deck.length }), cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ },
     }),
-  }, `牌組 ${me(run, seat).deck.length}`);
+  }, t('牌組 {n}', { n: me(run, seat).deck.length }));
 
   /**
    * 音效開關。放在右上角、本局代碼旁邊——那裡是整場都在的位置，
    * 不會因為進戰鬥就被藏起來（生命與忍具那兩格在戰鬥中是隱藏的）。
    * 狀態記在瀏覽器裡，換一局也記得。按下去順便播一聲，讓玩家知道「開了」是什麼音量。
    */
-  const sound = el('button', { class: 'btn small hud-sound' }, soundOn() ? '🔊 音效' : '🔇 音效');
-  sound.title = '開關音效';
+  const sound = el('button', { class: 'btn small hud-sound' }, soundOn() ? t('🔊 音效') : t('🔇 音效'));
+  sound.title = t('開關音效');
   sound.addEventListener('click', () => {
     const on = toggleSound();
-    sound.textContent = on ? '🔊 音效' : '🔇 音效';
+    sound.textContent = on ? t('🔊 音效') : t('🔇 音效');
     if (on) play('click');
   });
   // 音樂另一顆開關：有人想聽音效不聽音樂，反過來也有，不能綁在一起
-  const music = el('button', { class: 'btn small hud-sound' }, musicOn() ? '🎵 音樂' : '🔇 音樂');
-  music.title = '開關音樂';
+  const music = el('button', { class: 'btn small hud-sound' }, musicOn() ? t('🎵 音樂') : t('🔇 音樂'));
+  music.title = t('開關音樂');
   music.addEventListener('click', () => {
-    music.textContent = toggleMusic() ? '🎵 音樂' : '🔇 音樂';
+    music.textContent = toggleMusic() ? t('🎵 音樂') : t('🔇 音樂');
   });
   // 日文配音另一顆開關（2026-09-28）：預設開；音效關掉時配音本來就跟著沒聲音，這顆只多給「要音效、不要人聲」的人
-  const voice = el('button', { class: 'btn small hud-sound' }, voiceOn() ? '🗣 語音' : '🔇 語音');
-  voice.title = '開關日文配音（音效關掉時配音也不會出聲）';
+  const voice = el('button', { class: 'btn small hud-sound' }, voiceOn() ? t('🗣 語音') : t('🔇 語音'));
+  voice.title = t('開關日文配音（音效關掉時配音也不會出聲）');
   voice.addEventListener('click', () => {
-    voice.textContent = toggleVoice() ? '🗣 語音' : '🔇 語音';
+    voice.textContent = toggleVoice() ? t('🗣 語音') : t('🔇 語音');
   });
   // 音量拉桿：拉了立刻生效、直接記住，不經過任何重畫
   const vol = el('input', { class: 'hud-vol', type: 'range', min: '0', max: '100', value: String(musicVolume()) }) as HTMLInputElement;
-  vol.title = '音樂音量';
+  vol.title = t('音樂音量');
   vol.addEventListener('input', () => setMusicVolume(Number(vol.value)));
 
   // 圖鑑：整個牌庫一覽＋升級版勾選（使用者點名）。放牌組鈕旁邊——都是「查牌」的入口
-  const compBtn = el('button', { class: 'btn small' }, '📖 圖鑑');
-  compBtn.title = '全部卡牌與效果一覽，可切換看升級版';
+  const compBtn = el('button', { class: 'btn small' }, t('📖 圖鑑'));
+  compBtn.title = t('全部卡牌與效果一覽，可切換看升級版');
   compBtn.addEventListener('click', () => showCompendium());
 
   hud.append(
     // 還沒踏上這一關的第一個節點時顯示關名（塔下／塔中／塔頂），之後顯示累計樓層
-    el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : (ACT_NAMES[run.act - 1] ?? '塔下')),
+    el('div', { class: 'hud-floor' }, run.currentNode ? `${run.floor}F` : term(ACT_NAMES[run.act - 1] ?? '塔下')),
     diffBadge(run),
     hp, fish, relics, potions, deckBtn, compBtn,
     /*
@@ -236,8 +239,9 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
 function diffBadge(run: RunState): HTMLElement | string {
   const level = run.difficulty ?? 1;
   if (level <= 1) return '';
-  const node = el('div', { class: `hud-diff d${level}` }, `難度 ${level}·${difficultyName(level)}`);
-  attachTextTooltip(node, `難度 ${level} ${difficultyName(level)}`, DIFFICULTY_TEXT.slice(1, level).map((t, i) => `${i + 2}：${t}`).join('\n'));
+  const node = el('div', { class: `hud-diff d${level}` }, t('難度 {level}·{name}', { level, name: term(difficultyName(level)) }));
+  attachTextTooltip(node, t('難度 {level} {name}', { level, name: term(difficultyName(level)) }),
+    DIFFICULTY_TEXT.slice(1, level).map((line, i) => t('{n}：{text}', { n: i + 2, text: t(line) })).join('\n')); // i18n-dynamic (src/content/difficulty.ts DIFFICULTY_TEXT)
   return node;
 }
 
@@ -256,17 +260,17 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
   // 連後面的複製記號都看不到。舞台是 overflow: hidden 所以頁面不會壞，只是那顆按鈕沒法用。
   // 複製出去的還是完整的字串，只有顯示會截斷。
   const shown = seed.length > 28 ? `${seed.slice(0, 16)}…${seed.slice(-6)}` : seed;
-  const label = full ? `本局代碼 ${shown} ⧉` : run ? '📤 分享局面' : '🎲 本局代碼';
+  const label = full ? t('本局代碼 {seed} ⧉', { seed: shown }) : run ? t('📤 分享局面') : t('🎲 本局代碼');
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' }, label);
   if (full || !run) {
-    attachTextTooltip(node, `本局代碼 ${seed}`, '點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。');
+    attachTextTooltip(node, t('本局代碼 {seed}', { seed }), t('點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。'));
   } else {
-    attachTextTooltip(node, '分享目前的局面',
-      '點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你的位置接著打——'
+    attachTextTooltip(node, t('分享目前的局面'),
+      t('點一下複製一長串局面碼（十幾行，正常）。別人貼到首頁的「本局代碼」欄，就會從你的位置接著打——'
       + '同一套牌組、秘寶、忍具、血量、樓層。適合幾個人拿一樣的條件比誰打得好。'
       + '分享的是你最近一次離開節點的狀態，也就是按「續玩」會回到的那個點——'
       + '在地圖上按就是你現在站的位置；戰鬥打到一半按，給出去的是進這場戰鬥之前的狀態，這樣對方才打得到同一場。'
-      + '你自己的進度本來就會自動存，回首頁按「續玩」就好，不需要這串。');
+      + '你自己的進度本來就會自動存，回首頁按「續玩」就好，不需要這串。'));
   }
   let resetTimer = 0;
   const copy = (text: string): void => {
@@ -280,7 +284,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
       // 不會同時存在（稽核 2026-09-10 低-3 實測）。哪天結算畫面補上狀態列，這裡要改成
       // 只在同一個畫面根節點裡找，不然 1.4 秒後的計時器會把文字寫到另一顆上。
       const live = document.querySelector<HTMLElement>('.seed-copy') ?? node;
-      live.textContent = '已複製！';
+      live.textContent = t('已複製！');
       // 連點時舊的計時器會在新的一次還顯示「產生中…」時把字改回去，看起來像沒反應
       window.clearTimeout(resetTimer);
       resetTimer = window.setTimeout(() => {
@@ -307,7 +311,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
   node.addEventListener('click', () => {
     if (full || !run) { copy(seed); return; }
     // 壓縮是非同步的，先把按鈕改成「產生中」，免得玩家以為沒反應又點一次
-    node.textContent = '產生中…';
+    node.textContent = t('產生中…');
     // **分享的是「上一個存檔點」，不是此刻的 run**（稽核 2026-09-07 高 1）。
     // 進節點時 `currentNode` 就被推到新節點，但那個節點還沒結算——存檔機制特地避開這一刻
     //（見 app.ts 的 save() 註解）。壓當下的 run 會出兩種事：收到的人站在一個還沒打的節點上，
@@ -319,7 +323,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
     void encodeRun(shared).then((code) => {
       if (code) { copy(code); return; }
       // 壓不動（太舊的瀏覽器）就退回分享種子，並且講清楚差別，不要默默給一串意思不同的東西
-      node.textContent = '太長了，改給你本局代碼';
+      node.textContent = t('太長了，改給你本局代碼');
       window.setTimeout(() => copy(seed), 900);
     });
   });
@@ -354,10 +358,10 @@ function showCopyBox(text: string): void {
   ta.value = text;
   ta.readOnly = true;
   ta.className = 'copy-box';
-  const close = el('button', { class: 'btn', onclick: () => { overlay.remove(); unlockScreen(); } }, '關閉');
+  const close = el('button', { class: 'btn', onclick: () => { overlay.remove(); unlockScreen(); } }, t('關閉'));
   overlay.append(el('div', { class: 'modal' },
-    el('h2', { class: 'modal-title' }, '自動複製沒成功'),
-    el('div', { class: 'copy-hint' }, '框裡已經整串選起來了，按 Ctrl+C（Mac 是 Cmd+C）複製。'),
+    el('h2', { class: 'modal-title' }, t('自動複製沒成功')),
+    el('div', { class: 'copy-hint' }, t('框裡已經整串選起來了，按 Ctrl+C（Mac 是 Cmd+C）複製。')),
     ta,
     el('div', { class: 'modal-foot' }, close)));
   layer.append(overlay);

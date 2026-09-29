@@ -64,7 +64,7 @@ describe('圖：四隻各看自己那一套、主圖不進首載', () => {
 describe('事件畫面', () => {
   const src = lf(EVENT);
   it('稀有事件：名牌旁的金牌「難得一見」（開場、結果、選牌三個畫面都掛）、開場播秘寶那聲', () => {
-    expect(src).toContain("el('span', { class: 'rare-badge' }, '難得一見')");
+    expect(src).toContain("el('span', { class: 'rare-badge' }, t('難得一見'))");
     expect(src.match(/root\.append\(markRare\(sceneView\(/g)?.length).toBe(3);
     expect(src).toContain("if (ev.rare && !votes.some((v) => v !== null)) play('relic');");
   });

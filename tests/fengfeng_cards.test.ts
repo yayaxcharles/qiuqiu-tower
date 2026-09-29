@@ -56,22 +56,22 @@ describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害�
 
   it('費用、牌型、稀有度與牌池完全對應契約', () => {
     const rows: [string, string, number, number | undefined, string, string, boolean?][] = [
-      ['pingzhan', '平斬', 1, undefined, '攻擊', '常見'], ['hushen', '護身', 1, undefined, '技能', '常見'],
-      ['tuna', '吐納', 1, undefined, '技能', '常見'], ['tanbu', '探步劍', 1, undefined, '攻擊', '常見'],
-      ['hengsao', '橫掃', 1, undefined, '攻擊', '常見'], ['tabu', '踏步重劈', 2, undefined, '攻擊', '常見'],
-      ['tiaokai', '挑開', 1, undefined, '攻擊', '常見'], ['tuibu', '退步守勢', 1, undefined, '技能', '常見'],
-      ['zhengxi', '整理呼吸', 1, undefined, '技能', '常見'], ['wenwan', '穩住手腕', 0, undefined, '技能', '常見'],
-      ['huanshou', '換手握劍', 0, undefined, '技能', '常見'], ['jianqiao', '劍鞘架擋', 1, undefined, '技能', '常見'],
-      ['huibu', '回步刺', 1, undefined, '攻擊', '常見'], ['shunjian', '順手一劍', 0, undefined, '攻擊', '常見'], ['sanlian', '連環三劍', 1, undefined, '攻擊', '常見'], ['chuantang', '穿堂劍', 2, undefined, '攻擊', '罕見'],
-      ['shuangduan', '雙段劍', 1, undefined, '攻擊', '罕見'], ['huzhou', '回劍護肘', 1, undefined, '攻擊', '罕見'],
-      ['zhuanshen', '轉身蓄勁', 1, undefined, '技能', '罕見'], ['changxi', '長息', 2, undefined, '技能', '罕見'],
-      ['zhenshou', '振袖收劍', 1, undefined, '技能', '罕見'], ['xunxi', '循息', 1, undefined, '能力', '罕見'],
-      ['shoushi', '收勢', 1, undefined, '能力', '罕見'], ['kanshi', '看準劍路', 1, 0, '技能', '罕見'],
-      ['youbian', '你從右邊上', 1, undefined, '技能', '罕見', true], ['jiewo', '借我擋一下', 1, undefined, '技能', '罕見', true],
-      ['husong', '我護著你走', 1, undefined, '技能', '罕見', true], ['yikouqi', '一口氣', 1, undefined, '攻擊', '罕見'], ['duanliu', '絕學·斷流', 2, undefined, '攻擊', '稀有'],
-      ['kaishan', '絕學·開山', 3, 2, '攻擊', '稀有'], ['cunfeng', '絕學·藏鋒', 2, 1, '能力', '稀有'],
-      ['lianxi', '絕學·連息', 1, undefined, '能力', '稀有'], ['jizhong', '集中精神', 0, undefined, '技能', '稀有'],
-      ['pozhen', '絕學·破陣', 2, undefined, '攻擊', '稀有'], ['yiqichushou', '現在一起上', 2, 1, '技能', '稀有', true],
+      ['pingzhan', '平斬', 1, undefined, 'attack', 'common'], ['hushen', '護身', 1, undefined, 'skill', 'common'],
+      ['tuna', '吐納', 1, undefined, 'skill', 'common'], ['tanbu', '探步劍', 1, undefined, 'attack', 'common'],
+      ['hengsao', '橫掃', 1, undefined, 'attack', 'common'], ['tabu', '踏步重劈', 2, undefined, 'attack', 'common'],
+      ['tiaokai', '挑開', 1, undefined, 'attack', 'common'], ['tuibu', '退步守勢', 1, undefined, 'skill', 'common'],
+      ['zhengxi', '整理呼吸', 1, undefined, 'skill', 'common'], ['wenwan', '穩住手腕', 0, undefined, 'skill', 'common'],
+      ['huanshou', '換手握劍', 0, undefined, 'skill', 'common'], ['jianqiao', '劍鞘架擋', 1, undefined, 'skill', 'common'],
+      ['huibu', '回步刺', 1, undefined, 'attack', 'common'], ['shunjian', '順手一劍', 0, undefined, 'attack', 'common'], ['sanlian', '連環三劍', 1, undefined, 'attack', 'common'], ['chuantang', '穿堂劍', 2, undefined, 'attack', 'uncommon'],
+      ['shuangduan', '雙段劍', 1, undefined, 'attack', 'uncommon'], ['huzhou', '回劍護肘', 1, undefined, 'attack', 'uncommon'],
+      ['zhuanshen', '轉身蓄勁', 1, undefined, 'skill', 'uncommon'], ['changxi', '長息', 2, undefined, 'skill', 'uncommon'],
+      ['zhenshou', '振袖收劍', 1, undefined, 'skill', 'uncommon'], ['xunxi', '循息', 1, undefined, 'power', 'uncommon'],
+      ['shoushi', '收勢', 1, undefined, 'power', 'uncommon'], ['kanshi', '看準劍路', 1, 0, 'skill', 'uncommon'],
+      ['youbian', '你從右邊上', 1, undefined, 'skill', 'uncommon', true], ['jiewo', '借我擋一下', 1, undefined, 'skill', 'uncommon', true],
+      ['husong', '我護著你走', 1, undefined, 'skill', 'uncommon', true], ['yikouqi', '一口氣', 1, undefined, 'attack', 'uncommon'], ['duanliu', '絕學·斷流', 2, undefined, 'attack', 'rare'],
+      ['kaishan', '絕學·開山', 3, 2, 'attack', 'rare'], ['cunfeng', '絕學·藏鋒', 2, 1, 'power', 'rare'],
+      ['lianxi', '絕學·連息', 1, undefined, 'power', 'rare'], ['jizhong', '集中精神', 0, undefined, 'skill', 'rare'],
+      ['pozhen', '絕學·破陣', 2, undefined, 'attack', 'rare'], ['yiqichushou', '現在一起上', 2, 1, 'skill', 'rare', true],
     ];
     // 一列漏掉就少驗一張而且照樣綠燈（2026-09-22 審查抓到：行尾註解把探步劍吃掉了），所以先數張數
     expect(rows).toHaveLength(35);
@@ -81,7 +81,7 @@ describe('封封角色與 35 張牌資料（2026-09-25 補三張花氣打傷害�
       expect([d.name, d.cost, d.upgrade.cost, d.type, d.rarity, !!d.coop], suffix)
         .toEqual([name, cost, upCost, type, rarity, !!coop]);
       expect(d.pool, suffix).toBe(['pingzhan', 'hushen', 'tuna'].includes(suffix)
-        ? '起手' : rarity === '稀有' ? '絕學' : '忍術');
+        ? '起手' : rarity === 'rare' ? '絕學' : '忍術');
     }
   });
 

@@ -147,7 +147,7 @@ describe('菲菲卡牌與命中節奏', () => {
       'needle_fan', 'needle_rain', 'needle_barrage',
     ]);
     expect(companionCardAction('feifei', 'feifei_buyaoguolai', {
-      cardType: '攻擊', hasBlock: true,
+      cardType: 'attack', hasBlock: true,
     })).toBe('needle_retreat');
     expect(companionCardAction('feifei', 'feifei_fenshen')).toBe('clone');
   });
@@ -160,7 +160,7 @@ describe('菲菲卡牌與命中節奏', () => {
       poseFamily: id === 'huixuan' || id === 'lianhuan' || id === 'caiweiba' ? 'kick'
         : id === 'bengquan' || id === 'jiuweiquan' || id === 'zuiquan' || id === 'ehou' ? 'punch'
           : 'claw',
-      cardType: '攻擊',
+      cardType: 'attack',
     }))).toEqual([
       // 拋爪 2026-09-23 起空手擲出（牌面是甩出去的飛爪，不是針）
       'toss', 'needle_combo', 'needle_combo', 'needle_fan', 'needle_barrage',
@@ -171,18 +171,18 @@ describe('菲菲卡牌與命中節奏', () => {
   // 2026-09-22 晚使用者裁定：原本刻意只演卡圖（出牌那一下露出舊立繪），改成配最像的出手——仍是丟出去的，不播拳腳。
   // 2026-09-23（批次 toss）：毒丸、毒砂借彈針、撒針時出手前手上是針，改成空手擲出；絆索反手甩那套手上本來就空，不動
   it('毒丸、毒砂空手擲出、絆索反手甩出去，不誤播拳腳', () => {
-    expect(companionCardAction('feifei', 'maoqiudan', { poseFamily: 'claw', cardType: '攻擊' })).toBe('toss');
-    expect(companionCardAction('feifei', 'tieshazhang', { cardType: '攻擊' })).toBe('toss');
-    expect(companionCardAction('feifei', 'qinna', { poseFamily: 'punch', cardType: '攻擊' })).toBe('needle_backhand');
+    expect(companionCardAction('feifei', 'maoqiudan', { poseFamily: 'claw', cardType: 'attack' })).toBe('toss');
+    expect(companionCardAction('feifei', 'tieshazhang', { cardType: 'attack' })).toBe('toss');
+    expect(companionCardAction('feifei', 'qinna', { poseFamily: 'punch', cardType: 'attack' })).toBe('needle_backhand');
   });
 
   it('其餘共用卡只按爪擊種類接近，非針術攻擊保留既有演出', () => {
-    expect(companionCardAction('feifei', 'sanjo', { poseFamily: 'claw', cardType: '攻擊' })).toBe('attack1');
+    expect(companionCardAction('feifei', 'sanjo', { poseFamily: 'claw', cardType: 'attack' })).toBe('attack1');
     // 2026-09-22 起衝撞、拳與沒有家族的攻擊牌不再選不到動作（原本退回靜態立繪）：一律爪擊
-    expect(companionCardAction('feifei', 'tietou', { poseFamily: 'dash', cardType: '攻擊' })).toBe('attack1');
-    expect(companionCardAction('feifei', 'bangnidianyixia', { cardType: '攻擊' })).toBe('attack1');
-    expect(companionCardAction('feifei', 'feifei_moyao', { cardType: '技能' })).toBe('seal');
-    expect(companionCardAction('feifei', 'feifei_tuikai', { cardType: '技能', hasBlock: true })).toBe('guard');
+    expect(companionCardAction('feifei', 'tietou', { poseFamily: 'dash', cardType: 'attack' })).toBe('attack1');
+    expect(companionCardAction('feifei', 'bangnidianyixia', { cardType: 'attack' })).toBe('attack1');
+    expect(companionCardAction('feifei', 'feifei_moyao', { cardType: 'skill' })).toBe('seal');
+    expect(companionCardAction('feifei', 'feifei_tuikai', { cardType: 'skill', hasBlock: true })).toBe('guard');
   });
 
   it('所有針招的命中點都由各自離手時間加飛行時間得到，額外波次沿用指定間隔', () => {
@@ -254,10 +254,10 @@ describe('噹噹卡牌與命中節奏', () => {
     expect(companionCardAction('dangdang', 'huixuan')).toBe('kick');
     expect(companionCardAction('dangdang', 'slime_card')).toBeUndefined();
     // 2026-09-22 晚：沒逐張列到的牌照規則配（打得出去的戰鬥雜牌、以後新加的牌），不再退回靜態立繪
-    expect(companionCardAction('dangdang', 'slime_card', { cardType: '技能' })).toBe('focus');
-    expect(companionCardAction('dangdang', 'future_unknown_card', { cardType: '攻擊' })).toBe('palm');
-    expect(companionCardAction('dangdang', 'sanjo', { poseFamily: 'claw', cardType: '攻擊' })).toBe('palm');
-    expect(companionCardAction('dangdang', 'zhongji', { cardType: '技能' })).toBeUndefined();
+    expect(companionCardAction('dangdang', 'slime_card', { cardType: 'skill' })).toBe('focus');
+    expect(companionCardAction('dangdang', 'future_unknown_card', { cardType: 'attack' })).toBe('palm');
+    expect(companionCardAction('dangdang', 'sanjo', { poseFamily: 'claw', cardType: 'attack' })).toBe('palm');
+    expect(companionCardAction('dangdang', 'zhongji', { cardType: 'skill' })).toBeUndefined();
   });
 
   it('多段拳掌、重掌、掃腿與捨身撞使用新整身動作', () => {
@@ -333,7 +333,7 @@ describe('封封卡牌、近戰與收劍節奏', () => {
   });
 
   it('三拍連刀、氣斬、開山與回步刺使用新整身動作', () => {
-    expect(companionCardAction('fengfeng', 'liandao', { cardType: '攻擊' })).toBe('sword_combo');
+    expect(companionCardAction('fengfeng', 'liandao', { cardType: 'attack' })).toBe('sword_combo');
     expect(companionCardAction('fengfeng', 'fengfeng_duanliu')).toBe('qi_cleave');
     expect(companionCardAction('fengfeng', 'fengfeng_pozhen')).toBe('qi_cleave');
     expect(companionCardAction('fengfeng', 'fengfeng_kaishan')).toBe('earth_split');
@@ -341,7 +341,7 @@ describe('封封卡牌、近戰與收劍節奏', () => {
     // 2026-09-22 晚：三張遠程暗器牌不再只演卡圖；同日批次 proj 接上飛行物後，四張丟東西的牌一律左手丟、右手刺（原地）。
     // 2026-09-23（批次 toss）：改成空手擲出、劍不出鞘；拋爪一起（原本近身平斬）
     for (const cardId of ['luanwu', 'maoqiudan', 'sashoujian', 'juye', 'paozhao']) {
-      expect(companionCardAction('fengfeng', cardId, { poseFamily: 'claw', cardType: '攻擊' }), cardId).toBe('toss');
+      expect(companionCardAction('fengfeng', cardId, { poseFamily: 'claw', cardType: 'attack' }), cardId).toBe('toss');
     }
     expect(companionIsMelee('fengfeng', 'toss')).toBe(false);
   });
@@ -396,12 +396,12 @@ describe('封封卡牌、近戰與收劍節奏', () => {
   });
 
   it('未知共用牌依真牌種類選擇劍擊、架擋、進食或蓄勢', () => {
-    expect(companionCardAction('fengfeng', 'sanjo', { poseFamily: 'claw', cardType: '攻擊' })).toBe('slash');
-    expect(companionCardAction('fengfeng', 'shunkan', { poseFamily: 'dash', cardType: '攻擊' })).toBe('thrust');
-    expect(companionCardAction('fengfeng', 'huixuan', { poseFamily: 'kick', cardType: '攻擊' })).toBe('sweep');
-    expect(companionCardAction('fengfeng', 'tiebushan', { cardType: '技能', hasBlock: true })).toBe('guard');
-    expect(companionCardAction('fengfeng', 'guixi', { cardType: '技能', hasHeal: true })).toBe('eat');
-    expect(companionCardAction('fengfeng', 'dingshen', { cardType: '技能' })).toBe('focus');
+    expect(companionCardAction('fengfeng', 'sanjo', { poseFamily: 'claw', cardType: 'attack' })).toBe('slash');
+    expect(companionCardAction('fengfeng', 'shunkan', { poseFamily: 'dash', cardType: 'attack' })).toBe('thrust');
+    expect(companionCardAction('fengfeng', 'huixuan', { poseFamily: 'kick', cardType: 'attack' })).toBe('sweep');
+    expect(companionCardAction('fengfeng', 'tiebushan', { cardType: 'skill', hasBlock: true })).toBe('guard');
+    expect(companionCardAction('fengfeng', 'guixi', { cardType: 'skill', hasHeal: true })).toBe('eat');
+    expect(companionCardAction('fengfeng', 'dingshen', { cardType: 'skill' })).toBe('focus');
   });
 });
 

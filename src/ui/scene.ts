@@ -1,3 +1,4 @@
+import { lineDisplay, speakerDisplay } from '../i18n/speech';
 import { el } from './dom';
 import { goodsShrink, nextGoodsScale, type Box } from './goodsfit';
 
@@ -33,8 +34,8 @@ export interface SceneOpts {
 export function sceneView(o: SceneOpts): HTMLElement {
   const narration = !o.speaker;
   const box = el('div', { class: `dialogue-box scene-box${narration ? ' narration' : ''}` },
-    el('div', { class: 'dialogue-speaker' }, o.speaker ?? ''),
-    el('div', { class: 'dialogue-text scene-text' }, o.text),
+    el('div', { class: 'dialogue-speaker' }, speakerDisplay(o.speaker ?? '')),
+    el('div', { class: 'dialogue-text scene-text' }, lineDisplay(o.text)),   // 劇情句照台詞表換；介面句早就翻好，查不到原樣
     ...(o.extra ?? []),
     o.actions?.length ? el('div', { class: `scene-actions${o.column ? ' column' : ''}` }, ...o.actions) : '');
   const scene = el('div', { class: o.calm ? 'scene calm' : 'scene' },

@@ -108,7 +108,7 @@ function deckCards(hero: Hero): { def: CardDef; starter: boolean }[] {
 
 const EFFECT_WORD: Record<string, string> = {
   damage: '傷害', damageAll: '全體傷害', block: '蜷縮', status: '狀態', draw: '抽牌', heal: '回血', energy: '飯糰',
-  power: '能力', blockAll: '全隊蜷縮', blockAlly: '給隊友蜷縮', statusAlly: '給隊友狀態', drawAlly: '隊友抽牌',
+  power: 'power', blockAll: '全隊蜷縮', blockAlly: '給隊友蜷縮', statusAlly: '給隊友狀態', drawAlly: '隊友抽牌',
   energyAlly: '給隊友飯糰', cleanseAlly: '幫隊友清減益', cleanse: '清減益', taunt: '嘲諷',
 };
 
@@ -168,7 +168,7 @@ it.skipIf(!OUT)('出牌動作盤點', async () => {
     const mine = rows.filter((r) => r.hero === hero);
     const miss = mine.filter((r) => r.gap === 'both' || r.gap === 'base');
     lines.push(`| ${name} | ${mine.length} | ${mine.filter((r) => r.gap === 'none').length} | ${miss.length} | ${mine.filter((r) => r.gap === 'up').length}`
-      + ` | ${miss.filter((r) => r.type === '攻擊').length} | ${miss.filter((r) => r.type === '技能').length} | ${miss.filter((r) => r.type === '能力').length} |`);
+      + ` | ${miss.filter((r) => r.type === 'attack').length} | ${miss.filter((r) => r.type === 'skill').length} | ${miss.filter((r) => r.type === 'power').length} |`);
   }
   lines.push('');
   for (const { hero, name } of HEROES) {
@@ -176,7 +176,7 @@ it.skipIf(!OUT)('出牌動作盤點', async () => {
     const miss = mine.filter((r) => r.gap !== 'none');
     lines.push(`## ${name}：缺動作的牌（${miss.length} 張）`, '');
     lines.push('| 牌號 | 牌名 | 類型 | 池／稀有度 | 招式家族 | 靜態姿勢（實際立繪） | 選到的動作 | 牌面效果 |', '|---|---|---|---|---|---|---|---|');
-    const order = ['攻擊', '技能', '能力'];
+    const order = ['attack', 'skill', 'power'];
     miss.sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type) || poseName(a.base.pose).localeCompare(poseName(b.base.pose)) || a.id.localeCompare(b.id));
     for (const r of miss) {
       const tags = [r.exclusive ? '獨占' : '', r.coop ? '連線' : '', r.starter ? '起手' : ''].filter(Boolean).join('、');

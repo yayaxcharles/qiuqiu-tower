@@ -127,11 +127,12 @@ async function harness(opts: { resultArt: boolean; warm: Promise<void> }) {
   const app = { run: run as unknown, stage: { classList: { add: (c: string) => cls.add(c), remove: (c: string) => cls.delete(c) } } };
   const ev = { id: 'rescue', choices: [{ resultArt: opts.resultArt ? 'rescue_r0' : undefined }] };
   const warmCalls: unknown[][] = [];
-  const api = new Function('app', 'run', 'ev', 'root', 'el', 'warmResultArt', 'window', js)(
+  const api = new Function('app', 'run', 'ev', 'root', 'el', 'warmResultArt', 'window', 't', js)(
     app, run, ev, root,
     (_tag: string, _attrs: unknown, text: string) => ({ text, removed: false }),
     (...a: unknown[]) => { warmCalls.push(a); return opts.warm; },
     { setTimeout: (fn: () => void, ms: number) => setTimeout(fn, ms), clearTimeout: (t: ReturnType<typeof setTimeout>) => clearTimeout(t) },
+    (zh: string) => zh,
   ) as { whenResultArtReady(i: number, go: () => void): void; busy(): boolean };
   return { api, app, cls, appended, warmCalls };
 }

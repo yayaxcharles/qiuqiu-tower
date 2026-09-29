@@ -49,12 +49,12 @@ function play(cs: CombatState, who: PlayerCombat, id: string, target?: number, u
 
 describe('B 批六張：規格對得上交辦單', () => {
   const SPEC: [string, string, number, string, string][] = [
-    ['kaoniyixia', '靠你一下', 1, '技能', '罕見'],
-    ['zhexienixianchi', '這些你先吃', 0, '技能', '罕見'],
-    ['zhaonishuodeda', '照你說的打', 1, '攻擊', '常見'],
-    ['jienideliqi', '借你的力氣', 1, '攻擊', '罕見'],
-    ['chenxianzaichushou', '趁現在出手', 1, '技能', '罕見'],
-    ['biezhanzaishenshang', '別沾在身上', 1, '技能', '罕見'],
+    ['kaoniyixia', '靠你一下', 1, 'skill', 'uncommon'],
+    ['zhexienixianchi', '這些你先吃', 0, 'skill', 'uncommon'],
+    ['zhaonishuodeda', '照你說的打', 1, 'attack', 'common'],
+    ['jienideliqi', '借你的力氣', 1, 'attack', 'uncommon'],
+    ['chenxianzaichushou', '趁現在出手', 1, 'skill', 'uncommon'],
+    ['biezhanzaishenshang', '別沾在身上', 1, 'skill', 'uncommon'],
   ];
   for (const [id, name, cost, type, rarity] of SPEC) {
     it(`${name}：費用、類型、稀有度、連線旗標`, () => {

@@ -127,7 +127,7 @@ describe('罐頭鋪畫面照店主換人（讀原始碼規矩）', () => {
     // 行腳商（問號格那條線）用自己那三張；三條線合併後兩種鍵走同一個迴圈（2026-09-24 b3int）
     expect(SHOP).toContain("const base = mer ? 'shop/merchant' : K.art;");
     expect(SHOP).toContain('for (const key of mood === \'idle\' ? [base] : [`${base}_${mood}`, base]) {');
-    expect(SHOP).toContain("speaker: mer ? '行腳商' : K.name,");
+    expect(SHOP).toContain("speaker: mer ? term('行腳商') : term(K.name),");
     expect(SHOP).not.toContain("speaker: '橘貓老闆'");
     for (const k of ['orange', ...GUESTS] as const) expect(KEEPERS[k].art).toMatch(/^shop\/keeper(?:_[a-z]+)?$/);
   });
@@ -142,7 +142,7 @@ describe('罐頭鋪畫面照店主換人（讀原始碼規矩）', () => {
     expect(SHOP).toContain('if (t && boughtN === 3) talk =');
     // 單機「離開」與連線兩人都好了，都走同一支 `leave()`（行腳商那句也在裡面，2026-09-24 b3int 合併）
     expect(SHOP).toMatch(/function leave\(\): void \{[^}]*app\.backToMap\(\);\s*sayLeave\(\);\s*\}/);
-    expect(SHOP).toContain("onclick: leave }, mer ? '走了' : '離開')");
+    expect(SHOP).toContain("onclick: leave }, mer ? t('走了') : t('離開'))");
     expect(SHOP).toContain('if (allDone()) { leave(); return; }');
     expect(SHOP).toContain("bought('buy', false)");
     expect(SHOP).toContain("if (one.a.t === 'buy' || one.a.t === 'scrub') countBuy();");
@@ -150,7 +150,7 @@ describe('罐頭鋪畫面照店主換人（讀原始碼規矩）', () => {
 
   it('地圖：客座店主那間疊小頭像、滑上去講招牌；橘貓老闆那間不疊', () => {
     expect(MAP).toContain("const keeper = n.type === '罐頭鋪' && n.keeper && n.keeper !== 'orange' ? KEEPERS[n.keeper] : undefined;");
-    expect(MAP).toContain('attachTextTooltip(btn, `今天顧店：${keeper.name}`, keeper.tip)');
+    expect(MAP).toContain("attachTextTooltip(btn, t('今天顧店：{name}', { name: term(keeper.name) }), t(keeper.tip))");
     for (const k of GUESTS) {
       const h = KEEPERS[k].head!;
       expect(h[0] + h[2]).toBeLessThanOrEqual(332);

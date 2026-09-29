@@ -3,6 +3,7 @@ import { encounterById, enemyById } from '../content/enemies';
 import { eventById } from '../content/events';
 import { relicById } from '../content/relics';
 import { advanceMove, log, runEnemyEffects } from './actions';
+import { E } from './logfmt';
 import { allReady, beginEnemyTurn, finishEnemyTurn, setReady, stepEnemyTurn } from './combat';
 import { coopHpMul } from './coopscale';
 import { choiceEffectsFor, visibleChoices } from './eventcond';
@@ -151,7 +152,7 @@ function coopEndTurn(cs: CombatState, t: CoopTuning): void {
   while (stepEnemyTurn(cs)) { /* 一隻一隻 */ }
   const extra = extraActor(cs, t);
   if (extra && cs.phase === 'player' && !extra.dead) {
-    log(cs, `${extra.name}又動了一次`);
+    log(cs, '{e}又動了一次', { e: E(extra) });
     runEnemyEffects(cs, extra, extra.move.effects, extra.charged);
     if (cs.phase === 'player' && !extra.dead) advanceMove(cs, extra);
   }
@@ -173,7 +174,7 @@ export function coopCombat(cs: CombatState, rng: Rng, t: CoopTuning = {}, maxTur
     if (cs.turn > maxTurns) {
       cs.phase = 'lost';
       for (const p of cs.players) { p.hp = 0; p.down = true; }
-      log(cs, `僵局：${seed} ${cs.encounterId}`);
+      log(cs, '僵局：{seed} {enc}', { seed, enc: cs.encounterId });
       return;
     }
     if (smartPending(cs, rng)) continue;   // 有牌等著選：先選完，誰選的 `pending` 自己記得

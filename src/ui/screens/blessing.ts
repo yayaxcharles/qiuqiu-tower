@@ -18,6 +18,8 @@ import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
+import { relicName, potionName } from '../../i18n/names';
+import { t, term } from '../../i18n';
 
 /**
  * 開局祝福：大俠貓留下的包袱（2026-09-23 內容擴充第三批 新A，設計稿 design3 第二節）。**延後載入**（`main.ts` 的 `registerLazyScreen`；
@@ -34,11 +36,16 @@ import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 /** 選完回地圖：角色一句（吐司）＋實際拿到什麼（提示）。畫面換過去之後才叫，疊層不會被換畫面清掉 */
 function farewell(def: BlessingDef, hero: string | undefined, notes: readonly string[], gains: readonly RunGain[]): void {
   toast(blessTakeLine(def.id, def.cls, hero), heroSpeaker());
-  const got = gains.filter((g) => !g.missed).map((g) => `拿到${g.kind}「${(g.kind === '秘寶' ? relicById[g.id]?.name : potionById[g.id]?.name) ?? g.id}」`);
+  const got = gains.filter((g) => !g.missed).map((g) => {
+    const d = g.kind === '秘寶' ? relicById[g.id] : potionById[g.id];
+    const name = d ? (g.kind === '秘寶' ? relicName(d) : potionName(d)) : g.id;
+    return t('拿到{kind}「{name}」', { kind: term(g.kind), name });
+  });
   const missed = gains.filter((g) => g.missed).length;
-  const all = [...notes, ...got, ...(missed ? [`忍具帶滿了，還有 ${missed} 個收不下`] : [])];
-  // `potions` 那一支已經自己寫了「帶滿了」那一句，不重複
-  const lines = [...new Set(all)].filter((t, i, arr) => !(t.startsWith('忍具帶滿了') && arr.findIndex((x) => x.startsWith('忍具帶滿了')) !== i));
+  const all = [...notes, ...got, ...(missed ? [t('忍具帶滿了，還有 {n} 個收不下', { n: missed })] : [])];
+  // `potions` 那一支已經自己寫了「帶滿了」那一句，不重複：`notes`（引擎固定清單，來源 `net`／`potions` 模組）
+  // 跟這裡組的那句都以中文「忍具帶滿了」開頭才比對得到，只在繁中語系下生效；其他語言頂多多顯示一行，不影響資料
+  const lines = [...new Set(all)].filter((ln, i, arr) => !(ln.startsWith('忍具帶滿了') && arr.findIndex((x) => x.startsWith('忍具帶滿了')) !== i));
   if (lines.length) window.setTimeout(() => notice(lines.join('；')), 300);
 }
 
@@ -87,7 +94,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
     mineNotes = { def, notes, gains };
     if (coop.suspended || !coop.submitRun({ t: 'bless', seat, i, ...(pick.u ? { u: pick.u } : {}), ...(pick.c !== undefined ? { c: pick.c } : {}) })) {
       mineNotes = null;
-      notice('現在送不出去，等連線穩一點再選一次');
+      notice(t('現在送不出去，等連線穩一點再選一次'));
       render();
       return;
     }
@@ -105,10 +112,10 @@ function blessingScreen(app: App, root: HTMLElement): void {
     if (pk.kind === 'choose') { choosing = i; render(); return; }
     const { min, max } = blessPickCount(run, seat, def);
     if (max === 0) { commit(i, { u: [] }); return; }   // 沒牌可挑（到不了：開局一定有牌）
-    const verb = pk.kind === 'remove' ? '移除' : pk.kind === 'upgrade' ? '升級' : '換成新的';
+    const verb = term(pk.kind === 'remove' ? '移除' : pk.kind === 'upgrade' ? '升級' : '換成新的');
     const ok = new Set(blessPickable(run, seat, pk.kind).map((c) => c.uid));
     showDeckPicker({
-      title: `${pk.upTo ? '最多' : ''}選 ${max} 張牌${verb}（不選＝回去看包袱裡的其他東西）`,
+      title: t('{upTo}選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）', { upTo: pk.upTo ? t('最多') : '', max, verb }),
       cards: mine.deck, pickable: true, cancellable: true, filter: (c) => ok.has(c.uid),
       previewUpgrade: pk.kind === 'upgrade', pickCount: max, minPick: min,
       onPick: (uid) => { if (uid === null) render(); else commit(i, { u: [uid] }); },
@@ -120,7 +127,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
   function card(def: BlessingDef, opts: { onClick?: () => void; took?: boolean; dim?: boolean }): HTMLElement {
     const url = artUrl('icons', def.art);
     const node = el('div', { class: `shop-item bless-card${opts.took ? ' took' : ''}${opts.dim ? ' sold' : ''}`, 'data-bless': def.id },
-      el('div', { class: 'potion-rarity bless-cls', 'data-cls': def.cls }, def.cls),
+      el('div', { class: 'potion-rarity bless-cls', 'data-cls': def.cls }, term(def.cls)),
       url.startsWith('data:') ? '' : el('img', { src: url, alt: BLESS_NAMES[def.id] ?? def.id }),
       el('div', { class: 'shop-name' }, BLESS_NAMES[def.id] ?? def.id),
       el('div', { class: 'small' }, blessCardText(def.id, hero)));
@@ -141,8 +148,8 @@ function blessingScreen(app: App, root: HTMLElement): void {
       return url && !url.startsWith('data:')
         ? el('img', { class: id === took ? 'took' : '', src: url, alt: BLESS_NAMES[id] ?? id, title: BLESS_NAMES[id] ?? id }) : '';
     });
-    const line = took ? BLESS_COOP_TOOK.replace('{同伴}', partnerName).replace('{名稱}', BLESS_NAMES[took] ?? took) : `${partnerName}還在翻包袱……`;
-    return el('div', { class: 'bless-mate' }, el('span', {}, `${partnerName}的包袱：`), ...icons, el('span', {}, line));
+    const line = took ? BLESS_COOP_TOOK.replace('{同伴}', partnerName).replace('{名稱}', BLESS_NAMES[took] ?? took) : t('{name}還在翻包袱……', { name: partnerName });
+    return el('div', { class: 'bless-mate' }, el('span', {}, t('{name}的包袱：', { name: partnerName })), ...icons, el('span', {}, line));
   }
 
   function render(): void {
@@ -165,8 +172,8 @@ function blessingScreen(app: App, root: HTMLElement): void {
         grid.append(cardNode(up ? { uid: -1, cardId: c.id, upgraded: true } : c, { onClick: () => commit(i, { c: c.id }) }));
       }
       body = el('div', { class: 'bless-stage' }, grid);
-      text = `${BLESS_NAMES[def.id] ?? def.id}：選一張帶走。`;
-      actions = [el('button', { class: 'btn', onclick: () => { choosing = null; render(); } }, '返回')];
+      text = t('{name}：選一張帶走。', { name: BLESS_NAMES[def.id] ?? def.id });
+      actions = [el('button', { class: 'btn', onclick: () => { choosing = null; render(); } }, t('返回'))];
     } else {
       const row = el('div', { class: 'shop-row bless-row' });
       offer.forEach((id, i) => {
@@ -185,7 +192,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
     const risky = offer.some((id) => { const d = blessingById[id]; return !!d && (!!d.dice || d.effects.some((e) => e.kind === 'gamble' || e.kind === 'damage')); });
     const extra: (Node | string)[] = [];
     if (choosing === null && !took && !sent) extra.push(el('p', { class: 'bless-say' }, `${heroName(mine)}：「${open.line}」`));
-    if (runMods(run).unlucky && risky && !took) extra.push(el('p', { class: 'event-note' }, '這個難度下，賭運氣的成功機率打七折（例如 50% 只剩 35%）、掉血多一半（卡面寫的是一般難度的數字）'));
+    if (runMods(run).unlucky && risky && !took) extra.push(el('p', { class: 'event-note' }, t('這個難度下，賭運氣的成功機率打七折（例如 50% 只剩 35%）、掉血多一半（卡面寫的是一般難度的數字）')));
     root.append(sceneView({ art: body, speaker: choosing === null && !took && !sent ? '' : heroName(mine), text, extra, actions }));
   }
 

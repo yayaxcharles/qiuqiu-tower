@@ -3,8 +3,8 @@ import type { Rng, RngState } from './rng';
 import type { Hero } from './hero';
 
 // ===== 牌 =====
-export type CardType = '攻擊' | '技能' | '能力';
-export type Rarity = '常見' | '罕見' | '稀有';
+export type CardType = 'attack' | 'skill' | 'power';
+export type Rarity = 'common' | 'uncommon' | 'rare';
 export type Pool = '起手' | '忍術' | '絕學' | '壞毛病';
 /** 虛幻＝回合結束時還留在手上就直接消失，不進棄牌堆（魔物塞給你的「眼冒金星」用） */
 export type Keyword = '消耗' | '保留' | '不可打出' | '虛幻';
@@ -273,9 +273,9 @@ export type Effect =
    * 共同點：**排到下一輪才發**，或**每輪監聽一次**。狀態欄位見 `PlayerCombat`。
    */
   /** 你忙我補位：之後每輪，同伴第一次打出指定類型的牌並結算完，自己抽 1 張 */
-  | { kind: 'watchAllyPlay'; cardType: '技能' | 'any' }
+  | { kind: 'watchAllyPlay'; cardType: 'skill' | 'any' }
   /** 有我在前面：之後每輪，自己第一次打出指定類型的牌並結算完，同伴獲得 6 點蜷縮 */
-  | { kind: 'watchSelfPlay'; cardType: '攻擊' | 'any' }
+  | { kind: 'watchSelfPlay'; cardType: 'attack' | 'any' }
   /** 我有先備好：之後每輪一次，攻擊**真的扣到**打之前就中毒的魔物時，雙方各 4 點蜷縮 */
   | { kind: 'watchPoisonHit'; who: 'ally' | 'both' }
   /** 別碰針尖喔：同伴下一張真的打到人的牌，對每隻被打到的魔物各上毒。一個人時掛自己身上 */
@@ -1123,11 +1123,11 @@ export interface PlayerCombat extends Unit {
    */
   /**
    * 你忙我補位：看**同伴**打牌，每輪第一次符合就抽 1 張。
-   * `'技能'`＝只認技能牌（基礎版）、`'any'`＝任何牌（升級版）。
+   * `'skill'`＝只認技能牌（基礎版）、`'any'`＝任何牌（升級版）。
    */
-  watchAllyPlay?: '技能' | 'any';
+  watchAllyPlay?: 'skill' | 'any';
   /** 有我在前面：看**自己**打牌，每輪第一次符合就給同伴 6 點蜷縮。球球專屬 */
-  watchSelfPlay?: '攻擊' | 'any';
+  watchSelfPlay?: 'attack' | 'any';
   /**
    * 我有先備好：看攻擊**真的扣到**已中毒魔物的血，每輪第一次就雙方各 4 點蜷縮。
    * `'ally'`＝只認同伴出手（基礎版）、`'both'`＝誰出手都算（升級版）。

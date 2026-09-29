@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+import { relicName } from '../i18n/names';
 import { MIASMA_PURE, relicById } from '../content/relics';
 import { artUrl } from './assets';
 import { el } from './dom';
@@ -32,16 +34,16 @@ export function showPurifyPick(ids: readonly string[], onDone: (id: string | nul
     // 說明改成跟淨化結果視窗同一套「拿掉什麼（綠）／代價（橘）」（2026-09-25）：原本兩行全文要自己比，
     // 而且只寫得出最大生命加回來的（血契短刀），舊護腕、魔氣殘片淨化當下會扣最大生命卻沒寫
     list.append(el('button', { class: 'swap-item', onclick: () => dismiss(id) },
-      icon(r.art, r.name),
+      icon(r.art, relicName(r)),
       el('div', { class: 'swap-text' },
-        el('b', {}, `${r.name} → ${pure.name}`),
+        el('b', {}, t('{from} → {to}', { from: relicName(r), to: relicName(pure) })),
         ...purifyChangeLines(id)),
-      el('span', { class: 'swap-go' }, '淨化這件')));
+      el('span', { class: 'swap-go' }, t('淨化這件'))));
   }
   overlay.append(el('div', { class: 'modal swap-modal' },
-    el('h2', { class: 'modal-title' }, '要淨化哪一件？'),
+    el('h2', { class: 'modal-title' }, t('要淨化哪一件？')),
     list,
-    opts.cancellable ? el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: () => dismiss(null) }, '先不要')) : ''));
+    opts.cancellable ? el('div', { class: 'modal-foot' }, el('button', { class: 'btn', onclick: () => dismiss(null) }, t('先不要'))) : ''));
   if (opts.cancellable) overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(null); });
   layer.append(overlay);
   lockScreen();

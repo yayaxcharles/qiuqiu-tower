@@ -16,24 +16,12 @@
   ],
   "items": [
     {
-      "match": "motion:fengfeng:melee:timeline",
-      "why": "封封平斬、重劈、收刀換成 09-29 重生新片（動作本來就不同）；逐格看過：頭大小與腳底線跟舊版一致，最大位移 78→39、最大縮放跳動 0.145→0.075，沒有閃爍、空白格"
+      "match": "size:static:*:hero/*cover_en",
+      "why": "封面「參上」英文版新圖（多語系）：只換頂端題字層，貓與煙塵一個像素不動（tools/gen_cover_i18n.py；逐一比對過繁中封面，貓與煙塵區差異 0，菲菲僅 209 像素）。閘門把封面當戰鬥立繪量頭，封面本來就比待機小"
     },
     {
-      "match": "motion:fengfeng:victory:timeline",
-      "why": "同上，最後一擊用的是新平斬"
-    },
-    {
-      "match": "motion:feifei:throw:timeline",
-      "why": "菲菲空手擲換成 v5 新片（去掉片子自己畫的針，飛出去的由程式畫）；逐格看過：大小、腳底一致，出手點不變"
-    },
-    {
-      "match": "size:view:feifei:combat_motion",
-      "why": "只有逐格畫布寬度變（新增擲、倒下的格子）；整隻高 258.3→258.3、腳底 0.0 像素，沒變"
-    },
-    {
-      "match": "size:view:fengfeng:combat_motion",
-      "why": "只有逐格畫布寬度變（平斬、重劈、收刀、倒下的格子）；整隻高 258.3→258.3、腳底 0.0 像素，沒變"
+      "match": "size:static:*:hero/*cover_ja",
+      "why": "同上，日文版"
     }
   ]
 }

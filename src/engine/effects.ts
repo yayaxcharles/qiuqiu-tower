@@ -2,7 +2,8 @@ import { relicById } from '../content/relics';
 import { aliveEnemies, attackable, damageEnemy, damagePlayer, drawCards, findEnemy, fireRelic, gainBlock, gainEnergy, gainStealth, healPlayer, log, logEnergyBlocked, markPoisoner } from './actions';
 import { HAND_LIMIT } from './deck';
 import { addStatus, getStatus, removeStatus } from './statuses';
-import { heroPronoun, unitName } from './hero';
+import { heroPronoun } from './hero';
+import { E, H, K_ } from './logfmt';
 import { DEBUFFS, QI_BURST_MIN, TURN_DECAY } from './types';
 import type { CardInstance, CombatState, Effect, EffectCtx, EnemyCombat, PendingChoice, PlayerCombat } from './types';
 
@@ -85,7 +86,7 @@ function onQiSpent(cs: CombatState, p: PlayerCombat, spent: number): void {
     if (k <= 0) continue;
     fireRelic(cs, rid, p);
     const got = gainEnergy(cs, p, k * h.energy);
-    if (got > 0) log(cs, `${relicById[rid]!.name}：花掉的蓄氣換回 ${got} 顆飯糰`);
+    if (got > 0) log(cs, '{relic}：花掉的蓄氣換回 {got} 顆飯糰', { relic: { relic: rid }, got });
   }
 }
 
@@ -102,7 +103,7 @@ function onQiReach(cs: CombatState, p: PlayerCombat, before: number): void {
     p.fullMoonTurn = cs.turn;
     p.doubleNext = 1;
     fireRelic(cs, rid, p);
-    log(cs, `${relicById[rid]!.name}：蓄足 ${t} 點氣，下一張攻擊牌傷害加倍`);
+    log(cs, '{relic}：蓄足 {t} 點氣，下一張攻擊牌傷害加倍', { relic: { relic: rid }, t });
   }
 }
 
@@ -289,7 +290,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        * 鐵砂衣那一下**打在開戰第一拍**，那時蜷縮還是 0（除了暖毯），所以它的代價實質不變。
        */
       damagePlayer(cs, p, amount, { direct: true, throughBlock: true, victim: p });
-      if (ctx.source === 'relic') log(cs, `秘寶的代價：失去 ${amount} 點生命`);
+      if (ctx.source === 'relic') log(cs, '秘寶的代價：失去 {n} 點生命', { n: amount });
       return false;
     }
     case 'block': {
@@ -308,7 +309,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         flushSelfBlock(cs, p, ctx, queue);
       } else {
         gainBlock(cs, recipient, amount);
-        log(cs, `幫對方擋了 ${amount} 點`);
+        log(cs, '幫對方擋了 {n} 點', { n: amount });
       }
       return false;
     }
@@ -334,7 +335,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 隱身走 `gainStealth`：那支會吃**收禮那一方**的秘寶加成（紙袋、影披風），
       // 直接 `addStatus` 的話等於偷偷少給（稽核自檢 2026-09-11）
       if (fx.name === '隱身') gainStealth(cs, fx.amount, mate); else addStatus(mate, fx.name, fx.amount);
-      if (mate !== p) log(cs, `幫對方加了 ${fx.amount} 層${fx.name}`);
+      if (mate !== p) log(cs, '幫對方加了 {n} 層{st}', { n: fx.amount, st: { st: fx.name } });
       return false;
     }
     case 'blockAlly': {
@@ -350,22 +351,24 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        */
       if (mate === p) { ctx.selfBlockPool = (ctx.selfBlockPool ?? 0) + fx.amount; flushSelfBlock(cs, p, ctx, queue); return false; }
       gainBlock(cs, mate, fx.amount);
-      log(cs, `幫對方擋了 ${fx.amount} 點`);
+      log(cs, '幫對方擋了 {n} 點', { n: fx.amount });
       return false;
     }
     case 'drawAlly': {
       const mate = ally(cs, p);
       drawCards(cs, fx.n, mate);
-      if (mate !== p) log(cs, `對方多抽了 ${fx.n} 張`);
+      if (mate !== p) log(cs, '對方多抽了 {n} 張', { n: fx.n });
       return false;
     }
     case 'cleanseAlly': {
       const mate = ally(cs, p);
       const hit = DEBUFFS.filter((d) => getStatus(mate, d) > 0);
       for (const d of hit) removeStatus(mate, d);
-      log(cs, hit.length
-        ? (mate === p ? `甩掉了${hit.join('、')}` : `幫對方拍掉了${hit.join('、')}`)
-        : '身上很乾淨，沒什麼好拍的');
+      if (hit.length) {
+        log(cs, mate === p ? '甩掉了{ls}' : '幫對方拍掉了{ls}', { ls: { ls: hit.map((st) => ({ st })) } });
+      } else {
+        log(cs, '身上很乾淨，沒什麼好拍的');
+      }
       return false;
     }
     case 'energyAlly': {
@@ -374,13 +377,13 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (fx.onKill && !ctx.killed) return false;
       const mate = ally(cs, p);
       const got = gainEnergy(cs, mate, fx.n);
-      if (mate !== p && got > 0) log(cs, `飯糰分了對方 ${got} 顆`);
+      if (mate !== p && got > 0) log(cs, '飯糰分了對方 {n} 顆', { n: got });
       return false;
     }
     case 'healAlly': {
       const mate = ally(cs, p);
       healPlayer(cs, fx.n, mate);
-      if (mate !== p) log(cs, `幫對方回了 ${fx.n} 點`);
+      if (mate !== p) log(cs, '幫對方回了 {n} 點', { n: fx.n });
       return false;
     }
     case 'blockFromAllyBlock': {
@@ -395,7 +398,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const extra = Math.min(raw, fx.cap);
       // 兩份合起來一次給：分兩次的話貓步會被套兩次（交辦單的單人替代那條）
       gainBlock(cs, p, fx.amount + extra);
-      if (extra > 0) log(cs, mate === p ? `靠著原本的架勢多擋了 ${extra} 點` : `靠對方的架勢多擋了 ${extra} 點`);
+      if (extra > 0) log(cs, mate === p ? '靠著原本的架勢多擋了 {n} 點' : '靠對方的架勢多擋了 {n} 點', { n: extra });
       return false;
     }
     case 'damageFromAllyStrength': {
@@ -404,7 +407,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 走一般的 `damage`：出牌者自己的爪力、加倍、防禦都照原本的規則算，
       // 同伴的爪力只是**另外加一段固定值**，不是換一套算法
       queue.unshift({ kind: 'damage', amount: fx.amount + extra, ...(fx.ignoreBlock ? { ignoreBlock: true } : {}) });
-      if (extra > 0) log(cs, mate === p ? `借自己的力氣多打了 ${extra} 點` : `借對方的力氣多打了 ${extra} 點`);
+      if (extra > 0) log(cs, mate === p ? '借自己的力氣多打了 {n} 點' : '借對方的力氣多打了 {n} 點', { n: extra });
       return false;
     }
     case 'energyTransfer': {
@@ -416,13 +419,13 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (mate.energyGainBlockedThisPhase) { logEnergyBlocked(cs, mate); return false; }
       p.energy -= give;
       gainEnergy(cs, mate, give);
-      log(cs, `把 ${give} 顆飯糰推給了對方`);
+      log(cs, '把 {n} 顆飯糰推給了對方', { n: give });
       return false;
     }
     case 'doubleNextAttackAlly': {
       const mate = ally(cs, p);
       mate.doubleNext = 1;
-      log(cs, mate === p ? '下一擊加倍' : '對方的下一擊加倍');
+      log(cs, mate === p ? K_('下一擊加倍') : K_('對方的下一擊加倍'));
       return false;
     }
     case 'drawAllyIfTargetStatus': {
@@ -436,7 +439,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       if (hit) {
         const mate = ally(cs, p);
         drawCards(cs, fx.n, mate);
-        log(cs, mate === p ? `多抽了 ${fx.n} 張` : `對方多抽了 ${fx.n} 張`);
+        log(cs, mate === p ? '多抽了 {n} 張' : '對方多抽了 {n} 張', { n: fx.n });
       }
       return false;
     }
@@ -447,7 +450,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     case 'poisonAllyNextAttack': {
       const mate = ally(cs, p);
       mate.poisonNextAttack = { amount: fx.amount, ...(fx.anyDamage ? { anyDamage: true as const } : {}) };
-      log(cs, mate === p ? '針上補了藥' : '幫對方的針補了藥');
+      log(cs, mate === p ? K_('針上補了藥') : K_('幫對方的針補了藥'));
       return false;
     }
     case 'energyForAllyEachRound':
@@ -464,8 +467,8 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
         }
       }
       log(cs, moved > 0
-        ? (mate === p ? `把身上的麻煩全丟回去了` : `把對方身上的麻煩全丟回去了`)
-        : '身上很乾淨，沒什麼好丟的');
+        ? (mate === p ? K_('把身上的麻煩全丟回去了') : K_('把對方身上的麻煩全丟回去了'))
+        : K_('身上很乾淨，沒什麼好丟的'));
       return false;
     }
     case 'ifSelfStatus': {
@@ -478,7 +481,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     }
     case 'taunt': {
       p.taunt = true;
-      log(cs, cs.players.length > 1 ? `${unitName(p)}站到前面，這一輪魔物都衝著${heroPronoun(p)}來` : `${unitName(p)}擺出架勢`);
+      if (cs.players.length > 1) {
+        log(cs, '{who}站到前面，這一輪魔物都衝著{tx}來', { who: H(p), tx: { tx: heroPronoun(p) } });
+      } else {
+        log(cs, '{who}擺出架勢', { who: H(p) });
+      }
       return false;
     }
     case 'draw': drawCards(cs, fx.n, p); return false;
@@ -499,7 +506,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       } else {
         for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
           // 定身對魔物只有七成機會成功（使用者 2026-09-02：「定身太強」）；沒中就寫在紀錄、畫面飄「掙脫」
-          if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, `${t.name}掙脫了定身`); continue; }
+          if (fx.name === '定身' && !cs.rng.chance(0.7)) { log(cs, '{e}掙脫了定身', { e: E(t) }); continue; }
           addStatus(t, fx.name, amount);
           markPoisoner(t, fx.name, p);   // 毒死牠的時候要知道是誰下的（連線版，見 EnemyCombat.poisonedBy）
         }
@@ -546,7 +553,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     // `percent`＝回最大生命的百分之幾（起死回生丹）。用最大生命當基準不是「缺的血」：
     // 缺得越多回越多會變成「越晚喝越賺」，那會逼玩家故意拖到快死
     case 'heal': healPlayer(cs, fx.percent ? Math.round(p.maxHp * fx.percent / 100) : fx.n, p); return false;
-    case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, `撿到 ${fx.n} 條小魚乾`); } return false;
+    case 'gold': if (!fx.onKill || ctx.killed) { p.fishDelta += fx.n; log(cs, '撿到 {n} 條小魚乾', { n: fx.n }); } return false;
     case 'power': {
       const power = { trigger: fx.trigger, effects: fx.effects,
         ...(fx.thisTurn ? { thisTurn: true as const } : {}), ...(ctx.cardId ? { cardId: ctx.cardId } : {}),
@@ -595,7 +602,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) {
         const cur = getStatus(t, fx.name);
         // 0 層：基礎版催不動（寫進紀錄，玩家才知道飯糰花去哪）；升級版的「再加 add 層」照加
-        if (cur === 0 && !fx.add) { log(cs, `${t.name}身上沒有${fx.name}，催不動`); continue; }
+        if (cur === 0 && !fx.add) { log(cs, '{e}身上沒有{st}，催不動', { e: E(t), st: { st: fx.name } }); continue; }
         addStatus(t, fx.name, cur + (fx.add ?? 0));
         markPoisoner(t, fx.name, p);
       }
@@ -661,7 +668,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        */
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
-        if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (n <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: { st: fx.name } }); continue; }
         if (damageWithCardBonus(cs, t, n * (fx.mul ?? 1), ctx, p, { direct: true }).killed) ctx.killed = true;
         if (fx.consume) removeStatus(t, fx.name);
       }
@@ -673,12 +680,17 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 目標至少要有 1 層（毒系牌，沒中毒就不算數，審查 低-1）；失敗那行印真的層數，不把 bonus 算成層數（低-2）
       for (const t of targetsOf(cs, ctx, false)) {
         const s = getStatus(t, fx.name), bonus = fx.bonus ?? 0;
-        if (s <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (s <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: { st: fx.name } }); continue; }
         if (t.hp > s + bonus) {
-          log(cs, `${t.name}的${fx.name}還不夠（${fx.name} ${s} 層${bonus ? `＋${bonus}` : ''}，生命 ${t.hp}，還差 ${t.hp - s - bonus}）`);
+          const left = t.hp - s - bonus;
+          if (bonus) {
+            log(cs, '{e}的{st}還不夠（{st} {s} 層＋{bonus}，生命 {hp}，還差 {left}）', { e: E(t), st: { st: fx.name }, s, bonus, hp: t.hp, left });
+          } else {
+            log(cs, '{e}的{st}還不夠（{st} {s} 層，生命 {hp}，還差 {left}）', { e: E(t), st: { st: fx.name }, s, hp: t.hp, left });
+          }
           continue;
         }
-        log(cs, `${t.name}的${fx.name}發作了`);
+        log(cs, '{e}的{st}發作了', { e: E(t), st: { st: fx.name } });
         if (damageEnemy(cs, t, t.hp, { direct: true, by: p }).killed) ctx.killed = true;
       }
       return false;
@@ -695,11 +707,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
         const others = cs.enemies.filter((o) => o !== t && !o.dead && !o.escaped);
-        if (n <= 0) { log(cs, `${t.name}身上沒有${fx.name}`); continue; }
+        if (n <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: { st: fx.name } }); continue; }
         if (others.length === 0) { log(cs, '旁邊沒有別的魔物'); continue; }
         const each = fx.half ? Math.floor(n / 2) : n;
         if (each <= 0) continue;
-        log(cs, `${t.name}身上的${fx.name}散了開來`);
+        log(cs, '{e}身上的{st}散了開來', { e: E(t), st: { st: fx.name } });
         for (const o of others) { addStatus(o, fx.name, each); markPoisoner(o, fx.name, p); }
       }
       return false;
@@ -731,7 +743,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const hit = Math.min(want, p.halfSpendBlock ? p.block * 2 : p.block);
       const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
       p.block -= spent;
-      if (spent > 0) log(cs, `${unitName(p)}卸掉 ${spent} 點蜷縮打了出去`);
+      if (spent > 0) log(cs, '{who}卸掉 {n} 點蜷縮打了出去', { who: H(p), n: spent });
       /*
        * 以身作盾（2026-09-17）：卸出去的力道自己養出反彈。
        * 擺在傷害之前，因為同一張牌裡的 `plusOwnStatus` 讀的是**打之前**的反彈——
@@ -740,11 +752,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const bonus = fx.plusOwnStatus ? getStatus(p, fx.plusOwnStatus) : 0;
       if (p.thornsFromSpend && spent > 0) {
         const back = p.thornsFromSpend === 'full' ? spent : Math.floor(spent / 2);
-        if (back > 0) { addStatus(p, '反彈', back); log(cs, `${unitName(p)}把卸出去的力道反了 ${back} 點回來`); }
+        if (back > 0) { addStatus(p, '反彈', back); log(cs, '{who}把卸出去的力道反了 {n} 點回來', { who: H(p), n: back }); }
       }
       const base = Math.floor(hit * (fx.mul ?? 1)) + bonus + (fx.plus ?? 0);
       // 蜷縮 0 時整張撲空，補一行交代（稽核 2026-09-17 低-4）：不寫的話玩家花了飯糰、畫面什麼都沒發生
-      if (base <= 0) { log(cs, `${unitName(p)}身上沒有蜷縮可卸`); return false; }
+      if (base <= 0) { log(cs, '{who}身上沒有蜷縮可卸', { who: H(p) }); return false; }
       for (const t of targetsOf(cs, ctx, fx.target === 'all')) {
         if (damageWithCardBonus(cs, t, base, ctx, p, { ignoreBlock: fx.ignoreBlock, noStrength: true }).killed) ctx.killed = true;
       }
@@ -760,11 +772,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       const hit = Math.min(fx.max, p.halfSpendBlock ? p.block * 2 : p.block, room);
       const spent = p.halfSpendBlock ? Math.ceil(hit / 2) : hit;
       if (hit <= 0) {
-        log(cs, room <= 0 ? `${unitName(p)}已經是滿的，沒什麼好補` : `${unitName(p)}身上沒有蜷縮可卸`);
+        log(cs, room <= 0 ? '{who}已經是滿的，沒什麼好補' : '{who}身上沒有蜷縮可卸', { who: H(p) });
         return false;
       }
       p.block -= spent;
-      log(cs, `${unitName(p)}卸掉 ${spent} 點蜷縮喘了口氣`);
+      log(cs, '{who}卸掉 {n} 點蜷縮喘了口氣', { who: H(p), n: spent });
       healPlayer(cs, hit, p);
       return false;
     }
@@ -818,7 +830,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
     // 便當與影分身卷軸（閃過之後）共用：紀錄只講結果，不講是誰給的（秘寶那邊有「秘寶發動」那一行）
     case 'energyNextTurn':
       p.energyNextTurn = (p.energyNextTurn ?? 0) + fx.n;
-      log(cs, `${cs.players.length > 1 ? `${unitName(p)}` : ''}下回合開始多 ${p.energyNextTurn} 顆飯糰`);
+      if (cs.players.length > 1) {
+        log(cs, '{who}下回合開始多 {n} 顆飯糰', { who: H(p), n: p.energyNextTurn });
+      } else {
+        log(cs, '下回合開始多 {n} 顆飯糰', { n: p.energyNextTurn });
+      }
       return false;
     case 'guardLethal':
       p.guardLethal = true;
@@ -831,7 +847,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) {
         addStatus(t, '迷魂', 1);
         t.dazedBy = p.seat;   // 牠打倒同伴的話，擊倒獎勵算下香的這一位（見 `EnemyCombat.dazedBy`）
-        log(cs, `${t.name}聞到迷魂香，暈頭轉向`);
+        log(cs, '{e}聞到迷魂香，暈頭轉向', { e: E(t) });
       }
       return false;
     }

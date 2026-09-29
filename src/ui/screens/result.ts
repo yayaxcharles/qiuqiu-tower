@@ -12,6 +12,8 @@ import { sceneView } from '../scene';
 import { attachTextTooltip } from '../tooltip';
 import { me } from '../../engine/runplayer';
 import { heroName } from '../../engine/hero';
+import { t, term } from '../../i18n';
+import { relicName, relicText } from '../../i18n/names';
 
 registerScreen('result', (app, root) => {
   // 進畫面就放對應的收尾音；這時候玩家一定已經點過東西，音訊環境是解鎖的
@@ -45,12 +47,13 @@ registerScreen('result', (app, root) => {
     if (!d) continue;
     const url = artUrl('icons', d.art);
     // 圖示還沒生好就寫名字，不要排一列認不出來的灰剪影
+    const dName = relicName(d);
     const node = url.startsWith('data:')
-      ? el('div', { class: 'result-relic name-only' }, d.name)
-      : el('div', { class: 'result-relic' }, el('img', { src: url, alt: d.name }));
+      ? el('div', { class: 'result-relic name-only' }, dName)
+      : el('div', { class: 'result-relic' }, el('img', { src: url, alt: dName }));
     // 用遊戲自己的說明框，不要瀏覽器原生的 `title`：原生的要停一秒才出現、樣式也不同，
     // 玩家常常以為根本沒有說明（狀態列與戰鬥畫面的忍具格已經一起改過）
-    attachTextTooltip(node, d.name, d.text);
+    attachTextTooltip(node, dName, relicText(d));
     relics.append(node);
   }
 
@@ -63,24 +66,28 @@ registerScreen('result', (app, root) => {
   root.append(screenBg(won ? 'bg/screen_result_win' : 'bg/screen_result_lose'));
   root.append(sceneView({
     portrait: hero.startsWith('data:') ? undefined : hero,
-    speaker: won ? '通關' : '任務失敗',
-    text: lastWords ? `${lastWords}` : (won ? '魔塔終於安靜了。' : `${heroName(me(run, seat))}倒下了。`),   // 備援也要照角色（總稽核 C 低-5）
+    speaker: won ? t('通關') : t('任務失敗'),
+    text: lastWords ? `${lastWords}` : (won ? t('魔塔終於安靜了。') : t('{who}倒下了。', { who: term(heroName(me(run, seat))) })),   // 備援也要照角色（總稽核 C 低-5）；lastWords 是劇情句，畫面層（sceneView）照台詞表換
     extra: [
       el('div', { class: 'result-stats' },
-        `到達 ${run.floor}F　打倒 ${run.stats.kills} 隻魔物　打了 ${run.stats.turns} 回合　出了 ${run.stats.cardsPlayed} 張牌　牌組 ${me(run, seat).deck.length} 張`),
+        t('到達 {floor}F　打倒 {kills} 隻魔物　打了 {turns} 回合　出了 {cards} 張牌　牌組 {deck} 張', {
+          floor: run.floor, kills: run.stats.kills, turns: run.stats.turns, cards: run.stats.cardsPlayed, deck: me(run, seat).deck.length,
+        })),
       el('div', { class: 'result-row' }, relics, seedTag(run.seed, true)),
-      el('div', { class: 'result-best' }, `最佳成績：${best.floor}F${best.won ? `（通關，${best.turns} 回合）` : ''}`),
+      el('div', { class: 'result-best' }, t('最佳成績：{floor}F{won}', {
+        floor: best.floor, won: best.won ? t('（通關，{turns} 回合）', { turns: best.turns }) : '',
+      })),
     ],
     actions: [
       el('button', {
         class: 'btn',
-        onclick: () => showDeckPicker({ title: `最終牌組（${me(run, seat).deck.length} 張）`, cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
-      }, '看牌組'),
+        onclick: () => showDeckPicker({ title: t('最終牌組（{n} 張）', { n: me(run, seat).deck.length }), cards: me(run, seat).deck, pickable: false, cancellable: true, onPick: () => { /* 只是看看 */ } }),
+      }, t('看牌組')),
       el('button', { class: 'btn primary', onclick: () => {
         // 連線也要在這裡斷乾淨，不然回標題再開單機會整局點不動（稽核 高-1）
         app.leaveCoop();
         app.run = null; app.cs = null; app.show('title');
-      } }, '回標題'),
+      } }, t('回標題')),
     ],
   }));
 });

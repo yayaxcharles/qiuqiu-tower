@@ -32,7 +32,7 @@ export interface KeeperDef {
   /** 忍具幾格 */
   potions: number;
   /** 忍具的稀有度保底（婆婆：至少 1 支稀有、2 支罕見；重整貨架照樣保證） */
-  potionFloor?: { 稀有: number; 罕見: number };
+  potionFloor?: { rare: number; uncommon: number };
   /** 牌格一定有一張升級版（阿福）；沒寫＝照關數機率（`upgradeChanceFor`） */
   upgradedCard?: 'always';
   /** 各類倍率：只乘那一類（婆婆的忍具七五折、掌櫃的秘寶貴一成） */
@@ -57,7 +57,7 @@ export const KEEPERS: Readonly<Record<KeeperId, KeeperDef>> = {
   tortoise: {
     id: 'tortoise', name: '玳瑁婆婆', art: 'shop/keeper_tortoise',
     sign: '忍具專賣・七五折', tip: '忍具專賣，忍具七五折；可以花錢請婆婆淨化沾了魔氣的秘寶',
-    cards: [3, 3], common: 1, big: [0, 0], limited: 'none', potions: 6, potionFloor: { 稀有: 1, 罕見: 2 },
+    cards: [3, 3], common: 1, big: [0, 0], limited: 'none', potions: 6, potionFloor: { rare: 1, uncommon: 2 },
     mul: { card: 1, relic: 1, potion: 0.75 }, removeMul: 1,
     service: { kind: 'purify', cost: 90, label: '請婆婆淨化' },
     head: [86, 76, 156],

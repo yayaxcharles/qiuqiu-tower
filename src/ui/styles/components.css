@@ -318,7 +318,7 @@
   opacity: .28;
   pointer-events: none;
 }
-.card.rarity-稀有::after { opacity: .5; }
+.card.rarity-rare::after { opacity: .5; }
 /*
  * 牌框：**試過生圖的雕花木框，實測放不下**。
  * 稀有牌套上木框之後，左右各要讓 11 像素給木紋，「我什麼都沒看到」「以德服人」的
@@ -333,14 +333,14 @@
  */
 /* 稀有度要「不用學就看得出來」（玩家回饋：以為稀有牌是普通牌）。
    三個訊號疊在一起：邊框變粗變色、整張紙染色、名字帶染色；稀有另有微光掃過。 */
-.card.rarity-罕見 {
+.card.rarity-uncommon {
   border: 3px solid #4a7cc7;
   color: #2f5fa8;
   background-color: #e8f0fb;
   box-shadow: 0 0 0 1px #9dbdea88, 0 0 14px #4a7cc755;
 }
-.card.rarity-罕見 .card-name { background: linear-gradient(#dbe7f7, #c3d6ef); }
-.card.rarity-稀有 {
+.card.rarity-uncommon .card-name { background: linear-gradient(#dbe7f7, #c3d6ef); }
+.card.rarity-rare {
   border: 3px solid #e0a91c;
   color: #8a6508;
   background-color: #fdf3d7;
@@ -348,13 +348,13 @@
   position: relative;
   overflow: hidden;
 }
-.card.rarity-稀有 .card-name {
+.card.rarity-rare .card-name {
   background: linear-gradient(#ffe9a8, #f3cf6d);
   color: #6b4d05;
 }
 /* 稀有牌的微光掃過：一道斜光每四秒掠過牌面一次，「挖到寶」的訊號。
    蓋在牌面最上層但不吃滑鼠；用 translateX 跑（transform 不觸發重排）。 */
-.card.rarity-稀有::before {
+.card.rarity-rare::before {
   content: '';
   position: absolute; top: 0; bottom: 0; left: -80%;
   width: 55%;
@@ -374,8 +374,8 @@
    （使用者的原話：「很不顯眼」）。搬到底部「攻擊／技能」那條標籤的字前面，
    順便把整條標籤依稀有度染色——那條本來就在正下方置中，一眼就掃得到。
    菱形用 clip-path 切，不生圖、縮放不糊。 */
-.card.rarity-罕見 .card-type::before,
-.card.rarity-稀有 .card-type::before {
+.card.rarity-uncommon .card-type::before,
+.card.rarity-rare .card-type::before {
   content: '';
   display: inline-block;
   vertical-align: -1px;
@@ -384,21 +384,21 @@
   height: 11px;
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
-.card.rarity-罕見 .card-type {
+.card.rarity-uncommon .card-type {
   background: #2f5fa826;
   color: #234a85;
   opacity: 1;
 }
-.card.rarity-罕見 .card-type::before {
+.card.rarity-uncommon .card-type::before {
   background: linear-gradient(#7ea9e0, #2f5fa8 55%, #1d3f74);
 }
-.card.rarity-稀有 .card-type {
+.card.rarity-rare .card-type {
   background: #b8860b2e;
   color: #85610a;
   opacity: 1;
   font-weight: bold;
 }
-.card.rarity-稀有 .card-type::before {
+.card.rarity-rare .card-type::before {
   width: 13px;
   height: 13px;
   vertical-align: -2px;
@@ -483,6 +483,8 @@
   font-weight: bold;
   font-size: 17px;   /* 15→17：規則文字放大到 15 之後牌名不能比它小（稽核 2026-09-06 中-2） */
   text-align: center;
+  white-space: nowrap;   /* 英日牌名較長：固定一行，放不下由 cardview.ts 的 fitCardText 縮字 */
+  overflow: hidden;
 }
 .card-text {
   color: var(--ink);
@@ -551,13 +553,13 @@
 }
 /* 三種牌用紙紋分辨。底色留著當退路：紙紋沒生好時 var() 會是空的，至少還有原本的淡色。
    平鋪 128 而不是原尺寸 256：牌只有 170 寬，磚太大等於看不到紋理。 */
-.card.type-攻擊, .card.type-技能, .card.type-能力 {
+.card.type-attack, .card.type-skill, .card.type-power {
   background-repeat: repeat;
   background-size: 128px 128px;
 }
-.card.type-攻擊 { background-color: #fff4ee; background-image: var(--paper-attack); }
-.card.type-技能 { background-color: #eef5ff; background-image: var(--paper-skill); }
-.card.type-能力 { background-color: #f3eeff; background-image: var(--paper-power); }
+.card.type-attack { background-color: #fff4ee; background-image: var(--paper-attack); }
+.card.type-skill { background-color: #eef5ff; background-image: var(--paper-skill); }
+.card.type-power { background-color: #f3eeff; background-image: var(--paper-power); }
 /*
  * 連線牌：**白紙**（使用者 2026-09-11 指定）。
  *

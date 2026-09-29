@@ -1,7 +1,8 @@
+import { t } from '../i18n';
 import { cardStats } from '../engine/deck';
 import type { CardInstance } from '../engine/types';
 import { play } from './audio';
-import { upgradeDiff } from './cardtext';
+import { upgradeDiff } from './carddiff';
 import { cardNode } from './cardview';
 import { el, stageFrame } from './dom';
 import { closeWithScreen, lockScreen, overlayRoot, unlockScreen } from './overlay';
@@ -66,7 +67,7 @@ export function deckPickerLayout(
   return {
     choices,
     closable: opts.cancellable || choices === 0,
-    note: opts.cards.length === 0 ? '（沒有牌）' : nothingToPick ? '（沒有可以挑的牌）' : null,
+    note: opts.cards.length === 0 ? t('（沒有牌）') : nothingToPick ? t('（沒有可以挑的牌）') : null,
   };
 }
 
@@ -79,7 +80,7 @@ export function deckPickerLayout(
  */
 export function eventPickRule(label: string, want: number, verb: string): { cancellable: boolean; minPick: number; title: string } {
   const upTo = label.includes('至多');
-  const title = want > 1 ? `${upTo ? '最多' : ''}選 ${want} 張牌${verb}` : `選一張牌${verb}${upTo ? '（也可以不選）' : ''}`;
+  const title = want > 1 ? t('{max}選 {n} 張牌{verb}', { max: upTo ? t('最多') : '', n: want, verb }) : t('選一張牌{verb}{opt}', { verb, opt: upTo ? t('（也可以不選）') : '' });
   return { cancellable: upTo, minPick: upTo ? 1 : want, title };
 }
 
@@ -149,11 +150,11 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
     const def = cardStats(c).def;
     const gone = upgradeDiff(def).removed;
     const box = el('div', { class: 'upgrade-preview' },
-      el('div', { class: 'upgrade-preview-label' }, '升級後'),
+      el('div', { class: 'upgrade-preview-label' }, t('升級後')),
       cardNode(def, { upgraded: true }));
     if (gone.length) {
       box.append(el('div', { class: 'upgrade-preview-drop' },
-        `少了 ${gone.map((g) => `「${g}」`).join('')}`));
+        t('少了 {items}', { items: gone.map((g) => `「${g}」`).join('') })));
     }
     // 右邊放不下（牌 170 寬＋間距）就翻到左邊
     const right = (cr.right - or.left) * k + 14;
@@ -202,17 +203,17 @@ export function showDeckPicker(opts: DeckPickerOpts): void {
   if (layout.note) grid.append(el('div', { class: 'deck-empty' }, layout.note));
   // 多選才需要確認鈕：單選點下去就成交，多一顆按鈕只是多一步
   const confirm = many > 1
-    ? el('button', { class: 'btn primary', onclick: () => dismiss(chosen[0] ?? null) }, '確定')
+    ? el('button', { class: 'btn primary', onclick: () => dismiss(chosen[0] ?? null) }, t('確定'))
     : null;
   function refreshConfirm(): void {
     if (!confirm) return;
-    confirm.textContent = `確定（${chosen.length}／${many}）`;
+    confirm.textContent = t('確定（{picked}／{many}）', { picked: chosen.length, many });
     if (confirmReady(chosen.length, many, opts.minPick)) confirm.removeAttribute('disabled');
     else confirm.setAttribute('disabled', 'disabled');
   }
   refreshConfirm();
   const close = el('button', { class: 'btn', onclick: () => dismiss(null) },
-    opts.pickable && layout.choices > 0 ? '不選' : '關閉');
+    opts.pickable && layout.choices > 0 ? t('不選') : t('關閉'));
   // 點旁邊的黑幕等於按關閉；一定要挑一張的時候就不理（但沒得挑就得放行，見 deckPickerLayout）
   if (layout.closable) overlay.addEventListener('click', (ev) => { if (ev.target === overlay) dismiss(null); });
   if (!layout.closable) close.setAttribute('disabled', 'disabled');

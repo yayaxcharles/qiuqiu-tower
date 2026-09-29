@@ -118,7 +118,7 @@ describe('鐵布衫膏與分身油', () => {
   it('分身油：不只掛旗標，下一張攻擊牌真的打兩倍', () => {
     const base = fight('kappa', []);
     const cs = fight('kappa', ['clone_oil']);
-    const atk = cs.player.hand.find((c) => cardById[c.cardId]?.type === '攻擊');
+    const atk = cs.player.hand.find((c) => cardById[c.cardId]?.type === 'attack');
     expect(atk, '手上要有攻擊牌才驗得出來').toBeTruthy();
     const baseAtk = base.player.hand.find((c) => c.cardId === atk!.cardId)!;
     const hp0 = base.enemies[0]!.hp + base.enemies[0]!.block;

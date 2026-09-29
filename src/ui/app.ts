@@ -30,6 +30,8 @@ import { retireLeavingScreen, swapScreen } from './screenswap';
 import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
+import { listJoin, t as i18nT, term } from '../i18n';
+import { enemyName, potionName, relicName } from '../i18n/names';
 
 export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug' | 'blessing';
 
@@ -105,7 +107,7 @@ export class App {
     root.append(this.stage);
     setOverlayRoot(this.overlay);
     // 手機直立時的提示（舞台是橫的 16:9，直著看只剩一條），放在舞台外面、不隨舞台縮放
-    const hint = el('div', { id: 'rotate-hint' }, el('div', { class: 'rotate-card' }, el('div', { class: 'rotate-icon' }, '📱↻'), el('div', {}, '請把手機橫過來玩'), el('small', {}, '這款遊戲是橫向畫面')));
+    const hint = el('div', { id: 'rotate-hint' }, el('div', { class: 'rotate-card' }, el('div', { class: 'rotate-icon' }, '📱↻'), el('div', {}, i18nT('請把手機橫過來玩')), el('small', {}, i18nT('這款遊戲是橫向畫面'))));
     root.append(hint);
     // 偵測是什麼裝置（粗指標＝觸控）跟現在直的還是橫的，寫在 <html> 上給樣式表用；
     // 縮放一律「等比貼合視窗」，手機用 visualViewport 才算得到扣掉網址列後的真實高度
@@ -533,7 +535,7 @@ export class App {
     this.stage.classList.add('fight-pending');
     const slow = window.setTimeout(() => {
       const hint = this.screen.querySelector('.map-hint');
-      if (hint) hint.textContent = '正在準備事件……';
+      if (hint) hint.textContent = i18nT('正在準備事件……');
     }, 400);
     const screenReady = Promise.race([loadEventScreen(), new Promise<void>((r) => window.setTimeout(r, EVENT_SCREEN_WAIT_MS))]);
     void Promise.allSettled([screenReady, warmEventArt(run, eventId)]).then(() => {
@@ -566,7 +568,7 @@ export class App {
     this.stage.classList.add('fight-pending');
     const slow = window.setTimeout(() => {
       const hint = this.screen.querySelector('.map-hint');
-      if (hint) hint.textContent = '正在準備……';
+      if (hint) hint.textContent = i18nT('正在準備……');
     }, 400);
     const needs: Promise<unknown>[] = [loadQmarkText(), ...(variant === '伏擊' ? [loadEventScreen()] : [])];
     const ready = Promise.race([Promise.allSettled(needs), new Promise<void>((r) => window.setTimeout(r, EVENT_SCREEN_WAIT_MS))]);
@@ -615,7 +617,7 @@ export class App {
       // 超過 0.4 秒還沒好就在地圖提示一行（比照 `enterEvent`；2026-09-25 流暢度盤點 中：原本最多等 1.5 秒、舞台鎖住又沒提示）
       const slow = window.setTimeout(() => {
         const hint = this.screen.querySelector('.map-hint');
-        if (hint) hint.textContent = '正在準備戰鬥……';
+        if (hint) hint.textContent = i18nT('正在準備戰鬥……');
       }, 400);
       const proceed = (): void => {
       window.clearTimeout(slow);
@@ -712,8 +714,8 @@ export class App {
     const afterNotes: string[] = []; const afterGains: RunGain[] = [];
     resolvePendingAfterFight(run, cs.phase === 'won', afterNotes, afterGains, this.seat);
     const afterToasts = [
-      ...afterGains.map((g) => g.kind === '秘寶' ? `打贏了，拿到秘寶「${relicById[g.id]?.name ?? g.id}」` : g.missed ? `打贏了，可是忍具帶滿了，「${potionById[g.id]?.name ?? g.id}」收不下` : `打贏了，拿到忍具「${potionById[g.id]?.name ?? g.id}」`),
-      ...afterNotes.map((n) => `打贏了，${n}`),
+      ...afterGains.map((g) => { const r = relicById[g.id]; const po = potionById[g.id]; return g.kind === '秘寶' ? i18nT('打贏了，拿到秘寶「{name}」', { name: r ? relicName(r) : g.id }) : g.missed ? i18nT('打贏了，可是忍具帶滿了，「{name}」收不下', { name: po ? potionName(po) : g.id }) : i18nT('打贏了，拿到忍具「{name}」', { name: po ? potionName(po) : g.id }); }),
+      ...afterNotes.map((n) => i18nT('打贏了，{note}', { note: n })),
     ];
     // 整局結束（陣亡或通關）就**當場定案**，不等結算畫面。
     // 從這裡到結算畫面之間隔著 1300 毫秒的交棒，陣亡還要多播一段玩家自己點過去的對白；
@@ -828,7 +830,7 @@ export class App {
      */
     const enc = n.encounterId ? encounterById[n.encounterId] : undefined;
     const hero = run.players[0]?.hero;
-    if (n.encounterId) return (enc?.enemies ?? []).map((id) => encounterSkin(enc, id, hero)?.name ?? enemyNameFor(id, hero)).join('、');
-    return n.type;
+    if (n.encounterId) return listJoin((enc?.enemies ?? []).map((id) => encounterSkin(enc, id, hero)?.name ?? enemyName(id, hero)));
+    return term(n.type);
   }
 }

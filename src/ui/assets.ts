@@ -107,6 +107,8 @@ export function artUrl(group: 'cards' | 'sprites' | 'icons' | 'bg', key: string)
  */
 const HERO_NOT_IN_COMBAT = new Set([
   'hero/cover', 'hero/feifei_cover', 'hero/dangdang_cover', 'hero/fengfeng_cover',
+  // 封面「參上」的英日版（2026-09-29 多語系）：只有封面用
+  ...['cover', 'feifei_cover', 'dangdang_cover', 'fengfeng_cover'].flatMap((k) => ['en', 'ja'].map((l) => `hero/${k}_${l}`)),
   // 2026-09-18 補的四張非戰鬥姿勢（貓窩的打盹／磨爪／扶同伴，加過關走路）：戰鬥裡一張都用不到，
   // 進暖圖只會擋在魔物立繪前面。四隻各四張＝16 張
   ...['ninja', 'feifei', 'dangdang', 'fengfeng'].flatMap((h) => ['nap', 'sharpen', 'helpup', 'walk'].map((p) => `hero/${h}_${p}`)),

@@ -12,8 +12,8 @@ function tally(act: number, n = 300) {
     expect(new Set(shop.cards.map((c) => c.def.id)).size).toBe(want);
     const jue = shop.cards.filter((c) => c.def.pool === '絕學').length;
     expect(jue).toBeLessThanOrEqual(1); jueShops += jue;
-    const r = shop.cards.filter((c) => c.def.rarity === '稀有').length;
-    rare += r; uncommon += shop.cards.filter((c) => c.def.rarity === '罕見').length; total += shop.cards.length; minRare = Math.min(minRare, r);
+    const r = shop.cards.filter((c) => c.def.rarity === 'rare').length;
+    rare += r; uncommon += shop.cards.filter((c) => c.def.rarity === 'uncommon').length; total += shop.cards.length; minRare = Math.min(minRare, r);
   }
   return { rare: rare / total, uncommon: uncommon / total, minRare, jue: jueShops / n };
 }

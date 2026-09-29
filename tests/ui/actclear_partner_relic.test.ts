@@ -51,7 +51,7 @@ describe('「同伴才用得到」', () => {
     for (const [name, raw] of [['actclear', ACTCLEAR], ['chest', CHEST], ['reward', REWARD]] as const) {
       const src = raw.replace(/\r\n/g, '\n');
       expect(src, name).toContain('relicForPartnerOnly(run, id, seat)');
-      expect(src, name).toContain("el('span', { class: 'pick-tile-note' }, '同伴才用得到')");
+      expect(src, name).toContain("el('span', { class: 'pick-tile-note' }, t('同伴才用得到'))");
     }
     // 牌子的樣式不綁在過關方塊底下（紙箱、戰利品的格子也要吃得到）
     expect(CSS).toMatch(/\n\.pick-tile-note \{[^}]*font-size: 13px/);

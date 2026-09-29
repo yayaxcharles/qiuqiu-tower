@@ -1,0 +1,1727 @@
+{
+ "term": {
+  "爪力": "Claw",
+  "貓步": "Catstep",
+  "翻肚": "Belly-Up",
+  "懶洋洋": "Lazy",
+  "炸毛": "Frazzled",
+  "中毒": "Poison",
+  "隱身": "Stealth",
+  "定身": "Stun",
+  "反彈": "Rebound",
+  "潛水": "Dive",
+  "縮殼": "Shell",
+  "飛行": "Flying",
+  "鱗甲": "Scales",
+  "沉睡": "Asleep",
+  "消散": "Fading",
+  "虛化": "Ghostly",
+  "不壞身": "Adamant",
+  "鐵布衫": "Iron Shirt",
+  "迷魂": "Dazed",
+  "蓄氣": "Qi",
+  "蜷縮": "Curl",
+  "防禦": "Block",
+  "魔氣暴走": "Miasma Rampage",
+  "飽足": "Fullness",
+  "飯糰": "Rice Ball",
+  "同生共死": "Bound Fates",
+  "僕從護體": "Guarded by Minions",
+  "無敵": "Invincible",
+  "重生中": "Reviving",
+  "蓄力": "Charging",
+  "叼著小魚乾": "Carrying Dried Fish",
+  "越戰越勇": "Battle-Hardened",
+  "打倒回血": "Heal on Kill",
+  "連抓": "Combo",
+  "減益": "Debuff",
+  "看破": "See Through",
+  "破功": "Break Stance",
+  "穿透": "Pierce",
+  "下回合蜷縮": "Curl Next Turn",
+  "下回合隱身": "Stealth Next Turn",
+  "壞毛病": "Bad Habit",
+  "小魚乾": "Dried Fish",
+  "本局代碼": "Run Code",
+  "秘寶": "Relic",
+  "忍具": "Ninja Tool",
+  "罐頭鋪": "Cannery",
+  "貓窩": "Cat Bed",
+  "紙箱": "Cardboard Box",
+  "大魔物": "Elite",
+  "塔主": "Boss",
+  "消耗": "Exhaust",
+  "保留": "Retain",
+  "不可打出": "Unplayable",
+  "虛幻": "Ethereal",
+  "分裂": "Split",
+  "詛咒": "Curse",
+  "憤怒": "Enrage",
+  "自爆": "Self-Destruct",
+  "黏液": "Slime",
+  "眼冒金星": "Seeing Stars",
+  "常見": "Common",
+  "罕見": "Uncommon",
+  "稀有": "Rare",
+  "攻擊": "Attack",
+  "技能": "Skill",
+  "能力": "Power",
+  "起手": "Starter",
+  "忍術": "Ninjutsu",
+  "絕學": "Secret Art",
+  "起始": "Starting",
+  "事件": "Event",
+  "戰鬥": "Battle",
+  "球球": "Qiuqiu",
+  "菲菲": "Feifei",
+  "噹噹": "Dangdang",
+  "封封": "Fengfeng",
+  "師門": "the Sect",
+  "磨爪": "Sharpen Claws",
+  "磨針": "Sharpen Needles",
+  "調護臂": "Tune Bracers",
+  "磨劍": "Hone Sword",
+  "伏擊": "Ambush",
+  "行腳商": "Traveling Merchant",
+  "路邊紙箱": "Roadside Box",
+  "見習": "Novice",
+  "出師": "Journeyman",
+  "高手": "Expert",
+  "宗師": "Master",
+  "魔塔": "Demon Tower",
+  "塔下": "Lower Tower",
+  "塔中": "Middle Tower",
+  "塔頂": "Upper Tower",
+  "暗器": "Darts",
+  "拳腳": "Fist",
+  "劍術": "Sword",
+  "攻": "Atk",
+  "守": "Def",
+  "強": "Buff",
+  "弱": "Debuff",
+  "召": "Call",
+  "安全": "Safe",
+  "換牌": "Swap",
+  "代價": "Cost",
+  "賭運氣": "Gamble",
+  "升級": "Upgrade",
+  "移除": "Remove",
+  "換成新的": "Replace",
+  "雙人": "Co-op",
+  "橘貓老闆": "Ginger Cat Owner",
+  "玳瑁婆婆": "Tortie Granny",
+  "長毛掌櫃": "Longhair Clerk",
+  "阿福": "Afu"
+ },
+ "gloss": {
+  "魔氣暴走": "If a fight drags past turn 10 (turn 15 for a Boss fight — except the Master's fight, which still uses turn 10), every monster gains +1 Claw at the start of each monster turn, stacking further each turn after that. Stalling gets more expensive the longer it goes on.",
+  "飽足": "Your energy for playing cards. You start each turn full with 3 Rice Balls; playing a card eats Rice Balls equal to its cost. Run out and you can only play 0-cost cards.",
+  "飯糰": "The unit of Fullness. Playing a card spends Rice Balls; you're topped back up at the start of each turn.",
+  "蓄氣": "Fengfeng's own resource, capped at 12, carried over between turns. Only cards that say \"spend\" or \"exhaust\" Qi actually consume it. When an attack or block card spends 4 or more Qi at once, that card's damage or Curl is multiplied ×1.3 (a card that spends exactly 4 still counts; cards that just power up your next hit don't). Qi resets to 0 when you go down or the fight ends.",
+  "蜷縮": "Curl up into a ball to block damage. It lasts until the start of your next turn, then resets to 0.",
+  "防禦": "A monster's damage shield. It lasts until its next action, then resets to 0.",
+  "同生共死": "These monsters are linked: as long as one of the group is still standing, any that go down will crawl back up after a few turns. You have to take them all out together for it to count.",
+  "僕從護體": "While its minions are still standing, this monster takes no damage at all. Take out all the minions first before you can hit the main body.",
+  "無敵": "It's recovering — no damage gets through this turn. Wait until it's back up to hit it.",
+  "重生中": "It's down but still linked to a partner, and will crawl back up when the counter hits 0. Clear out its partner now while you can!",
+  "蓄力": "Its next attack deals double damage. Stun it to make that attack whiff.",
+  "叼著小魚乾": "It's carrying all the Dried Fish it stole in its mouth. Defeat it and you get it all back — let it escape and it's gone for good.",
+  "越戰越勇": "It grows stronger on its own every few turns; the number shows how many turns are left until the next power-up. The longer the fight drags on, the more dangerous it gets.",
+  "打倒回血": "You heal when you defeat it. Taking it out first can help you last longer.",
+  "隱身": "A monster's attack is blocked by Curl first; only the hit that Curl can't fully absorb consumes 1 stack of Stealth and whiffs entirely (if Curl blocks it fully, no Stealth is spent). Multi-hit attacks check this separately for each hit. Pierce attacks ignore Curl and check Stealth directly. Stacks can keep piling up.",
+  "連抓": "The number of cards you've already played this turn before this one.",
+  "爪力": "Each point adds 1 damage to your attacks, for the whole fight.",
+  "貓步": "Each point adds 1 to the Curl you gain, for the whole fight.",
+  "翻肚": "Damage you take is multiplied ×1.5. Loses 1 stack at the end of each turn.",
+  "懶洋洋": "Damage you deal is multiplied ×0.75. Loses 1 stack at the end of each turn.",
+  "炸毛": "Curl you gain is multiplied ×0.75. Loses 1 stack at the end of each turn.",
+  "中毒": "Deals damage equal to its stacks at the start of the turn, then loses 1 stack.",
+  "減益": "Statuses that work against you: Belly-Up, Lazy, Frazzled, Poison, and Stun.",
+  "反彈": "Every time you're hit by an attack, deal damage back to the attacker equal to its stacks.",
+  "看破": "Strips half of your Stealth and Dive stacks (3 becomes 1, 2 becomes 1). If the same attack also deals damage, the strip happens first — so stacking up Stealth to tank it only gets you half the value.",
+  "破功": "This attack strips half your Claw and half your Catstep before hitting you.",
+  "穿透": "Curl can't block this hit — only Stealth, Stun, or a \"didn't see it\" full-turn damage immunity can stop it.",
+  "定身": "Locks the target down. A stunned monster can't perform its next action at all (attacking, stealing Dried Fish, stacking Block — none of it; passive Block growth like Scales or Adamant still happens though), but against monsters this only has a 70% chance to land. If you're stunned, you can't play Attack cards this turn.",
+  "潛水": "Grants Stealth equal to its stacks at the start of your next turn.",
+  "鐵布衫": "Grants Curl equal to its stacks at the start of your next turn.",
+  "不壞身": "At the end of every turn it gains Block equal to its stacks, and that Block never resets — it just keeps piling up. If you don't keep attacking it, you'll never break through.",
+  "下回合蜷縮": "Grants Curl equal to its stacks at the start of your next turn (left behind by Iron Shirt).",
+  "下回合隱身": "Grants Stealth equal to its stacks at the start of your next turn.",
+  "壞毛病": "Junk cards stuffed into your deck. Most can't be played and just clog your hand; a few (like Slime and Seeing Stars) can be played, and playing them makes them vanish.",
+  "小魚乾": "The tower's universal currency. The Cannery takes this.",
+  "本局代碼": "The random seed for this run. Entering the same code generates an identical tower — this isn't a save code; your save is stored automatically in this browser.",
+  "秘寶": "Treasures that stay in effect for the whole run. All your Relics stop working while you're down.",
+  "忍具": "Items you can use during battle, gone once used. How many you can carry is shown by the slots in your status bar (difficulty and Relics can change this).",
+  "罐頭鋪": "The orange tabby shopkeeper's store: buy cards, Relics, and Ninja Tools, or spend Dried Fish to \"Release\" a card.",
+  "貓窩": "A rest site: Nap to heal, or upgrade a card. From difficulty 4 up, the Cat Bed on floor 44 also offers \"All-Out Prep\": upgrade a card, heal 10% of your max health, and convert all your Dried Fish into health.",
+  "紙箱": "Open it to get a Relic.",
+  "大魔物": "A tougher monster. Defeating one always drops a Relic.",
+  "塔主": "The final fight of this act.",
+  "消耗": "Once played, this card won't return to your deck for the rest of this fight.",
+  "保留": "This card stays in your hand at the end of the turn instead of being discarded.",
+  "不可打出": "This card can't be played — it just takes up space in your hand.",
+  "虛幻": "If it's still in your hand at the end of the turn, it vanishes instead of going to your discard pile.",
+  "縮殼": "The first time it takes damage, it pulls into its shell, instantly gains Block equal to its stacks, and the status disappears. This only triggers once per fight.",
+  "飛行": "It's flying, so your attacks only deal half damage. Every hit that damages it (Poison doesn't count) removes 1 stack; once it hits 0, it gets knocked down and won't take flight again this fight.",
+  "鱗甲": "It gains Block equal to its stacks at the end of its turn; every hit that damages it (Poison doesn't count) chips off 1 stack.",
+  "沉睡": "It's asleep and does nothing; it loses 1 stack every turn that passes. Dealing damage wakes it up immediately — and it wakes up angry.",
+  "消散": "It'll dissipate on its own in a few turns. Dissipating doesn't count as a kill and drops no loot — defeat it before then if you want the reward.",
+  "分裂": "At half health, it splits into two smaller copies; the original doesn't count as defeated. Each copy's health equals what was left when it split.",
+  "詛咒": "Every time you play a Skill card, it shuffles a junk card into your draw pile.",
+  "憤怒": "Playing a Skill card makes it a little stronger, but it can only be provoked once per turn.",
+  "自爆": "It explodes: it hits you hard first, then goes down itself (counted as your kill, so you still get the loot).",
+  "虛化": "Its body turns translucent, so it takes at most 1 damage per hit. It'll become solid again on its next turn — save your big hits for then.",
+  "黏液": "Junk a monster stuffs into your hand. It costs 1 Rice Ball to discard, and discarding it Exhausts it. It disappears once the fight ends.",
+  "眼冒金星": "Junk a monster stuffs into your hand. It costs no Rice Balls and Exhausts when played, but drawing it is effectively one less real card draw. It disappears once the fight ends.",
+  "迷魂": "Dazed by the incense: this turn its attack hits its neighbor instead (the one on the right first; if there's no neighbor, the attack whiffs). Any debuff it applies to you still lands. It snaps out of it once this turn is over."
+ },
+ "card": {
+  "sanjo": "Cat Scratch",
+  "tanding": "Composure",
+  "kawarimi": "Substitution Jutsu",
+  "feifei:kawarimi": "Substitution",
+  "dangdang:kawarimi": "Substitution",
+  "fengfeng:kawarimi": "Substitution",
+  "shunkan": "Blink Jutsu",
+  "feifei:shunkan": "Blink",
+  "dangdang:shunkan": "Blink",
+  "fengfeng:shunkan": "Blink",
+  "shengdong": "Diversion Jutsu",
+  "feifei:shengdong": "Diversion",
+  "dangdang:shengdong": "Diversion",
+  "fengfeng:shengdong": "Diversion",
+  "shunshou": "Sticky Fingers Jutsu",
+  "feifei:shunshou": "Sticky Fingers",
+  "dangdang:shunshou": "Sticky Fingers",
+  "fengfeng:shunshou": "Sticky Fingers",
+  "fenyiban": "Half for You",
+  "ninaqudang": "You Block This",
+  "nixianduo": "You Dodge First",
+  "wolaidang": "I'll Block",
+  "bangnisheme": "Lend a Paw",
+  "jienicailiangbu": "Borrow My Steps",
+  "feifei:jienicailiangbu": "Two Steps",
+  "niyechouyizhang": "You Draw Too",
+  "wobangnipaidiao": "I'll Brush It Off",
+  "fantuanfenni": "Rice Ball for You",
+  "bangnidianyixia": "Cushion for You",
+  "shoujiewoyixia": "Lend Me a Hand",
+  "yuganjijiu": "Dried Fish First Aid",
+  "feifei:yuganjijiu": "Herbal First Aid",
+  "yiqichuankou": "Catch Our Breath",
+  "huannieduochoudian": "Your Turn to Draw",
+  "wobangnishouwei": "I've Got the Finish",
+  "huannimangyixia": "Your Turn to Hustle",
+  "genzhewoduohao": "Follow Me, Hide",
+  "kaoniyixia": "Counting on You",
+  "zhexienixianchi": "Eat These First",
+  "zhaonishuodeda": "As You Say",
+  "feifei:zhaonishuodeda": "Draw for You",
+  "jienideliqi": "Borrow Your Strength",
+  "chenxianzaichushou": "Strike Now",
+  "biezhanzaishenshang": "Don't Let It Stick",
+  "xianbangniliuzhe": "Holding This for You",
+  "feifei:xianbangniliuzhe": "Block Together",
+  "nimangwobuwei": "I'll Cover for You",
+  "fantuanliuyikou": "Save a Bite",
+  "youwozaiqianmian": "I've Got the Front",
+  "biepengzhenjian": "Watch the Needle",
+  "woyouxianbeihao": "Get Ready Together",
+  "wozaizhe": "I'm Here",
+  "feifei:wozaizhe": "Shout Loud",
+  "jiaochulai": "Hand It Over",
+  "susu": "Begone!",
+  "bunshin": "Clone Jutsu",
+  "feifei:bunshin": "Clone",
+  "dangdang:bunshin": "Clone",
+  "fengfeng:bunshin": "Clone",
+  "feifei_fenshen": "Poison Clone",
+  "ruying": "Like a Shadow",
+  "zhangyan": "Eye Trick Jutsu",
+  "feifei:zhangyan": "Eye Trick",
+  "dangdang:zhangyan": "Eye Trick",
+  "fengfeng:zhangyan": "Eye Trick",
+  "yinshen": "Stealth Jutsu",
+  "feifei:yinshen": "Stealth",
+  "dangdang:yinshen": "Stealth",
+  "fengfeng:yinshen": "Stealth",
+  "bianshen": "Transform Jutsu",
+  "feifei:bianshen": "Transform",
+  "dangdang:bianshen": "Transform",
+  "fengfeng:bianshen": "Transform",
+  "zhuangsi": "Play Dead Jutsu",
+  "feifei:zhuangsi": "Play Dead",
+  "dangdang:zhuangsi": "Play Dead",
+  "fengfeng:zhuangsi": "Play Dead",
+  "duxin": "Mind Read Jutsu",
+  "feifei:duxin": "Mind Read",
+  "dangdang:duxin": "Mind Read",
+  "fengfeng:duxin": "Mind Read",
+  "qianliyan": "Far Sight",
+  "shunfenger": "Keen Ear",
+  "dingshang": "Got My Eye on You",
+  "chudashi": "Big Trouble!",
+  "youcike": "Assassin!",
+  "zhanshu": "Tactical Retreat",
+  "tuozi": "Stalling Jutsu",
+  "feifei:tuozi": "Stalling",
+  "dangdang:tuozi": "Stalling",
+  "fengfeng:tuozi": "Stalling",
+  "shuaiguo": "Buck-Passing Jutsu",
+  "feifei:shuaiguo": "Buck-Passing",
+  "dangdang:shuaiguo": "Buck-Passing",
+  "fengfeng:shuaiguo": "Buck-Passing",
+  "dingshen": "Stun Jutsu",
+  "feifei:dingshen": "Stun",
+  "dangdang:dingshen": "Stun",
+  "fengfeng:dingshen": "Stun",
+  "cuimian": "Hypnosis Jutsu",
+  "feifei:cuimian": "Hypnosis",
+  "dangdang:cuimian": "Hypnosis",
+  "fengfeng:cuimian": "Hypnosis",
+  "fengkou": "Silence Jutsu",
+  "feifei:fengkou": "Silence",
+  "dangdang:fengkou": "Silence",
+  "fengfeng:fengkou": "Silence",
+  "qianshui": "Dive Jutsu",
+  "feifei:qianshui": "Dive",
+  "dangdang:qianshui": "Dive",
+  "fengfeng:qianshui": "Dive",
+  "touchi": "Sneaky Snack Jutsu",
+  "feifei:touchi": "Sneaky Snack",
+  "dangdang:touchi": "Sneaky Snack",
+  "fengfeng:touchi": "Sneaky Snack",
+  "xianshuile": "Sleeping In",
+  "gaotui": "Taking My Leave",
+  "meikandao": "I Saw Nothing",
+  "jiejie": "Barrier",
+  "fantan": "Caltrops Jutsu",
+  "feifei:fantan": "Caltrops",
+  "dangdang:fantan": "Caltrops",
+  "fengfeng:fantan": "Caltrops",
+  "renwuwancheng": "Recovery Scroll Jutsu",
+  "feifei:renwuwancheng": "Recovery Scroll",
+  "dangdang:renwuwancheng": "Recovery Scroll",
+  "fengfeng:renwuwancheng": "Recovery Scroll",
+  "fengyin": "Seal Release",
+  "tieshazhang": "Secret Art: Iron Sand Palm",
+  "feifei:tieshazhang": "Secret Art: Poison Sand",
+  "qinna": "Secret Art: Grapple",
+  "feifei:qinna": "Secret Art: Tripwire",
+  "juye": "Secret Art: Leaf Blade",
+  "jinzhong": "Secret Art: Golden Bell",
+  "qinggong": "Secret Art: Featherstep",
+  "taxue": "Secret Art: Snow Walker",
+  "xuli": "Secret Art: Charge",
+  "tietou": "Secret Art: Iron Head",
+  "shihou": "Secret Art: Lion's Roar",
+  "dianxue": "Secret Art: Pressure Point",
+  "zuiquan": "Secret Art: Drunken Fist",
+  "feifei:zuiquan": "Secret Art: Wild Needles",
+  "yixing": "Secret Art: Shadow Swap",
+  "gekong": "Secret Art: Telekinesis",
+  "guixi": "Secret Art: Turtle Breath",
+  "taiji": "Secret Art: Tai Chi",
+  "mabu": "Secret Art: Catstep",
+  "yungong": "Secret Art: Inner Focus",
+  "yide": "Secret Art: Kindness Wins",
+  "zhongji": "Tricked!",
+  "shishou": "Slip-Up",
+  "zouhuo": "Qi Deviation",
+  "neili": "Low Inner Power",
+  "roubao": "Paw Pad Combo",
+  "feifei:roubao": "Fingertip Flick Combo",
+  "luoye": "Falling Leaf Jutsu",
+  "feifei:luoye": "Falling Leaf",
+  "dangdang:luoye": "Falling Leaf",
+  "fengfeng:luoye": "Falling Leaf",
+  "liangzhua": "Bare Claws",
+  "feifei:liangzhua": "Sharpen Needles",
+  "suoyituan": "Curl Up",
+  "weihe": "Intimidate",
+  "paozhao": "Claw Toss Jutsu",
+  "feifei:paozhao": "Needle Toss",
+  "dangdang:paozhao": "Claw Toss",
+  "fengfeng:paozhao": "Claw Toss",
+  "tianmao": "Groom",
+  "canying": "Afterimage Jutsu",
+  "feifei:canying": "Afterimage",
+  "dangdang:canying": "Afterimage",
+  "fengfeng:canying": "Afterimage",
+  "caiweiba": "Tail Stomp Jutsu",
+  "feifei:caiweiba": "Pin the Tail",
+  "dangdang:caiweiba": "Tail Stomp",
+  "fengfeng:caiweiba": "Tail Stomp",
+  "diaohu": "Lure the Tiger Jutsu",
+  "feifei:diaohu": "Lure the Tiger",
+  "dangdang:diaohu": "Lure the Tiger",
+  "fengfeng:diaohu": "Lure the Tiger",
+  "sashoujian": "Trump Card Jutsu",
+  "feifei:sashoujian": "Trump Card",
+  "dangdang:sashoujian": "Trump Card",
+  "fengfeng:sashoujian": "Trump Card",
+  "jiuming": "Nine Lives Jutsu",
+  "feifei:jiuming": "Nine Lives",
+  "dangdang:jiuming": "Nine Lives",
+  "fengfeng:jiuming": "Nine Lives",
+  "fanzhua": "Hedgehog Jutsu",
+  "feifei:fanzhua": "Hedgehog Body",
+  "dangdang:fanzhua": "Hedgehog Body",
+  "fengfeng:fanzhua": "Hedgehog Body",
+  "wanhua": "Kaleidoscope Jutsu",
+  "feifei:wanhua": "Kaleidoscope",
+  "dangdang:wanhua": "Kaleidoscope",
+  "fengfeng:wanhua": "Kaleidoscope",
+  "yingzi": "Shadow Clone",
+  "feifei_yingzi": "Afterimage Clone Jutsu",
+  "feifei:feifei_yingzi": "Afterimage Clone",
+  "dangdang:feifei_yingzi": "Afterimage Clone",
+  "fengfeng:feifei_yingzi": "Afterimage Clone",
+  "tuishou": "Secret Art: Push Hands",
+  "dieda": "Secret Art: Cat Claw",
+  "feifei:dieda": "Secret Art: Chained Needles",
+  "shibadie": "Secret Art: Eighteen Falls",
+  "hujin": "Secret Art: Turtle Shell",
+  "feifei:hujin": "Secret Art: Cat Sack",
+  "boming": "Secret Art: Last Stand",
+  "shibai": "Overslept",
+  "maoqiu": "Cough Up Hairball",
+  "zuiyang": "Craving Snacks",
+  "fanwei": "Stomachache",
+  "liandao": "Secret Art: Chained Blade",
+  "huanying": "Phantom Clone Jutsu",
+  "feifei:huanying": "Phantom Clone",
+  "dangdang:huanying": "Phantom Clone",
+  "fengfeng:huanying": "Phantom Clone",
+  "jiedao": "Secret Art: Leverage",
+  "wangming": "Secret Art: Desperado",
+  "wufeng": "Windless Jutsu",
+  "feifei:wufeng": "Windless",
+  "dangdang:wufeng": "Windless",
+  "fengfeng:wufeng": "Windless",
+  "tiexin": "Secret Art: Iron Heart",
+  "sanhua": "Calico Convergence Jutsu",
+  "feifei:sanhua": "Calico Convergence",
+  "dangdang:sanhua": "Calico Convergence",
+  "fengfeng:sanhua": "Calico Convergence",
+  "fanpu": "Secret Art: Return to Simplicity",
+  "shierlian": "Secret Art: Twelve Chains",
+  "jingzhi": "Stillness Jutsu",
+  "feifei:jingzhi": "Stillness",
+  "dangdang:jingzhi": "Stillness",
+  "fengfeng:jingzhi": "Stillness",
+  "luanwu": "Shuriken Flurry Jutsu",
+  "feifei:luanwu": "Shuriken Flurry",
+  "dangdang:luanwu": "Sweeping Blow",
+  "fengfeng:luanwu": "Shuriken Flurry",
+  "dilie": "Earth Split Jutsu",
+  "feifei:dilie": "Earth Split",
+  "dangdang:dilie": "Earth Split",
+  "fengfeng:dilie": "Earth Split",
+  "huixuan": "Roundhouse Jutsu",
+  "feifei:huixuan": "Spinning Needles",
+  "dangdang:huixuan": "Roundhouse Kick",
+  "fengfeng:huixuan": "Roundhouse Kick",
+  "lianhuan": "Chain Kick Jutsu",
+  "feifei:lianhuan": "Chain Needles",
+  "dangdang:lianhuan": "Chain Kick",
+  "fengfeng:lianhuan": "Chain Kick",
+  "beici": "Backstab Jutsu",
+  "feifei:beici": "Backstab",
+  "dangdang:beici": "Backstab",
+  "fengfeng:beici": "Backstab",
+  "zhuiji": "Pursuit Jutsu",
+  "feifei:zhuiji": "Pursuit",
+  "dangdang:zhuiji": "Pursuit",
+  "fengfeng:zhuiji": "Pursuit",
+  "doumao": "Fur Shake Jutsu",
+  "feifei:doumao": "Fur Shake",
+  "dangdang:doumao": "Fur Shake",
+  "fengfeng:doumao": "Fur Shake",
+  "maoqiudan": "Hairball Bomb Jutsu",
+  "feifei:maoqiudan": "Poison Pill Bomb",
+  "dangdang:maoqiudan": "Hairball Bomb",
+  "fengfeng:maoqiudan": "Hairball Bomb",
+  "qianglafen": "Chili Powder Jutsu",
+  "feifei:qianglafen": "Chili Powder",
+  "dangdang:qianglafen": "Chili Powder",
+  "fengfeng:qianglafen": "Chili Powder",
+  "bengquan": "Secret Art: Collapse Fist",
+  "feifei:bengquan": "Secret Art: Piercing Needle",
+  "tiebushan": "Secret Art: Iron Shirt",
+  "jieli": "Secret Art: Dissipate Force",
+  "cuiye": "Secret Art: Gag Reflex",
+  "feifei:cuiye": "Secret Art: Poison Flare",
+  "ehou": "Secret Art: Chokehold",
+  "feifei:ehou": "Secret Art: Throat Strike",
+  "huxin": "Secret Art: Guard Heart",
+  "jiuweiquan": "Secret Art: Nine-Tail Fist",
+  "feifei:jiuweiquan": "Secret Art: Nine-Tail Needle",
+  "slime_card": "Slime",
+  "dazed_card": "Seeing Stars",
+  "feifei_feizhen": "Flying Needle",
+  "feifei_tuikai": "Back Off",
+  "feifei_cuidu": "Envenom",
+  "feifei_lianzhen": "Chain Needle",
+  "feifei_sazhen": "Scatter Needles",
+  "feifei_buyizhen": "One More Needle",
+  "feifei_lakai": "Step Back and Dodge",
+  "feifei_tieqiang": "Wall Press",
+  "feifei_moyao": "Apply Salve",
+  "feifei_tanlu": "Scout Ahead",
+  "feifei_suoshou": "Pull Back",
+  "feifei_shouhua": "Slip of the Hand",
+  "feifei_cuidugai": "Envenom+",
+  "feifei_sandu": "Spread Poison",
+  "feifei_zhenyu": "Needle Rain",
+  "feifei_taoshengsuo": "Escape Rope",
+  "feifei_duwu": "Poison Mist",
+  "feifei_jianxue": "Deadly Strike",
+  "feifei_banxian": "Trip Line",
+  "feifei_tianzhen": "Heavy Venom Coat",
+  "feifei_kanzhun": "Spot the Opening",
+  "feifei_quansale": "Scatter It All",
+  "feifei_qianzhen": "Thousand Needles",
+  "feifei_juma": "Barricade",
+  "feifei_yudu": "Lingering Poison",
+  "feifei_yuesa": "Getting the Hang of It",
+  "feifei_yizhen": "One-Needle Kill",
+  "feifei_buyaoguolai": "Don't Come Closer!",
+  "dangdang_zhengquan": "Straight Punch",
+  "dangdang_jiapan": "Guard Stance",
+  "dangdang_huijing": "Return the Favor",
+  "dangdang_xieli": "Deflect Palm",
+  "dangdang_huben": "Bracer Block",
+  "dangdang_yingpeng": "Head-On Clash",
+  "dangdang_tiesha": "Iron Sand Wristguard",
+  "dangdang_tiaoxin": "Provoke",
+  "dangdang_fanshou": "Backhand Strike",
+  "dangdang_wenzhu": "Steady",
+  "dangdang_jieliqi": "Borrow Force",
+  "dangdang_bengshan": "Mountain Crush Palm",
+  "dangdang_jiahou": "Thicker Bracer",
+  "dangdang_yibi": "Give It Back",
+  "dangdang_zhendang": "Shockwave",
+  "dangdang_jianzhao": "Counter Every Move",
+  "dangdang_yingkang": "Tough It Out",
+  "dangdang_zhanzhuang": "Standing Stance",
+  "dangdang_jieshi": "Borrow Momentum",
+  "dangdang_jielidali": "Turn Their Force",
+  "dangdang_shunshi": "Go With It",
+  "dangdang_fanzhen": "Counter-Shock",
+  "dangdang_yishenzuodun": "Body as Shield",
+  "dangdang_tongqiang": "Iron Bastion",
+  "dangdang_tieshan": "Secret Art: Iron Mountain",
+  "dangdang_hubigong": "Secret Art: Bracer Guard",
+  "dangdang_huima": "Secret Art: Reversal Palm",
+  "dangdang_qianjin": "Secret Art: Thousand-Pound Drop",
+  "dangdang_yishang": "Secret Art: Wound for Wound",
+  "dangdang_sheshen": "Secret Art: Body Charge",
+  "fengfeng_pingzhan": "Level Slash",
+  "fengfeng_hushen": "Guard Body",
+  "fengfeng_tuna": "Breath Cycle",
+  "fengfeng_tanbu": "Probing Step",
+  "fengfeng_hengsao": "Sweep",
+  "fengfeng_tabu": "Heavy Chop",
+  "fengfeng_tiaokai": "Parry",
+  "fengfeng_tuibu": "Defensive Retreat",
+  "fengfeng_zhengxi": "Steady Breath",
+  "fengfeng_wenwan": "Steady Wrist",
+  "fengfeng_huanshou": "Switch Grip",
+  "fengfeng_jianqiao": "Sheath Block",
+  "fengfeng_huibu": "Retreat Thrust",
+  "fengfeng_shunjian": "Quick Slash",
+  "fengfeng_sanlian": "Triple Slash",
+  "fengfeng_chuantang": "Piercing Thrust",
+  "fengfeng_shuangduan": "Two-Stage Slash",
+  "fengfeng_huzhou": "Elbow Guard",
+  "fengfeng_zhuanshen": "Turn and Charge",
+  "fengfeng_changxi": "Long Breath",
+  "fengfeng_zhenshou": "Sheath Sword",
+  "fengfeng_xunxi": "Follow Breath",
+  "fengfeng_shoushi": "Closing Stance",
+  "fengfeng_kanshi": "Read the Blade",
+  "fengfeng_youbian": "You Take the Right",
+  "fengfeng_jiewo": "Let Me Block",
+  "fengfeng_husong": "I'll Escort You",
+  "fengfeng_yikouqi": "One Breath",
+  "fengfeng_duanliu": "Secret Art: Break the Flow",
+  "fengfeng_kaishan": "Secret Art: Mountain Splitter",
+  "fengfeng_cunfeng": "Secret Art: Hidden Edge",
+  "fengfeng_lianxi": "Secret Art: Flowing Breath",
+  "fengfeng_jizhong": "Focus",
+  "fengfeng_pozhen": "Secret Art: Break Formation",
+  "fengfeng_yiqichushou": "Strike Together"
+ },
+ "relic": {
+  "blue_headband": [
+   "Blue Headband",
+   "Draw 2 extra cards on the first turn of each battle."
+  ],
+  "backstep": [
+   "Poison Dart Pouch",
+   "At the start of each battle, give all monsters 3 Poison."
+  ],
+  "copper_bracer": [
+   "Copper Bracer",
+   "At the start of each battle, gain 4 Curl and 2 Rebound."
+  ],
+  "old_sword_tassel": [
+   "Old Sword Tassel",
+   "At the start of each battle, gain 2 Qi. Gain 1 more Qi at the start of every turn."
+  ],
+  "onigiri_bag": [
+   "Rice Ball Pouch",
+   "Gain 1 extra Rice Ball on the first turn of each battle."
+  ],
+  "tuna_can": [
+   "Tuna Can",
+   "Max HP +10."
+  ],
+  "catgrass": [
+   "Cat Grass",
+   "Healing from napping at a Cat Bed is doubled."
+  ],
+  "bell": [
+   "Bell",
+   "At the start of each battle, gain 1 Stealth."
+  ],
+  "fish_jar": [
+   "Dried Fish Jar",
+   "Get 15 extra Dried Fish for every battle you win."
+  ],
+  "catnip": [
+   "Catnip",
+   "At the start of each battle, heal 3 HP."
+  ],
+  "tail_bell": [
+   "Tail Bell",
+   "If you didn't play an Attack card this turn, gain 4 Curl at the end of the turn."
+  ],
+  "wood_post": [
+   "Wooden Post",
+   "At the start of each battle, give all monsters 1 Belly-Up."
+  ],
+  "yarn_ball": [
+   "Yarn Ball",
+   "The first card you play each turn costs 1 less Rice Ball (minimum 0). You start with 1 less Rice Ball on the first turn of each battle."
+  ],
+  "cat_teaser": [
+   "Cat Teaser",
+   "Each time you play an Attack card, you have a 15% chance to draw 1 card and gain 1 Rice Ball."
+  ],
+  "scroll": [
+   "Secret Manual",
+   "The first Attack card you play each battle deals double damage."
+  ],
+  "paper_bag": [
+   "Paper Bag",
+   "The first time you gain Stealth each turn, gain 1 extra stack."
+  ],
+  "bronze_mirror": [
+   "Bronze Mirror",
+   "At the start of each battle, gain 2 Rebound."
+  ],
+  "tower_token": [
+   "Boss Token",
+   "Gain 1 extra Rice Ball every turn."
+  ],
+  "straw_hat": [
+   "Straw Hat",
+   "At the start of each battle, gain 4 Curl."
+  ],
+  "potion_bag": [
+   "Tool Pouch",
+   "Carry 1 extra Ninja Tool. Gain 6 Curl each time you use a Ninja Tool."
+  ],
+  "wrist_guard": [
+   "Wrist Guard",
+   "At the start of each battle, gain 1 Claw."
+  ],
+  "soft_pad": [
+   "Soft Pad",
+   "At the start of each battle, gain 1 Catstep."
+  ],
+  "dried_squid": [
+   "Dried Squid",
+   "Max HP +6."
+  ],
+  "fish_bone": [
+   "Fish Bone",
+   "Max HP +16."
+  ],
+  "small_cushion": [
+   "Small Cushion",
+   "Draw 2 extra cards on the first turn of each battle."
+  ],
+  "sardine_tin": [
+   "Sardine Tin",
+   "Heal 2 HP every time you defeat a monster."
+  ],
+  "worn_scroll": [
+   "Worn Scroll",
+   "The first card you play each battle costs 1 less Rice Ball (minimum 0)."
+  ],
+  "lucky_coin": [
+   "Lucky Coin",
+   "Get 20 extra Dried Fish for every battle you win."
+  ],
+  "warm_blanket": [
+   "Warm Blanket",
+   "Napping at a Cat Bed heals 4 extra HP. After napping, gain 20 Curl at the start of your next battle."
+  ],
+  "iron_collar": [
+   "Iron Collar",
+   "At the start of each battle, gain 10 Curl."
+  ],
+  "claw_sheath": [
+   "Claw Sheath",
+   "At the start of each battle, gain 2 Claw."
+  ],
+  "ghost_bell": [
+   "Silent Bell",
+   "At the start of each battle, gain 1 Stealth and 1 Catstep."
+  ],
+  "counting_beads": [
+   "Abacus Beads",
+   "When you play your 2nd card each turn, draw 3 cards."
+  ],
+  "still_water": [
+   "Still Water Bowl",
+   "If you didn't play an Attack card this turn, gain 8 Curl at the end of the turn."
+  ],
+  "nine_tails": [
+   "Nine-Tail Charm",
+   "Starting from turn 2, gain 1 extra Rice Ball every turn."
+  ],
+  "shadow_cloak": [
+   "Shadow Cloak",
+   "Every time you gain Stealth, gain 1 extra stack."
+  ],
+  "last_breath": [
+   "Last Breath",
+   "The first time you'd be defeated in a battle, survive with 1 HP instead."
+  ],
+  "master_belt": [
+   "Grandmaster's Belt",
+   "Max HP +25."
+  ],
+  "golden_bowl": [
+   "Golden Rice Bowl",
+   "Gain 2 extra Rice Balls on the first turn of each battle."
+  ],
+  "feather_toy": [
+   "Feather Toy",
+   "If you didn't play an Attack card this turn, draw 1 extra card and gain 1 extra Rice Ball next turn."
+  ],
+  "old_towel": [
+   "Old Towel",
+   "Heal 4 HP each time you use a Ninja Tool."
+  ],
+  "coin_jar": [
+   "Coin Jar",
+   "Cannery goods cost 20% less (Release and Reroll don't count)."
+  ],
+  "scratch_board": [
+   "Scratching Post",
+   "Gain 2 Curl after you play your first Attack card each turn."
+  ],
+  "wooden_fish": [
+   "Wooden Fish",
+   "If you didn't play an Attack card this turn, heal 2 HP at the end of the turn."
+  ],
+  "warm_stone": [
+   "Warm Hearth Stone",
+   "Heal 4 HP after every battle you win."
+  ],
+  "yarn_gloves": [
+   "Yarn Gloves",
+   "Gain 1 Claw when a monster damages you (once per turn)."
+  ],
+  "catgrass_seed": [
+   "Cat Grass Seed",
+   "Napping at a Cat Bed heals 8 extra HP."
+  ],
+  "crane_bookmark": [
+   "Paper Crane Bookmark",
+   "Draw 1 extra card and gain 1 extra Rice Ball on the first turn of each battle."
+  ],
+  "bamboo_copter": [
+   "Bamboo Copter",
+   "When you play your 4th card each turn, draw 1 card and gain 2 Rice Balls."
+  ],
+  "ink_jade": [
+   "Ink Jade",
+   "At the start of each battle, give all monsters 2 Lazy."
+  ],
+  "sand_bag": [
+   "Sandbag",
+   "Gain 2 Curl at the start of every turn."
+  ],
+  "spirit_bell": [
+   "Spirit Cat Bell",
+   "Draw 1 extra card at the start of every turn."
+  ],
+  "obsidian_claw": [
+   "Obsidian Claw",
+   "At the start of each battle, gain 1 Claw. Gain 1 more Claw every time you defeat a monster."
+  ],
+  "guard_charm": [
+   "Guardian Charm",
+   "Keep up to 8 Curl going into your next turn."
+  ],
+  "turtle_shell": [
+   "Turtle Shell",
+   "At the start of each battle, gain 6 Curl and 3 Rebound."
+  ],
+  "wind_chime": [
+   "Wind Chime",
+   "If you didn't play an Attack card this turn, gain 1 Catstep at the end of the turn."
+  ],
+  "catnip_pipe": [
+   "Catnip Pipe",
+   "Draw 2 cards and gain 2 Rice Balls each time you use a Ninja Tool."
+  ],
+  "coin_sword": [
+   "Coin Sword",
+   "Get 15 extra Dried Fish every time you defeat a monster."
+  ],
+  "tower_moon": [
+   "Tower Moon",
+   "At the start of each battle, gain 3 Claw and 2 Catstep."
+  ],
+  "daruma": [
+   "Daruma Doll",
+   "Max HP +20. Heal 6 HP after every battle you win."
+  ],
+  "nine_bell": [
+   "Nine Lives Bell",
+   "Carry 2 extra Ninja Tools. Heal 6 HP each time you use a Ninja Tool."
+  ],
+  "gold_claws": [
+   "Golden Claw Guards",
+   "When you play your 3rd card each turn, draw 1 card and gain 1 Rice Ball."
+  ],
+  "master_seal": [
+   "Grandmaster's Seal",
+   "At the start of each battle, give all monsters 1 Lazy and 1 Belly-Up. Battle card rewards offer 1 extra choice."
+  ],
+  "master_hat": [
+   "The Master's Straw Hat",
+   "Gain 6 Curl at the start of every turn."
+  ],
+  "iron_palm_wraps": [
+   "Warm-Up Wraps",
+   "Gain 1 Claw after your first Attack card each turn (that card doesn't benefit from it)."
+  ],
+  "master_teacup": [
+   "The Boss's Teacup",
+   "Heal 2 HP at the start of every turn."
+  ],
+  "jade_pendant": [
+   "Jade Pendant of Transmission",
+   "Draw 2 extra cards and gain 1 extra Rice Ball on the first turn of each battle."
+  ],
+  "master_gourd": [
+   "The Boss's Wine Gourd",
+   "Gain 2 Claw and 6 Curl each time you use a Ninja Tool."
+  ],
+  "lucky_cat": [
+   "Lucky Cat",
+   "Get 30 extra Dried Fish for every battle you win."
+  ],
+  "tiger_claws": [
+   "Tiger Claws",
+   "Gain 1 Claw and heal 3 HP every time you defeat a monster."
+  ],
+  "iron_shirt": [
+   "Soft Armor Vest",
+   "Keep up to 10 Curl into your next turn (stacks with similar Relics)."
+  ],
+  "moon_mirror": [
+   "Moonlit Meditation",
+   "If you didn't play an Attack card this turn, gain 2 Claw at the end of the turn."
+  ],
+  "blood_dagger": [
+   "Blood Pact Dagger",
+   "At the start of each battle, gain 3 Claw. Max HP −12 when picked up."
+  ],
+  "miasma_charm": [
+   "Miasma Charm",
+   "Gain 1 extra Rice Ball every turn. Start each battle with 3 Frazzled."
+  ],
+  "iron_sand_vest": [
+   "Iron Sand Vest",
+   "Keep up to 6 Curl into your next turn (stacks with similar Relics)."
+  ],
+  "glutton_purse": [
+   "Glutton's Purse",
+   "Get 25 extra Dried Fish for every battle you win. Cannery goods cost 30% more."
+  ],
+  "black_cat_mask": [
+   "Black Cat Mask",
+   "Gain 2 extra Rice Balls on the first turn of each battle. Start each battle with 1 Lazy."
+  ],
+  "snake_fang": [
+   "Snake Fang Pendant",
+   "Every Attack card you play also gives its target 1 Poison."
+  ],
+  "miasma_sachet": [
+   "Miasma Sachet",
+   "At the start of each battle, give all monsters 2 Poison. When you defeat a poisoned monster, every other monster gains a copy of its remaining Poison."
+  ],
+  "herb_cauldron": [
+   "Herb King's Cauldron",
+   "At the start of each battle, give all monsters 5 Poison."
+  ],
+  "anvil": [
+   "Anvil",
+   "At the start of each battle, gain 2 Rebound. Rebound damage deals 1 extra point."
+  ],
+  "knee_guard": [
+   "Momentum Knee Guard",
+   "Gain 3 Curl every time your Rebound triggers."
+  ],
+  "iron_weight_belt": [
+   "Weighted Belt",
+   "Cards that strip your Curl only remove half of it (rounding any fraction up), but cards you play still hit at full strength. Keep up to 8 Curl into your next turn (stacks with similar Relics)."
+  ],
+  "whet_stone": [
+   "Whetstone",
+   "At the start of each battle, gain 3 Qi."
+  ],
+  "tassel_knot": [
+   "Tassel Knot",
+   "Gain 2 Qi after your first Attack card each turn."
+  ],
+  "qi_gourd": [
+   "Qi-Nourishing Gourd",
+   "Gain 2 Qi at the start of every turn."
+  ],
+  "bamboo_tube": [
+   "Bamboo Tube",
+   "At the start of each battle, gain 1 Dive (becomes Stealth starting turn 2)."
+  ],
+  "startle_bell": [
+   "Startle Bell",
+   "Gain 1 Dive when a monster damages you (becomes Stealth next turn; once per turn)."
+  ],
+  "shadow_band": [
+   "Shadow Ninja Headband",
+   "Every 3rd turn (at the start of turns 3, 6, 9...), gain 1 Stealth."
+  ],
+  "sleepless_censer": [
+   "Sleepless Censer",
+   "Gain 1 extra Rice Ball every turn. Napping at a Cat Bed no longer heals you (the final Cat Bed on floor 44 still heals you fully)."
+  ],
+  "greedy_pouch": [
+   "Greedy Purse",
+   "Gain 1 extra Rice Ball every turn. Cannery goods cost 50% more (Release and Reroll don't count)."
+  ],
+  "renounce_beads": [
+   "Renunciation Beads",
+   "Draw 1 extra card at the start of every turn. Battle card rewards offer 1 fewer choice."
+  ],
+  "mad_sheath": [
+   "Mad Blade Sheath",
+   "At the start of each battle, gain 4 Claw and 2 Belly-Up."
+  ],
+  "shared_bento": [
+   "Shared Bento",
+   "At the start of every turn, your partner gains 1 Curl (if you're solo, you gain it instead)."
+  ],
+  "bond_knot": [
+   "Bonding Knot",
+   "At the start of each battle, you and your partner each gain 1 Claw (if you're solo, you gain 2 instead)."
+  ],
+  "wooden_dummy": [
+   "Wooden Training Dummy",
+   "Every 10th Attack card you play deals double damage (the count carries across battles)."
+  ],
+  "hourglass": [
+   "Hourglass",
+   "Every 3rd turn (at the start of turns 3, 6, 9...), gain 1 extra Rice Ball."
+  ],
+  "piggy_bank": [
+   "Piggy Bank",
+   "Every time you enter 3 non-battle tiles (Event, Cannery, Cat Bed, Cardboard Box), get 40 Dried Fish (the count carries across acts)."
+  ],
+  "incense_stick": [
+   "Incense Stick",
+   "Every 2nd turn (at the start of turns 2, 4, 6...), clear 1 type of Debuff on yourself."
+  ],
+  "dart_case": [
+   "Dart Case",
+   "After you play your 3rd card each turn, deal 5 damage to a random monster."
+  ],
+  "full_moon_sword": [
+   "Full Moon Sword Intent",
+   "Gain 1 Qi at the start of every turn. The moment your Qi reaches 10 or more, your next Attack card this turn deals double damage (once per turn)."
+  ],
+  "sheath_pendant": [
+   "Sheathing Pendant",
+   "Every time you spend 6 Qi in this battle, gain 1 Rice Ball."
+  ],
+  "five_poison_manual": [
+   "Five Poisons Manual",
+   "At the start of each battle, give all monsters 1 Poison. Poison you apply deals 2 extra damage each time it ticks."
+  ],
+  "iron_wall": [
+   "Iron Wall",
+   "At the end of the turn, every 2 points of Curl above 15 converts into 1 Rebound (your Curl isn't reduced)."
+  ],
+  "clone_scroll": [
+   "Shadow Clone Scroll",
+   "At the start of each battle, gain 1 Catstep. Every time you dodge a monster's attack, draw 1 extra card and gain 1 extra Rice Ball next turn."
+  ],
+  "member_card": [
+   "Membership Card",
+   "Releasing a card always costs 40 Dried Fish — the price no longer climbs."
+  ],
+  "shop_ledger": [
+   "Shopkeeper's Ledger",
+   "The first item you buy at each Cannery is half price (cards, Relics, and Ninja Tools all count; Release and Reroll don't)."
+  ],
+  "bulk_crate": [
+   "Bulk Crate",
+   "Carry 2 extra Ninja Tools. Ninja Tools at the Cannery are half price."
+  ],
+  "master_wooden_sword": [
+   "The Master's Old Wooden Sword",
+   "At the start of each battle, gain 1 Claw and 4 Curl."
+  ],
+  "miasma_shard": [
+   "Miasma Shard",
+   "Max HP +15. Start each battle with 1 Frazzled."
+  ],
+  "bandit_iou": [
+   "Bandit's IOU",
+   "Get 25 extra Dried Fish for every battle you win. The first time you enter each Cannery, pay off 10 Dried Fish of the bandit's old debt first (down to 0 if you have less)."
+  ],
+  "herb_basket": [
+   "Herb Basket",
+   "Winning a regular battle always includes 1 Ninja Tool in the loot (counts toward what would already drop, not extra)."
+  ],
+  "dream_pillow": [
+   "Dream Pillow",
+   "After napping at a Cat Bed, choose 1 of 3 upgraded cards to add to your deck (you may skip it)."
+  ],
+  "peace_cord": [
+   "Peace Cord",
+   "Question-mark tiles can never turn into an Ambush. Heal 5 HP every time you enter one."
+  ],
+  "scout_staff": [
+   "Scouting Staff",
+   "Every 2nd question-mark tile you enter is guaranteed to be a Roadside Box."
+  ],
+  "box_in_box": [
+   "Box Within a Box",
+   "The next 2 Cardboard Boxes you open (the floor-8 box and a Roadside Box) each give you 1 extra Relic."
+  ],
+  "miasma_lantern": [
+   "Miasma Lantern",
+   "Draw 1 extra card at the start of every turn. Gain 1 extra Rice Ball on the first turn of each battle. Start each battle with 1 Lazy."
+  ],
+  "demon_seal": [
+   "Demon-Sealing Talisman",
+   "At the start of each battle, apply 1 Stun to all monsters (70% chance to land on each)."
+  ],
+  "stamp_card": [
+   "Stamp Card",
+   "Get a stamp for every Cannery with a different shopkeeper you visit (the one where you buy this counts as your first). Collect 3 different stamps to get a random Boss Relic, and Cannery goods cost 10% less after that."
+  ],
+  "master_bracer": [
+   "Miasma-Stained Old Wrist Guard",
+   "At the start of each battle, gain 3 Claw and 2 Belly-Up."
+  ],
+  "miasma_charm_pure": [
+   "Purified Miasma Charm",
+   "Gain 1 extra Rice Ball every turn. Start each battle with 2 Frazzled (some of the miasma has cleared)."
+  ],
+  "blood_dagger_pure": [
+   "Pact-Breaking Dagger",
+   "At the start of each battle, gain 2 Claw."
+  ],
+  "black_cat_mask_pure": [
+   "White Cat Mask",
+   "Gain 2 extra Rice Balls on the first turn of each battle."
+  ],
+  "miasma_shard_pure": [
+   "Moonlight Crystal",
+   "Max HP +13."
+  ],
+  "master_bracer_pure": [
+   "The Master Cat's Old Wrist Guard",
+   "At the start of each battle, gain 2 Claw. Max HP −3."
+  ],
+  "miasma_lantern_pure": [
+   "Everlasting Lantern",
+   "Draw 1 extra card at the start of every turn. Gain 1 extra Rice Ball on the first turn of each battle."
+  ]
+ },
+ "potion": {
+  "smoke_bomb": [
+   "Smoke Bomb",
+   "Gain 2 Stealth."
+  ],
+  "shuriken": [
+   "Shuriken",
+   "Deal 8 damage to the target."
+  ],
+  "onigiri": [
+   "Rice Ball",
+   "Gain 1 extra Rice Ball this turn."
+  ],
+  "catgrass_tea": [
+   "Cat Grass Tea",
+   "Heal 10 HP."
+  ],
+  "firecracker": [
+   "Firecracker",
+   "Deal 6 damage to all monsters."
+  ],
+  "rope": [
+   "Rope",
+   "Stun the target (70% chance to land)."
+  ],
+  "tuna": [
+   "Tuna",
+   "Draw 3 cards."
+  ],
+  "whetstone": [
+   "Claw Powder",
+   "Gain 1 Claw for this battle."
+  ],
+  "milk": [
+   "Warm Milk",
+   "Clear all Debuffs on yourself."
+  ],
+  "quilt": [
+   "Little Quilt",
+   "Gain 15 Curl."
+  ],
+  "claw_oil": [
+   "Claw Oil",
+   "Gain 3 Claw for this battle."
+  ],
+  "cat_step": [
+   "Catstep Powder",
+   "Gain 3 Catstep for this battle."
+  ],
+  "needle_rain": [
+   "Triple Needle",
+   "Deal 4 damage to the target, 3 times."
+  ],
+  "pepper": [
+   "Pepper Shaker",
+   "Give all monsters 3 Poison."
+  ],
+  "mirror_shard": [
+   "Mirror Shard",
+   "Gain 5 Rebound."
+  ],
+  "nip_ball": [
+   "Catnip Ball",
+   "Give all monsters 2 Lazy and 2 Belly-Up."
+  ],
+  "dried_fish_bundle": [
+   "Two Rice Balls",
+   "Gain 2 extra Rice Balls this turn."
+  ],
+  "secret_scroll": [
+   "Torn Scroll Page",
+   "Draw 2 cards and gain 2 extra Rice Balls."
+  ],
+  "iron_paw": [
+   "Iron Knuckle",
+   "Deal 16 damage to the target."
+  ],
+  "nine_lives": [
+   "Nine Lives Talisman",
+   "Heal 20 HP."
+  ],
+  "clone_oil": [
+   "Clone Oil",
+   "Your next Attack card this turn deals double damage."
+  ],
+  "iron_salve": [
+   "Golden Bell Salve",
+   "Take no damage this turn."
+  ],
+  "revive_pill": [
+   "Resurrection Pill",
+   "Usable only below 30% HP: heal half your max HP."
+  ],
+  "first_incense": [
+   "First-Strike Incense",
+   "The monster skips its action this turn."
+  ],
+  "pick_back": [
+   "Pick It Back Up",
+   "Pick 1 card from your discard pile into your hand."
+  ],
+  "claw_bolt": [
+   "Claw Bolt",
+   "Deal 10 damage to a random monster, 3 times."
+  ],
+  "bind_nail": [
+   "Binding Nail",
+   "Give all monsters 1 Stun (70% chance to land on each)."
+  ],
+  "steal_claw": [
+   "Sticky-Fingers Claw",
+   "Steal all of the target's Block and convert it into your own Curl."
+  ],
+  "break_art": [
+   "Stance-Breaking Powder",
+   "Strip up to 10 stacks each of the target's Claw, Catstep, Scales, and Adamant."
+  ],
+  "double_back": [
+   "Double It Back",
+   "Double the target's Poison stacks, then add 2 more."
+  ],
+  "rubble_bag": [
+   "Bag of Rubble",
+   "Deal 6–22 damage to the target (random)."
+  ],
+  "your_way": [
+   "Its Own Medicine",
+   "Deal damage equal to your current Curl."
+  ],
+  "bird_glue": [
+   "Bird Lime",
+   "Knock the target out of the sky — it won't take flight again this fight."
+  ],
+  "thorn_shears": [
+   "Thorn Shears",
+   "Strip all of the target's Rebound."
+  ],
+  "armor_pick": [
+   "Armor Pick",
+   "Deal 12 damage to the target, ignoring Block."
+  ],
+  "qi_tea": [
+   "Invigorating Tea",
+   "Gain 6 Qi."
+  ],
+  "sword_talisman": [
+   "Sword Intent Talisman",
+   "Fill your Qi to full (12)."
+  ],
+  "spread_powder": [
+   "Spreading Powder",
+   "Give half the target's Poison stacks to every other monster (the target's own Poison is unchanged)."
+  ],
+  "needle_salve": [
+   "Thousand Needle Salve",
+   "For the rest of this battle, every Attack card you play also gives its target 2 Poison."
+  ],
+  "iron_oil": [
+   "Iron Shirt Oil",
+   "Gain 10 Curl and 3 Rebound."
+  ],
+  "payback_powder": [
+   "Tit-for-Tat Powder",
+   "For the rest of this battle, Rebound damage deals 4 extra points."
+  ],
+  "dive_straw": [
+   "Diving Reed",
+   "Gain 2 Dive (becomes Stealth next turn)."
+  ],
+  "decoy_doll": [
+   "Decoy Doll",
+   "Gain 1 Stealth and draw 2 cards."
+  ],
+  "thunder_bead": [
+   "Thunder Bead",
+   "Deal 14 damage to all monsters."
+  ],
+  "share_half": [
+   "Split-in-Half Bun",
+   "You and your partner each gain 8 Curl (if you're solo, only you gain it)."
+  ],
+  "revive_incense": [
+   "Soul-Return Incense",
+   "The next time you'd be defeated in this battle, survive with 1 HP instead — any remaining attacks that monster turn also can't finish you off (you stay at a minimum of 1 HP)."
+  ],
+  "bento": [
+   "Bento Box",
+   "Gain 2 extra Rice Balls at the start of your next turn."
+  ],
+  "demon_mirror": [
+   "Demon-Revealing Mirror",
+   "Strip Stealth, Dive, and Ghostly from all monsters."
+  ],
+  "transfer_pill": [
+   "Skill-Transfer Pill",
+   "Your partner draws 2 cards and you gain 1 Rice Ball (if you're solo, you draw the 2 cards yourself)."
+  ],
+  "swap_talisman": [
+   "Swap Talisman",
+   "Pick a card in your hand and swap it for a random upgraded card (this battle only)."
+  ],
+  "daze_incense": [
+   "Dazing Incense",
+   "The target's attack this turn hits its neighbor instead (whiffs if it has no neighbor)."
+  ]
+ },
+ "enemy": {
+  "rat": "Rat Soldier",
+  "cucumber": "Cucumber Monster",
+  "onigiri_monster": "Onigiri Monster",
+  "wood_dummy": "Wooden Dummy",
+  "goat": "Lost Goat",
+  "vacuum": "Vacuum Cleaner",
+  "black_ninja": "Black Cat Ninja",
+  "white_duelist": "Sparring White Cat",
+  "sparring_partner": "Black Cat Sparring Partner",
+  "orange_bandit": "Orange Tabby Bandit",
+  "catgrass_bug": "Catgrass Bug",
+  "scarecrow": "Scarecrow Guard",
+  "black_ninja_elite": "Black Cat Ninja (Veteran)",
+  "big_cucumber": "Giant Cucumber Monster",
+  "ninja_boss": "Black Cat Ninja Boss",
+  "giant_onigiri": "Giant Onigiri",
+  "black_kitten": "Black Kitten",
+  "nekomata": "Granny Nekomata",
+  "nekomata_tail": "Nekomata's Tail",
+  "iron_claw": "Iron Claw Mechanism Cat",
+  "tower_master": "The Corrupted Master",
+  "yarn_ball": "Yarn Ball Monster",
+  "soy_bottle": "Spilled Soy Sauce Bottle",
+  "box_lurker": "Cardboard Box Lurker",
+  "hedgehog": "Hedgehog Master",
+  "can_spirit": "Cat Food Can Spirit",
+  "five_claw": "Five-Claw Cat",
+  "dozing_tabby": "Dozing Tabby",
+  "chipmunk": "Chipmunk",
+  "chipmunk_small": "Baby Chipmunk",
+  "mirror_cat": "Mirror Cat",
+  "broom_centipede": "Broom Centipede",
+  "stone_lion": "Stone Lion",
+  "catnip_phantom": "Catnip Phantom",
+  "shadow_kitten_a": "Shadow Kitten I",
+  "shadow_kitten_b": "Shadow Kitten II",
+  "shadow_kitten_c": "Shadow Kitten III",
+  "training_post": "Training Post",
+  "roomba_king": "Robot Vacuum King",
+  "mini_broom": "Little Broom",
+  "calico_monk": "Calico Monk",
+  "shiba_ronin": "Shiba Inu Ronin",
+  "shamisen_cat": "Shamisen Cat",
+  "lantern_ghost": "Lantern Ghost",
+  "windchime_sprite": "Wind Chime Sprite",
+  "tanuki_kid": "Little Tanuki",
+  "geta_monster": "Geta Monster",
+  "ink_cat": "Scroll Ink Cat",
+  "kasa_obake": "Karakasa-Obake",
+  "kappa": "Kappa",
+  "tofu_boy": "Tofu Boy",
+  "moon_rabbit": "Moon-Viewing Rabbit",
+  "owl_sentry": "Owl Night Sentry",
+  "paper_crane": "Paper Crane Shikigami",
+  "miasma_blob": "Miasma Blob",
+  "night_panther": "Night Panther",
+  "shadow_cat": "Shadow Qiuqiu",
+  "tengu": "Crow Tengu",
+  "fox_miko": "White Fox Shrine Maiden",
+  "armor_ghost": "Empty Armor Warrior",
+  "mirror_qiuqiu": "Mirror Qiuqiu",
+  "skin:feifei:mirror_qiuqiu": "Mirror Feifei",
+  "skin:dangdang:mirror_qiuqiu": "Mirror Dangdang",
+  "skin:fengfeng:mirror_qiuqiu": "Mirror Fengfeng",
+  "orange_king": "King Orange Peel",
+  "cowcat_boss": "Cow Cat Second-in-Command",
+  "tanuki_lord": "Lord Tanuki",
+  "persian_lady": "Lady Persia",
+  "butler_cat": "Butler Cat",
+  "maid_cat": "Maid Cat",
+  "dango_slime": "Dango Slime",
+  "dango_bit": "Little Dango",
+  "armadillo_pup": "Baby Armadillo",
+  "lantern_moth": "Lantern Moth",
+  "hibernating_bear": "Hibernating Bear",
+  "puffer_spirit": "Pufferfish Spirit",
+  "plated_beetle": "Armored Beetle",
+  "rat_guard": "Rat Royal Guard",
+  "rat_general": "Rat General",
+  "curse_priest": "Curse Priest",
+  "phantom_fox": "Phantom Fox",
+  "red_oni": "Red Oni Warrior",
+  "moon_moth_queen": "Moon Moth Queen",
+  "jizo_golem": "Jizo Stone Golem",
+  "frog_daimyo": "Frog Daimyo",
+  "tadpole": "Tadpole Soldier",
+  "armadillo_king": "Armadillo King",
+  "dragon_cat": "Sleeping Dragon Cat",
+  "hex_abbot": "Cursed Old Abbot",
+  "wild_boar": "Wild Boar Boss",
+  "paper_tiger": "Paper Tiger",
+  "drum_tanuki": "Taiko Drum Tanuki",
+  "iron_arhat": "Iron Arhat",
+  "shadow_spider": "Shadow-Weaving Spider",
+  "drunk_dog": "Drunken Fist Dog",
+  "oni_general": "Oni General",
+  "imp": "Imp",
+  "mirror_sage": "Mirror Sage",
+  "mirror_shard": "Mirror Shard",
+  "void_cat": "Void Cat",
+  "snow_cat": "Snow Cat",
+  "fortune_cat": "Fortune Cat",
+  "lantern_fish": "Lantern Anglerfish",
+  "puppeteer": "Puppeteer",
+  "puppet": "Puppet",
+  "shuten_imp": "Shuten Imp",
+  "lantern_twin_a": "Paper Lantern Twin A",
+  "lantern_twin_b": "Paper Lantern Twin B",
+  "miasma_crows": "Miasma Crow Flock",
+  "crow_small": "Small Crow Flock",
+  "wraith_samurai": "Wraith Samurai",
+  "twin_hound": "Two-Headed Hound",
+  "guardian_statue": "Tower Peak Guardian Statue",
+  "mask_dancer": "Masked Dancer"
+ },
+ "move": {
+  "啃": "Gnaw",
+  "躲": "Dodge",
+  "嚇人": "Scare",
+  "彈起": "Bounce",
+  "黏住": "Stick",
+  "撞": "Ram",
+  "結成飯糰": "Rice Ball Up",
+  "硬撐": "Brace",
+  "揮臂": "Arm Swing",
+  "衝撞": "Charge",
+  "吃草": "Graze",
+  "發呆": "Daze",
+  "噪音": "Noise",
+  "吸走": "Suck In",
+  "隱身": "Stealth",
+  "二連斬": "Double Slash",
+  "手裡劍": "Shuriken",
+  "亮劍": "Draw Blade",
+  "正面斬": "Frontal Slash",
+  "架勢": "Stance",
+  "突刺": "Thrust",
+  "凝神": "Focus",
+  "飛鏢": "Dart",
+  "撒沙": "Sand Toss",
+  "側踢": "Side Kick",
+  "搶劫": "Rob",
+  "掄棒": "Club Swing",
+  "擋": "Block",
+  "逃走": "Flee",
+  "咬": "Bite",
+  "吐": "Spit",
+  "重劈": "Heavy Chop",
+  "架起": "Guard Up",
+  "蓄力": "Charge Up",
+  "翻滾": "Roll",
+  "分身": "Clone",
+  "連擊": "Combo",
+  "手裡劍雨": "Shuriken Rain",
+  "壓扁": "Flatten",
+  "抓": "Claw",
+  "鬼火": "Will-o'-Wisp",
+  "吸魂": "Soul Drain",
+  "雙尾抽": "Twin Tail Whip",
+  "亂尾": "Wild Tail",
+  "招魂": "Summon Spirit",
+  "放尾巴": "Release Tail",
+  "抽": "Whip",
+  "渡氣": "Transfer Qi",
+  "四連爪": "Quad Claw",
+  "上緊發條": "Wind Up",
+  "絞刃": "Blade Twist",
+  "收爪": "Sheathe Claws",
+  "爪暴": "Claw Frenzy",
+  "卡住": "Jam",
+  "全開": "Full Power",
+  "鐵頭功": "Iron Head",
+  "拆招": "Counter",
+  "金鐘罩": "Golden Bell",
+  "獅吼功": "Lion's Roar",
+  "沾衣十八跌": "Eighteen Falls",
+  "十二連環": "Twelve Chains",
+  "穿心掌": "Heart Pierce",
+  "狂風連掌": "Windstorm Palms",
+  "醉拳": "Drunken Fist",
+  "亡命一擊": "Desperate Strike",
+  "破功": "Break Stance",
+  "氣沉丹田": "Deep Breath",
+  "看破": "See Through",
+  "纏住": "Entangle",
+  "滾": "Roll",
+  "縮成球": "Curl Up",
+  "滴": "Drip",
+  "潑": "Splash",
+  "躲進箱子": "Hide in Box",
+  "探頭": "Peek Out",
+  "暴衝": "Rampage",
+  "豎刺": "Spike Up",
+  "縮起來": "Curl In",
+  "刺": "Stab",
+  "補滿": "Refill",
+  "砸": "Smash",
+  "罐頭蓋": "Can Lid",
+  "五連爪": "Five-Claw Combo",
+  "磨爪": "Sharpen Claws",
+  "三連爪": "Triple Claw",
+  "睡": "Sleep",
+  "打呵欠": "Yawn",
+  "翻身壓": "Roll Over Press",
+  "搶": "Snatch",
+  "叫同伴": "Call Ally",
+  "照鏡子": "Look in Mirror",
+  "學起來": "Learn",
+  "一模一樣": "Mimic",
+  "反照": "Reflect",
+  "掃": "Sweep",
+  "揚塵": "Kick Up Dust",
+  "橫掃": "Sweep Wide",
+  "捲起來": "Coil Up",
+  "鎮守": "Guard Post",
+  "石掌": "Stone Palm",
+  "碎石": "Rock Shatter",
+  "獅吼": "Roar",
+  "幻擊": "Phantom Strike",
+  "迷幻": "Illusion",
+  "朦朧": "Blur",
+  "亂舞": "Frenzy Dance",
+  "影抓": "Shadow Claw",
+  "交疊": "Overlap",
+  "掩影": "Shadow Cloak",
+  "疊影": "Stack Shadows",
+  "反擊": "Counterattack",
+  "穩住": "Steady",
+  "重擊": "Heavy Strike",
+  "放出小掃把": "Release Broom",
+  "滾刷": "Roller Brush",
+  "全力清潔": "Full Clean",
+  "刷": "Scrub",
+  "運氣": "Gather Qi",
+  "掌": "Palm Strike",
+  "調息": "Regulate Breath",
+  "連環掌": "Chain Palms",
+  "怒掌": "Furious Palm",
+  "喝": "Shout",
+  "拔刀式": "Draw Stance",
+  "居合斬": "Iai Slash",
+  "挑釁": "Taunt",
+  "收刀": "Sheathe Blade",
+  "走音": "Off-Key",
+  "高音": "High Note",
+  "亂彈": "Discord",
+  "調弦": "Tune Strings",
+  "舔火": "Lick Flame",
+  "吐火": "Breathe Fire",
+  "燈芯補油": "Refuel Wick",
+  "撲上來": "Pounce",
+  "搖鈴": "Ring Bell",
+  "音波": "Sound Wave",
+  "風護": "Wind Guard",
+  "亂風": "Wild Wind",
+  "變身戲法": "Transform Trick",
+  "葉子彈": "Leaf Shot",
+  "搗蛋": "Mischief",
+  "裝可愛": "Act Cute",
+  "踩踏": "Stomp",
+  "站穩": "Stand Firm",
+  "絆倒": "Trip",
+  "再踩": "Stomp Again",
+  "墨爪": "Ink Claw",
+  "潑墨": "Ink Splash",
+  "隱入卷軸": "Hide in Scroll",
+  "一筆斬": "Brush Slash",
+  "撐傘": "Open Umbrella",
+  "旋傘": "Spin Umbrella",
+  "單腳跳踢": "Hop Kick",
+  "舌頭一舔": "Tongue Lick",
+  "相撲推": "Sumo Push",
+  "頂皿蓄水": "Fill Dish",
+  "拽走小魚乾": "Snatch Fish",
+  "甲羅撞": "Shell Ram",
+  "請吃豆腐": "Offer Tofu",
+  "豆腐砸": "Tofu Smash",
+  "躲進斗笠": "Hide in Hat",
+  "撒黴豆腐": "Moldy Tofu Toss",
+  "搗麻糬": "Pound Mochi",
+  "杵擊": "Pestle Strike",
+  "麻糬黏住": "Mochi Stick",
+  "月光": "Moonlight",
+  "夜視鎖定": "Night Lock-On",
+  "俯衝": "Dive Bomb",
+  "展翅警戒": "Wings Alert",
+  "爪擊": "Claw Strike",
+  "摺翼": "Fold Wings",
+  "紙刃": "Paper Blade",
+  "折射": "Refract",
+  "銳襲": "Sharp Strike",
+  "侵蝕": "Corrode",
+  "膨脹": "Swell",
+  "魔氣浪": "Miasma Wave",
+  "凝聚再生": "Regen Surge",
+  "潛影": "Shadow Dive",
+  "猛撲": "Fierce Pounce",
+  "撕裂": "Rend",
+  "低吼": "Growl",
+  "影爪抓": "Shadow Rake",
+  "影蜷縮": "Shadow Curl",
+  "影分身": "Shadow Clone",
+  "影撒手鐧": "Shadow Trump Card",
+  "羽扇颶風": "Fan Hurricane",
+  "天狗飛斬": "Tengu Slash",
+  "乘風": "Ride the Wind",
+  "看穿": "Discern",
+  "祓除": "Purge",
+  "狐火": "Foxfire",
+  "結界": "Barrier",
+  "狐火纏身": "Foxfire Wrap",
+  "盾牆": "Shield Wall",
+  "槍突": "Spear Jab",
+  "鐵壁": "Iron Wall",
+  "照著學": "Follow Suit",
+  "肚皮壓": "Belly Press",
+  "丟魚骨頭": "Throw Fishbone",
+  "滾來滾去": "Roll Around",
+  "泰山壓頂": "Mountain Press",
+  "龍捲滾": "Tornado Roll",
+  "揉麵團": "Knead Dough",
+  "黑手重錘": "Black Hand Hammer",
+  "白手連打": "White Hand Combo",
+  "換式・沉腰": "Sink Stance",
+  "黑白亂舞": "Yin-Yang Frenzy",
+  "運勁": "Channel Power",
+  "合一連環": "Unity Chain",
+  "崩拳": "Collapse Fist",
+  "醉八仙": "Eight Drunk Immortals",
+  "葉隱": "Leaf Hide",
+  "肚皮鼓": "Belly Drum",
+  "酒氣": "Wine Fumes",
+  "醉拳真髓": "Drunken Fist Mastery",
+  "葫蘆補酒": "Gourd Refill",
+  "大變身": "Big Transform",
+  "泰山鼓壓": "Mountain Drum Press",
+  "擺架子": "Put on Airs",
+  "扇子拍": "Fan Smack",
+  "尖叫": "Shriek",
+  "補香水": "Perfume Refresh",
+  "貴族之怒": "Noble's Fury",
+  "甩尾": "Tail Whip",
+  "歇斯底里": "Hysteria",
+  "拋托盤": "Throw Tray",
+  "布陣": "Formation",
+  "奉茶": "Serve Tea",
+  "雞毛撢亂揮": "Duster Flail",
+  "撢塵護主": "Dust Guard",
+  "大掃除": "Deep Clean",
+  "黏一下": "Sticky Touch",
+  "再撞一次": "Ram Again",
+  "縮": "Shrink",
+  "加速滾": "Speed Roll",
+  "撲翅": "Wing Flap",
+  "鱗粉": "Scale Dust",
+  "拍": "Pat",
+  "熊抱": "Bear Hug",
+  "再拍一下": "Pat Again",
+  "鼓氣": "Puff Up",
+  "再鼓一口": "Puff Again",
+  "爆炸": "Explode",
+  "頂": "Headbutt",
+  "磨甲": "Sharpen Shell",
+  "長槍突刺": "Lance Thrust",
+  "舉盾": "Raise Shield",
+  "槍陣": "Spear Formation",
+  "號令": "Command",
+  "盾陣": "Shield Formation",
+  "揮刀": "Sword Swing",
+  "全軍突擊": "All-Out Charge",
+  "咒印": "Curse Seal",
+  "唸咒": "Chant",
+  "咒杖": "Cursed Staff",
+  "撕": "Tear",
+  "鐵棒": "Iron Rod",
+  "怒吼": "Furious Roar",
+  "吸": "Suck",
+  "撲": "Lunge",
+  "合十": "Prayer Palms",
+  "再一記石掌": "Stone Palm Again",
+  "舌捲": "Tongue Coil",
+  "蛙鳴": "Croak",
+  "跳壓": "Jump Press",
+  "大舌捲": "Big Tongue Coil",
+  "重跳壓": "Heavy Jump Press",
+  "護主": "Protect Master",
+  "滾壓": "Roll Press",
+  "龜縮": "Shell Retreat",
+  "全速滾壓": "Full Speed Press",
+  "龍息": "Dragon Breath",
+  "尾掃": "Tail Sweep",
+  "盤踞": "Coil",
+  "龍炎": "Dragon Flame",
+  "吞天": "Devour Sky",
+  "咆哮": "Bellow",
+  "木魚": "Wooden Fish",
+  "唸經": "Chant Sutra",
+  "佛掌": "Buddha Palm",
+  "大佛掌": "Great Buddha Palm",
+  "急木魚": "Rapid Wooden Fish",
+  "亂踩": "Stampede",
+  "虛張聲勢": "Bluff",
+  "敲鼓": "Drum Beat",
+  "打鼓助勢": "Drum Boost",
+  "鐵拳": "Iron Fist",
+  "金剛立": "Vajra Stance",
+  "羅漢掌": "Arhat Palm",
+  "鐵山靠": "Iron Mountain",
+  "吐絲": "Spin Silk",
+  "醉步": "Drunken Step",
+  "灌酒": "Chug Wine",
+  "戳": "Poke",
+  "鏡光": "Mirror Flash",
+  "幻影": "Phantom",
+  "鏡刺": "Mirror Stab",
+  "碎光": "Shatter Light",
+  "黑火": "Black Flame",
+  "虛爪": "Phantom Claw",
+  "吞噬": "Devour",
+  "冰吐息": "Ice Breath",
+  "寒氣": "Chill",
+  "凝霜": "Frost",
+  "招手": "Beckon",
+  "金幣雨": "Coin Rain",
+  "護體": "Body Guard",
+  "燈光": "Lantern Light",
+  "深海壓": "Deep Sea Press",
+  "操偶": "Puppeteer",
+  "針刺": "Needle Stab",
+  "木拳": "Wooden Fist",
+  "硬化": "Harden",
+  "酒瓶砸": "Bottle Smash",
+  "火苗": "Flame Spark",
+  "照亮": "Illuminate",
+  "燈火": "Lamplight",
+  "護火": "Guard Flame",
+  "啄擊": "Peck Strike",
+  "遮天": "Blot the Sky",
+  "啄": "Peck",
+  "亂飛": "Erratic Flight",
+  "怨斬": "Grudge Slash",
+  "怨念": "Grudge",
+  "殘影": "Afterimage",
+  "雙咬": "Double Bite",
+  "撲殺": "Kill Pounce",
+  "石拳": "Stone Fist",
+  "震地": "Ground Shake",
+  "石化凝視": "Petrify Gaze",
+  "笑面・扇舞": "Fan Dance",
+  "笑面・連拍": "Rapid Pats",
+  "笑面・踢": "Smile Kick",
+  "怒面・怒斬": "Fury Slash",
+  "怒面・蓄怒": "Rage Build",
+  "怒面・怒踏": "Fury Stomp",
+  "泣面・拭淚": "Wipe Tears",
+  "泣面・淚眼": "Tearful Eyes",
+  "泣面・掩面": "Cover Face"
+ }
+}

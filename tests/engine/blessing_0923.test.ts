@@ -198,7 +198,7 @@ describe('每一種的效果', () => {
       const opts = blessChoices(run, 0, 'bless_moves');
       expect(opts).toHaveLength(3);
       for (const c of opts) {
-        expect(c.rarity).toBe('罕見');
+        expect(c.rarity).toBe('uncommon');
         expect(c.pool).toBe('忍術');
         expect(!c.hero || c.hero === hero, c.id).toBe(true);
       }
@@ -230,12 +230,12 @@ describe('每一種的效果', () => {
     expect(takeBlessing(run2, 0, 0, { u: [curse.uid] })).toBe(true);
     const b = me(run2).deck.find((c) => c.uid === curse.uid)!;
     expect(a.cardId).not.toBe(oldCard);
-    expect(cardById[a.cardId]!.rarity).not.toBe('常見');
+    expect(cardById[a.cardId]!.rarity).not.toBe('common');
     expect(cardById[a.cardId]!.pool).toBe('忍術');
     expect(!cardById[a.cardId]!.hero || cardById[a.cardId]!.hero === 'fengfeng').toBe(true);
     expect(a.upgraded).toBe(false);
     expect(b.cardId).not.toBe(oldCurse);
-    expect(cardById[b.cardId]!.rarity).toBe('常見');
+    expect(cardById[b.cardId]!.rarity).toBe('common');
     expect(run.nextUid).toBe(nextUid);
   });
 
@@ -273,7 +273,7 @@ describe('每一種的效果', () => {
     const { p, before } = take('bless_scroll', 'feifei');
     const got = p.deck.filter((c) => !before.deck.some((x) => x.uid === c.uid));
     expect(got).toHaveLength(1);
-    expect(cardById[got[0]!.cardId]!.rarity).toBe('稀有');
+    expect(cardById[got[0]!.cardId]!.rarity).toBe('rare');
     expect(!cardById[got[0]!.cardId]!.hero || cardById[got[0]!.cardId]!.hero === 'feifei').toBe(true);
   });
 

@@ -4,6 +4,7 @@ import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content
 import { encounterById, encountersOfPool, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
+import { E, log } from './logfmt';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
@@ -35,7 +36,7 @@ export function bossPoolForAct(act: number): string[] {
   if (act === 2) return ['cowcat_boss', 'tanuki_lord', 'persian_lady', 'dragon_cat', 'hex_abbot'];
   return ['nekomata', 'iron_claw', 'orange_king', 'frog_daimyo', 'armadillo_king'];
 }
-const PRICE: Record<Rarity, number> = { 常見: 50, 罕見: 75, 稀有: 150 };
+const PRICE: Record<Rarity, number> = { common: 50, uncommon: 75, rare: 150 };
 const RELIC_PRICE = 150, POTION_PRICE = 45;   // 沒標價的保底值；各件的價差標在 relics.ts／potions.ts
 
 export function runRng(run: RunState): Rng {
@@ -385,7 +386,7 @@ export function applyEncounterModifier(run: RunState, cs: CombatState): void {
   for (const e of cs.enemies) { mod.apply(e); e.name = mod.label + e.name; }
   // 比對「舊名字＋全形冒號」而不是只比名字：「老鼠」才不會把「老鼠將軍：…」那行也改掉
   cs.log = cs.log.map((l) => (oldNames.some((n) => l.startsWith(n + '：')) ? mod.label + l : l));
-  cs.log.push(`${mod.label}：${mod.desc}`);
+  log(cs, '{label}：{desc}', { label: { tx: mod.label }, desc: { tx: mod.desc } });
 }
 
 /**
@@ -414,7 +415,7 @@ export function applyBossPrefix(run: RunState, cs: CombatState): void {
   boss.name = p.label + boss.name;
   // startCombat 已經用舊名字印了開場白，一併改寫，紀錄裡才不會同一隻兩個名字（稽核 2026-09-04 中 9）
   cs.log = cs.log.map((l) => (l.startsWith(oldName + '：') ? boss.name + l.slice(oldName.length) : l));
-  cs.log.push(`${boss.name}：${p.line}`);
+  log(cs, '{e}：{line}', { e: E(boss), line: { say: p.line } });
 }
 
 export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): CombatRewards | null {
@@ -558,13 +559,13 @@ export function finishCombat(run: RunState, cs: CombatState, bonusFish = 0): Com
       upPer.push(mine.upgradedCard);
       // 稀有保底各算各的：他看到的那三張有沒有稀有，跟 0 號看到什麼無關
       if (mine.cards.length) {
-        run.players[i]!.rarePity = mine.cards.some((c) => c.rarity === '稀有') ? 0 : (run.players[i]!.rarePity ?? 0) + 1;
+        run.players[i]!.rarePity = mine.cards.some((c) => c.rarity === 'rare') ? 0 : (run.players[i]!.rarePity ?? 0) + 1;
       }
     }
     r.cardsPerSeat = per;
     r.upgradedPerSeat = upPer;
   }
-  if (r.cards.length) me(run).rarePity = r.cards.some((c) => c.rarity === '稀有') ? 0 : (me(run).rarePity ?? 0) + 1;
+  if (r.cards.length) me(run).rarePity = r.cards.some((c) => c.rarity === 'rare') ? 0 : (me(run).rarePity ?? 0) + 1;
   // 肥美／餓扁改固定加減（下一輪平衡 2026-09-05）：倍率對 15～25 條的戰利品只有 ±10～20 條，換的卻是 ±25% 血，秤不平；
   // 固定值也不會再碰到「把秘寶答應的加成一起砍掉」那個坑（稽核 2026-09-04 夜 M-2）：下限就是秘寶答應的那份（稽核 2026-09-05 夜 2 低-1）
   if (mod?.fishAdd) r.fish = Math.max(winGold, r.fish + mod.fishAdd);
@@ -984,8 +985,8 @@ export function repriceShop(run: RunState, shop: ShopStock, seat = 0): void {
 
 /** 罐頭鋪的牌：依關數的稀有度配額抽 n 張（排除 `exclude`），並套稀有保底 */
 function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[], seat = 0): CardDef[] {
-  const odds: readonly [Rarity, number][] = run.act >= 3 ? [['常見', 20], ['罕見', 40], ['稀有', 40]]
-    : run.act === 2 ? [['常見', 35], ['罕見', 40], ['稀有', 25]] : [['常見', 60], ['罕見', 30], ['稀有', 10]];
+  const odds: readonly [Rarity, number][] = run.act >= 3 ? [['common', 20], ['uncommon', 40], ['rare', 40]]
+    : run.act === 2 ? [['common', 35], ['uncommon', 40], ['rare', 25]] : [['common', 60], ['uncommon', 30], ['rare', 10]];
   const jueN = n > 0 && rng.chance(run.act >= 3 ? 0.4 : run.act === 2 ? 0.3 : 0.2) ? 1 : 0;
   /*
    * **貨架每個座位一份、照這一位的角色抽**（使用者 2026-09-15：「不如各逛各的？跟戰鬥完選牌一樣」）。
@@ -997,10 +998,10 @@ function rollShopCards(run: RunState, rng: Rng, n: number, exclude: string[], se
   const wantRare = Math.min(n, run.act >= 3 ? 2 : run.act === 2 ? 1 : 0);
   const order = rng.shuffle(cardDefs.map((_, i) => i)).sort((x, y) => Number(cardDefs[x]!.pool === '絕學') - Number(cardDefs[y]!.pool === '絕學'));
   for (const i of order) {
-    if (cardDefs.filter((c) => c.rarity === '稀有').length >= wantRare) break;
+    if (cardDefs.filter((c) => c.rarity === 'rare').length >= wantRare) break;
     const cur = cardDefs[i]!;
-    if (cur.rarity === '稀有') continue;
-    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === '稀有' && hs.some((h) => pickable(c, h, run.players.length)) && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
+    if (cur.rarity === 'rare') continue;
+    const pool = cards.filter((c) => c.pool === cur.pool && c.rarity === 'rare' && hs.some((h) => pickable(c, h, run.players.length)) && !exclude.includes(c.id) && !cardDefs.some((d) => d.id === c.id));
     if (pool.length) cardDefs[i] = rng.pick(pool);
   }
   return cardDefs;
@@ -1173,14 +1174,14 @@ function rollLimitedRelic(run: RunState, rng: Rng, seat: number, shelf: readonly
  * 要稀有而常見都換完了，才動多出來的罕見。換上來的照這一位的角色抽（`potionOk`），價錢照那一支的定價、之後照常重標。
  */
 function ensurePotionFloor(rng: Rng, shelf: { id: string; base: number; price: number }[], open: readonly number[],
-  floor: { 稀有: number; 罕見: number }, heroes: readonly string[]): void {
+  floor: { rare: number; uncommon: number }, heroes: readonly string[]): void {
   const count = (rar: Rarity): number => shelf.filter((it) => potionById[it.id]?.rarity === rar).length;
-  for (const rar of ['稀有', '罕見'] as const) {
+  for (const rar of ['rare', 'uncommon'] as const) {
     const cands = potions.filter((p) => p.rarity === rar && potionOk(p, heroes));
     if (!cands.length) continue;
     while (count(rar) < floor[rar]) {
-      let slots = open.filter((i) => potionById[shelf[i]!.id]?.rarity === '常見');
-      if (!slots.length && rar === '稀有' && count('罕見') > floor.罕見) slots = open.filter((i) => potionById[shelf[i]!.id]?.rarity === '罕見');
+      let slots = open.filter((i) => potionById[shelf[i]!.id]?.rarity === 'common');
+      if (!slots.length && rar === 'rare' && count('uncommon') > floor.uncommon) slots = open.filter((i) => potionById[shelf[i]!.id]?.rarity === 'uncommon');
       if (!slots.length) break;
       const it = shelf[rng.pick(slots)]!;
       it.id = rng.pick(cands).id;
@@ -1205,13 +1206,13 @@ export function makeMerchant(run: RunState, seat = 0): ShopStock {
     const pool = cards.filter((c) => c.pool === '忍術' && c.rarity === rar && pickable(c, hero, run.players.length) && !not.includes(c.id));
     return pool.length ? rng.pick(pool) : undefined;
   };
-  const uncommon = card('罕見', []);
-  const rare = card('稀有', uncommon ? [uncommon.id] : []);
+  const uncommon = card('uncommon', []);
+  const rare = card('rare', uncommon ? [uncommon.id] : []);
   const first: RelicPool = rng.chance(0.6) ? '常見' : '大魔物';
   const relicId = rollRelic(rng, first, [...p.relics], [hero]) ?? rollRelic(rng, first === '常見' ? '大魔物' : '常見', [...p.relics], [hero]);
   // 忍具只擺罕見以上：稀有度照忍具那組權重（罕見 27：稀有 8）先抽、再從那一級平均挑
-  const good = potions.filter((x) => x.rarity !== '常見' && potionOk(x, [hero]));
-  const odds = POTION_RARITY_ODDS.filter(([r]) => r !== '常見' && good.some((x) => x.rarity === r));
+  const good = potions.filter((x) => x.rarity !== 'common' && potionOk(x, [hero]));
+  const odds = POTION_RARITY_ODDS.filter(([r]) => r !== 'common' && good.some((x) => x.rarity === r));
   const potion = (): string | undefined => {
     if (!odds.length) return undefined;
     let r = rng.next() * odds.reduce((s, [, w]) => s + w, 0);
@@ -1367,7 +1368,7 @@ export function swapCandidates(run: RunState, cardId: string, seat = 0): CardDef
   if (!old) return [];
   const hero = heroOf(me(run, seat));
   const name = cardNameFor(old, hero);
-  const want: readonly Rarity[] = old.pool === '壞毛病' ? ['常見'] : ['罕見', '稀有'];
+  const want: readonly Rarity[] = old.pool === '壞毛病' ? ['common'] : ['uncommon', 'rare'];
   return cards.filter((c) => c.pool === '忍術' && want.includes(c.rarity) && pickable(c, hero, run.players.length)
     && c.id !== old.id && cardNameFor(c, hero) !== name);
 }

@@ -101,7 +101,7 @@ describe('換角色沒換乾淨的暗病', () => {
       const src = strip(readFileSync(f, 'utf-8'));
       const bad = src.split('\n')
         .map((l, i) => ({ l, i }))
-        .filter(({ l }) => /磨利嗎|要放生|能力，這場戰鬥/.test(l) && !/cardNameFor/.test(l));
+        .filter(({ l }) => /磨利嗎|要放生|能力，這場戰鬥/.test(l) && !/cardNameFor|cardName\(/.test(l));
       expect(bad.map((b) => `${f}:${b.i + 1}`), `${f} 有標題沒過 cardNameFor`).toEqual([]);
     }
   });
