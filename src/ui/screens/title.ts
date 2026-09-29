@@ -3,6 +3,7 @@ import { hasSave, loadBestFor, loadRun, saveRun, selectedDifficulty, setSelected
 import { SHARE_PREFIX, decodeRun } from '../../engine/sharecode';
 import { showCompendium } from '../compendium';
 import { showItemCompendium } from '../itemcompendium';
+import { playTrailer } from '../video';
 import { registerScreen } from '../app';
 import { hasSprite, artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
@@ -133,6 +134,8 @@ registerScreen('title', (app, root) => {
       el('div', { class: 'diff-picker' }, el('span', { class: 'diff-label' }, t('難度')), ...diffBtns),
       // 圖鑑放封面（使用者：秘寶、忍具不需要一直看，不放遊戲內）
       el('div', { class: 'title-books' },
+        // 介紹影片（2026-09-29）：點了才載，見 video.ts 的 playTrailer
+        el('button', { class: 'btn small', onclick: () => playTrailer() }, t('🎬 介紹影片')),
         el('button', { class: 'btn small', onclick: () => showCompendium() }, t('📖 卡牌圖鑑')),
         // 帶著續玩那一局身上的秘寶：套組那一區寫得出集到幾件（2026-09-23 第二批；沒有進行中的局就是 0）
         el('button', { class: 'btn small', onclick: () => showItemCompendium(loadRun()?.players[0]?.relics ?? []) }, t('🎒 秘寶與忍具圖鑑')),
