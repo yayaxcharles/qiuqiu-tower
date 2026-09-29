@@ -137,6 +137,13 @@ function startPlaying(name: BgmName): void {
 /** 過場影片播放中把音樂停住（影片自己帶配樂）；播完由 video.ts 用 setBgm 接下一幕的曲子 */
 export function pauseBgm(): void { el?.pause(); }
 
+/** 封面介紹影片關掉後，把剛才停住的那首接著放（沒在放就照「應該放哪首」重開） */
+export function resumeBgm(): void {
+  if (!enabled || !unlocked) return;
+  if (el) { if (el.paused) el.play().catch(() => { /* 沒聲音就沒聲音 */ }); }
+  else if (current) startPlaying(current);
+}
+
 /**
  * 換到某首曲子。同一首正在放就不動它——每次換畫面都會呼叫，
  * 地圖→事件→地圖這種同曲切換不能讓音樂重頭來。

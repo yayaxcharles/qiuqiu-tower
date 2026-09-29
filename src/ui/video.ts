@@ -1,5 +1,6 @@
 import { fileUrl } from './assets';
-import { pauseBgm, setBgm } from './bgm';
+import { pauseBgm, resumeBgm, setBgm } from './bgm';
+import { t } from '../i18n';
 import { el } from './dom';
 import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay';
 
@@ -65,4 +66,40 @@ export function playVideo(name: VideoName, onDone: () => void): void {
   v.addEventListener('playing', () => window.clearTimeout(watchdog), { once: true });
   const p = v.play();
   if (p) p.catch(end);   // 自動播放被擋就當作沒有影片
+}
+
+/**
+ * 封面的「介紹影片」（2026-09-29 使用者：「V2 可以了，放到封面上讓玩家可以點來看」）。
+ * 跟上面的劇情過場不一樣：玩家自己點開、有播放控制列、隨時可關（按鈕、Esc、播完自動收），不鎖畫面、不接劇情。
+ * 檔案 `public/video/trailer.mp4`（720p 約 11 MB，配樂與音效烤在檔案裡）；點了才下載，關掉連下載一起停。
+ * 原始專案在 `F:\ClaudeWork\remotion-video\src\qiuqiu\Trailer2.tsx`（遊戲自己的角色動作圖、魔物圖重演＋三段實機錄影）。
+ */
+export function playTrailer(): void {
+  const layer = overlayRoot();
+  if (!layer || layer.querySelector('.trailer-overlay')) return;
+  const v = el('video', { class: 'cine-video', playsinline: '', controls: '', preload: 'auto' });
+  v.src = fileUrl('video/trailer.mp4');
+  const close = el('button', { class: 'btn small cine-skip' }, t('關閉'));
+  const box = el('div', { class: 'cine-overlay trailer-overlay' }, v, close);
+  const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') end(); };
+  let ended = false;
+  const end = (): void => {
+    if (ended) return;
+    ended = true;
+    v.pause(); v.removeAttribute('src'); v.load();   // 連下載一起停（見 playVideo 的 stopDownload）
+    box.remove();
+    window.removeEventListener('keydown', onKey);
+    unlockScreen();
+    resumeBgm();
+  };
+  close.addEventListener('click', end);
+  v.addEventListener('ended', end);
+  window.addEventListener('keydown', onKey);
+  layer.append(box);
+  // 鎖住底下的封面：黑幕只擋滑鼠，不鎖的話 Tab＋Enter 還按得到「兩個人一起玩」，影片還在播畫面就被換掉（2026-09-29 審查 中）
+  lockScreen();
+  close.focus();
+  pauseBgm();
+  const pl = v.play();
+  if (pl) pl.catch(() => { /* 被擋就留著控制列讓玩家自己按播放 */ });
 }

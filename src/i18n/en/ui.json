@@ -832,5 +832,6 @@
  "選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）": "Pick {max} {max|card|cards}: {verb} (skip = go back and see what else is in the bundle)",
  "最多選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）": "Pick up to {max} {max|card|cards}: {verb} (skip = go back and see what else is in the bundle)",
  "替爺爺寫過回信": "wrote a reply for Grandpa",
- "躲著看它練過招": "secretly watched it train"
+ "躲著看它練過招": "secretly watched it train",
+ "🎬 介紹影片": "🎬 Trailer"
 }
