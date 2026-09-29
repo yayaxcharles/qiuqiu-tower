@@ -26,20 +26,20 @@ const HEROES: readonly Hero[] = ['qiuqiu', 'feifei', 'dangdang', 'fengfeng'];
 
 /** 每位換成新片的動作（清單.md 總結；09-29 重生後菲菲加空手擲與倒下、封封加平斬、重劈、收刀與倒下；待機維持停格呼吸） */
 const VIDS_ACTIONS: Readonly<Record<Hero, readonly string[]>> = {
-  qiuqiu: ['attack1', 'attack2', 'attack3', 'attack4', 'toss', 'hurt', 'defeat', 'run', 'seal', 'guard', 'win', 'focus', 'dash'],
-  feifei: ['shuriken', 'seal', 'attack1', 'win', 'hurt', 'run', 'toss', 'defeat'],
-  dangdang: ['guard', 'punch', 'focus', 'palm', 'win', 'shoulder', 'hurt', 'defeat', 'run'],
-  fengfeng: ['focus', 'guard', 'win', 'thrust', 'hurt', 'run', 'slash', 'heavy_slash', 'sheath', 'defeat'],
+  qiuqiu: ['attack1', 'attack2', 'attack3', 'attack4', 'toss', 'hurt', 'defeat', 'run', 'seal', 'guard', 'win', 'focus', 'dash', 'kick', 'eat', 'taiji', 'shuriken'],
+  feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'hurt', 'run', 'toss', 'defeat', 'kick', 'eat', 'roll'],
+  dangdang: ['guard', 'punch', 'focus', 'palm', 'win', 'shoulder', 'hurt', 'defeat', 'run', 'toss', 'dodge', 'counter', 'eat', 'kick', 'rapid_combo'],
+  fengfeng: ['focus', 'guard', 'win', 'thrust', 'hurt', 'run', 'slash', 'heavy_slash', 'sheath', 'defeat', 'toss', 'dodge', 'eat', 'sweep', 'double_slash'],
 };
 /**
  * 沒有新片、一定要留在原本那套的（對照表多出來也算錯：例如把舊的空手擲蓋掉）。
  * 2026-09-29 審查退回過菲菲、封封倒下、封封平斬與收刀，同日重生（菲菲空手擲 v5、倒下 v2；封封平斬 v5、重劈 v5、收刀 v4、倒下 v3）後已接上
  */
 const KEEP_OLD: Readonly<Record<Hero, readonly string[]>> = {
-  qiuqiu: ['idle', 'shuriken', 'kick', 'eat', 'taiji'],
-  feifei: ['idle', 'guard', 'kick', 'roll', 'eat', 'needle_combo'],
-  dangdang: ['idle', 'toss', 'kick', 'counter', 'dodge', 'eat', 'rapid_combo'],
-  fengfeng: ['idle', 'toss', 'sweep', 'double_slash', 'dodge', 'eat'],
+  qiuqiu: ['idle'],
+  feifei: ['idle', 'needle_combo'],
+  dangdang: ['idle'],
+  fengfeng: ['idle'],
 };
 
 type Frame = { rect: number[]; pivot: number[]; duration: number; src: number };
@@ -243,7 +243,7 @@ describe('球球新動作接上遊戲', () => {
     expect(lastTexture()).toContain('hero-vids/qiuqiu-guard-d.webp');
     // 沒有新片的動作、待機照舊（待機維持停格呼吸，使用者 09-28 裁定）
     motion.createQiuqiuActor({ action: 'shuriken' });
-    expect(lastTexture()).toContain('assets/motion/qiuqiu/shuriken_sheet.webp');
+    expect(lastTexture()).toContain('hero-vids/qiuqiu-shuriken-d.webp');   // 09-29 第二輪 Flow 片接上
     motion.createQiuqiuActor({ action: 'idle' });
     expect(lastTexture()).toContain('assets/motion/qiuqiu/idle_hurt_sheet.webp');
     expect(motion.qiuqiuMotionDuration('hurt')).toBe(650);
@@ -303,9 +303,9 @@ type Kind = 'feifei' | 'dangdang' | 'fengfeng';
 const KINDS: readonly Kind[] = ['feifei', 'dangdang', 'fengfeng'];
 /** 每位挑一個出牌動作看畫的是哪張圖集（新片）、一個沒有新片的看還是舊圖集 */
 const PROBE: Readonly<Record<Kind, { vids: [string, string]; old: [string, string] }>> = {
-  feifei: { vids: ['attack1', 'feifei-claw-d.webp'], old: ['kick', 'assets/motion/feifei/kick_claw.webp'] },
-  dangdang: { vids: ['punch', 'dangdang-punch-d.webp'], old: ['kick', 'assets/motion/dangdang/kick_shoulder.webp'] },
-  fengfeng: { vids: ['thrust', 'fengfeng-thrust-d.webp'], old: ['sweep', 'assets/motion/fengfeng/sweep.webp'] },
+  feifei: { vids: ['attack1', 'feifei-claw-d.webp'], old: ['needle_combo', 'assets/motion/feifei/needle_combo_v3.webp'] },
+  dangdang: { vids: ['punch', 'dangdang-punch-d.webp'], old: ['idle', 'assets/motion/dangdang/idle_hurt.webp'] },
+  fengfeng: { vids: ['thrust', 'fengfeng-thrust-d.webp'], old: ['idle', 'assets/motion/fengfeng/idle_hurt.webp'] },
 };
 const CARD_ACTIONS: Readonly<Record<Kind, readonly string[]>> = {
   feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'defeat', 'clone', 'toss', 'kick'],
