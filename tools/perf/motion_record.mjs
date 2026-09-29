@@ -27,6 +27,7 @@ for (let hi = 0; hi < HANDS.length; hi++) {
   const c = await newContext('motion', `${HERO}-${hi}`);
   const { page } = c;
   await bootRun(page, server.url, HERO, `motion-${HERO}`);
+  await page.evaluate((enc) => { globalThis.__ENC = enc; }, process.env.ENC || '');
   await page.evaluate(({ hand }) => {
     const app = window.__app; const orig = app.show.bind(app); let done = false;
     app.show = (nm, ...r) => {
@@ -39,7 +40,7 @@ for (let hi = 0; hi < HANDS.length; hi++) {
       return orig(nm, ...r);
     };
     const r = app.run; r.act = 1; r.floor = 2; r.flags['tut:combat'] = true;
-    app.startFight('cucumber_yarn');
+    app.startFight(globalThis.__ENC || 'cucumber_yarn');
   }, { hand });
   await waitScreen(page, 'combat', 60000);
   await page.waitForFunction(CAN_ACT, null, { timeout: 60000 });
