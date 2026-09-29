@@ -132,11 +132,12 @@ describe('低-2：絕學·藏鋒的同名取高', () => {
 });
 
 describe('低-3：門檻句補「至少」與「再」', () => {
-  // 退步守勢 2026-09-24 改成花氣架擋（憋氣乙版），不再有門檻句；門檻句剩看準劍路
+  // 退步守勢 2026-09-24 改成花氣架擋（憋氣乙版），不再有門檻句；門檻句剩看準劍路。
+  // 2026-09-29「守著蓄氣，出劍花氣」再改成「蜷縮＋獲得蓄氣」
   it('退步守勢、看準劍路', () => {
     // 「花 4 點以上再 ×1.3」2026-09-24 晚起不寫在牌面（使用者：每張都寫太亂），改在選角與蓄氣牌子說明
-    expect(describeCard(cardById['fengfeng_tuibu']!, false)).toBe('最多花 6 點蓄氣，自己獲得 7 點蜷縮，每點蓄氣多 3 點。');
-    expect(describeCard(cardById['fengfeng_tuibu']!, true)).toBe('最多花 6 點蓄氣，自己獲得 9 點蜷縮，每點蓄氣多 3 點。');
+    expect(describeCard(cardById['fengfeng_tuibu']!, false)).toBe('獲得 8 點蜷縮，獲得 1 點蓄氣。');
+    expect(describeCard(cardById['fengfeng_tuibu']!, true)).toBe('獲得 11 點蜷縮，獲得 2 點蓄氣。');
     expect(describeCard(cardById['fengfeng_kanshi']!, false)).toBe('抽 2 張牌，出牌前有至少 4 點蓄氣的話，再抽 1 張牌。');
   });
 });
@@ -156,7 +157,8 @@ describe('低-5：戰鬥雜牌不觸發「打出牌後」的能力', () => {
     expect(play(cs, p, 'slime_card')).toBe(true);
     expect(p.qi, '雜牌不算技能牌').toBe(0);
     expect(play(cs, p, 'fengfeng_hushen')).toBe(true);
-    expect(p.qi, '這回合第一張真的技能牌才觸發').toBe(1);
+    // 2026-09-29 起護身自己也給 1 點蓄氣，所以是 1（護身）＋1（循息）；循息沒觸發或被雜牌吃掉的話只會是 1
+    expect(p.qi, '這回合第一張真的技能牌才觸發').toBe(2);
   });
 
   // 主控 2026-09-23 裁決：連線支援牌的監聽照同一個標準（牌面沒寫雜牌也算，就排除）

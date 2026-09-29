@@ -3,7 +3,7 @@ import { cardById } from '../src/content/cards';
 import { playCard, startCombat } from '../src/engine/combat';
 import { qiAmount } from '../src/engine/effects';
 import { Rng, seedFromString } from '../src/engine/rng';
-import { QI_BURST_MIN, type CombatState, type PlayerCombat } from '../src/engine/types';
+import { QI_BURST_MIN, type CardDef, type CombatState, type PlayerCombat } from '../src/engine/types';
 import { describeCard } from '../src/ui/cardtext';
 import { glossary } from '../src/content/glossary';
 import HERO_RAW from '../src/ui/screens/heroselect.ts?raw';
@@ -45,16 +45,27 @@ describe('憋氣：一次花 4 點以上 ×1.3', () => {
     expect(qiAmount({ amount: 10, perQi: 4 }, 12)).toBe(75);   // 斷流灌滿：58×1.3＝75.4
   });
 
-  it('花氣架擋也套：劍鞘架擋 3 氣 17 點、6 氣 33 點蜷縮', () => {
-    const a = setup(); a.p.qi = 3;
-    expect(play(a.cs, a.p, 'fengfeng_jianqiao')).toBe(true);
-    expect(a.p.block).toBe(17);
-    expect(a.p.qi).toBe(0);
-    const b = setup(); b.p.qi = 8;
-    expect(play(b.cs, b.p, 'fengfeng_jianqiao')).toBe(true);
-    expect(b.p.block).toBe(33);   // (8＋3×6)×1.3＝33.8
-    expect(b.p.qi).toBe(2);
+  /*
+   * 花氣架擋也套。2026-09-29「守著蓄氣，出劍花氣」之後劍鞘架擋改成「蜷縮＋獲得蓄氣」，已經沒有牌在花氣換蜷縮，
+   * 但引擎規則沒動（使用者：×1.3 保留），所以用一張臨時測試牌（舊的劍鞘架擋數字：8＋每點 3、最多 6）釘住。
+   */
+  it('花氣架擋也套（臨時測試牌，舊劍鞘架擋的數字）：3 氣 17 點、6 氣 33 點蜷縮', () => {
+    const def: CardDef = { ...cardById['fengfeng_jianqiao']!, id: 'zz_test_block_spend', effects: [{ kind: 'blockSpendQi', amount: 8, perQi: 3, maxQi: 6 }], upgrade: {} };
+    cardById[def.id] = def;
+    try {
+      const a = setup(); a.p.qi = 3;
+      expect(play(a.cs, a.p, def.id)).toBe(true);
+      expect(a.p.block).toBe(17);
+      expect(a.p.qi).toBe(0);
+      const b = setup(); b.p.qi = 8;
+      expect(play(b.cs, b.p, def.id)).toBe(true);
+      expect(b.p.block).toBe(33);   // (8＋3×6)×1.3＝33.8
+      expect(b.p.qi).toBe(2);
+    } finally {
+      delete cardById[def.id];
+    }
   });
+
 
   // 使用者 2026-09-24 晚：「每張牌都寫上花四點以上 ×1.3 太累了……在角色說明之類的地方寫清楚」
   it('牌面不再每張寫門檻；規則寫在名詞表「蓄氣」，選角畫面與戰鬥的蓄氣牌子都引用那一條', () => {

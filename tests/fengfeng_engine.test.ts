@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { canPlay, endTurn, playCard, startCombat } from '../src/engine/combat';
 import { Rng, seedFromString } from '../src/engine/rng';
 import { addStatus } from '../src/engine/statuses';
-import type { CombatState, PlayerCombat } from '../src/engine/types';
+import { cardById } from '../src/content/cards';
+import type { CardDef, CombatState, PlayerCombat } from '../src/engine/types';
 import { blankPlayer, inst } from './helpers';
 
 let uid = 90_000;
@@ -90,9 +91,17 @@ describe('封封 FG-T01～FG-T10', () => {
     play(a.cs, a.p, 'fengfeng_huibu', ea.uid);
     expect(a.p.down).toBe(true); expect(a.p.qi ?? 0).toBe(0); expect(a.p.hand.length).toBe(hand);
 
-    const b = setup(); const eb = b.cs.enemies[0]!; b.p.hp = 1; addStatus(eb, '反彈', 5);
-    play(b.cs, b.p, 'fengfeng_tanbu', eb.uid);
-    expect(b.p.down).toBe(true); expect(b.p.qi ?? 0).toBe(0);
+    // 「先打人再回氣」原本用探步劍驗；2026-09-29 探步劍改成花氣、沒有牌是這個形狀了，
+    // 改用一張臨時測試牌（舊探步劍：5 點傷害＋1 點蓄氣）釘住「倒下後不回氣」
+    const def: CardDef = { ...cardById['fengfeng_tanbu']!, id: 'zz_test_hit_then_qi', effects: [{ kind: 'damage', amount: 5 }, { kind: 'gainQi', n: 1 }], upgrade: {} };
+    cardById[def.id] = def;
+    try {
+      const b = setup(); const eb = b.cs.enemies[0]!; b.p.hp = 1; addStatus(eb, '反彈', 5);
+      play(b.cs, b.p, def.id, eb.uid);
+      expect(b.p.down).toBe(true); expect(b.p.qi ?? 0).toBe(0);
+    } finally {
+      delete cardById[def.id];
+    }
   });
 
   it('FG-T10：收勢每回合一次，與回劍護肘自己的蜷縮相加', () => {

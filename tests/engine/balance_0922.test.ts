@@ -78,28 +78,35 @@ describe('封封：舊劍穗開場 2 點，之後每回合再 1 點', () => {
 });
 
 describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
-  // 牌 → 新的每氣係數（原本各少 1）。升級版的係數跟沒升級一樣
-  const PER_QI: Record<string, number> = {
-    fengfeng_pingzhan: 3, fengfeng_hengsao: 2, fengfeng_tabu: 3, fengfeng_huibu: 3, fengfeng_chuantang: 3,
-    fengfeng_shuangduan: 2, fengfeng_huzhou: 3, fengfeng_zhenshou: 3, fengfeng_youbian: 3, fengfeng_husong: 3,
-    fengfeng_duanliu: 4, fengfeng_kaishan: 3, fengfeng_pozhen: 3, fengfeng_yiqichushou: 2,
-    // 2026-09-24 憋氣乙版：劍鞘架擋、退步守勢改成花氣架擋，照同一個係數 3
-    fengfeng_jianqiao: 3, fengfeng_tuibu: 3,
+  /*
+   * 牌 → 每氣係數 [沒升級, 升級]。
+   * 2026-09-22：原本各少 1，全部 +1。
+   * 2026-09-29「守著蓄氣，出劍花氣」：花氣攻擊升級改成加每點（原本升級只加基本傷害、係數跟沒升級一樣），
+   * 多段的（連環三劍、雙段劍）與順手一劍、開山、兩張下一擊準備不加；
+   * 探步劍、挑開改成花氣；退步守勢、劍鞘架擋、振袖收劍、我護著你走改成「蜷縮＋獲得蓄氣」，不再花氣。
+   */
+  const PER_QI: Record<string, [number, number]> = {
+    fengfeng_pingzhan: [3, 4], fengfeng_hengsao: [2, 3], fengfeng_tabu: [3, 4], fengfeng_huibu: [3, 4], fengfeng_chuantang: [3, 4],
+    fengfeng_shuangduan: [2, 2], fengfeng_huzhou: [3, 4], fengfeng_youbian: [3, 3],
+    fengfeng_duanliu: [4, 5], fengfeng_kaishan: [3, 3], fengfeng_pozhen: [3, 4], fengfeng_yiqichushou: [2, 2],
     // 2026-09-25 補的三張：連環三劍每段每點 1（三段合計 3）
-    fengfeng_shunjian: 3, fengfeng_sanlian: 1, fengfeng_yikouqi: 3,
+    fengfeng_shunjian: [3, 3], fengfeng_sanlian: [1, 1], fengfeng_yikouqi: [3, 4],
+    // 2026-09-29
+    fengfeng_tanbu: [3, 4], fengfeng_tiaokai: [3, 4],
   };
-  it('每一張花氣牌（含連線專用三張、2026-09-25 補的三張）逐張、升級前後都是新係數，沒有漏掉任何一張', () => {
+  it('每一張花氣牌（含連線專用兩張、2026-09-25 補的三張、2026-09-29 改的兩張）逐張、升級前後的係數，沒有漏掉任何一張', () => {
     const spenders = Object.values(cardById).filter((d) => d.effects.some((e) =>
       e.kind === 'damageSpendQi' || e.kind === 'blockSpendQi' || e.kind === 'nextAttackBonusSpendQi')).map((d) => d.id);
     expect(spenders.sort()).toEqual(Object.keys(PER_QI).sort());
-    for (const [id, k] of Object.entries(PER_QI)) for (const up of [false, true]) {
+    for (const [id, ks] of Object.entries(PER_QI)) for (const up of [false, true]) {
       const fx = cardStats(inst(id, 1, up)).effects.find((e) =>
         e.kind === 'damageSpendQi' || e.kind === 'blockSpendQi' || e.kind === 'nextAttackBonusSpendQi');
-      expect((fx as { perQi: number }).perQi, `${id}${up ? '＋' : ''}`).toBe(k);
+      expect((fx as { perQi: number }).perQi, `${id}${up ? '＋' : ''}`).toBe(ks[up ? 1 : 0]);
     }
   });
-  // 斷流 5 氣：10＋4×5＝30，2026-09-24 起花 4 點以上 ×1.3 → 39；平斬 2 氣、振袖收劍 3 氣沒到門檻，照舊
-  it('實際打出來：平斬 2 氣打 11、斷流 5 氣打 39（憋氣 ×1.3）、振袖收劍 3 氣給 16 點蜷縮', () => {
+  // 斷流 5 氣：10＋4×5＝30，2026-09-24 起花 4 點以上 ×1.3 → 39；平斬 2 氣沒到門檻，照舊。
+  // 振袖收劍 2026-09-29 起不花氣：7 點蜷縮＋2 點蓄氣（原本 3 氣換 16 點）
+  it('實際打出來：平斬 2 氣打 11、斷流 5 氣打 39（憋氣 ×1.3）、振袖收劍 7 點蜷縮並多 2 點蓄氣', () => {
     const a = setup('fengfeng'); const ea = a.cs.enemies[0]!;
     a.p.qi = 2; play(a.cs, a.p, 'fengfeng_pingzhan', ea.uid);
     expect(300 - ea.hp).toBe(11);
@@ -108,7 +115,7 @@ describe('封封：花蓄氣的牌每點蓄氣多 1 點效果', () => {
     expect(300 - eb.hp).toBe(39);
     const c = setup('fengfeng');
     c.p.qi = 3; play(c.cs, c.p, 'fengfeng_zhenshou');
-    expect(c.p.block).toBe(16);
+    expect([c.p.block, c.p.qi]).toEqual([7, 5]);
   });
 });
 

@@ -139,7 +139,8 @@ describe('迷魂香', () => {
 describe('滿月劍意：機器人會為了蓄到門檻先打吐納', () => {
   it('蓄氣 9、手上吐納＋攻擊：帶著滿月劍意先打吐納（蓄過 10，下一張加倍）；沒帶就照舊', () => {
     const first = (relic: boolean): string | undefined => {
-      const { cs, p } = setup([], { hero: 'fengfeng', hand: ['fengfeng_tuna', 'fengfeng_hushen', 'sanjo'], energy: 2, move: hit(4) });
+      // 陪襯的防禦牌原本是護身；2026-09-29 護身自己也給 1 點蓄氣（9→10 一樣過門檻），換成不給氣的淡定，題目才只剩吐納一張會蓄氣
+      const { cs, p } = setup([], { hero: 'fengfeng', hand: ['fengfeng_tuna', 'tanding', 'sanjo'], energy: 2, move: hit(4) });
       if (relic) p.relics.push('full_moon_sword');
       p.qi = 9;
       const before = p.hand.map((c) => c.cardId);

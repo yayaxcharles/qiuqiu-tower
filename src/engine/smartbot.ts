@@ -87,17 +87,17 @@ const RATING: Record<string, number> = {
   fengfeng_huzhou: 8,      // 回劍護肘（+3.4）
   fengfeng_pozhen: 8,      // 絕學·破陣（+2.4）
   fengfeng_shuangduan: 7,  // 雙段劍（+1.7）
-  fengfeng_zhenshou: 7,    // 振袖收劍（+1.4）
+  fengfeng_zhenshou: 6,    // 振袖收劍（+1.4；2026-09-29 改蜷縮＋蓄氣後 +0.90）
   fengfeng_kaishan: 7,     // 絕學·開山（+1.1）
   fengfeng_chuantang: 6,   // 穿堂劍（+0.7）
   fengfeng_tabu: 6,        // 踏步重劈（+0.7）
-  fengfeng_tuibu: 6,       // 退步守勢（+0.6）
-  fengfeng_jianqiao: 6,    // 劍鞘架擋（+0.6）
+  fengfeng_tuibu: 6,       // 退步守勢（+0.6；2026-09-29 改蜷縮＋蓄氣後 +0.57）
+  fengfeng_jianqiao: 6,    // 劍鞘架擋（+0.6；2026-09-29 改蜷縮＋蓄氣後 +0.94）
   fengfeng_huibu: 6,       // 回步刺（+0.6）
-  fengfeng_huanshou: 6,    // 換手握劍（+0.5）
+  fengfeng_huanshou: 7,    // 換手握劍（+0.5；2026-09-29 改蜷縮＋蓄氣後 +1.28）
   fengfeng_hengsao: 6,     // 橫掃（+0.4）
-  fengfeng_tiaokai: 4,     // 挑開（−0.0）
-  fengfeng_tanbu: 4,       // 探步劍（−0.0）
+  fengfeng_tiaokai: 4,     // 挑開（−0.0；2026-09-29 改花氣後 −0.10）
+  fengfeng_tanbu: 4,       // 探步劍（−0.0；2026-09-29 改花氣後 −0.25）
   fengfeng_zhuanshen: 4,   // 轉身蓄勁（−0.2）
   fengfeng_wenwan: 4,      // 穩住手腕（−0.3）
   fengfeng_jizhong: 3,     // 集中精神（−0.5）
@@ -113,6 +113,8 @@ const RATING: Record<string, number> = {
   fengfeng_shunjian: 6,    // 順手一劍（+0.45）
   fengfeng_sanlian: 5,     // 連環三劍（+0.14；每段 1 起時 −0.22，改 2 起）
   fengfeng_yikouqi: 5,     // 一口氣（+0.16；基礎 4／每點 2 時 −0.41、基礎 3／每點 3 時 −0.51，改基礎 6）
+  // 2026-09-29「守著蓄氣，出劍花氣」：改了數值的幾張照同一個方法重量（smart／smartB 各 600 局），分數寫在上面各行的括號裡；
+  // 只改升級數字的那幾張沒重量，分數照舊
   // 忍術 常見
   shunkan: 7, shengdong: 6, shunshou: 5, wozaizhe: 4, jiaochulai: 4, susu: 5, zhangyan: 5, yinshen: 4,
   bianshen: 7, zhuangsi: 4, duxin: 3, qianliyan: 5, shunfenger: 4, dingshang: 6, chudashi: 4, youcike: 5,

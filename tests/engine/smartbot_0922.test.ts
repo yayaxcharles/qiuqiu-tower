@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { startCombat } from '../../src/engine/combat';
 import type { Hero } from '../../src/engine/hero';
 import { Rng, seedFromString } from '../../src/engine/rng';
-import { cards } from '../../src/content/cards';
+import { cardById, cards } from '../../src/content/cards';
 import { deckJunk, handRated, rating, smartSeatAct } from '../../src/engine/smartbot';
 import { newRun } from '../../src/engine/run';
 import { addStatus } from '../../src/engine/statuses';
-import type { CombatState, EnemyMove, PlayerCombat } from '../../src/engine/types';
+import type { CardDef, CombatState, EnemyMove, PlayerCombat } from '../../src/engine/types';
 
 /**
  * 量測工具修正（2026-09-22）：聰明機器人讀不懂噹噹、封封的那幾處。
@@ -89,11 +89,21 @@ describe('量測工具修正 2026-09-22：封封的蓄氣', () => {
     const { cs, p } = setup('fengfeng', ['fengfeng_cunfeng']);
     expect(nextPlay(cs, p)).toBe('fengfeng_cunfeng');
   });
-  it('蓄氣門檻沒到就不算：蓄氣 0 時退步守勢只值 8 點擋，輸給 9 點的貼牆；蓄氣 3 時反過來', () => {
-    const a = setup('fengfeng', ['fengfeng_tuibu', 'feifei_tieqiang'], { move: hit(20), energy: 1, qi: 0 });
-    expect(nextPlay(a.cs, a.p)).toBe('feifei_tieqiang');
-    const b = setup('fengfeng', ['fengfeng_tuibu', 'feifei_tieqiang'], { move: hit(20), energy: 1, qi: 3 });
-    expect(nextPlay(b.cs, b.p)).toBe('fengfeng_tuibu');
+  /*
+   * 花氣架擋照「現在有幾點氣」估價。2026-09-29「守著蓄氣，出劍花氣」之後退步守勢改成「蜷縮＋獲得蓄氣」，
+   * 已經沒有牌在花氣換蜷縮，但引擎與機器人的估價都留著——用一張臨時測試牌（花氣架擋 7＋每點 3、最多 6）照原本的題目驗
+   */
+  it('花氣架擋照現有蓄氣估價（臨時測試牌）：蓄氣 0 時只值 7 點擋，輸給 9 點的貼牆；蓄氣 3 時反過來', () => {
+    const def: CardDef = { ...cardById['fengfeng_tuibu']!, id: 'zz_test_block_spend', effects: [{ kind: 'blockSpendQi', amount: 7, perQi: 3, maxQi: 6 }], upgrade: {} };
+    cardById[def.id] = def;
+    try {
+      const a = setup('fengfeng', [def.id, 'feifei_tieqiang'], { move: hit(20), energy: 1, qi: 0 });
+      expect(nextPlay(a.cs, a.p)).toBe('feifei_tieqiang');
+      const b = setup('fengfeng', [def.id, 'feifei_tieqiang'], { move: hit(20), energy: 1, qi: 3 });
+      expect(nextPlay(b.cs, b.p)).toBe(def.id);
+    } finally {
+      delete cardById[def.id];
+    }
   });
   it('先吐納、再出斬：兩張都打得起時先補氣，平斬吃到 3 點氣打 14', () => {
     const { cs, p } = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tuna']);
@@ -105,15 +115,22 @@ describe('量測工具修正 2026-09-22：封封的蓄氣', () => {
 });
 
 describe('量測工具 2026-09-24：憋氣（氣有價錢）', () => {
-  // 一顆飯糰、手上平斬與挑開：氣不到 4 點時平斬只打 11，扣掉「這 2 點氣留著值多少」後輸給不花氣的挑開 7，
-  // 先打挑開把氣存著；氣到 4 點時平斬 5＋3×4＝17×1.3＝22，照樣花。拿掉 `qiHoldValue` 的話第一條會變成打平斬
+  // 一顆飯糰、手上平斬與「不花氣的 7 點斬」：氣不到 4 點時平斬只打 11，扣掉「這 2 點氣留著值多少」後輸給不花氣的 7 點，
+  // 先打那張把氣存著；氣到 4 點時平斬 5＋3×4＝17×1.3＝22，照樣花。拿掉 `qiHoldValue` 的話第一條會變成打平斬。
+  // 原本用挑開（固定 7 點），2026-09-29 挑開改成花氣，改用一張照舊挑開數字的臨時測試牌
   it('氣不到門檻先打不花氣的牌存著，到門檻就一口氣花掉', () => {
-    const a = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tiaokai'], { qi: 2, energy: 1 });
-    expect(nextPlay(a.cs, a.p)).toBe('fengfeng_tiaokai');
-    expect(a.p.qi).toBe(2);
-    const b = setup('fengfeng', ['fengfeng_pingzhan', 'fengfeng_tiaokai'], { qi: 4, energy: 1 });
-    expect(nextPlay(b.cs, b.p)).toBe('fengfeng_pingzhan');
-    expect(b.cs.enemies[0]!.hp).toBe(78);
+    const def: CardDef = { ...cardById['fengfeng_tiaokai']!, id: 'zz_test_flat_hit', effects: [{ kind: 'damage', amount: 7 }], upgrade: {} };
+    cardById[def.id] = def;
+    try {
+      const a = setup('fengfeng', ['fengfeng_pingzhan', def.id], { qi: 2, energy: 1 });
+      expect(nextPlay(a.cs, a.p)).toBe(def.id);
+      expect(a.p.qi).toBe(2);
+      const b = setup('fengfeng', ['fengfeng_pingzhan', def.id], { qi: 4, energy: 1 });
+      expect(nextPlay(b.cs, b.p)).toBe('fengfeng_pingzhan');
+      expect(b.cs.enemies[0]!.hp).toBe(78);
+    } finally {
+      delete cardById[def.id];
+    }
   });
 });
 

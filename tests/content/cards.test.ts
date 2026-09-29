@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DANGDANG_STARTER_DECK, FEIFEI_STARTER_DECK, FENGFENG_STARTER_DECK, STARTER_DECK, cardById, cards } from '../../src/content/cards';
 
 describe('牌資料', () => {
-  it('數量：起手 12、忍術 143、絕學 66、壞毛病 10（含 2 張戰鬥雜牌）', () => {
+  it('數量：起手 12、忍術 146、絕學 66、壞毛病 10（含 2 張戰鬥雜牌）', () => {
     const count = (pool: string) => cards.filter((c) => c.pool === pool).length;
     // 起手 3→6：2026-09-12 菲菲的三種起手牌（飛針、退開、淬毒）
     // 6→9：2026-09-17 噹噹的三種起手牌（正拳、架盤、回敬）

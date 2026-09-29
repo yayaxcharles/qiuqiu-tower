@@ -26,6 +26,7 @@ function play(cs: CombatState, p: PlayerCombat, id: string, target?: number, upg
  * 2026-09-22 平衡調整：封封所有花蓄氣的牌每點蓄氣多 1 點（見 `cards.ts` 封封那一段的檔頭）。
  * 這一檔的加成數字照新數值：你從右邊上＝3＋3×氣（原本 3＋2×氣）、現在一起上＝2＋2×氣（原本 2＋1×氣）、
  * 我護著你走＝7＋3×氣（原本 7＋2×氣）。測的規則（取大、拒收、分席、只加一次）一條都沒變。
+ * 2026-09-29「守著蓄氣，出劍花氣」：我護著你走改成「同伴 8 點蜷縮、自己 2 點蓄氣」（不再花氣）。
  */
 describe('封封 FG-T13～FG-T17、FG-T21', () => {
   it('FG-T13：兩種支援取大；不能提高時出牌前拒絕且不支付', () => {
@@ -62,8 +63,18 @@ describe('封封 FG-T13～FG-T17、FG-T21', () => {
     const { cs, p } = setup(false);
     p.qi = 3; play(cs, p, 'fengfeng_youbian'); expect(p.nextAttackBonus).toBe(12);
     p.nextAttackBonus = undefined; p.block = 8; p.qi = 0; play(cs, p, 'fengfeng_jiewo'); expect(p.qi).toBe(5);
-    p.block = 0; p.qi = 3; play(cs, p, 'fengfeng_husong'); expect(p.block).toBe(16);
+    // 我護著你走（2026-09-29）：一個人時同伴＝自己，蜷縮給自己、氣也給自己，不花氣
+    p.block = 0; p.qi = 3; play(cs, p, 'fengfeng_husong'); expect([p.block, p.qi]).toEqual([8, 5]);
     p.qi = 4; play(cs, p, 'fengfeng_yiqichushou'); expect(p.nextAttackBonus).toBe(10);
+  });
+
+  it('我護著你走（2026-09-29）：兩個人時蜷縮給同伴、蓄氣給自己；升級同伴 11', () => {
+    const { cs, p, q } = setup();
+    p.qi = 3; p.block = 0; q.block = 0;
+    play(cs, p, 'fengfeng_husong');
+    expect([q.block, p.block, p.qi, q.qi]).toEqual([8, 0, 5, 0]);
+    play(cs, p, 'fengfeng_husong', undefined, true);
+    expect([q.block, p.qi]).toEqual([19, 7]);
   });
 
   it('FG-T16：已結束拒收、倒下改自用、存活席位仍是隊友', () => {
