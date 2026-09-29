@@ -16,6 +16,8 @@ import './styles/act-motion.css';
 
 const WALK_MS = 3000;
 const FADE_MS = 400;
+/** 等逐格動作載好時先不亮靜態圖的時間：超過才亮出來頂著 */
+const HOLD_STATIC_MS = 300;
 
 type WalkActor = {
   element: HTMLCanvasElement;
@@ -63,15 +65,21 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
    * 等逐格動作的那一小段（2026-09-22）：靜態圖就是跑步第 1 格，這段不晃、不加影子，
    * 換上畫布時才一模一樣、不會跳一下（`act-motion.css` 的 `.actwalk-await`）。動作載不到才照舊晃著走。
    */
-  const overlay = el('div', { class: animated ? 'actwalk-overlay actwalk-await' : 'actwalk-overlay' },
+  /*
+   * 2026-09-29：跑步換成影片版之後，靜態圖（舊畫風跑步第 1 格）跟新跑步第 1 格對不上，
+   * 動作一兩格內就載好時會先閃一下舊圖。所以先藏著（`actwalk-hold`）：動作 HOLD_STATIC_MS 內載好就直接從新跑步開始，
+   * 真的載得慢才亮出靜態圖頂著，載不到就照舊晃著走。
+   */
+  const overlay = el('div', { class: animated ? 'actwalk-overlay actwalk-await actwalk-hold' : 'actwalk-overlay' },
     el('div', { class: 'actwalk-bg', style: `background-image:url(${bgUrl})` }),
     el('div', { class: 'actwalk-shadow' }),
     fallback,
     el('div', { class: 'actwalk-hint' }, '（往上一層……）'));
   stage.append(overlay);
 
+  const holdTimer = animated ? window.setTimeout(() => { if (!actor) overlay.classList.remove('actwalk-hold'); }, HOLD_STATIC_MS) : 0;
   void loadWalkActor(hero).then((loaded) => {
-    if (!loaded) { overlay.classList.remove('actwalk-await'); return; }
+    if (!loaded) { overlay.classList.remove('actwalk-await', 'actwalk-hold'); return; }
     if (finished) { loaded.dispose(); return; }
     actor = loaded;
     actor.element.style.position = 'absolute';
@@ -83,7 +91,7 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
     overlay.classList.add('actwalk-motion');
     overlay.append(actor.element);
   }).catch((error) => {
-    overlay.classList.remove('actwalk-await');
+    overlay.classList.remove('actwalk-await', 'actwalk-hold');
     console.error('跑步動作素材載入失敗，改用靜態轉場', error);
   });
 
@@ -96,6 +104,7 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
     if (finished) return;
     finished = true;
     window.clearTimeout(timer);
+    window.clearTimeout(holdTimer);
     for (const t of steps) window.clearTimeout(t);
     actor?.dispose();
     then();                                   // 在遮罩底下換畫面（下一關的地圖）
@@ -108,6 +117,7 @@ export function actWalkTransition(stage: HTMLElement, nextActFloor: number, then
     finished = true;
     window.clearTimeout(timer);
     window.clearTimeout(fadeTimer);
+    window.clearTimeout(holdTimer);
     for (const t of steps) window.clearTimeout(t);
     actor?.dispose();
     overlay.remove();
