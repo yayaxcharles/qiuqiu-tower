@@ -631,6 +631,8 @@
 /* 圖示與字級掛在 `.bless-card` 上：手機按住放大的複製品（疊層裡、不在 `.bless-row` 底下）也要一樣大（複審 低-3） */
 .shop-item.bless-card img { width: 64px; height: 64px; }
 .shop-item.bless-card .small { font-size: 13px; }
+/* 英日名稱、說明比較長會折行：折行後也要置中（使用者 2026-09-29 截圖：Cost 那張標題靠左） */
+.shop-item.bless-card .shop-name, .shop-item.bless-card .small { text-align: center; }
 .bless-row .shop-item.took { outline: 4px solid #ffd35c; }
 /*
  * 包袱裡的四樣換成生出來的木框（使用者 2026-09-24 晚：「用黃色框框顯示而已…用生圖設計比較好的框」）。
