@@ -219,6 +219,48 @@ try {
     await c.close();
   }
 
+  // ── 一之二、實際玩法：開遊戲後過 N 秒（背景下載照跑）才進第一場戰鬥，慢網路全程開著 ──
+  if (ONLY.includes('real')) {
+    R.real = {};
+    for (const wait of (process.env.PERF_WAITS ?? '6,20,45').split(',').map(Number)) {
+      const c = await newContext('perf', 'real' + wait);
+      const { page } = c;
+      const cdp = await page.context().newCDPSession(page);
+      const log = netLog(cdp);
+      await throttle(cdp);
+      await page.goto(server.url + '?debug', { waitUntil: 'commit' });
+      await page.waitForFunction(() => document.querySelector('#stage')?.dataset.screen === 'title' && !!window.__app, null, { timeout: 180000, polling: 50 });
+      await sleep(wait * 1000);
+      await page.evaluate(() => window.__app.newRun('perf-real', 1, 'ninja'));
+      await sleep(200);
+      const run = await page.evaluate(() => JSON.stringify(window.__app.run));
+      await page.reload({ waitUntil: 'commit' });   // 重新整理（檔案快取還在）跳過序章，跟閘門的 bootRun 一樣
+      await page.waitForFunction(() => !!window.__app && document.querySelector('#stage')?.dataset.screen === 'title', null, { timeout: 180000, polling: 50 });
+      await page.evaluate((r) => { const x = JSON.parse(r); x.flags.prologue = true; x.flags['tut:combat'] = true; for (const p of x.players) p.bless = undefined; window.__app.continueRun(x); }, run);
+      await page.waitForFunction(() => ['map', 'blessing'].includes(document.querySelector('#stage')?.dataset.screen), null, { timeout: 120000 });
+      await sleep(Number(process.env.PERF_MAPWAIT ?? 1.5) * 1000);   // 地圖上停多久才點（序章＋祝福大約 20 秒以上）
+      const pt0 = await page.evaluate(() => performance.now());
+      const enc = await page.evaluate(() => {
+        const r = window.__app.run; const first = r.map.nodes.filter((n) => n.type === '戰鬥' || n.type === 'combat' || /fight|戰/.test(n.type));
+        const start = r.map.nodes.find((n) => !r.map.nodes.some((p) => p.next.includes(n.id)) && (first.includes(n)));
+        const n = start ?? first[0];
+        if (!n) return null;
+        window.__app.enterNode(n.id); return n.type;
+      });
+      const t0 = Date.now();
+      await waitScreen(page, 'combat', 120000).catch(() => {});
+      const screen = (Date.now() - t0) / 1000;
+      await page.waitForFunction(imgsDone('.unit img'), null, { timeout: 120000, polling: 100 }).catch(() => {});
+      const art = (Date.now() - t0) / 1000;
+      await waitCanAct(page, 120000).catch(() => {});
+      const res = await page.evaluate((t) => performance.getEntriesByType('resource').filter((e) => e.startTime >= t - 5).map((e) => `${Math.round(e.startTime - t)}→${Math.round(e.responseEnd - t)}ms ${Math.round(e.transferSize / 1024)}KB ${e.name.split('/').slice(-2).join('/')}`), pt0);
+      R.real['files' + wait] = res;
+      R.real['wait' + wait] = { nodeType: enc, encounter: await page.evaluate(() => window.__app.cs?.enemies.map((e) => e.defId ?? e.id).join('+')), screenSeconds: screen, unitArtSeconds: art, canActSeconds: (Date.now() - t0) / 1000 };
+      console.log('real', wait, JSON.stringify(R.real['wait' + wait]));
+      await c.close();
+    }
+  }
+
   // ── 二、從地圖進戰鬥（冷快取、慢網路） ──
   if (ONLY.includes('entry')) {
     R.entry = {};
