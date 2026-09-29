@@ -15,22 +15,32 @@
   /* 事件、商店、貓窩、紙箱這幾個畫面的底圖本來完全不動，看起來像一張截圖。
      跟戰鬥與地圖同一套：整張圖的亮度輕微起伏＝火光在晃。
      週期 7.4 秒是三個裡最慢的——這幾個畫面是停下來讀字的地方，太活潑會搶注意力。 */
+}
+/* 火光那層（2026-09-29 效能：原本直接對整張底圖跑亮度濾鏡動畫，弱顯示晶片每一格都要把整張圖重算一次；改成底圖不動、上面疊一層暖光只變透明度——透明度動畫交給顯示晶片直接疊，不用重算底圖。亮度 1＋x 對應暖光透明度 0.75x，節奏與原本的關鍵影格一樣） */
+.screen-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgb(255, 214, 160);
+  opacity: 0;
   animation: bg-torchlight 7.4s ease-in-out infinite;
 }
 @keyframes bg-torchlight {
-  0%, 100% { filter: brightness(1); }
-  22% { filter: brightness(1.05) saturate(1.03); }
-  41% { filter: brightness(.985); }
-  64% { filter: brightness(1.035) saturate(1.02); }
-  83% { filter: brightness(1.015); }
+  0%, 100% { opacity: 0; }
+  22% { opacity: .0375; }
+  41% { opacity: 0; }
+  64% { opacity: .026; }
+  83% { opacity: .011; }
 }
-/* 開始畫面是夜景不是火光，改成天色極慢的明暗（22 秒），不要跟著火在跳 */
-:is(#stage, .screen-leaving)[data-screen="title"] .screen-bg {
+/* 開始畫面是夜景不是火光，改成天色極慢的明暗（22 秒），不要跟著火在跳；光是偏冷的月光色 */
+:is(#stage, .screen-leaving)[data-screen="title"] .screen-bg::before {
+  background: rgb(215, 225, 255);
   animation: night-drift 22s ease-in-out infinite;
 }
 @keyframes night-drift {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.05) saturate(1.04); }
+  0%, 100% { opacity: 0; }
+  50% { opacity: .0375; }
 }
 .screen-bg::after {
   content: '';

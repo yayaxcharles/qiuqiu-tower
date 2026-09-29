@@ -16,6 +16,7 @@ import { DEBUFFS } from '../../engine/types';
 import type { CardDef, CombatState, EnemyCombat, EnemyDef, EnemyEffect, Intent, PendingChoice, PlayerCombat, RunPlayer, RunState, StatusName, Unit, CardInstance, EnemyMove, Effect } from '../../engine/types';
 import { me } from '../../engine/runplayer';
 import { registerScreen } from '../app';
+import { ambientCanvas } from '../ambient';
 import type { CoopSession } from '../../net/session';
 import { applyAction, chooserOf } from '../../net/action';
 import type { CoopAction } from '../../net/action';
@@ -2479,9 +2480,10 @@ registerScreen('combat', (app, root, props) => {
     // 兩邊就不可能再分岔（稽核 2026-09-11 中-1：門一開跟進戰鬥的背景差 27%）。
     // 放大率各張不同（見 tierBgZoom）：讓畫上的牆腳對到角色的腳底
     const bg = el('div', { class: 'battle-bg', style: battleBgStyle(bgKey) });
-    // 空氣裡的浮塵。畫面靜止時總得有東西在動，不然看起來像一張截圖
-    // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。三層各自飄，樣式在 combat.css。
-    box.append(bg, el('div', { class: 'motes' }, el('i'), el('i'), el('i')));
+    // 火光明暗、上緣兩團暖光、三層浮塵：畫面靜止時總得有東西在動，不然看起來像一張截圖
+    // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。2026-09-29 起全部畫在同一張畫布上（見 ambient.ts：
+    // 原本五個蓋滿畫面的圖層各自在動，弱顯示晶片的筆電戰鬥畫面每秒只剩 8 格）
+    box.append(bg, ambientCanvas());
     // 選目標時鋪一層透明的接盤子：點空白處＝取消。魔物與手牌都疊在它上面，照樣點得到
     if (targeting) box.append(targetCatcher());
 

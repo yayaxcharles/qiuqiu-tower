@@ -13,8 +13,17 @@
   /* 塔裡的火光也在晃。跟戰鬥畫面同一套作法：火把畫死在圖裡、位置對不了，
      就讓整張圖的亮度輕微起伏。週期取 6.9 秒（跟戰鬥那邊的 5.7 不同），
      兩個畫面切換時才不會看出是同一段動畫。 */
-  animation: map-torchlight 6.9s ease-in-out infinite;
   background-position: center;
+}
+/* 火光那層（2026-09-29 效能：原本直接對整張底圖跑亮度濾鏡動畫，弱顯示晶片每一格都要把整張圖重算一次；改成底圖不動、上面疊一層暖光只變透明度——透明度動畫交給顯示晶片直接疊，不用重算底圖。亮度 1＋x 對應暖光透明度 0.75x，節奏與原本的關鍵影格一樣） */
+.map-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgb(255, 214, 160);
+  opacity: 0;
+  animation: map-torchlight 6.9s ease-in-out infinite;
 }
 /* 捲軸：一次看得到 664（720 減狀態列 56），內容比它高，往上捲＝往上爬 */
 .map-scroll {
@@ -55,11 +64,11 @@
   pointer-events: none;
 }
 @keyframes map-torchlight {
-  0%, 100% { filter: brightness(1); }
-  19% { filter: brightness(1.06) saturate(1.04); }
-  36% { filter: brightness(.98); }
-  58% { filter: brightness(1.045) saturate(1.03); }
-  79% { filter: brightness(1.02); }
+  0%, 100% { opacity: 0; }
+  19% { opacity: .045; }
+  36% { opacity: 0; }
+  58% { opacity: .034; }
+  79% { opacity: .015; }
 }
 
 .map-edges path {
