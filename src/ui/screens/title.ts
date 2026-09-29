@@ -8,14 +8,10 @@ import { registerScreen } from '../app';
 import { hasSprite, artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
-import { getLang, t, term } from '../../i18n';
+import { t, term } from '../../i18n';
 import { langPicker } from '../langpicker';
-
-/** 「參上」貼圖照語言換（英日版的題字是 `tools/gen_cover_i18n.py` 重寫的，貓與煙塵同一張）；沒有那一版就用中文原圖 */
-function coverKey(key: string): string {
-  const lang = getLang();
-  return lang !== 'zh' && hasSprite(`${key}_${lang}`) ? `${key}_${lang}` : key;
-}
+// 「參上」照語言挑哪一張：跟主程式「先等封面圖到齊」用同一支（`titleart.ts`），兩邊才不會一個等這張、一個畫那張
+import { titleCoverKey as coverKey, whenTitleArtReady } from '../titleart';
 
 registerScreen('title', (app, root) => {
   const startBtn = el('button', { class: 'btn primary' }, t('新的一局'));
@@ -91,7 +87,13 @@ registerScreen('title', (app, root) => {
 
   root.append(screenBg('bg/screen_title'));
   // 語言切換（2026-09-29 多語系）：換了就整個封面重畫
-  root.append(langPicker(() => app.show('title')));
+  /*
+   * 換了語言，英日版的「參上」要現抓（2026-09-29 效能：開場只抓目前語言那一套，另外兩套不預載）。
+   * 先把新那套抓好、解好再重畫（最多 3 秒），不然重畫那一下四隻貓先空白再冒出來。
+   * 等的這段時間三顆語言鈕維持停用（`langPicker` 載語言包時就停用了），不會連點；等完人已經離開封面就不拉回來。
+   */
+  const picker = langPicker(() => { void whenTitleArtReady(3000).then(() => { if (picker.isConnected) app.show('title'); }); });
+  root.append(picker);
   // 飄落的花瓣與落葉：畫面靜止時總得有東西在動（跟戰鬥的浮塵同一個道理）。
   // 十片各自的起點、時長、延遲都拉開，看起來才不像輸送帶。
   root.append(el('div', { class: 'title-petals' },

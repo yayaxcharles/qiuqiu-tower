@@ -31,8 +31,12 @@ describe('總稽核 2026-09-14 的畫面層修正', () => {
   });
 
   it('F 中-1：開場預載跳過角色專屬的鍵，三個入口選好角色都補載', () => {
-    // 2026-09-16 總稽核戊 M3：首頁就出現的菲菲參上封面（TITLE_ART）是例外，其餘角色專屬的鍵照舊跳過
-    expect(readFileSync('src/ui/assets.ts', 'utf-8')).toContain('if (heroOfKey(key) && !TITLE_ART.has(key)) continue;');
+    // 2026-09-16 總稽核戊 M3：首頁就出現的菲菲參上封面（TITLE_ART）是例外，其餘角色專屬的鍵照舊跳過。
+    // 2026-09-29 開場分批：封面四隻改成封面自己先抓、到齊才開始背景預載（`titleart.ts`），開場那批不再收任何 `hero/` 立繪
+    const assetsSrc = readFileSync('src/ui/assets.ts', 'utf-8');
+    expect(assetsSrc).toContain('if (heroOfKey(key)) continue;');
+    expect(assetsSrc).toContain("if (g === 'sprites' && key.startsWith('hero/')) continue;");
+    expect(readFileSync('src/ui/titleart.ts', 'utf-8')).toContain("titleCoverKey('hero/feifei_cover')");
     // 2026-09-23 health H-3：三個入口（新的一局、續玩、連線開局）收成 `adoptRun`，補載只寫在那一支。
     // 原本逐一比對三個入口各自那行補載；現在守「補載在 adoptRun 裡，三個入口都叫它」
     const app = readFileSync('src/ui/app.ts', 'utf-8').replace(/\r\n/g, '\n');
@@ -41,7 +45,8 @@ describe('總稽核 2026-09-14 的畫面層修正', () => {
       expect(at, start).toBeGreaterThanOrEqual(0);
       return app.slice(at, app.indexOf('\n  }\n', at));
     };
-    expect(body('  adoptRun(run: RunState, seat: number): void {')).toContain('preloadHeroArt(run.players.map((p) => p.hero))');
+    // 2026-09-29：連同這一關其餘的魔物（`run.act`）一起抓
+    expect(body('  adoptRun(run: RunState, seat: number): void {')).toContain('preloadHeroArt(run.players.map((p) => p.hero), run.act)');
     expect(body('  newRun(seed?: string')).toContain('this.adoptRun(');
     expect(body('  continueRun(from?: RunState): boolean {')).toContain('this.adoptRun(run, 0)');
     expect(readFileSync('src/ui/screens/lobby.ts', 'utf-8')).toContain('app.adoptRun(run, seat);');

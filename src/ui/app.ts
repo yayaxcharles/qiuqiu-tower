@@ -2,7 +2,7 @@ import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopS
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { coopArtReady, preloadAct, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
+import { coopArtReady, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
 import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
 import { withCoopText } from './coop-text-loader';
@@ -20,7 +20,7 @@ import { clearSave, loadDefeats, loadRun, recordBest, recordDefeat, saveRun } fr
 import type { VictoryCtx } from '../content/victory-echoes';
 import type { CombatState, MapNode, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
+import { cardFaceUrls, computeScale, decodeAll, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { play, setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { notice, playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
@@ -253,7 +253,8 @@ export class App {
     setLocalHero(hero);
     setSfxHero(hero);
     this.syncStory(run);
-    void preloadHeroArt(run.players.map((p) => p.hero));
+    // 連同這一關其餘的魔物與底圖（2026-09-29 開場分批：原本新的一局靠封面時就抓好的第一關、續玩另外叫一次，收成這一處）
+    void preloadHeroArt(run.players.map((p) => p.hero), run.act);
   }
 
   /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
@@ -349,7 +350,7 @@ export class App {
     if (!run) return false;
     this.adoptRun(run, 0);   // 讀檔續玩也要換回那一局的角色；單機存檔一律坐 0 號（上面 `leaveCoop` 已經歸零）
     this.cs = null;
-    void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
+    // 讀檔續玩在二三關的那一關（稽核 2026-09-04 中 4）：`adoptRun` 已經照 `run.act` 抓了（2026-09-29 收進那裡），這裡不再叫第二次
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
@@ -655,7 +656,12 @@ export class App {
       }
       };
       void Promise.allSettled([
-        warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero),
+        /*
+         * 這一手的牌面也一起暖（2026-09-29 開場分批）：牌面改成選好角色才抓，慢網路下第一場開打時可能還在路上，
+         * 手牌就先空著一排再冒出來。排在魔物後面、球球姿勢前面（手牌一開打就攤在眼前，姿勢要出牌才換），
+         * 共用同一個 1.5 秒上限，不另外多等
+         */
+        warmEncounter(encounterId, 1500, [...cardFaceUrls((cs.players[this.seat]?.hand ?? []).map((c) => c.cardId)), ...heroSpriteUrls(run.players.map((p) => p.hero))], run.players[0]?.hero),
         combatScreenReady,
         /*
          * 連線局：這一組搭檔的連線牌面要先抓完（2026-09-23 批次 coopload）。
@@ -817,7 +823,20 @@ export class App {
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
-    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, heroSpeaker()), 400 + i * 1400)); };
+    const open = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, heroSpeaker()), 400 + i * 1400)); };
+    /*
+     * 三選一的牌面先抓好再開（最多等 2 秒，2026-09-29 分批載入審查 中）：牌面改成「出發後」才在背景排隊抓，
+     * 慢網路下第一場打得快，剛好抽到的那三張可能還排在整套戰鬥姿勢後面，一開獎勵畫面就是空牌背。
+     * 已經抓過的不會再抓（`decodeAll` 記得），平常這一步幾乎不花時間。
+     */
+    const go = (): void => {
+      if (typeof Image === 'undefined') { open(); return; }   // 沒有瀏覽器（單元測試）：沒有圖可等
+      const mine = rewards.cardsPerSeat?.[this.seat] ?? rewards.cards;
+      let opened = false;
+      const once = (): void => { if (opened || this.run !== run) return; opened = true; open(); };
+      void decodeAll(cardFaceUrls(mine.map((c) => c.id)), 3, false, undefined, 'high').then(once, once);
+      window.setTimeout(once, 2000);
+    };
     // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
     // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
     const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');

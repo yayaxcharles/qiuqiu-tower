@@ -74,6 +74,29 @@ describe('量速度', () => {
     await expect(m.probeNetSpeed()).resolves.toBe('fast');
   });
 
+  /*
+   * 2026-09-29 效能：開場那一批改成封面圖到齊才開抓，量的 2.5 秒也要從那一刻才開始算。
+   * 從開機就算的話量到的是封面之後的空檔，快網路會被誤判成慢（改回舊寫法：開機就計時，這一條就紅）。
+   */
+  it('給了 startAfter：先進入「還在量」、那之前收到的不算，放行後才開始計時', async () => {
+    const { probeNetSpeed, knownNetSpeed, netSpeed } = await import('../../src/ui/netspeed');
+    let open!: () => void;
+    const gate = new Promise<void>((r) => { open = r; });
+    let got = '';
+    void probeNetSpeed(gate).then((s) => { got = s; });
+    expect(knownNetSpeed(), '還在等封面圖：開局問速度要等著，不能拿到預設的「快」').toBeNull();
+    void netSpeed().then((s) => { got ||= `netSpeed:${s}`; });
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(observerCb, '封面圖還沒到齊，還沒開始量').toBeNull();
+    expect(got).toBe('');
+    open();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(observerCb).not.toBeNull();
+    feed(kb(1200));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(got).toBe('fast');
+  });
+
   it('沒開始量（測試、動作試玩頁）：當快', async () => {
     const { netSpeed, knownNetSpeed } = await import('../../src/ui/netspeed');
     expect(knownNetSpeed()).toBe('fast');
