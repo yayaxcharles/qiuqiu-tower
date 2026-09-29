@@ -47,6 +47,14 @@ type Motion = { texture: string; scale: number; loop: boolean; frames: Frame[]; 
 type VidsFile = { variants: Record<'desktop' | 'mobile', { fps: number; actions: Record<string, Motion> }> };
 const FILES: Readonly<Record<Hero, unknown>> = { qiuqiu: qiuqiuVids, feifei: feifeiVids, dangdang: dangdangVids, fengfeng: fengfengVids };
 const variantsOf = (hero: Hero) => (FILES[hero] as VidsFile).variants;
+/**
+ * 刻意比舊動作短的（原速秒數）：09-29 晚使用者說封封「不太流暢、有點慢速、卡頓感」，
+ * 查到平斬、重劈命中後刀停著 0.4～0.5 秒才收刀 → 剪掉停頓（pack_hero_vids.py 的 `trimTail`）。
+ * 命中時間不變，後面接的收刀照舊，只是早一點接上。
+ */
+const TRIMMED: Readonly<Partial<Record<Hero, Readonly<Record<string, number>>>>> = {
+  fengfeng: { slash: 0.42, heavy_slash: 0.55 },
+};
 const OLD: Readonly<Record<Hero, Record<string, Motion>>> = {
   qiuqiu: { ...motionData.actions, ...extraMotionData.actions, ...attackMotionData.actions } as unknown as Record<string, Motion>,
   feifei: feifeiData.actions as unknown as Record<string, Motion>,
@@ -83,6 +91,7 @@ describe.each(HEROES)('%s 新動作資料', (hero) => {
     for (const action of VIDS_ACTIONS[hero]) {
       const want = action === 'hurt' ? 650                      // 挨打照舊停 0.65 秒、不加速（hit-recoil-motion.ts）
         : action === 'run' ? 480                                 // 跑步不加速；一圈 0.48 秒＝腳步聲兩步（acttransition.ts 每 240 毫秒一步）
+          : TRIMMED[hero]?.[action] !== undefined ? motionMs(TRIMMED[hero]![action]! * 1000)
           : motionMs(total(OLD[hero][action]!));
       expect(Math.abs(total(desktop[action]!) - want), `${hero} ${action}`).toBeLessThanOrEqual(1);
       const fps = desktop[action]!.frames.length / (total(desktop[action]!) / 1000);
@@ -345,7 +354,12 @@ describe.each(KINDS)('%s 新動作接上遊戲', (kind) => {
     vi.stubGlobal('location', { search: '?vids=0' });
     const oldMotion = await import('../../src/ui/companion-motion');
     await oldMotion.preloadCompanionMotion(kind);
-    const before = snapshot(oldMotion);
+    // 剪掉停頓的動作：總長照剪掉的量縮短，命中與出手時間不變
+    const cut = (a: string): number => {
+      const t = TRIMMED[kind]?.[a];
+      return t === undefined ? 0 : motionMs(total(OLD[kind][a]!)) - motionMs(t * 1000);
+    };
+    const before = snapshot(oldMotion).map(([a, d1, d3, ...rest]) => [a, (d1 as number) - cut(a as string), (d3 as number) - cut(a as string), ...rest]);
     vi.resetModules();
     vi.stubGlobal('location', { search: '' });
     const motion = await import('../../src/ui/companion-motion');
