@@ -41,10 +41,15 @@ export function enemyDisplay(id: string | undefined, zh: string): string {
   if (whole) return enemyName(whole[0], whole[1]);
   for (const [name, [eid, h]] of map) {
     if ((id === undefined || eid === id) && zh.length > name.length && zh.endsWith(name)) {
-      return t(zh.slice(0, zh.length - name.length)) + enemyName(eid, h);
+      return prefixJoin(t(zh.slice(0, zh.length - name.length)), enemyName(eid, h));
     }
   }
   return speakerL(zh);
+}
+
+/** 前綴（暴怒的、影子）接在名字或句子前面：中文與日文直接接，英文中間補一個空格（不然變成 EnragedGranny Nekomata） */
+function prefixJoin(prefix: string, rest: string): string {
+  return getLang() === 'en' && prefix ? `${prefix} ${rest}` : prefix + rest;
 }
 
 /** 說話者名字（對白木牌、台詞泡泡、吐槽前面那個名字） */
@@ -103,7 +108,7 @@ export function logLine(zh: string): string {
   if (hit !== undefined) return hit;
   // 開場白被前綴改名過的那幾行（`applyEncounterModifier`／`applyBossPrefix` 在句首補「暴怒的」）：前綴另外翻
   for (const label of new Set([...ENCOUNTER_MODIFIERS.map((m) => m.label), ...BOSS_PREFIXES.map((p) => p.label)])) {
-    if (zh.startsWith(label)) { const rest = render(zh.slice(label.length)); if (rest !== undefined) return t(label) + rest; }
+    if (zh.startsWith(label)) { const rest = render(zh.slice(label.length)); if (rest !== undefined) return prefixJoin(t(label), rest); }
   }
   return t(zh);
 }

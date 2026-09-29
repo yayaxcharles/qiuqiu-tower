@@ -1702,5 +1702,5 @@
 }
 @keyframes qm-banner { 0% { opacity: 0; transform: translate(-50%, -12px); } 10%, 78% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }
 /* 語言切換（2026-09-29 多語系）：釘在封面左上角，跟右上角的圖鑑鈕對稱 */
-.lang-picker { position: absolute; top: 14px; left: 16px; margin: 0; }
+.lang-picker { position: absolute; top: 14px; left: 16px; margin: 0; z-index: 5; }   /* 封面整片 .title-screen 是 z-index:1 蓋滿全畫面，沒有這行按鈕點不到（審查 2026-09-29） */
 .lang-picker .diff-btn { min-width: 0; }

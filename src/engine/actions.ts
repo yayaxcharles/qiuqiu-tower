@@ -955,7 +955,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
         for (const t of targets) {
           if (e.dead) return;
           const n = getStatus(t, fx.name);
-          if (n <= 0) { log(cs, '{e}撲了個空（{who}身上沒有{st}）', { e: E(e), who: H(t), st: fx.name }); continue; }
+          if (n <= 0) { log(cs, '{e}撲了個空（{who}身上沒有{st}）', { e: E(e), who: H(t), st: { st: fx.name } }); continue; }
           damagePlayer(cs, e, n * mul, { victim: t });   // 不帶 pierce：蜷縮擋得住、隱身閃得掉
           if (fx.consume) removeStatus(t, fx.name);
           if (isLost(cs)) return;
@@ -1034,7 +1034,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       for (const name of fx.names) {
         const mine = getStatus(e, name);
         const yours = getStatus(p, name);
-        if (yours > mine) { addStatus(e, name, yours - mine); log(cs, '{e}照著學走了你的{st}', { e: E(e), st: name }); }
+        if (yours > mine) { addStatus(e, name, yours - mine); log(cs, '{e}照著學走了你的{st}', { e: E(e), st: { st: name } }); }
       }
       break;
     }
@@ -1060,7 +1060,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       }
       case 'statusAllies': {
         for (const o of aliveEnemies(cs)) addStatus(o, fx.name, fx.amount);
-        log(cs, '{e}一聲令下，全體獲得 {n} 點{st}', { e: E(e), n: fx.amount, st: fx.name });
+        log(cs, '{e}一聲令下，全體獲得 {n} 點{st}', { e: E(e), n: fx.amount, st: { st: fx.name } });
         break;
       }
       case 'blockAllies': {

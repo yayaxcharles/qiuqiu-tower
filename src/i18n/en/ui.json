@@ -824,5 +824,10 @@
  "；代價是{bad}": "; the cost is {bad}",
  "（沾了魔氣，可以在貓窩、玳瑁婆婆、某些事件淨化；淨化後變成「{name}」：{good}{bad}）": "(Miasma-touched: can be purified at the Cat Bed, by Tortie Granny, or in some events. Once purified it becomes \"{name}\": {good}{bad})",
  "【{set} {n}／{of}】{bonus}。": "[{set} {n}/{of}] {bonus}.",
- "點一下繼續": "Tap to continue"
+ "點一下繼續": "Tap to continue",
+ "上一回合留下的飯糰：多 {n} 顆": "Rice Balls left over from last turn: +{n}",
+ "{who}上一回合留下的飯糰：多 {n} 顆": "{who}'s Rice Balls left over from last turn: +{n}",
+ "{set}套組：第一回合多 {n} 顆飯糰": "{set} set: +{n} {n|Rice Ball|Rice Balls} on turn 1",
+ "{who}的{set}套組：第一回合多 {n} 顆飯糰": "{who}'s {set} set: +{n} {n|Rice Ball|Rice Balls} on turn 1",
+ "{name}：「{line}」": "{name}: \"{line}\""
 }
