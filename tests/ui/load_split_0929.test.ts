@@ -194,3 +194,14 @@ describe('選好角色進入一局才抓那一位的圖', () => {
     expect(app).not.toMatch(/void preloadAct\(/);
   });
 });
+
+describe('獎勵畫面三選一的牌面先抓好再開（2026-09-29 審查 中）', () => {
+  it('afterCombat 先 decodeAll 這三張（插隊、最多 2 秒）才 show reward', () => {
+    const app = APP_RAW.replace(/\r\n/g, '\n');
+    const i = app.indexOf('const go = (): void => {', app.indexOf('afterCombat('));
+    const body = app.slice(i, i + 700);
+    expect(body).toContain("void decodeAll(cardFaceUrls(mine.map((c) => c.id)), 3, false, undefined, 'high').then(once, once);");
+    expect(body).toContain('window.setTimeout(once, 2000);');
+    expect(body).not.toContain("this.show('reward'");
+  });
+});

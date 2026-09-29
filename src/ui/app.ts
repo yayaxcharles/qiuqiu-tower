@@ -20,7 +20,7 @@ import { clearSave, loadDefeats, loadRun, recordBest, recordDefeat, saveRun } fr
 import type { VictoryCtx } from '../content/victory-echoes';
 import type { CombatState, MapNode, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { cardFaceUrls, computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
+import { cardFaceUrls, computeScale, decodeAll, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { play, setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { notice, playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
@@ -823,7 +823,20 @@ export class App {
       return;
     }
     // 事件獎金已經加進 run.fish，但戰利品與獎金要分兩行顯示，所以一起帶給獎勵畫面
-    const go = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, heroSpeaker()), 400 + i * 1400)); };
+    const open = (): void => { this.show('reward', { ...rewards, bonusFish, bonusUpgrades }); afterToasts.forEach((t, i) => window.setTimeout(() => toast(t, heroSpeaker()), 400 + i * 1400)); };
+    /*
+     * 三選一的牌面先抓好再開（最多等 2 秒，2026-09-29 分批載入審查 中）：牌面改成「出發後」才在背景排隊抓，
+     * 慢網路下第一場打得快，剛好抽到的那三張可能還排在整套戰鬥姿勢後面，一開獎勵畫面就是空牌背。
+     * 已經抓過的不會再抓（`decodeAll` 記得），平常這一步幾乎不花時間。
+     */
+    const go = (): void => {
+      if (typeof Image === 'undefined') { open(); return; }   // 沒有瀏覽器（單元測試）：沒有圖可等
+      const mine = rewards.cardsPerSeat?.[this.seat] ?? rewards.cards;
+      let opened = false;
+      const once = (): void => { if (opened || this.run !== run) return; opened = true; open(); };
+      void decodeAll(cardFaceUrls(mine.map((c) => c.id)), 3, false, undefined, 'high').then(once, once);
+      window.setTimeout(once, 2000);
+    };
     // 「上面那位不是你認識的那隻貓了」是黑貓忍者頭目的台詞，只在打倒他之後演；
     // 其他精英（掃地機器人王、三花貓武僧……）打完不該冒出黑貓頭目的臉講話（使用者 2026-09-02 回報）
     const beatNinjaBoss = (encounterById[cs.encounterId]?.enemies ?? []).includes('ninja_boss');
