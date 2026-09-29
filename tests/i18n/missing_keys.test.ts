@@ -6,10 +6,13 @@
  * 中文原句一改，舊譯文就對不上——這裡會紅，照著補譯就好。
  */
 import { describe, expect, it } from 'vitest';
-import { contentSource, lineSource, uiKeys } from './source';
+import { contentSource, eventSource, lineSource, uiKeys } from './source';
 import linesZh from '../../tools/i18n/source/lines.zh.json';
+import eventsZh from '../../tools/i18n/source/events.zh.json';
 import enLines from '../../src/i18n/en/lines.json';
 import jaLines from '../../src/i18n/ja/lines.json';
+import enEvents from '../../src/i18n/en/events.json';
+import jaEvents from '../../src/i18n/ja/events.json';
 import { format, t, _setPackForTest, term } from '../../src/i18n';
 import enUi from '../../src/i18n/en/ui.json';
 import enContent from '../../src/i18n/en/content.json';
@@ -122,6 +125,48 @@ for (const lang of ['en', 'ja'] as const) {
         }
       }
       expect(missing, `缺 ${missing.length} 條`).toEqual([]);
+      expect(bad).toEqual([]);
+    });
+  });
+}
+
+/** 事件文案裡的連線稱呼記號（畫面層翻完再填名字；譯文必須留著） */
+const markers = (s: string): string => [...s.matchAll(/\{(?:同伴|稱|對方|名稱|招式|秘寶說明|秘寶)\}/g)].map((m) => m[0]).sort().join('');
+const digitsOf = (s: string): string => (s.match(/\d+/g) ?? []).sort().join(',');
+
+describe('事件文案：繁中一字不差', () => {
+  /*
+   * 事件文案是照「畫面上最後那句中文」（球球原句、菲菲換名字換引號、噹噹封封整篇換掉，連線稱呼還沒填）查的。
+   * 事件資料或角色對照表一動，這條就紅；看完差異確定要改，再跑 `I18N_EXTRACT=1 npx vitest run tools/i18n_extract.test.ts` 更新存底並補譯。
+   */
+  it('每一句事件中文跟存底一樣', () => {
+    const now = [...eventSource()].sort();
+    const saved = Object.keys(eventsZh).sort();
+    expect(now.filter((s) => !saved.includes(s)), '存底沒有的新句子').toEqual([]);
+    expect(saved.filter((s) => !now.includes(s)), '存底有、現在沒有的句子').toEqual([]);
+  });
+});
+
+for (const lang of ['en', 'ja'] as const) {
+  describe(`${lang} 事件文案`, () => {
+    const lines = (lang === 'en' ? enEvents : jaEvents) as Record<string, string>;
+    it('每一句都有譯文、沒有過期的鍵', () => {
+      const src = eventSource();
+      const missing = src.filter((k) => !lines[k]);
+      expect(missing.length, `缺 ${missing.length} 句，例如：${missing.slice(0, 3).join(' / ')}`).toBe(0);
+      const live = new Set(src);
+      expect(Object.keys(lines).filter((k) => !live.has(k)), '過期的鍵').toEqual([]);
+    });
+    it('字形、稱呼記號、數字', () => {
+      const bad: string[] = [];
+      for (const [k, v] of Object.entries(lines)) {
+        const bare = v.replace(/\{(?:同伴|稱|對方|名稱|招式|秘寶說明|秘寶)\}/g, '');   // 稱呼記號本身是中文字，不算沒翻完
+        if (lang === 'en' && CJK.test(bare)) bad.push(`中文沒翻完：${k} → ${v}`);
+        if (lang === 'ja' && ZH_ONLY.test(bare.replace(/這[うっいえ]/g, ''))) bad.push(`日文用了繁體字形：${k} → ${v}`);
+        if (markers(k) !== markers(v)) bad.push(`稱呼記號：${k} → ${v}`);
+        if (digitsOf(k) !== digitsOf(v)) bad.push(`數字：${k} → ${v}`);
+        if ([...params(k)].some((p) => !params(v).has(p))) bad.push(`參數：${k} → ${v}`);
+      }
       expect(bad).toEqual([]);
     });
   });

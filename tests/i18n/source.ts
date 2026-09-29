@@ -23,12 +23,22 @@ import { fillEcho } from '../../src/content/victory-echoes';
 import * as purifyMod from '../../src/content/purify-text';
 import { castLineFor, lineFor } from '../../src/content/dialogue';
 import { encounters, encounterSkin, enemySkin } from '../../src/content/enemies';
+import { events } from '../../src/content/events';
+import * as eventTextMod from '../../src/content/event-text';
+import * as eventTextB2Mod from '../../src/content/event-text-b2';
+import * as eventTextB3Mod from '../../src/content/event-text-b3rare';
+import { eventTextFor } from '../../src/content/event-text';
+import * as qmarkTextMod from '../../src/content/qmark-text';
+import * as shopTextMod from '../../src/content/shop-text';
+import * as blessingTextMod from '../../src/content/blessing-text';
+import { blessTakeLine } from '../../src/content/blessing-text';
+import { BLESSINGS } from '../../src/content/blessings';
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = `${dir}/${e.name}`;
     if (e.isDirectory()) walk(p, out);
-    else if (p.endsWith('.ts') && !p.includes('/i18n/')) out.push(p);
+    else if (p.endsWith('.ts') && (!p.includes('/i18n/') || /\/i18n\/(names|speech)\.ts$/.test(p))) out.push(p);
   }
   return out;
 }
@@ -44,7 +54,7 @@ function unquote(s: string): string { return s.replace(/\\(.)/g, (_m, c: string)
 export function logTemplates(source: string): string[] {
   const out: string[] = [];
   const src = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');   // 註解裡的範例不算
-  for (const m of src.matchAll(/(?<![\w.$])log\(\s*\w+\s*,/g)) {
+  for (const m of src.matchAll(/(?<![\w.$])(?:log|note)\(\s*\w+\s*,/g)) {
     let i = m.index! + m[0].length;
     let depth = 0;
     let expr = '';
@@ -75,6 +85,8 @@ export function scannedUiKeys(root = 'src'): Map<string, string> {
     const src = readFileSync(f, 'utf-8');
     const found = [...src.matchAll(re)].map((m) => unquote(m[1]!));
     found.push(...logTemplates(src));
+    // 抽獎那一格的提示（`note(notes, row.tier)`）與紀錄參數裡的小句型（`{ sub: '…' }`、`{ tx: '…' }`）：字面值直接收
+    for (const m of src.matchAll(/\b(?:tier|sub|tx):\s*'((?:[^'\\\n]|\\.)*)'/g)) found.push(unquote(m[1]!));
     for (const k of found) {
       if (/[　-鿿＀-￯]/.test(k) && !keys.has(k)) keys.set(k, f);
     }
@@ -98,6 +110,10 @@ export function dynamicUiKeys(): string[] {
   out.add('他'); out.add('她');
   // 紀錄參數裡的小句型（`{ sub, p }`、`{ tx }`，`engine/combat.ts`、`engine/actions.ts`）：掃不到 `log(` 的字面值
   out.add('{n} 點{st}'); out.add('一半的中毒');
+  // 下一場戰鬥開始時的效果那一句（`run.ts` 的 `nextFight`）：三元運算式裡的字面值掃不到
+  out.add('，給全體魔物{ls}'); out.add('給全體魔物{ls}');
+  // 連線事件的稱呼（`event-text-b2.ts` 的 `CALL`）與同角色配對時的說法：畫面層用 `callL` 翻
+  for (const s of ['師兄', '師妹', '同伴']) out.add(s);
   // 用三元運算式先組成 `const k = …` 再交給 `log`、掃不到的句型（`engine/combat.ts` 的上回合飯糰、套組第一回合飯糰）
   for (const s of ['上一回合留下的飯糰：多 {n} 顆', '{who}上一回合留下的飯糰：多 {n} 顆', '{set}套組：第一回合多 {n} 顆飯糰', '{who}的{set}套組：第一回合多 {n} 顆飯糰']) out.add(s);
   // 秘寶發動那一行的句型是 `relicLine` 現組的（`engine/actions.ts`），掃不到字面值
@@ -228,4 +244,25 @@ export function lineSpeakers(): Record<string, string> {
   };
   for (const mod of [dialogueMod, fengfengMod, coopPairMod, echoesMod]) walkObj(mod);
   return who;
+}
+
+/**
+ * 隨機事件的文案（第三片，2026-09-29）：畫面上**最後顯示的那一句中文** → 譯文（跟台詞一樣照最後那句查）。
+ * 收法：事件資料本身（標題、開場、按鈕標籤、結果——球球的原句），加上四份角色對照表、條件提示、抽獎後句、
+ * 鏡子走廊表的每個值，再把球球原句給四位主角各過一次 `eventTextFor`（換名字、換引號那條路）。
+ * 帶 `{同伴}`／`{稱}`／`{對方}` 的連線句照原樣收（畫面層先翻、再填稱呼，見 `i18n/speech.ts` 的 `callL／coopFill(…, loc)`）。
+ */
+export function eventSource(): string[] {
+  const originals = new Set<string>();
+  for (const ev of events) {
+    collectZh([ev.title, ev.text, ev.choices.map((c) => [c.label, c.result, c.requiresLabel ?? ''])], originals);
+  }
+  const raw = new Set(originals);
+  for (const mod of [eventTextMod, eventTextB2Mod, eventTextB3Mod]) collectZh(mod, raw);
+  // 問號格的行腳商與伏擊、罐頭鋪的客座店主、開局祝福（名字、卡面、開場、選完的那一句）：同樣是「最後那句中文」
+  for (const mod of [qmarkTextMod, shopTextMod, blessingTextMod]) collectZh(mod, raw);
+  for (const def of BLESSINGS) for (const h of HEROES) raw.add(blessTakeLine(def.id, def.cls, h));
+  const out = new Set(raw);
+  for (const s of originals) for (const h of HEROES) out.add(eventTextFor(h, s));
+  return [...out].filter((s) => /[一-鿿]/.test(s));
 }

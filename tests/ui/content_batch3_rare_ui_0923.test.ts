@@ -70,7 +70,7 @@ describe('事件畫面', () => {
   });
   it('抽到之後的那一句接在結果後面（從引擎寫的提示裡找抽到哪一格）', () => {
     // 結果文字照 b2fin 的 `resultHero` 換角色（2026-09-24 b3int 合併）
-    expect(src).toContain('const resultText = evText(rawResult, resultHero) + lotteryAfter(evd.id, notes, me(run, seat).hero);');
+    expect(src).toContain('const after = lotteryAfter(evd.id, notes, me(run, seat).hero);');
   });
   it('挑一件淨化：單人挑完當場淨化；連線走 `evpurify` 投票、套用掛在 `take()` 裡、沒得挑的投空票', () => {
     expect(src).toContain("if ('purify' in outcome) {");

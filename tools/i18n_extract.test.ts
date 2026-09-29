@@ -6,7 +6,8 @@
  */
 import { describe, it } from 'vitest';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { contentSource, lineSource, lineSpeakers, uiKeys } from '../tests/i18n/source';
+import { events } from '../src/content/events';
+import { contentSource, eventSource, lineSource, lineSpeakers, uiKeys } from '../tests/i18n/source';
 
 declare const process: { env: Record<string, string | undefined> };
 
@@ -15,6 +16,8 @@ describe('多語系原文抽取', () => {
     mkdirSync('tools/i18n/source', { recursive: true });
     writeFileSync('tools/i18n/source/content.zh.json', JSON.stringify(contentSource(), null, 1) + '\n', 'utf-8');
     writeFileSync('tools/i18n/source/lines.zh.json', JSON.stringify(Object.fromEntries(lineSource().map((k) => [k, k])), null, 1) + '\n', 'utf-8');
+    writeFileSync('tools/i18n/source/events.zh.json', JSON.stringify(Object.fromEntries(eventSource().map((k) => [k, k])), null, 1) + '\n', 'utf-8');
+    writeFileSync('tools/i18n/source/event_ids.json', JSON.stringify(events.map((e) => e.id)) + '\n', 'utf-8');   // 給 tools/i18n-event-sweep.mjs 用
     writeFileSync('tools/i18n/source/lines.who.json', JSON.stringify(lineSpeakers(), null, 1) + '\n', 'utf-8');
     writeFileSync('tools/i18n/source/ui.zh.json', JSON.stringify(Object.fromEntries(uiKeys().map((k) => [k, k])), null, 1) + '\n', 'utf-8');
   });

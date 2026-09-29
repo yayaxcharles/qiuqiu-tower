@@ -2,8 +2,11 @@
 import type { LangPack } from '../index';
 import ui from './ui.json';
 import content from './content.json';
-import line from './lines.json';
+import lines from './lines.json';
+import events from './events.json';
 import { describeCardJa } from './cardtext';
 
+// 台詞與事件文案都是「畫面上最後那句中文 → 譯文」，併成同一張表查
+const line = { ...lines, ...events };
 const pack: LangPack = { ui, ...content, line, describeCard: describeCardJa } as unknown as LangPack;
 export default pack;

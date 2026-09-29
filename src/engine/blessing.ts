@@ -5,6 +5,7 @@ import { heroOf, pickable } from './hero';
 import { Rng, seedFromString } from './rng';
 import { addCard, applyRunEffects, removeCard, runRng, transformCard, upgradeCard, type RunGain } from './run';
 import { me } from './runplayer';
+import { note, type LogArg } from './logfmt';
 import type { CardDef, CardInstance, RunEffect, RunState } from './types';
 
 /**
@@ -131,28 +132,28 @@ export function takeBlessing(run: RunState, seat: number, i: number, pick: Bless
     applyRunEffects(run, fx, notes, gains, seat);
     if (def.dice) {
       const face = runRng(run).int(1, 6);
-      notes?.push(`擲出 ${face} 點`);
+      note(notes, '擲出 {n} 點', { n: face });
       const tier = def.dice.find((t) => face <= t.max);
       if (tier) applyRunEffects(run, tier.effects, notes, gains, seat);
     }
     const pk = def.pick;
     if (pk?.kind === 'choose') {
       const got = blessChoices(run, seat, def.id).find((c) => c.id === pick.c);
-      if (got) { addCard(run, got.id, !!pk.upgraded, seat); notes?.push(`學會了「${name(got)}${pk.upgraded ? '＋' : ''}」`); }
+      if (got) { addCard(run, got.id, !!pk.upgraded, seat); note(notes, '學會了「{card}」', { card: { card: got.id, hero, up: !!pk.upgraded } }); }
     } else if (pk) {
       const picked = (pick.u ?? []).map((uid) => p.deck.find((c) => c.uid === uid)!).filter(Boolean);
       if (pk.kind === 'transform') {
         for (const c of picked) {
-          const before = name(c);
+          const beforeId = c.cardId;   // 原地換：換完 `c.cardId` 就變了
           const next = transformCard(run, c, runRng(run), seat);
-          if (next) notes?.push(`「${before}」換成了「${name(next)}」`);
+          if (next) note(notes, '「{a}」換成了「{b}」', { a: { card: beforeId, hero }, b: { card: next.id, hero } });
         }
       } else if (picked.length) {
-        const names = picked.map((c) => name(c));
+        const shown: LogArg[] = picked.map((c) => ({ card: c.cardId, hero }));
         for (const c of picked) {
           if (pk.kind === 'remove') removeCard(run, c.uid, seat); else upgradeCard(run, c.uid, seat);
         }
-        notes?.push(`「${names.join('」「')}」${pk.kind === 'remove' ? '被丟掉了' : '升級了'}`);
+        note(notes, pk.kind === 'remove' ? '「{ls}」被丟掉了' : '「{ls}」升級了', { ls: { ls: shown, sep: '」「' } });
       }
     }
   });

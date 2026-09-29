@@ -86,7 +86,7 @@ describe('伏擊那一篇（事件畫面照一般事件畫）', () => {
 
   it('事件畫面收下 `qmark` 那一篇，本文不再換口吻（已經是這一位的版本）', () => {
     expect(EVENT).toContain('const ev = qmark ?? (eventId ? eventById[eventId] : undefined);');
-    expect(EVENT).toContain('if (qmark) return t;');
+    expect(EVENT).toContain('if (qmark) return loc ? loc.line(t) : t;');
   });
 });
 

@@ -6,7 +6,8 @@ import { notice } from '../dialogue';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { cardName as cardNameL, potionText, relicLong, relicName, potionName } from '../../i18n/names';
-import { N_, listJoin, t, term } from '../../i18n';
+import { N_, currentPack, lineL, listJoin, t, term } from '../../i18n';
+import { callL, noteJoin, sentenceJoin } from '../../i18n/speech';
 import { FIXED_EVENT_FLOOR_5, eventById } from '../../content/events';
 import { addCard, applyRunEffects, purifyRelic, removeCard, runMods, runRng, upgradeCard, type RunEffectOutcome, type RunGain } from '../../engine/run';
 import { showPurifyPick } from '../purifypick';
@@ -32,6 +33,9 @@ import { eventArtReady, preloadEventResults, warmResultArt, whenEventArtDecoded 
 
 // 除錯總覽也要讀事件文案：經由這裡轉給它，打包時文案才會跟事件畫面併成同一塊（見 debug.ts 的匯入說明）
 export { eventTextFor, FEIFEI_EVENT_LINES } from '../../content/event-text';
+
+/** 英日：照語言查譯文、稱呼也翻；繁中回 undefined（連線稱呼與句子都走原本的路，一字不差） */
+const eventLoc = (): { line: (zh: string) => string; call: (zh: string) => string } | undefined => (currentPack() ? { line: lineL, call: callL } : undefined);
 
 /**
  * 結果畫面要秀出來的牌：學會的彈出來、升級的打鐵發金光、丟掉的化成煙散掉、被塞的壞毛病抖一下。
@@ -262,7 +266,7 @@ registerScreen('event', (app, root, props) => {
    * 而文案只有真的開過挑牌疊層的那一台才有。
    */
   let cardPickInfo: { up: boolean; resultText: string; gains: RunGain[];
-    gotShow: Showcase; noteLine: (extra?: string) => string | null;
+    gotShow: Showcase; noteLine: (extra?: string | readonly string[]) => string | null;
     /** 一張都沒挑的時候那一行怎麼寫（本來就沒得挑，跟有得挑卻選了不選，講法不一樣） */
     none: string } | null = null;
   /**
@@ -283,7 +287,7 @@ registerScreen('event', (app, root, props) => {
   /** 最近一次畫的結果畫面（`finish` 的參數）：別種票湊齊、要把按鈕換成「繼續」時照這一份重畫，不重跑結果（重跑會再開一次挑選窗） */
   let lastFinish: [string, string | null, readonly RunGain[], Showcase] | null = null;
   /** 連線時「挑一件淨化」那一輪的文案（2026-09-23 第三批）：只有真的開過挑選窗的那一台才有，理由同 `cardPickInfo` */
-  let purifyInfo: { resultText: string; gains: RunGain[]; gotShow: Showcase; noteLine: (extra?: string) => string | null } | null = null;
+  let purifyInfo: { resultText: string; gains: RunGain[]; gotShow: Showcase; noteLine: (extra?: string | readonly string[]) => string | null } | null = null;
   const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
 
   /** 交換是大家一起做：站著的每一位都要有可交出的非起始秘寶。 */
@@ -567,9 +571,10 @@ registerScreen('event', (app, root, props) => {
    * `hero` 只有結果文字會傳（`resultHero`：同伴讓條件選項出現時，照同伴那一位的版本寫他做的事）。
    */
   const evText = (t: string, hero = me(run, seat).hero): string => {
-    if (qmark) return t;   // 伏擊那一篇本來就是這一位的版本（見上面 `qmark`）
+    const loc = eventLoc();   // 繁中＝undefined：跟改版前一字不差；英日＝先照最後那句中文查譯文、再填稱呼
+    if (qmark) return loc ? loc.line(t) : t;   // 伏擊那一篇本來就是這一位的版本（見上面 `qmark`）
     const mine = eventTextFor(hero, t);
-    return partner ? coopFill(mine, me(run, seat).hero, partner.hero) : mine;
+    return partner ? coopFill(mine, me(run, seat).hero, partner.hero, loc) : (loc ? loc.line(mine) : mine);
   };
   /**
    * 選項按鈕上的字（2026-09-23 b2fin，主控裁定改口）：條件選項連線時是**同伴**讓它出現的（`choiceGate` 的 `by`），
@@ -579,17 +584,19 @@ registerScreen('event', (app, root, props) => {
   const labelText = (i: number): string => {
     const c = evd.choices[i];
     const by = c?.requires ? choiceGate(run, c, seat).by : undefined;
-    const theirs = by !== undefined && by !== seat && partner ? partnerCondLabel(evd.id, me(run, seat).hero, partner.hero) : undefined;
+    const theirs = by !== undefined && by !== seat && partner ? partnerCondLabel(evd.id, me(run, seat).hero, partner.hero, eventLoc()) : undefined;
     return theirs ?? evText(labelRaw(i));
   };
 
   function settle(outcome: RunEffectOutcome, rawResult: string, notes: string[], gains: RunGain[], added: CardInstance[] = [], outcomes: RunEffectOutcome[] = []): void {
     // 換角色的文案在**入口**過一次，比每個呼叫點各包一次不容易漏（這支有六個呼叫點）。
     // 稀有事件的抽獎（籤筒、睡著的大魔物）接一句「抽到之後的那一句」：抽到哪一格從引擎寫的提示裡找（2026-09-23 第三批）
-    const resultText = evText(rawResult, resultHero) + lotteryAfter(evd.id, notes, me(run, seat).hero);
-    const noteLine = (extra?: string): string | null => {
-      const all = extra ? [...notes, extra] : notes;
-      return all.length ? all.join('；') : null;
+    const after = lotteryAfter(evd.id, notes, me(run, seat).hero);
+    const resultText = sentenceJoin([evText(rawResult, resultHero), after && eventLoc() ? lineL(after) : after]);
+    const noteLine = (extra?: string | readonly string[]): string | null => {
+      const add = extra === undefined ? [] : typeof extra === 'string' ? (extra ? [extra] : []) : extra;
+      const all = [...notes, ...add];
+      return all.length ? noteJoin(all) : null;
     };
     // 效果直接塞進牌組的牌（撿到、學會、被塞壞毛病）也要秀
     const gotShow: Showcase = added.map((c) => ({ kind: cardById[c.cardId]?.pool === '壞毛病' ? 'curse' : 'learn', card: c }));
@@ -701,7 +708,7 @@ registerScreen('event', (app, root, props) => {
           const got: string[] = [];
           if (id) purifyRelic(run, id, seat, got);
           if (got.length) play('relic');
-          finish(resultText, noteLine(got.join('；') || undefined), gains, gotShow);
+          finish(resultText, noteLine(got.length ? got : undefined), gains, gotShow);
         });
         return;
       }
@@ -820,7 +827,7 @@ registerScreen('event', (app, root, props) => {
           const info = purifyInfo;
           if (!info) { refresh(); return; }   // 我這台沒開過視窗（沒得挑、倒下、挑的是別種）：重畫一次把「繼續」放出來
           if (mine.length) play('relic');
-          finish(info.resultText, info.noteLine(mine.join('；') || undefined), info.gains, info.gotShow);
+          finish(info.resultText, info.noteLine(mine.length ? mine : undefined), info.gains, info.gotShow);
           return;
         }
         if (kind === 'evlearn') {
@@ -910,7 +917,7 @@ registerScreen('event', (app, root, props) => {
   const order = choiceOrder(run, ev, seat);
   // 條件選項出現時，事件開頭多接一句條件提示句（故事裡就講出「為什麼多了這條路」）：照讓它出現的那一位挑
   const hints: string[] = [];
-  const partnerName = partner ? heroName(partner) : '';
+  const partnerName = partner ? term(heroName(partner)) : '';   // 英日顯示同伴的譯名（繁中 `term` 原樣回中文）
   order.forEach((index) => {
     const c = ev.choices[index]!;
     const cost = c.costFish ?? 0;
@@ -924,11 +931,11 @@ registerScreen('event', (app, root, props) => {
     const bySelf = gate?.by === undefined || gate.by === seat;
     if (gate) {
       const hint = condHint(ev.id, me(run, bySelf ? seat : gate.by!).hero);
-      if (hint) hints.push(hint);
+      if (hint) hints.push(eventLoc() ? lineL(hint) : hint);
     }
     const btn = el('button', { class: 'btn' },
       // 條件選項：按鈕最前面一個金底小標籤（連線時是同伴讓它出現的，寫「某某的…」）
-      gate && c.requiresLabel ? el('span', { class: 'choice-tag' }, `【${bySelf ? '' : t('{name}的', { name: partnerName })}${c.requiresLabel}】`) : '',
+      gate && c.requiresLabel ? el('span', { class: 'choice-tag' }, `【${bySelf ? '' : t('{name}的', { name: partnerName })}${eventLoc() ? lineL(c.requiresLabel) : c.requiresLabel}】`) : '',
       labelText(index) + (poor ? t('（小魚乾不夠）') : '') + (exchangeReason ? t('（{reason}）', { reason: exchangeReason }) : '') + (who.length ? t('　← {who}', { who: listJoin(who) }) : ''),
       gate ? el('span', { class: 'choice-why' }, condWhyLine(gate, bySelf ? t('你') : partnerName, !!coop)) : '');
     // 倒下的人沒得選（規則四）：不停用的話他按下去那一票會跟站著的那票搶時機，兩台結算出不一樣的結果
@@ -966,7 +973,7 @@ registerScreen('event', (app, root, props) => {
   const extra = runMods(run).unlucky && risky
     ? [el('p', { class: 'event-note' }, t('這個難度下，事件會更兇：掉血多一半，賭運氣的成功機率打七折（例如 50% 只剩 35%）；選項上寫的是一般難度的數字'))]
     : [];
-  const opening = evText(ev.text) + hints.join('');
+  const opening = sentenceJoin([evText(ev.text), ...hints]);
   // 劇場版面：插圖立在中上、事件敘述寫在對白框、選項一列一顆排在框裡（事件名當名牌）
   root.append(markRare(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
     // 同伴投一票的安靜重畫：對白框、立繪、備註不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）

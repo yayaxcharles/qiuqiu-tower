@@ -32,6 +32,7 @@ import { hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 import { listJoin, t as i18nT, term } from '../i18n';
 import { enemyName, potionName, relicName } from '../i18n/names';
+import { noteJoin } from '../i18n/speech';
 
 export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug' | 'blessing';
 
@@ -466,7 +467,7 @@ export class App {
     // 走進這一格時秘寶做了什麼（平安繩回血、集章卡蓋章，2026-09-23 第三批）：寫給本機這一位的，換畫面後用公告講
     const entryNotes: string[] = [];
     const node = chooseNode(run, nodeId, entryNotes, this.seat);
-    if (entryNotes.length) window.setTimeout(() => notice(entryNotes.join('；')), 300);
+    if (entryNotes.length) window.setTimeout(() => notice(noteJoin(entryNotes)), 300);
     /*
      * 走進一格的當下對一次整局的帳（連線版 2026-09-11）。
      *

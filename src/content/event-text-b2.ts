@@ -743,9 +743,9 @@ const COND_LABEL_PARTNER: Readonly<Record<string, string>> = {
 export const COND_LABEL_PARTNER_FOR_TEST = COND_LABEL_PARTNER;
 
 /** 同伴讓這篇的條件選項出現時，本機這一位看到的標籤（稱呼已換好）；這篇沒有同伴版就回 `undefined`（照原本的標籤） */
-export function partnerCondLabel(eventId: string, me: string | undefined, partner: string | undefined): string | undefined {
+export function partnerCondLabel(eventId: string, me: string | undefined, partner: string | undefined, loc?: EventLoc): string | undefined {
   const t = COND_LABEL_PARTNER[eventId];
-  return t === undefined ? undefined : coopFill(t, me, partner);
+  return t === undefined ? undefined : coopFill(t, me, partner, loc);
 }
 
 /**
@@ -761,10 +761,16 @@ const CALL: Readonly<Record<string, Readonly<Record<string, readonly [string, st
 };
 
 /** 把連線限定事件文字裡的 `{同伴}`／`{稱}`／`{對方}` 換成同伴的名字與稱呼；沒有這幾個記號的文字原樣回 */
-export function coopFill(text: string, me: string | undefined, partner: string | undefined): string {
-  if (!text.includes('{')) return text;
+export function coopFill(text: string, me: string | undefined, partner: string | undefined, loc?: EventLoc): string {
+  // 英日：先照最後那句中文查譯文（譯文保留這幾個記號），再用譯過的名字與稱呼填；繁中 `loc` 是 undefined，一字不差
+  const src = loc ? loc.line(text) : text;
+  if (!src.includes('{')) return src;
+  const call = loc ? loc.call : (zh: string): string => zh;
   const m = me ?? 'ninja', p = partner ?? 'ninja';
   const c = CALL[m]?.[p];
-  if (!c) return text.replace(/\{稱\}，?/gu, '').replace(/\{同伴\}/gu, '同伴').replace(/\{對方\}/gu, '你');
-  return text.replace(/\{同伴\}/gu, c[0]).replace(/\{稱\}/gu, c[1]).replace(/\{對方\}/gu, c[2]);
+  if (!c) return src.replace(loc ? /\{稱\}[，,]?\s?/gu : /\{稱\}，?/gu, '').replace(/\{同伴\}/gu, call('同伴')).replace(/\{對方\}/gu, call('你'));
+  return src.replace(/\{同伴\}/gu, call(c[0])).replace(/\{稱\}/gu, call(c[1])).replace(/\{對方\}/gu, call(c[2]));
 }
+
+/** 英日顯示時的兩支查表：整句查譯文、名字與稱呼查譯名（繁中不傳） */
+export interface EventLoc { line: (zh: string) => string; call: (zh: string) => string }

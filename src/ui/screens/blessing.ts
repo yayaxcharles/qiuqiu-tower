@@ -1,6 +1,6 @@
 import { play } from '../audio';
 import { blessingById, type BlessingDef } from '../../content/blessings';
-import { BLESS_COOP_TOOK, BLESS_COOP_WAIT, BLESS_NAMES, BLESS_OPENING, blessCardText, blessTakeLine } from '../../content/blessing-text';
+import { BLESS_COOP_TOOK, BLESS_COOP_WAIT, BLESS_NAMES, BLESS_OPENING, blessCardText, blessTakeLine, type BlessLoc } from '../../content/blessing-text';
 import { potionById } from '../../content/potions';
 import { relicById } from '../../content/relics';
 import { anyBlessingPending, blessChoices, blessPickable, blessPickCount, offeredBlessing, takeBlessing, type BlessPick } from '../../engine/blessing';
@@ -18,8 +18,9 @@ import { el } from '../dom';
 import { renderHud } from '../hud';
 import { sceneView } from '../scene';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
-import { relicName, potionName } from '../../i18n/names';
-import { t, term } from '../../i18n';
+import { relicName, relicText, potionName } from '../../i18n/names';
+import { currentPack, lineL, t, term } from '../../i18n';
+import { logLine, noteJoin } from '../../i18n/speech';
 
 /**
  * 開局祝福：大俠貓留下的包袱（2026-09-23 內容擴充第三批 新A，設計稿 design3 第二節）。**延後載入**（`main.ts` 的 `registerLazyScreen`；
@@ -42,11 +43,11 @@ function farewell(def: BlessingDef, hero: string | undefined, notes: readonly st
     return t('拿到{kind}「{name}」', { kind: term(g.kind), name });
   });
   const missed = gains.filter((g) => g.missed).length;
-  const all = [...notes, ...got, ...(missed ? [t('忍具帶滿了，還有 {n} 個收不下', { n: missed })] : [])];
-  // `potions` 那一支已經自己寫了「帶滿了」那一句，不重複：`notes`（引擎固定清單，來源 `net`／`potions` 模組）
-  // 跟這裡組的那句都以中文「忍具帶滿了」開頭才比對得到，只在繁中語系下生效；其他語言頂多多顯示一行，不影響資料
+  // 引擎的提示（`note()`）先照語言重組；跟這裡組的「忍具帶滿了」同一句時，換成同一種語言後字串一樣，`Set` 就併掉了
+  const all = [...notes.map(logLine), ...got, ...(missed ? [t('忍具帶滿了，還有 {n} 個收不下', { n: missed })] : [])];
+  // `potions` 那一支已經自己寫了「帶滿了」那一句，不重複：繁中另外用「忍具帶滿了」開頭比對（句子尾巴的數字可能不同）
   const lines = [...new Set(all)].filter((ln, i, arr) => !(ln.startsWith('忍具帶滿了') && arr.findIndex((x) => x.startsWith('忍具帶滿了')) !== i));
-  if (lines.length) window.setTimeout(() => notice(lines.join('；')), 300);
+  if (lines.length) window.setTimeout(() => notice(noteJoin(lines)), 300);
 }
 
 function blessingScreen(app: App, root: HTMLElement): void {
@@ -61,7 +62,11 @@ function blessingScreen(app: App, root: HTMLElement): void {
   const hero: Hero = mine.hero ?? 'ninja';
   const partnerSeat = run.players.findIndex((_, i) => i !== seat);
   const partner = partnerSeat >= 0 ? run.players[partnerSeat] : undefined;
-  const partnerName = partner ? heroName(partner) : '';
+  const partnerName = partner ? term(heroName(partner)) : '';   // 英日顯示同伴的譯名（繁中 `term` 原樣回中文）
+  // 英日：整句照最後那句中文查譯文；繁中 `currentPack()` 是 null，原樣回
+  const say = (s: string): string => (currentPack() ? lineL(s) : s);
+  const blessName = (id: string): string => say(BLESS_NAMES[id] ?? id);
+  const blessLoc = (): BlessLoc | undefined => (currentPack() ? { line: lineL, term, relic: (r) => ({ name: relicName(r), text: relicText(r) }) } : undefined);
   /** 我送出去、還沒繞回來（連線）：這段時間四張都點不動 */
   let sent = false;
   /** 我拿到什麼的那幾句（連線時在送出前用複本先算好：效果只看我自己的分支亂數，兩邊算出來一模一樣） */
@@ -128,9 +133,9 @@ function blessingScreen(app: App, root: HTMLElement): void {
     const url = artUrl('icons', def.art);
     const node = el('div', { class: `shop-item bless-card${opts.took ? ' took' : ''}${opts.dim ? ' sold' : ''}`, 'data-bless': def.id },
       el('div', { class: 'potion-rarity bless-cls', 'data-cls': def.cls }, term(def.cls)),
-      url.startsWith('data:') ? '' : el('img', { src: url, alt: BLESS_NAMES[def.id] ?? def.id }),
-      el('div', { class: 'shop-name' }, BLESS_NAMES[def.id] ?? def.id),
-      el('div', { class: 'small' }, blessCardText(def.id, hero)));
+      url.startsWith('data:') ? '' : el('img', { src: url, alt: blessName(def.id) }),
+      el('div', { class: 'shop-name' }, blessName(def.id)),
+      el('div', { class: 'small' }, blessCardText(def.id, hero, blessLoc())));
     if (opts.onClick) node.addEventListener('click', opts.onClick);
     // 手機橫拿說明太小：按住放大看，放開不選（同罐頭鋪，設計稿 2-1）
     attachCardPeek(node);
@@ -146,9 +151,9 @@ function blessingScreen(app: App, root: HTMLElement): void {
       const d = blessingById[id];
       const url = d ? artUrl('icons', d.art) : '';
       return url && !url.startsWith('data:')
-        ? el('img', { class: id === took ? 'took' : '', src: url, alt: BLESS_NAMES[id] ?? id, title: BLESS_NAMES[id] ?? id }) : '';
+        ? el('img', { class: id === took ? 'took' : '', src: url, alt: blessName(id), title: blessName(id) }) : '';
     });
-    const line = took ? BLESS_COOP_TOOK.replace('{同伴}', partnerName).replace('{名稱}', BLESS_NAMES[took] ?? took) : t('{name}還在翻包袱……', { name: partnerName });
+    const line = took ? say(BLESS_COOP_TOOK).replace('{同伴}', partnerName).replace('{名稱}', blessName(took)) : t('{name}還在翻包袱……', { name: partnerName });
     return el('div', { class: 'bless-mate' }, el('span', {}, t('{name}的包袱：', { name: partnerName })), ...icons, el('span', {}, line));
   }
 
@@ -172,7 +177,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
         grid.append(cardNode(up ? { uid: -1, cardId: c.id, upgraded: true } : c, { onClick: () => commit(i, { c: c.id }) }));
       }
       body = el('div', { class: 'bless-stage' }, grid);
-      text = t('{name}：選一張帶走。', { name: BLESS_NAMES[def.id] ?? def.id });
+      text = t('{name}：選一張帶走。', { name: blessName(def.id) });
       actions = [el('button', { class: 'btn', onclick: () => { choosing = null; render(); } }, t('返回'))];
     } else {
       const row = el('div', { class: 'shop-row bless-row' });
@@ -186,12 +191,12 @@ function blessingScreen(app: App, root: HTMLElement): void {
       body = el('div', { class: 'bless-stage' },
         art.startsWith('data:') ? '' : el('img', { class: 'bless-art', src: art, alt: '' }),
         row, partnerRow());
-      text = took || sent ? BLESS_COOP_WAIT.replace('{同伴}', partnerName) : open.narration;
+      text = took || sent ? say(BLESS_COOP_WAIT).replace('{同伴}', partnerName) : open.narration;
     }
     // 難度 4 起的共用提示（同事件畫面）：賭運氣成功率 ×0.7、掉血 ×1.5，卡面寫的是一般難度的數字
     const risky = offer.some((id) => { const d = blessingById[id]; return !!d && (!!d.dice || d.effects.some((e) => e.kind === 'gamble' || e.kind === 'damage')); });
     const extra: (Node | string)[] = [];
-    if (choosing === null && !took && !sent) extra.push(el('p', { class: 'bless-say' }, `${heroName(mine)}：「${open.line}」`));
+    if (choosing === null && !took && !sent) extra.push(el('p', { class: 'bless-say' }, t('{name}：「{line}」', { name: term(heroName(mine)), line: say(open.line) })));
     if (runMods(run).unlucky && risky && !took) extra.push(el('p', { class: 'event-note' }, t('這個難度下，賭運氣的成功機率打七折（例如 50% 只剩 35%）、掉血多一半（卡面寫的是一般難度的數字）')));
     root.append(sceneView({ art: body, speaker: choosing === null && !took && !sent ? '' : heroName(mine), text, extra, actions }));
   }
@@ -203,7 +208,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
         if (one.a.seat === seat) { sent = false; play('relic'); }
         else if (one.a.seat === partnerSeat) {
           const id = partner?.bless?.took;
-          if (id) notice(BLESS_COOP_TOOK.replace('{同伴}', partnerName).replace('{名稱}', BLESS_NAMES[id] ?? id));
+          if (id) notice(say(BLESS_COOP_TOOK).replace('{同伴}', partnerName).replace('{名稱}', blessName(id)));
         }
       }
       if (!anyBlessingPending(run)) { leave(); return; }
