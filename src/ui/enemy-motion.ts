@@ -232,6 +232,7 @@ export function createEnemyMotionActor(
   element: HTMLCanvasElement;
   foot: Readonly<{ x: number; y: number }>;
   play(action: EnemyMotionAction): void;
+  pause(): void;
   dispose(): void;
 } {
   const kindData = kindOf(kind);
@@ -337,6 +338,11 @@ export function createEnemyMotionActor(
     element: canvas,
     foot,
     play,
+    /** 先停下來、不作廢（畫布暫時從畫面拿掉時用，見 combat.ts 的 staticIdle）：下一次 play() 會從第 0 格重新排 */
+    pause: () => {
+      if (raf !== 0) window.cancelAnimationFrame(raf);
+      raf = 0;
+    },
     dispose: () => {
       if (disposed) return;
       disposed = true;

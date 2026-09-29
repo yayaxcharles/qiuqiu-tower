@@ -15,7 +15,9 @@ describe('走路當待機的魔物：待機改畫原本立繪', () => {
 
   it('戰鬥畫面：待機交還靜態立繪、出招演完收掉畫布，而且記成 idle（下次出招才會重播）', () => {
     const c = COMBAT_RAW.replace(/\r\n/g, '\n');
-    expect(c).toContain("|| (action === 'idle' && staticIdle(kind)))));");
+    expect(c).toContain("|| (!keepAttack && action === 'idle' && staticIdle(kind)));");
+    // 畫布拿掉時逐格迴圈也要停（審查 高-1）
+    expect(c.match(/state\.actor\.pause\(\);/g)?.length).toBe(2);
     expect(c).toContain("if (action === 'idle' && !keepAttack) state.action = 'idle';");
     const play = c.slice(c.indexOf('const playEnemyMotion = (uid: number, action: EnemyMotionAction): void => {'));
     expect(play.slice(0, 700)).toContain("if (action === 'idle' && staticIdle(state.kind)) {");
