@@ -160,4 +160,8 @@ describe('接線', () => {
     expect(MAP).not.toContain("import('./event')");
     expect(MAP).toContain('void preloadMapEvents(run);');
   });
+
+  it('地圖畫面也先在背景抓戰鬥畫面的程式（2026-09-29 效能量測：慢網路第一場進戰鬥少等約 1.4 秒）', () => {
+    expect(MAP).toContain("void import('./combat').catch(() => undefined);");
+  });
 });
