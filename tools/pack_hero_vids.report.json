@@ -825,20 +825,20 @@
      "cells": 15
     },
     "assets/motion/hero-vids/fengfeng-slash-d.webp": {
-     "bytes": 259784,
+     "bytes": 140632,
      "size": [
-      3677,
-      791
+      2216,
+      397
      ],
-     "cells": 11
+     "cells": 6
     },
     "assets/motion/hero-vids/fengfeng-heavy-d.webp": {
-     "bytes": 333090,
+     "bytes": 200942,
      "size": [
-      3716,
-      847
+      3206,
+      456
      ],
-     "cells": 15
+     "cells": 9
     },
     "assets/motion/hero-vids/fengfeng-sheath-d.webp": {
      "bytes": 240558,
@@ -945,20 +945,20 @@
      "cells": 7
     },
     "assets/motion/hero-vids/fengfeng-slash-m.webp": {
-     "bytes": 103864,
+     "bytes": 51580,
      "size": [
-      1916,
+      815,
       295
      ],
-     "cells": 6
+     "cells": 3
     },
     "assets/motion/hero-vids/fengfeng-heavy-m.webp": {
-     "bytes": 129008,
+     "bytes": 81194,
      "size": [
-      2441,
+      1306,
       341
      ],
-     "cells": 8
+     "cells": 5
     },
     "assets/motion/hero-vids/fengfeng-sheath-m.webp": {
      "bytes": 87022,
@@ -1026,12 +1026,12 @@
     }
    },
    "downloadMB": {
-    "desktop": 4.55,
-    "mobile": 1.67
+    "desktop": 4.31,
+    "mobile": 1.58
    },
    "decodedMB": {
-    "desktop": 144.3,
-    "mobile": 32.3
+    "desktop": 130.1,
+    "mobile": 29.6
    },
    "size": {
     "toss": {
@@ -1153,8 +1153,8 @@
      "eat": 17,
      "sweep": 13,
      "double_slash": 15,
-     "slash": 11,
-     "heavy_slash": 15,
+     "slash": 6,
+     "heavy_slash": 9,
      "sheath": 10,
      "defeat": 19,
      "focus": 16,
@@ -1170,8 +1170,8 @@
      "eat": 8,
      "sweep": 7,
      "double_slash": 7,
-     "slash": 6,
-     "heavy_slash": 8,
+     "slash": 3,
+     "heavy_slash": 5,
      "sheath": 5,
      "defeat": 10,
      "focus": 8,
