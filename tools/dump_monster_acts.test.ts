@@ -5,7 +5,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
 import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
-import { MERCHANT_SPRITES, TITLE_ART, heroOfKey, isCoopOnlyArt, isGuestKeeperArt, isItemIcon } from '../src/ui/assets';
+import { MERCHANT_SPRITES, TITLE_ART, _setManifestForTest, heroOfKey, heroSpriteKey, isCoopOnlyArt, isDeferredBossArt, isGuestKeeperArt, isItemIcon, type Manifest } from '../src/ui/assets';
+import { HEROES } from '../src/engine/hero';
 
 it('dump monster acts', () => {
   const manifest = JSON.parse(readFileSync('public/assets/manifest.json', 'utf-8')) as { monsters: Record<string, Record<string, string>>; bg: Record<string, string> };
@@ -80,6 +81,24 @@ it('dump monster acts', () => {
   // 客座店主的立繪（2026-09-23 第三批 新J）：開場不載、這一關地圖上有那一位的店才抓（`assets.ts` 的 `isGuestKeeperArt`、
   // `preload.ts` 的 `preloadMapKeepers`），跟事件主圖同一類，寫 0（`sprites` 跟上面行腳商那一圈同一份）
   for (const [key, path] of Object.entries(sprites)) if (isGuestKeeperArt(key)) out[path] = 0;
+  /*
+   * 開場分批（2026-09-29 效能）：
+   * - 牌面整組開場不載，選好角色照那一位抓（`assets.ts` 的 `heroCardUrls`）→ 全部寫 0；
+   * - `hero/` 立繪開場只抓選角畫面那四張、封面自己抓目前語言那一套（中文原圖算首載）；
+   *   球球的戰鬥姿勢、英日版封面（換語言才抓）→ 寫 0，選角那四張與中文封面拿掉標記＝照首載算；
+   * - 師父戰鬥用的那二十幾張進第三關才抓（`isDeferredBossArt`）→ 寫 3，對白頭像那兩張照首載。
+   */
+  _setManifestForTest(manifest as unknown as Manifest);
+  const portraits = new Set(HEROES.map((h) => heroSpriteKey(h, 'hero/ninja')));
+  const zhCovers = new Set(['hero/cover', ...TITLE_ART]);
+  for (const [key, path] of Object.entries(sprites)) {
+    if (!key.startsWith('hero/')) continue;
+    if (portraits.has(key) || zhCovers.has(key)) delete out[path];
+    else out[path] = 0;
+  }
+  for (const v of Object.values(groups.cards ?? {})) for (const path of typeof v === 'string' ? [v] : Object.values(v)) out[path] = 0;
+  for (const [key, path] of Object.entries(sprites)) if (isDeferredBossArt(key)) out[path] = 3;
+  expect(portraits.size, '前提：四隻都有自己的站姿').toBe(4);
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
@@ -111,4 +130,14 @@ it('dump monster acts', () => {
   expect(keeperFirstLoad, '客座店主的立繪照地圖現抓，不該留在首載').toEqual([]);
   expect(Object.keys(sprites).filter((k) => isGuestKeeperArt(k))).toHaveLength(9);
   for (const k of ['shop/keeper', 'shop/keeper_happy', 'shop/keeper_no']) expect(sorted[sprites[k]!], k).toBeUndefined();
+  // 開場分批（2026-09-29）：牌面、球球的戰鬥姿勢、英日版封面不算首載；選角四張、中文封面、師父對白頭像照首載；師父其餘算第三關
+  expect(sorted[sprites['hero/ninja_claw']!]).toBe(0);
+  expect(sorted[sprites['hero/cover_en']!]).toBe(0);
+  expect(sorted[sprites['hero/cover']!]).toBeUndefined();
+  expect(sorted[sprites['hero/ninja']!]).toBeUndefined();
+  expect(sorted[sprites['boss/idle1']!]).toBeUndefined();
+  expect(sorted[sprites['boss/palm2']!]).toBe(3);
+  const cardsFirst = Object.values(groups.cards ?? {}).filter((p) => typeof p === 'string' && sorted[p] !== 0);
+  expect(cardsFirst, '牌面選好角色才抓，不該留在首載').toEqual([]);
+  _setManifestForTest({ cards: {}, sprites: {}, monsters: {}, icons: {}, bg: {}, review: [] });
 });

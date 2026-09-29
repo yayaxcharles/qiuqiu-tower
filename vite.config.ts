@@ -1,6 +1,7 @@
 // 從 vitest/config 拿 defineConfig（同一支、多了 `test` 欄位的型別），打包照舊走 vite
 import { defineConfig } from 'vitest/config';
 import { assetHash } from './tools/vite-asset-hash.ts';
+import { bootHints } from './tools/vite-boot-hints.ts';
 
 /*
  * 打包編號（見 `src/net/code.ts`）。**要跟著提交走，不能用當下的時間**：
@@ -29,7 +30,10 @@ export default defineConfig({
    * GitHub Pages 一律回十分鐘的快取又改不了，固定檔名換了內容會讓回鍋的玩家吃到舊圖。
    * 只動 `dist/`，`public/` 的原始檔名一個都不改（生圖工具全靠那些檔名）。
    */
-  plugins: [assetHash()],
+  plugins: [assetHash(),
+    // 素材清單與繁中底子跟主程式一起先抓（2026-09-29 效能：封面早一點出來，見 `tools/vite-boot-hints.ts`）。
+    // 打包編號要跟下面 `define` 的 `__BUILD_TAG__` 同一個值，清單網址才對得上
+    bootHints(BUILD_TAG)],
   /**
    * **連線版放在另一個網址**（使用者 2026-09-11：「連線版畢竟改動非常大，我怕把原本的
    * 也改壞。看要不要先更名或放另一個網址，等確認 OK 了再替換」）。

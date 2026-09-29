@@ -9,7 +9,8 @@ import { initLang } from './i18n';
 import { registerLazyScreen } from './ui/lazy-screen';
 import { loadEventScreen } from './ui/event-loader';
 import { loadManifest, preloadArt } from './ui/assets';
-import { preloadAct } from './ui/preload';
+import { preloadFirstFights } from './ui/preload';
+import { whenTitleArtReady } from './ui/titleart';
 import { armHeavyLane, holdHeavyLane } from './ui/heavy-lane';
 import { probeNetSpeed } from './ui/netspeed';
 import { unlockOnFirstGesture } from './ui/audio';
@@ -97,18 +98,32 @@ async function boot(): Promise<void> {
   } else {
     app.show('title');
   }
+  /*
+   * **封面那幾張到齊才開始背景預載**（2026-09-29 效能：封面早一點出來）。
+   * 原本封面一畫出來背景就一次開抓六張，慢網路下封面四隻貓要跟幾百張圖搶頻寬（量到封面出現後 2 秒才到齊）。
+   * 最多等 6 秒（`titleart.ts`）；接回連線局的不經過封面，不等。
+   */
+  const titleArt = rejoin ? Promise.resolve() : whenTitleArtReady();
   // 標題畫面出來之後才開始預載：先讓人看到遊戲，圖在背景慢慢補。
   // 不 await——預載完不完成都不影響能不能玩。
-  // UI／牌面／背景先，再抓第一關會遇到的魔物；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
+  /*
+   * 開場這一批只抓「不管選誰接下來都會看到的」（2026-09-29 開場分批，見 `assets.ts` 的「開場分批」）：
+   * 選角畫面、序章、介面、第一關的底圖，再抓第一關前五層的弱魔物。角色的立繪與牌面、這一關其餘的魔物，
+   * 選好角色進入一局才抓（`app.ts` 的 `adoptRun` → `preloadHeroArt`）；第二三關的等過關畫面再抓（分關載入，見 preload.ts）
+   */
   /*
    * 慢網路才讓路（2026-09-23，主控裁定）：開場這一批一開抓就量速度（netspeed.ts，最多 2.5 秒）。
    * - 快：跟原本一模一樣——逐格動作的大圖集不限張數、不等，音樂一點就放；
-   * - 慢：大圖集同時最多兩張、開場這一批抓完才開始（heavy-lane.ts），背景音樂也等這一批抓完才放。
+   * - 慢：大圖集同時最多兩張、開場這一批抓完才開始（heavy-lane.ts），背景音樂也等這一批抓完才放
+   *  （進入一局時 `preloadHeroArt` 會再讓它們等那一局的那一批）。
    * 量出來之前大圖集先別開抓（最多 2.5 秒；快網路通常零點幾秒就量完）。
+   * 量的 2.5 秒從開場這一批**真的開抓**（封面圖到齊）那一刻才起算（`probeNetSpeed` 的 `startAfter`）。
    */
-  const speed = probeNetSpeed();
+  const speed = probeNetSpeed(titleArt);
   const releaseHeavy = holdHeavyLane();
-  const opening = preloadArt().then(() => preloadAct(1));
+  const opening = titleArt.then(() => preloadArt()).then(() => preloadFirstFights());
+  // 除錯網址（`?debug`）記下量到的速度，效能量測（`tools/perf/measure.mjs`）要對照前後兩版是不是同一種判斷
+  if (wantDebug) void speed.then((s) => { const d = document.documentElement; if (d) d.dataset['netSpeed'] = s; });
   void speed.then((s) => {
     if (s === 'fast') { releaseHeavy(); return; }
     armHeavyLane(2);
