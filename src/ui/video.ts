@@ -89,12 +89,16 @@ export function playTrailer(): void {
     v.pause(); v.removeAttribute('src'); v.load();   // 連下載一起停（見 playVideo 的 stopDownload）
     box.remove();
     window.removeEventListener('keydown', onKey);
+    unlockScreen();
     resumeBgm();
   };
   close.addEventListener('click', end);
   v.addEventListener('ended', end);
   window.addEventListener('keydown', onKey);
   layer.append(box);
+  // 鎖住底下的封面：黑幕只擋滑鼠，不鎖的話 Tab＋Enter 還按得到「兩個人一起玩」，影片還在播畫面就被換掉（2026-09-29 審查 中）
+  lockScreen();
+  close.focus();
   pauseBgm();
   const pl = v.play();
   if (pl) pl.catch(() => { /* 被擋就留著控制列讓玩家自己按播放 */ });

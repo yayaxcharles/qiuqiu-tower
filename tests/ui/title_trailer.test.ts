@@ -31,6 +31,8 @@ describe('封面介紹影片', () => {
     const body = v.slice(v.indexOf('export function playTrailer'));
     expect(body).toContain("v.removeAttribute('src'); v.load();");
     expect(body).toContain('resumeBgm()');
+    expect(body).toContain('lockScreen();');
+    expect(body).toContain('unlockScreen();');
     expect(body).toContain("preload: 'auto'");
   });
 });

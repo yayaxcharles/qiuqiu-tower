@@ -27,14 +27,14 @@ for (const lang of ['zh', 'en', 'ja']) {
   const label = await page.evaluate(() => [...document.querySelectorAll('.title-books .btn')].map((b) => b.textContent));
   const ok = await realClick(page, '.title-books .btn', { index: 0 });
   await sleep(2500);
-  const s1 = await page.evaluate(() => { const v = document.querySelector('.trailer-overlay video'); return v ? { t: v.currentTime, w: v.videoWidth, h: v.videoHeight, paused: v.paused, err: v.error?.code ?? null } : null; });
+  const s1 = await page.evaluate(() => { const v = document.querySelector('.trailer-overlay video'); return v ? { inert: document.querySelector('#screen')?.hasAttribute('inert') ?? false, t: v.currentTime, w: v.videoWidth, h: v.videoHeight, paused: v.paused, err: v.error?.code ?? null } : null; });
   await sleep(1500);
   const t2 = await page.evaluate(() => document.querySelector('.trailer-overlay video')?.currentTime ?? -1);
   await page.screenshot({ path: join(OUT, `playing_${lang}.png`) });
   await realClick(page, '.trailer-overlay .cine-skip');
   await sleep(300);
-  const gone = await page.evaluate(() => !document.querySelector('.trailer-overlay'));
-  const pass = ok && s1 && s1.w === 1280 && s1.h === 720 && !s1.paused && t2 > s1.t && gone;
+  const gone = await page.evaluate(() => !document.querySelector('.trailer-overlay') && !document.querySelector('#screen')?.hasAttribute('inert'));
+  const pass = ok && s1 && s1.inert && s1.w === 1280 && s1.h === 720 && !s1.paused && t2 > s1.t && gone;
   if (!pass) bad++;
   console.log(lang, pass ? 'OK' : 'FAIL', JSON.stringify({ label, s1, t2, gone }));
   await c.close();
