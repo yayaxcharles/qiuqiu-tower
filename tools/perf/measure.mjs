@@ -195,6 +195,9 @@ try {
     const idle = await netIdle(page, log);
     R.load = { titleSeconds: title, titleArtSeconds: titleArt, networkQuietSeconds: idle === null ? '>180' : Math.round(((Date.now() - t0) / 1000 - 3) * 10) / 10,
       untilTitleArt: beforeTitle, total: log.summary() };
+    // 停在封面、網路安靜為止抓過的每一個檔（相對第一個請求的秒數），給前後對照「背景到底抓了什麼」用（2026-09-29 分批載入）
+    const firstTs = [...log.reqs.values()][0]?.t0 ?? 0;
+    R.load.untilQuiet = [...log.reqs.values()].map((r) => ({ at: Math.round((r.t0 - firstTs) * 100) / 100, end: r.t1 === undefined ? null : Math.round((r.t1 - firstTs) * 100) / 100, kb: kb(r.bytes ?? 0), url: r.url.split('/qiuqiu-tower/')[1] ?? r.url }));
     // 按「新的一局」到選角畫面的圖到齊
     const t1 = Date.now();
     await realClick(page, 'button.primary', { index: 0 });
@@ -255,7 +258,9 @@ try {
       await waitCanAct(page, 120000).catch(() => {});
       const res = await page.evaluate((t) => performance.getEntriesByType('resource').filter((e) => e.startTime >= t - 5).map((e) => `${Math.round(e.startTime - t)}→${Math.round(e.responseEnd - t)}ms ${Math.round(e.transferSize / 1024)}KB ${e.name.split('/').slice(-2).join('/')}`), pt0);
       R.real['files' + wait] = res;
-      R.real['wait' + wait] = { nodeType: enc, encounter: await page.evaluate(() => window.__app.cs?.enemies.map((e) => e.defId ?? e.id).join('+')), screenSeconds: screen, unitArtSeconds: art, canActSeconds: (Date.now() - t0) / 1000 };
+      R.real['wait' + wait] = { nodeType: enc, encounter: await page.evaluate(() => window.__app.cs?.enemies.map((e) => e.defId ?? e.id).join('+')), screenSeconds: screen, unitArtSeconds: art, canActSeconds: (Date.now() - t0) / 1000,
+        // 這一頁量到的網速判斷（`main.ts` 在 `?debug` 時寫上去；2026-09-29 之前的版本沒有，會是 null）
+        netSpeed: await page.evaluate(() => document.documentElement.dataset.netSpeed ?? null) };
       console.log('real', wait, JSON.stringify(R.real['wait' + wait]));
       await c.close();
     }
