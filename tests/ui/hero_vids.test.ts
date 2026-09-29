@@ -53,7 +53,7 @@ const variantsOf = (hero: Hero) => (FILES[hero] as VidsFile).variants;
  * 命中時間不變，後面接的收刀照舊，只是早一點接上。
  */
 const TRIMMED: Readonly<Partial<Record<Hero, Readonly<Record<string, number>>>>> = {
-  fengfeng: { slash: 0.42, heavy_slash: 0.55 },
+  fengfeng: { slash: 0.6, heavy_slash: 0.7 },
 };
 const OLD: Readonly<Record<Hero, Record<string, Motion>>> = {
   qiuqiu: { ...motionData.actions, ...extraMotionData.actions, ...attackMotionData.actions } as unknown as Record<string, Motion>,
