@@ -332,8 +332,8 @@ registerScreen('event', (app, root, props) => {
       : (loot || illo);
     // 賭局要有結果的感覺（使用者 2026-09-03：「碗掀開了應該要有結果，直接小魚乾加減了，沒感受到贏還是輸」）：
     // 引擎記的「中了！／沒中……」不只寫成一行小字，還蓋一個大戳章＋音效
-    const won = note?.includes('中了！') ?? false;
-    const lost = note?.includes('沒中') ?? false;
+    const won = note?.includes(t('中了！')) ?? false;   // `note` 是照語言重組過的，用同一個 t() 比對
+    const lost = note?.includes(t('沒中……')) ?? false;
     const stamp = won || lost ? el('div', { class: `gamble-stamp ${won ? 'win' : 'lose'}` }, won ? t('賭贏了！') : t('賭輸了……')) : '';
     if (won) play('victory'); else if (lost) play('defeat');
     root.append(markRare(sceneView({

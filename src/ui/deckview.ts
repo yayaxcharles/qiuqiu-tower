@@ -80,7 +80,7 @@ export function deckPickerLayout(
  */
 export function eventPickRule(label: string, want: number, verb: string): { cancellable: boolean; minPick: number; title: string } {
   const upTo = label.includes('至多');
-  const title = want > 1 ? t('{max}選 {n} 張牌{verb}', { max: upTo ? t('最多') : '', n: want, verb }) : t('選一張牌{verb}{opt}', { verb, opt: upTo ? t('（也可以不選）') : '' });
+  const title = want > 1 ? t(upTo ? '最多選 {n} 張牌{verb}' : '選 {n} 張牌{verb}', { n: want, verb }) : t('選一張牌{verb}{opt}', { verb, opt: upTo ? t('（也可以不選）') : '' });
   return { cancellable: upTo, minPick: upTo ? 1 : want, title };
 }
 

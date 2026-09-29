@@ -312,7 +312,7 @@ registerScreen('lobby', (app, root) => {
       ...HEROES.map((h) => el('button', {
         class: `btn small${coopHeroes[i] === h ? ' selected' : ''}`,
         onclick: () => { coopHeroes[i] = h; render(); },
-      }, heroName({ hero: h }))));
+      }, term(heroName({ hero: h })))));
     return el('div', { class: 'lobby-heroes' },
       el('p', { class: 'lobby-note' }, t('這兩排只有開房的人選的算數。要加入別人的房，角色和難度都由對方決定：')),
       row(t('開房的人'), 0), row(t('加入的人'), 1));

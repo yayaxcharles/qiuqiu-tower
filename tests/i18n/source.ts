@@ -116,6 +116,10 @@ export function dynamicUiKeys(): string[] {
   for (const s of ['師兄', '師妹', '同伴']) out.add(s);
   // 用三元運算式先組成 `const k = …` 再交給 `log`、掃不到的句型（`engine/combat.ts` 的上回合飯糰、套組第一回合飯糰）
   for (const s of ['上一回合留下的飯糰：多 {n} 顆', '{who}上一回合留下的飯糰：多 {n} 顆', '{set}套組：第一回合多 {n} 顆飯糰', '{who}的{set}套組：第一回合多 {n} 顆飯糰']) out.add(s);
+  // 挑牌視窗標題（`deckview.ts`、`screens/blessing.ts`）：`t(至多 ? 'A' : 'B')` 的三元運算式掃不到
+  for (const s of ['選 {n} 張牌{verb}', '最多選 {n} 張牌{verb}', '選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）', '最多選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）']) out.add(s);
+  // 旗標型條件的理由（`event-text-b2.ts` 的 `FLAG_WHY`，畫面用 `t(why)` 取）
+  out.add('替爺爺寫過回信'); out.add('躲著看它練過招');
   // 秘寶發動那一行的句型是 `relicLine` 現組的（`engine/actions.ts`），掃不到字面值
   for (const own of ['{who}（{seat} 號）的秘寶發動：{list}', '秘寶發動：{list}']) { out.add(own); out.add(`${own}…等 {n} 件`); }
   // 整檔都是給畫面看的短句（錯誤訊息、難度說明、店主招牌、戰鬥變化）：每個含中文的單引號字面值都算

@@ -1674,6 +1674,7 @@ registerScreen('combat', (app, root, props) => {
     const buffAll = m.effects.find(has('statusAllies'));
     const boom = m.effects.find(has('selfDestruct'));
     let text = t('{glyph} {label}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveName(m, cs.player.hero) });
+    let summonShown = false;   // 上面那條已經寫了「召幾隻」（原本用 `text.includes('隻')` 判斷，英日的尾巴不含這個字）
     if (getStatus(e, '沉睡') > 0) text = t('呼呼大睡');   // 睡著的什麼都不做（2026-09-02 第二波）
     else if (getStatus(e, '定身') > 0) text = t('被定住了');   // 定身擋整個動作（2026-09-02）
     else if (boom) text = t('攻 {n}（爆）', { n: dmgOf(boom) });
@@ -1688,13 +1689,14 @@ registerScreen('combat', (app, root, props) => {
     // 而那正是玩家要不要先清場、要不要囤防禦的判準
     else {
       const sum = m.effects.find(has('summon'));
+      if (sum) summonShown = true;
       if (sum) text = t('{glyph} {label}{tail}', { glyph: term(INTENT_GLYPH[m.intent]), label: moveName(m, cs.player.hero), tail: sum.n > 1 ? t(' {n} 隻', { n: sum.n }) : '' });
     }
     // 傷害那一行不能把同一招的其他事吃掉（審查 2026-09-15 中-1／中-2／低-8）：黑貓頭目的「分身」是 8 傷＋召 2 隻、
     // 河童的「拽走小魚乾」是 7 傷＋偷 20、「頂皿蓄水」是守 10＋回 10——牌子只寫「攻 8」「守 10」玩家會誤判
     if (getStatus(e, '沉睡') === 0 && getStatus(e, '定身') === 0) {
       const sum = m.effects.find(has('summon'));
-      if (sum && !text.includes('隻')) text += t('＋召 {n} 隻', { n: sum.n });
+      if (sum && !summonShown) text += t('＋召 {n} 隻', { n: sum.n });
       const steal = m.effects.find(has('stealFish'));
       if (steal) text += t('＋偷 {n}', { n: steal.n });
       const heal = m.effects.find(has('heal'));
