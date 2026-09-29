@@ -257,10 +257,13 @@ HEROES: dict[str, dict] = {
             # 平斬（0.72 秒、命中 300）：「太極拳速度」片很慢，壓時間：第 14 格刀在身後、第 24～36 格由後往前水平掃，
             # 第 36 格刀剛掃到身前＝命中；之後刀平舉向前，程式接收刀
             # 平斬、重劈也加 clamp：站直後腳比出鞘蹲姿（第 0 格）低 8 像素，不壓就沉到腳底線下 2～4 像素
-            "slash": {"clip": "slash", "keys": [(14, 0), (24, 0.15), (36, 0.3), (48, 0.5), (60, 0.72)], "clamp": True},
+            # 09-29 晚（使用者：「封封的不太流暢、有點慢速、卡頓感」）：原片第 36 格之後刀平舉不動 60 格，
+            # 原本排到 0.72 秒＝命中後停 0.42 秒才收刀，看起來像卡住。改成命中後再走 8 格（0.12 秒）就接收刀
+            "slash": {"clip": "slash", "keys": [(14, 0), (24, 0.15), (36, 0.3), (44, 0.42)], "clamp": True, "trimTail": True},
             # 重劈（0.96 秒、命中 430）：第 20～40 格舉刀過頭、第 56～74 格由直立往前下劈，第 74 格刀劈到前方＝命中，
             # 收在腰高平舉（不是劈到膝蓋）
-            "heavy_slash": {"clip": "heavy", "keys": [(20, 0), (40, 0.2), (56, 0.3), (74, 0.43), (86, 0.96)], "clamp": True},
+            # 09-29 晚：同平斬，第 74 格劈到之後刀停著 0.53 秒 → 只留 6 格（0.12 秒）
+            "heavy_slash": {"clip": "heavy", "keys": [(20, 0), (40, 0.2), (56, 0.3), (74, 0.43), (80, 0.55)], "clamp": True, "trimTail": True},
             # 收刀（0.63 秒；出劍後接上時跳過原速前 120 毫秒＝第 32 格，刀在身前往下）：第 36～72 格刀插回腰間鞘，
             # 從第 30 格開始（第 24～29 格刀尖往下戳到腳底線以下 6～20 像素）；
             # 第 72 格起跟待機同一個站姿（結束影格就是待機收鞘圖）
@@ -398,7 +401,11 @@ def check_timing(hero: str, cfg: dict, old: dict) -> dict[str, dict]:
             continue
         keys = spec["keys"]
         want = HURT_TOTAL if action == "hurt" else round(sum(f["duration"] for f in old[action]["frames"]), 6)
-        if abs(keys[-1][1] - want) > 1e-6:
+        # `trimTail`：刻意比舊動作短（命中後的停頓剪掉，後面接的收刀／待機照動作表自己的長度排，09-29 晚封封）
+        if spec.get("trimTail"):
+            if keys[-1][1] > want + 1e-6:
+                raise SystemExit(f"{hero} {action}：總長 {keys[-1][1]} 比現在的 {want} 還長")
+        elif abs(keys[-1][1] - want) > 1e-6:
             raise SystemExit(f"{hero} {action}：總長 {keys[-1][1]} ≠ 現在的 {want}")
         fields = {k: old[action][k] for k in ("impactTimes", "releaseTimes") if k in old.get(action, {}) and action != "hurt"}
         # 有出手時間的（丟東西）命中＝出手＋飛行，只對出手那格；其他對命中那格
