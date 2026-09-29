@@ -323,14 +323,6 @@
      ],
      "cells": 14
     },
-    "assets/motion/hero-vids/feifei-guard-d.webp": {
-     "bytes": 276938,
-     "size": [
-      3906,
-      813
-     ],
-     "cells": 12
-    },
     "assets/motion/hero-vids/feifei-claw-d.webp": {
      "bytes": 274960,
      "size": [
@@ -395,14 +387,6 @@
      ],
      "cells": 7
     },
-    "assets/motion/hero-vids/feifei-guard-m.webp": {
-     "bytes": 103446,
-     "size": [
-      1605,
-      312
-     ],
-     "cells": 6
-    },
     "assets/motion/hero-vids/feifei-claw-m.webp": {
      "bytes": 126700,
      "size": [
@@ -453,12 +437,12 @@
     }
    },
    "downloadMB": {
-    "desktop": 2.99,
-    "mobile": 1.12
+    "desktop": 2.72,
+    "mobile": 1.02
    },
    "decodedMB": {
-    "desktop": 95.8,
-    "mobile": 21.7
+    "desktop": 83.7,
+    "mobile": 19.7
    },
    "size": {
     "shuriken": {
@@ -472,13 +456,6 @@
      "rough": 0.45324,
      "head": 1.014,
      "corr": 0.987,
-     "own": 0.44698,
-     "display": 0.44698
-    },
-    "guard": {
-     "rough": 0.45324,
-     "head": 1.014,
-     "corr": 0.986,
      "own": 0.44698,
      "display": 0.44698
     },
@@ -535,7 +512,6 @@
     "desktop": {
      "shuriken": 11,
      "seal": 14,
-     "guard": 12,
      "attack1": 11,
      "win": 20,
      "hurt": 17,
@@ -546,7 +522,6 @@
     "mobile": {
      "shuriken": 6,
      "seal": 7,
-     "guard": 6,
      "attack1": 7,
      "win": 10,
      "hurt": 8,
