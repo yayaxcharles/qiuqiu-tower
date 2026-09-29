@@ -119,4 +119,23 @@ async function boot(): Promise<void> {
     ? Promise.race([opening, new Promise<void>((r) => window.setTimeout(r, 90_000))]) : undefined)));
 }
 
-void boot();
+/**
+ * 開場必要的檔載不到（斷網、CDN 抖動、快取壞掉）：不要留一片空白，寫一段字加一顆重新整理鈕。
+ * 三種語言都寫（這時語言包不一定載得到）。用原生 DOM，不靠任何還沒載好的東西。
+ */
+function showBootError(error: unknown): void {
+  console.error('開場失敗', error);
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;background:#1b2a4a;color:#f3ead6;font:16px/1.7 sans-serif;text-align:center';
+  const msg = document.createElement('div');
+  msg.style.whiteSpace = 'pre-line';
+  msg.textContent = '載入失敗，請檢查網路後重新整理。\nFailed to load. Please check your connection and reload.\n読み込みに失敗しました。通信を確認して再読み込みしてください。';
+  const btn = document.createElement('button');
+  btn.textContent = '重新整理 / Reload / 再読み込み';
+  btn.style.cssText = 'font:inherit;padding:8px 22px;cursor:pointer';
+  btn.addEventListener('click', () => window.location.reload());
+  box.append(msg, btn);
+  (document.getElementById('app') ?? document.body).append(box);
+}
+
+boot().catch(showBootError);

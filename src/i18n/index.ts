@@ -71,8 +71,12 @@ function applyDocLang(): void {
  * 換語言：先把包載好才切，載不到就留在原本的語言（丟出例外給呼叫端講）。
  * `remember`＝寫進這台裝置（封面選語系時）；開場讀回來套用時不必再寫一次。
  */
+let switchSeq = 0;
 export async function setLang(next: Lang, remember = true): Promise<void> {
+  const seq = ++switchSeq;
   const p = next === 'zh' ? null : (await loaders[next]()).default;
+  // 載的時候又點了別的語言：以最後點的為準，慢到的那一包作廢（不然先點慢的、再點快的，最後會停在慢的那個）
+  if (seq !== switchSeq) return;
   lang = next;
   pack = p;
   version++;
@@ -85,7 +89,8 @@ type ZhBase = typeof import('./zh').default;
 let zh: ZhBase | null = null;
 export async function loadZhBase(): Promise<void> {
   if (zh) return;
-  try { zh = (await import('./zh')).default; } catch { zh = (await import('./zh')).default; }   // 網路抖一下就再抓一次
+  // 載不到就丟例外往上（瀏覽器對同一個網址失敗過會快取失敗，原地重抓沒用）：開場那邊接住、顯示「載入失敗、請重新整理」（`main.ts` 的 `showBootError`）
+  zh = (await import('./zh')).default;
 }
 
 /**
