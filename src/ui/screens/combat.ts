@@ -69,7 +69,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, isSideMotionKind, playsLongDeath, preloadEnemyMotion, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, isSideMotionKind, playsLongDeath, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -957,6 +957,16 @@ registerScreen('combat', (app, root, props) => {
   const playEnemyMotion = (uid: number, action: EnemyMotionAction): void => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
+    // 待機改畫原本立繪的那幾套（見 enemy-motion.ts 的 staticIdle）：出招演完就把畫布收掉、交還靜態待機圖，不播走路
+    if (action === 'idle' && staticIdle(state.kind)) {
+      state.action = 'idle';
+      state.busyUntil = 0;
+      const box = root.querySelector(`.unit.enemy[data-uid="${uid}"] .sprite-box`);
+      box?.classList.remove('has-enemy-motion');
+      state.actor.element.remove();
+      state.actor.pause();   // 畫布拿掉了，背後的逐格迴圈也要停（審查 高-1：不停的話整場在背景重畫走路）
+      return;
+    }
     state.action = action;
     state.busyUntil = action === 'attack' || (action === 'knockdown' && playsLongDeath(state.kind))
       ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
@@ -1051,15 +1061,20 @@ registerScreen('combat', (app, root, props) => {
     // 重生中的殘影（蝌蚪兵的同生共死）：靜態那邊畫成貼地的半透明影子，逐格畫布沒有這一套，交還靜態
     const revivingNow = e.dead && !fallingUids.has(e.uid) && e.reviveIn > 0 && willRevive(cs, e);
     const handBack = side && ((revivingNow) || (e.dead && !enemyMotionHas(kind, 'knockdown')) || (!e.dead && !keepAttack
-      && ((action === 'attack' && !enemyMotionHas(kind, 'attack')) || (action === 'idle' && enemyStaticPose(e) === 'block'))));
+      && ((action === 'attack' && !enemyMotionHas(kind, 'attack')) || (action === 'idle' && enemyStaticPose(e) === 'block')))
+      // 待機（含挨打、防禦）改畫原本的立繪（staticIdle，使用者 2026-09-29）。
+      // 不看 e.dead：剛被打死、還在分段擊殺空檔（fallingUids）時 action 也是 idle，不交還的話會把停在半路的走路格掛回去閃一下（審查 高-2）
+      || (!keepAttack && action === 'idle' && staticIdle(kind)));
     if (!handBack && !keepAttack && state.action !== action) playEnemyMotion(e.uid, action);
     if (playsLongDeath(kind) && action === 'knockdown') {
       box.closest('.unit')?.classList.add('motion-death');
       if (state.faded) box.closest('.unit')?.classList.add('motion-death-fade');
     }
     if (handBack) {
+      if (action === 'idle' && !keepAttack) state.action = 'idle';   // 下次出招才會重新播（state.action 不能停在上一次的 attack）
       box.classList.remove('has-enemy-motion');
       state.actor.element.remove();
+      state.actor.pause();   // 畫布不在畫面上就不必在背景重畫（審查 高-1）；下次 play() 會從第 0 格重排
       return;
     }
     box.classList.add('has-enemy-motion');

@@ -31,6 +31,20 @@ const LONG_DEATH_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>([
   'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2',
   'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer',
 ]);
+/**
+ * 待機不播逐格、改畫原本立繪的（2026-09-29 使用者：「待機一直在原地走路好怪」「待機時都有原本圖片」）。
+ * 這幾套是從橫向捲軸搬來的，那邊魔物要走路，所以「待機」其實是走路片段在原地循環；
+ * 爪破魔塔是回合制，站著的時候改畫牠們原本的待機立繪（第二階段有自己的圖，`monsterPhaseKey` 照舊挑），
+ * 出招、倒下才掛上逐格畫布。飄浮、滑行、開車這幾套（燈籠妖、烏天狗、吸塵器、掃地機王）在原地動不怪，照舊。
+ */
+const STATIC_IDLE_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>([
+  'armor_ghost', 'drum_tanuki', 'frog_daimyo', 'frog_daimyo_p2', 'iron_arhat', 'iron_claw', 'iron_claw_p2',
+  'kappa', 'mask_dancer', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2', 'wraith_samurai',
+  'plated_beetle',
+]);
+export function staticIdle(kind: EnemyMotionKind): boolean {
+  return STATIC_IDLE_KINDS.has(kind);
+}
 export function hasLongDeath(kind: EnemyMotionKind): boolean {
   return LONG_DEATH_KINDS.has(kind);
 }
@@ -218,6 +232,7 @@ export function createEnemyMotionActor(
   element: HTMLCanvasElement;
   foot: Readonly<{ x: number; y: number }>;
   play(action: EnemyMotionAction): void;
+  pause(): void;
   dispose(): void;
 } {
   const kindData = kindOf(kind);
@@ -323,6 +338,11 @@ export function createEnemyMotionActor(
     element: canvas,
     foot,
     play,
+    /** 先停下來、不作廢（畫布暫時從畫面拿掉時用，見 combat.ts 的 staticIdle）：下一次 play() 會從第 0 格重新排 */
+    pause: () => {
+      if (raf !== 0) window.cancelAnimationFrame(raf);
+      raf = 0;
+    },
     dispose: () => {
       if (disposed) return;
       disposed = true;
