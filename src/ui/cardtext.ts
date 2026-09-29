@@ -155,13 +155,17 @@ interface Ctx {
  */
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
-    case 'gainQi': return `獲得 ${fx.n} 點蓄氣`;
+    // 前一句是給同伴的（我護著你走：同伴拿蜷縮、自己拿蓄氣），要寫「自己」，不然讀成同伴拿氣（2026-09-29）
+    case 'gainQi': return `${ctx.prev && ALLY_KINDS.has(ctx.prev.kind) ? '自己' : ''}獲得 ${fx.n} 點蓄氣`;
     case 'damageSpendQi': {
       const spend = fx.allQi ? '用盡蓄氣' : `最多花 ${fx.maxQi ?? 0} 點蓄氣`;
       const who = fx.target === 'all' ? '對全體魔物' : '';
       const hits = (fx.times ?? 1) > 1 ? `，連打 ${fx.times} 次` : '';
-      return `${spend}，${who}造成 ${fx.amount} 點傷害，每點蓄氣多 ${fx.perQi} 點${hits}`
-        + (fx.ignoreBlock ? '，無視蜷縮' : '');
+      // 沒有基本傷害的（絕學·氣貫長虹，2026-09-29）：不寫「造成 0 點傷害，每點蓄氣多 3 點」，直接講每點打多少
+      const dmg = fx.amount > 0
+        ? `${who}造成 ${fx.amount} 點傷害，每點蓄氣多 ${fx.perQi} 點`
+        : `每點蓄氣${who}造成 ${fx.perQi} 點傷害`;
+      return `${spend}，${dmg}${hits}` + (fx.ignoreBlock ? '，無視蜷縮' : '');
     }
     case 'blockSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipient === 'ally' ? '同伴' : '自己'}獲得 ${fx.amount} 點蜷縮，每點蓄氣多 ${fx.perQi} 點`;
     case 'nextAttackBonusSpendQi': return `最多花 ${fx.maxQi} 點蓄氣，${fx.recipients === 'ally' ? '同伴' : '雙方'}本回合下一張攻擊牌的首段首目標多 ${fx.amount} 點傷害，每點蓄氣再多 ${fx.perQi} 點（取高不疊加）`;

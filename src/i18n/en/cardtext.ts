@@ -58,7 +58,9 @@ function one(fx: Effect, ctx: Ctx = {}): string {
       const spend = fx.allQi ? 'Spend all your Qi' : `Spend up to ${fx.maxQi ?? 0} Qi`;
       const who = fx.target === 'all' ? ` to ${ALL}` : '';
       const hits = (fx.times ?? 1) > 1 ? `, ${fx.times} times` : '';
-      return `${spend}: deal ${fx.amount} damage${who}, +${fx.perQi} per Qi spent${hits}${fx.ignoreBlock ? ', ignoring Block' : ''}`;
+      // 沒有基本傷害的（氣貫長虹，2026-09-29）不寫 "deal 0 damage, +3 per Qi spent"
+      const dmg = fx.amount > 0 ? `deal ${fx.amount} damage${who}, +${fx.perQi} per Qi spent` : `deal ${fx.perQi} damage${who} per Qi spent`;
+      return `${spend}: ${dmg}${hits}${fx.ignoreBlock ? ', ignoring Block' : ''}`;
     }
     case 'blockSpendQi': return `Spend up to ${fx.maxQi} Qi: ${fx.recipient === 'ally' ? 'your partner gains' : 'gain'} ${fx.amount} Curl, +${fx.perQi} per Qi spent`;
     case 'nextAttackBonusSpendQi': return `Spend up to ${fx.maxQi} Qi: ${fx.recipients === 'ally' ? "your partner's" : "both players'"} next Attack this turn deals ${fx.amount} more damage to its first target, +${fx.perQi} per Qi spent (doesn't stack)`;

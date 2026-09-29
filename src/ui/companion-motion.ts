@@ -267,6 +267,8 @@ const FENGFENG_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
   fengfeng_pozhen: 'qi_cleave', fengfeng_yiqichushou: 'focus',
   // 2026-09-25 補的三張：順手一劍一般斬、連環三劍連斬（同共用牌連刀）、一口氣劍氣劈（同斷流）
   fengfeng_shunjian: 'slash', fengfeng_sanlian: 'sword_combo', fengfeng_yikouqi: 'qi_cleave',
+  // 2026-09-29 絕學·氣貫長虹：跟斷流、一口氣同樣是用盡蓄氣，演劍氣劈
+  fengfeng_guanhong: 'qi_cleave',
 };
 const FENGFENG_SHARED_CARD_ACTION: Readonly<Record<string, FengfengMotionAction>> = {
   liandao: 'sword_combo',
