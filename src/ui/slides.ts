@@ -88,8 +88,8 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
       const url = artUrl('bg', slide.img);
       const mine = ++swapToken;
       box.querySelector('.slide-box')?.classList.toggle('at-bottom', slide.box === 'bottom');
-      // 圖解碼好才換；最多等 3 秒，還沒好就照舊換（慢網路不能卡死劇情）
-      void Promise.race([warmImage(url), new Promise<void>((r) => window.setTimeout(r, 3000))]).then(() => {
+      // 圖解碼好才換；第一張最多等 1.2 秒（框藏著時玩家點不到）、其餘 3 秒，還沒好就照舊換（慢網路不能卡死劇情）
+      void Promise.race([warmImage(url), new Promise<void>((r) => window.setTimeout(r, mine === 1 ? 1200 : 3000))]).then(() => {
         if (ended || mine !== swapToken) return;
         const back = front === imgA ? imgB : imgA;
         back.src = url;
