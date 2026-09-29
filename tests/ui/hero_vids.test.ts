@@ -27,7 +27,7 @@ const HEROES: readonly Hero[] = ['qiuqiu', 'feifei', 'dangdang', 'fengfeng'];
 /** 每位換成新片的動作（清單.md 總結；09-29 重生後菲菲加空手擲與倒下、封封加平斬、重劈、收刀與倒下；待機維持停格呼吸） */
 const VIDS_ACTIONS: Readonly<Record<Hero, readonly string[]>> = {
   qiuqiu: ['attack1', 'attack2', 'attack3', 'attack4', 'toss', 'hurt', 'defeat', 'run', 'seal', 'guard', 'win', 'focus', 'dash'],
-  feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'hurt', 'run', 'toss', 'defeat'],
+  feifei: ['shuriken', 'seal', 'attack1', 'win', 'hurt', 'run', 'toss', 'defeat'],
   dangdang: ['guard', 'punch', 'focus', 'palm', 'win', 'shoulder', 'hurt', 'defeat', 'run'],
   fengfeng: ['focus', 'guard', 'win', 'thrust', 'hurt', 'run', 'slash', 'heavy_slash', 'sheath', 'defeat'],
 };
@@ -37,7 +37,7 @@ const VIDS_ACTIONS: Readonly<Record<Hero, readonly string[]>> = {
  */
 const KEEP_OLD: Readonly<Record<Hero, readonly string[]>> = {
   qiuqiu: ['idle', 'shuriken', 'kick', 'eat', 'taiji'],
-  feifei: ['idle', 'kick', 'roll', 'eat', 'needle_combo'],
+  feifei: ['idle', 'guard', 'kick', 'roll', 'eat', 'needle_combo'],
   dangdang: ['idle', 'toss', 'kick', 'counter', 'dodge', 'eat', 'rapid_combo'],
   fengfeng: ['idle', 'toss', 'sweep', 'double_slash', 'dodge', 'eat'],
 };
