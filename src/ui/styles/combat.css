@@ -16,74 +16,19 @@
      這裡的 cover 只是沒有圖時的退路。 */
   background-size: cover;
   background-position: center bottom;
-  /* 火把在跳。背景是一張畫死的圖，火把畫在裡面、位置每張都不一樣，
-     所以不去對位置放光源，改成讓**整個場景**的亮度輕微起伏——
-     那正是火光照在石牆上會發生的事。
-     三段長度不同的關鍵影格（不是規律的來回），閃起來才不像呼吸燈。 */
-  animation: torchlight 5.7s ease-in-out infinite;
+  /* 火把在跳（整個場景亮度輕微起伏）、上緣暖光、浮塵：2026-09-29 起畫在 `.ambient` 畫布上（見 ambient.ts），
+     這裡的背景圖本身不再跑濾鏡動畫。 */
 }
-/* 只調亮度還是太含蓄，再疊一層真的在晃的暖光：從畫面上緣打下來，
-   位置與濃度都在變，看起來就像有火在旁邊燒。跟亮度那層週期不同（4.3 vs 5.7 秒），
-   兩個錯開才不會整齊到像呼吸燈。 */
-.battle-bg::after {
-  content: '';
+/* 環境光畫布：蓋在背景圖上、角色底下，點擊穿透 */
+.combat .ambient {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  background: radial-gradient(60% 45% at 30% 8%, #ff9c3a2e 0%, #0000 70%),
-              radial-gradient(55% 42% at 88% 10%, #ffb0482b 0%, #0000 72%);
-  animation: torchglow 4.3s ease-in-out infinite;
-}
-@keyframes torchglow {
-  0%, 100% { opacity: .85; transform: translateY(0) scale(1); }
-  23% { opacity: 1; transform: translateY(-4px) scale(1.03); }
-  46% { opacity: .7; transform: translateY(2px) scale(.985); }
-  71% { opacity: .95; transform: translateY(-2px) scale(1.015); }
-}
-
-@keyframes torchlight {
-  0%, 100% { filter: brightness(1) saturate(1); }
-  17% { filter: brightness(1.055) saturate(1.05); }
-  31% { filter: brightness(.985) saturate(.99); }
-  52% { filter: brightness(1.04) saturate(1.03); }
-  63% { filter: brightness(1.005); }
-  81% { filter: brightness(1.07) saturate(1.06); }
-}
-
-/* 空氣裡的浮塵。畫面靜止時總得有東西在動，不然看起來像一張截圖。
-   三層各自飄、速度與方向都不一樣，才不會看出是同一個圖案在重複。
-   用 radial-gradient 畫點，不另外生圖：這種東西 CSS 畫比生圖準也不佔位元組。 */
-.combat .motes {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
   pointer-events: none;
-  opacity: .5;
 }
-.combat .motes i {
-  position: absolute;
-  inset: -10% -10% -10% -10%;
-  display: block;
-  background-repeat: repeat;
-}
-.combat .motes i:nth-child(1) {
-  background-image: radial-gradient(circle, #ffe9c0cc 1px, #0000 1.6px);
-  background-size: 190px 150px;
-  animation: mote-drift-a 41s linear infinite;
-}
-.combat .motes i:nth-child(2) {
-  background-image: radial-gradient(circle, #ffdca899 1.4px, #0000 2.2px);
-  background-size: 270px 210px;
-  animation: mote-drift-b 63s linear infinite;
-}
-.combat .motes i:nth-child(3) {
-  background-image: radial-gradient(circle, #fff4d766 2px, #0000 3px);
-  background-size: 410px 330px;
-  animation: mote-drift-c 89s linear infinite;
-}
-@keyframes mote-drift-a { to { transform: translate(190px, -150px); } }
-@keyframes mote-drift-b { to { transform: translate(-270px, -210px); } }
-@keyframes mote-drift-c { to { transform: translate(140px, -330px); } }
+/* 原本的 `.battle-bg::after` 暖光、`torchglow`／`torchlight` 關鍵影格、`.motes` 三層浮塵：數值搬到 ambient.ts（2026-09-29） */
 
 /* 選目標時鋪的接盤子：點空白處就取消。魔物、手牌、按鈕都疊在它上面，照樣點得到 */
 .target-catcher {
