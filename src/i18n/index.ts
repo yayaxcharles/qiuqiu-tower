@@ -64,7 +64,7 @@ export function currentPack(): LangPack | null { return pack; }
 
 function applyDocLang(): void {
   if (typeof document === 'undefined' || !document.documentElement) return;
-  document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : lang;
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hant-TW' : lang;   // 跟 index.html 原本寫的一樣
 }
 
 /**

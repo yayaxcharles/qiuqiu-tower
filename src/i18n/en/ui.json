@@ -767,5 +767,9 @@
  "身上很乾淨，沒什麼好丟的": "Nothing on you to throw back",
  "{who}已經是滿的，沒什麼好補": "{who} is already full, nothing to restore",
  "{n} 點{st}": "{n} {st}",
- "一半的中毒": "half of the Poison"
+ "一半的中毒": "half of the Poison",
+ "上一回合留下的飯糰：多 {n} 顆": "Rice Balls left over from last turn: +{n}",
+ "{who}上一回合留下的飯糰：多 {n} 顆": "{who}'s Rice Balls left over from last turn: +{n}",
+ "{set}套組：第一回合多 {n} 顆飯糰": "{set} set: +{n} {n|Rice Ball|Rice Balls} on turn 1",
+ "{who}的{set}套組：第一回合多 {n} 顆飯糰": "{who}'s {set} set: +{n} {n|Rice Ball|Rice Balls} on turn 1"
 }

@@ -335,7 +335,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 隱身走 `gainStealth`：那支會吃**收禮那一方**的秘寶加成（紙袋、影披風），
       // 直接 `addStatus` 的話等於偷偷少給（稽核自檢 2026-09-11）
       if (fx.name === '隱身') gainStealth(cs, fx.amount, mate); else addStatus(mate, fx.name, fx.amount);
-      if (mate !== p) log(cs, '幫對方加了 {n} 層{st}', { n: fx.amount, st: fx.name });
+      if (mate !== p) log(cs, '幫對方加了 {n} 層{st}', { n: fx.amount, st: { st: fx.name } });
       return false;
     }
     case 'blockAlly': {
@@ -602,7 +602,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) {
         const cur = getStatus(t, fx.name);
         // 0 層：基礎版催不動（寫進紀錄，玩家才知道飯糰花去哪）；升級版的「再加 add 層」照加
-        if (cur === 0 && !fx.add) { log(cs, '{e}身上沒有{st}，催不動', { e: E(t), st: fx.name }); continue; }
+        if (cur === 0 && !fx.add) { log(cs, '{e}身上沒有{st}，催不動', { e: E(t), st: { st: fx.name } }); continue; }
         addStatus(t, fx.name, cur + (fx.add ?? 0));
         markPoisoner(t, fx.name, p);
       }
@@ -668,7 +668,7 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
        */
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
-        if (n <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: fx.name }); continue; }
+        if (n <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: { st: fx.name } }); continue; }
         if (damageWithCardBonus(cs, t, n * (fx.mul ?? 1), ctx, p, { direct: true }).killed) ctx.killed = true;
         if (fx.consume) removeStatus(t, fx.name);
       }
@@ -680,17 +680,17 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       // 目標至少要有 1 層（毒系牌，沒中毒就不算數，審查 低-1）；失敗那行印真的層數，不把 bonus 算成層數（低-2）
       for (const t of targetsOf(cs, ctx, false)) {
         const s = getStatus(t, fx.name), bonus = fx.bonus ?? 0;
-        if (s <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: fx.name }); continue; }
+        if (s <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: { st: fx.name } }); continue; }
         if (t.hp > s + bonus) {
           const left = t.hp - s - bonus;
           if (bonus) {
-            log(cs, '{e}的{st}還不夠（{st} {s} 層＋{bonus}，生命 {hp}，還差 {left}）', { e: E(t), st: fx.name, s, bonus, hp: t.hp, left });
+            log(cs, '{e}的{st}還不夠（{st} {s} 層＋{bonus}，生命 {hp}，還差 {left}）', { e: E(t), st: { st: fx.name }, s, bonus, hp: t.hp, left });
           } else {
-            log(cs, '{e}的{st}還不夠（{st} {s} 層，生命 {hp}，還差 {left}）', { e: E(t), st: fx.name, s, hp: t.hp, left });
+            log(cs, '{e}的{st}還不夠（{st} {s} 層，生命 {hp}，還差 {left}）', { e: E(t), st: { st: fx.name }, s, hp: t.hp, left });
           }
           continue;
         }
-        log(cs, '{e}的{st}發作了', { e: E(t), st: fx.name });
+        log(cs, '{e}的{st}發作了', { e: E(t), st: { st: fx.name } });
         if (damageEnemy(cs, t, t.hp, { direct: true, by: p }).killed) ctx.killed = true;
       }
       return false;
@@ -707,11 +707,11 @@ export function applyOne(cs: CombatState, fx: Effect, ctx: EffectCtx, queue: Eff
       for (const t of targetsOf(cs, ctx, false)) {
         const n = getStatus(t, fx.name);
         const others = cs.enemies.filter((o) => o !== t && !o.dead && !o.escaped);
-        if (n <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: fx.name }); continue; }
+        if (n <= 0) { log(cs, '{e}身上沒有{st}', { e: E(t), st: { st: fx.name } }); continue; }
         if (others.length === 0) { log(cs, '旁邊沒有別的魔物'); continue; }
         const each = fx.half ? Math.floor(n / 2) : n;
         if (each <= 0) continue;
-        log(cs, '{e}身上的{st}散了開來', { e: E(t), st: fx.name });
+        log(cs, '{e}身上的{st}散了開來', { e: E(t), st: { st: fx.name } });
         for (const o of others) { addStatus(o, fx.name, each); markPoisoner(o, fx.name, p); }
       }
       return false;
