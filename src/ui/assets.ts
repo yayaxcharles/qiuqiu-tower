@@ -1,5 +1,6 @@
 import { deferredBgKeys } from './bgacts';
-import { cards } from '../content/cards';
+import { cardById, cards, starterDeckFor } from '../content/cards';
+import { HEROES, cardsForHero, type Hero } from '../engine/hero';
 
 /** 只有兩個人一起玩才拿得到的牌（`coop: true`）的牌面鍵：單機一輩子用不到，開場不載，進大廳才補 */
 const COOP_ONLY_ART: ReadonlySet<string> = new Set(cards.filter((c) => c.coop).map((c) => c.art));
@@ -240,6 +241,71 @@ export function heroArtUrls(heroes: readonly (string | undefined)[]): string[] {
     }
   }
   return urls;
+}
+
+/*
+ * ===== 開場分批（2026-09-29 效能：背景下載分批）=====
+ *
+ * 原本停在封面一分鐘，背景就把「球球的全部立繪與牌面」「師父三階段全套」「英日版封面」「第一關全部魔物」
+ * 一起抓完（慢網路量到 453 個檔、9.4 MB）。其中很多要等選好角色、甚至打到第三關才用得到，
+ * 玩菲菲、噹噹、封封的人更是一輩子用不到球球那一百多張牌面。
+ *
+ * 現在分三段：
+ *  1. **封面**：四隻「參上」＋底圖，到齊之前背景一張都不抓（`titleart.ts`、`main.ts`）；
+ *  2. **停在封面時**（`preloadArt`＋`preload.ts` 的 `preloadFirstFights`）：不管選誰接下來都會看到的——
+ *     選角畫面四隻的立繪、序章（預設的球球那套）、介面圖示、第一關的地圖與畫面底圖、第一關前五層的弱魔物；
+ *  3. **選好角色、進入一局**（`preload.ts` 的 `preloadHeroArt`，`adoptRun` 叫）：這一位的立繪與牌面（照 `cardArtKey` 算、
+ *     起手牌排前面）、秘寶忍具圖示、這一關其餘的魔物與底圖。師父全套等進第三關（`preloadAct`）。
+ * 球球的圖原本靠「鍵名沒有前綴＝共用」混在開場那批裡，現在跟另外三位一樣選好才抓。
+ */
+
+/** 師父的立繪裡，對白頭像會用到的兩張（`dialogue.ts`：塔主、大俠貓）。其餘二十幾張只有第三關的關主戰用得到 */
+export const BOSS_DIALOGUE_ART: readonly string[] = ['boss/idle1', 'boss/defeat'];
+
+/** 師父（第三關關主）戰鬥用的立繪：開場不載，進第三關才抓（`preload.ts` 的 `preloadAct`） */
+export function isDeferredBossArt(key: string): boolean {
+  return key.startsWith('boss/') && !BOSS_DIALOGUE_ART.includes(key);
+}
+
+/** 師父戰鬥用的全部立繪網址（`isDeferredBossArt`） */
+export function bossArtUrls(): string[] {
+  return Object.entries(manifest.sprites).filter(([k]) => isDeferredBossArt(k)).map(([, v]) => `${BASE}${v}`);
+}
+
+/** 選角畫面四隻的立繪（同 `screens/heroselect.ts`：鍵寫球球版的 `hero/ninja`，交給 `heroArtUrl` 換成那一位的） */
+export function heroSelectPortraitUrls(): string[] {
+  return HEROES.map((h) => heroArtUrl(h, 'hero/ninja'));
+}
+
+/**
+ * 這幾位在單人局裡會看到的牌面（連線牌另由 `preloadCoopArt` 管）：拿得到的牌（`cardsForHero`，含雜牌、詛咒、起手牌）
+ * 各問一次 `cardArtKey`——畫面畫哪一張、這裡就抓哪一張（她有自己的版本就抓她的，沒有退回原本那張）。**起手牌排最前面**：第一場就在手上。
+ */
+export function heroCardUrls(heroes: readonly (string | undefined)[]): string[] {
+  const hs = [...new Set(heroes.map((h) => (h ?? 'ninja') as Hero))];
+  const keys: string[] = [];
+  for (const h of hs) for (const id of starterDeckFor(h)) { const c = cardById[id]; if (c) keys.push(cardArtKey(c.art, h)); }
+  for (const h of hs) for (const c of cardsForHero(h)) if (!c.coop) keys.push(cardArtKey(c.art, h));
+  return [...new Set(keys.map((k) => artUrl('cards', k)))].filter((u) => !u.startsWith('data:'));
+}
+
+/**
+ * 進入一局要補的這幾位的圖，照「多快用得到」排：對白頭像 → 戰鬥姿勢 → 牌面（起手牌先）→ 其餘專屬圖 → 秘寶忍具圖示。
+ * 球球的立繪鍵沒有前綴（`heroOfKey` 認不出來），這裡照 `hero/ninja` 開頭另外收；封面那幾張不收（只有封面用、封面自己抓）。
+ */
+export function runStartArtUrls(heroes: readonly (string | undefined)[]): string[] {
+  const hs = [...new Set(heroes.map((h) => h ?? 'ninja'))];
+  const ninjaOwn = hs.includes('ninja')
+    ? Object.entries(manifest.sprites).filter(([k]) => k.startsWith('hero/ninja')).map(([, v]) => `${BASE}${v}`) : [];
+  const urls = [
+    ...hs.map((h) => heroArtUrl(h, 'hero/ninja_portrait')),
+    ...heroSpriteUrls(hs),
+    ...heroCardUrls(hs),
+    ...heroArtUrls(hs),
+    ...ninjaOwn,
+    ...itemIconUrls(),
+  ];
+  return [...new Set(urls)].filter((u) => !u.startsWith('data:'));
 }
 
 /*
@@ -577,10 +643,15 @@ export async function decodeAll(urls: readonly string[], concurrency = 4,
  * 一次六張：太多會跟畫面搶頻寬，反而開場更慢。
  */
 export async function preloadArt(): Promise<void> {
-  const order: (keyof Manifest)[] = ['sprites', 'icons', 'cards', 'bg'];
+  /*
+   * 牌面整組不在這裡了（2026-09-29 開場分批）：每一位看到的牌面不一樣（`cardArtKey`），選好角色才照那一位抓（`heroCardUrls`）。
+   * 立繪只留選角畫面那四張（排最前面，按下「新的一局」馬上就看到）；其餘 `hero/` 開頭的——球球的戰鬥姿勢、
+   * 四隻的封面（封面自己抓目前語言那一套，英日版換語言才抓）——都不在這裡。
+   */
+  const order: (keyof Manifest)[] = ['sprites', 'icons', 'bg'];
   // 第二、三關才看得到的底圖開場不載，過關時再由 `preloadAct` 補（跟魔物立繪同一套）
   const skip = deferredBgKeys();
-  const urls: string[] = [];
+  const urls: string[] = [...heroSelectPortraitUrls()];
   for (const g of order) {
     const group = manifest[g];
     if (!group || Array.isArray(group)) continue;
@@ -588,22 +659,24 @@ export async function preloadArt(): Promise<void> {
       if (g === 'bg' && /_r\d+$/.test(key)) continue;   // 結果圖進結果頁才載，與 heroArtUrls 保持一致
       if (g === 'bg' && skip.has(key)) continue;
       // 角色專屬的（菲菲那 300 多張）開場不載：這時還不知道玩家要選誰，選好由 `preloadHeroArt` 補
-      if (heroOfKey(key) && !TITLE_ART.has(key)) continue;
+      if (heroOfKey(key)) continue;
+      // 球球的立繪與四隻的封面同理（見上面）；選角那四張已經排在最前面
+      if (g === 'sprites' && key.startsWith('hero/')) continue;
+      // 師父戰鬥用的那二十幾張進第三關才抓（`isDeferredBossArt`）；對白頭像那兩張留著
+      if (g === 'sprites' && isDeferredBossArt(key)) continue;
       // 秘寶與忍具圖示同理，進入一局才補（`isItemIcon`，2026-09-23 內容擴充第二批）
       if (g === 'icons' && isItemIcon(key)) continue;
       // 行腳商的立繪照地圖現抓（`MERCHANT_SPRITES`，2026-09-23 第三批）
       if (g === 'sprites' && MERCHANT_SPRITES.includes(key)) continue;
       // 客座店主的立繪照地圖現抓（`isGuestKeeperArt`，2026-09-23 第三批）
       if (g === 'sprites' && isGuestKeeperArt(key)) continue;
-      // 雙人專屬牌（27 張、0.67 MB）同理，進大廳才補（`preloadCoopArt`）——只玩單機的人下載量才會跟併入前一樣
-      if (g === 'cards' && isCoopOnlyArt(key)) continue;
       if (typeof v === 'string') urls.push(`${BASE}${v}`);
       else if (v) for (const one of Object.values(v)) if (one) urls.push(`${BASE}${one}`);
     }
   }
 
-  // 成功解碼後才登記；失敗的留給後續遭遇預熱重試。不留參照：開場這幾百張交給瀏覽器快取
-  await decodeAll(urls, 6, false);
+  // 成功解碼後才登記；失敗的留給後續遭遇預熱重試。不留參照：開場這一批交給瀏覽器快取
+  await decodeAll([...new Set(urls)], 6, false);
 }
 
 export function computeScale(w: number, h: number): number { return Math.min(w / 1280, h / 720); }

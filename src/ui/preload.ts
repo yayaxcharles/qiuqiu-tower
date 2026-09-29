@@ -5,8 +5,9 @@ import { KEEPERS } from '../content/keepers';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, QmarkVariant, RunState } from '../engine/types';
 import { QMARK_ART, qmarkProtected } from '../engine/qmark';
-import { MERCHANT_SPRITES, artUrl, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroArtUrls, heroOfKey, itemIconUrls, localHero, monsterUrl, releaseHeldArt, warmed, type DecodePool, type MonsterPose } from './assets';
+import { MERCHANT_SPRITES, artUrl, bossArtUrls, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroOfKey, localHero, monsterUrl, releaseHeldArt, runStartArtUrls, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
+import { deferBgm } from './bgm';
 import { netSpeed } from './netspeed';
 import { actVariantKey } from './screenbg';
 
@@ -113,7 +114,27 @@ export function preloadAct(act: number, skinHero: string | undefined = localHero
   // 這裡雖然沒有時限（過關畫面停留幾十秒）不會出事，但兩支寫法不一致，照著抄就會再踩一次。
   // 換階段圖等確定進入該遭遇後由 `warmEncounter` 補；進關時先載全關基礎姿勢即可。
   const held = new Set(urlsFor(defs, skinHero, false));
-  return decodeAll([...new Set([...bg, ...held])], 4, (u) => held.has(u));
+  // 師父（第三關關主）戰鬥用的那二十幾張：開場不載了（2026-09-29 開場分批，`assets.ts` 的 `isDeferredBossArt`），
+  // 進第三關時跟這一關的魔物一起抓、排在最後（關主要打完十五層才遇到）；不留參照，開打時戰鬥畫面自己會再暖一次
+  const boss = bossPoolForAct(act).includes('tower_master') ? bossArtUrls() : [];
+  return decodeAll([...new Set([...bg, ...held, ...boss])], 4, (u) => held.has(u));
+}
+
+/**
+ * 第一關前五層的弱魔物（2026-09-29 開場分批）：停在封面時就抓，不管選誰、第一場都從這一池抽（`map.ts` 的 `poolForFloor`）。
+ * 第一關其餘的魔物（中、強、大魔物、關主）等進入一局才抓（`preloadHeroArt` 叫 `preloadAct`）。留參照，同 `preloadAct`。
+ */
+export function firstFightUrls(): string[] {
+  const ids = new Set<string>();
+  for (const enc of encounters) {
+    if (enc.hidden || enc.pool !== '弱' || (enc.acts && !enc.acts.includes(1))) continue;
+    for (const id of enc.enemies) relatedIds(id, ids);
+  }
+  return urlsFor([...ids].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d), 'ninja', false);
+}
+
+export function preloadFirstFights(): Promise<void> {
+  return decodeAll(firstFightUrls(), 4, true);
 }
 
 /**
@@ -342,17 +363,33 @@ export function _mapEventHeldForTest(): string[] { return [...mapEventPool.keep.
 
 /**
  * 選好角色之後補載這一位（連線是兩位）專屬的圖（總稽核 F 中-1）。
- * 開場的 `preloadArt` 不載任何角色專屬的鍵——那時還不知道玩家要選誰；
- * 球球的靜態圖本來就在開場那批裡；逐格動作圖集等本局角色確定後才補。
- * 秘寶與忍具圖示也在這裡補（2026-09-23 內容擴充第二批，見 `assets.ts` 的 `isItemIcon`），排在角色專屬的後面：
+ * 開場的 `preloadArt` 不載任何角色專屬的鍵——那時還不知道玩家要選誰；逐格動作圖集等本局角色確定後才補。
+ * **球球的立繪與牌面也改到這裡**（2026-09-29 開場分批）：原本鍵名沒有前綴、混在開場那批裡，玩別隻的人也得抓；
+ * 牌面照這一位看得到的那一張算（`assets.ts` 的 `runStartArtUrls`、`heroCardUrls`），起手牌排前面。
+ * 秘寶與忍具圖示也在這裡補（2026-09-23 內容擴充第二批，見 `assets.ts` 的 `isItemIcon`），排在最後：
  * 開局第一個畫面（序章、地圖）只用得到狀態列上那一兩件，那幾張自己的 `<img>` 會先去要。
+ *
+ * `act`（2026-09-29）：進入一局時一起抓這一關其餘的魔物與底圖（`preloadAct`）。`adoptRun` 給——新的一局、續玩、連線開局三個入口都走那裡；
+ * 原本新的一局靠封面那時就抓好的第一關、續玩另外叫一次 `preloadAct`，現在收成這一處。
+ * 魔物變裝照**座位 0**（同 `preloadAct` 的 `skinHero`：鏡中那隻照座位 0 變）。
  */
-export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise<void> {
-  const art = decodeAll([...new Set([...heroArtUrls(heroes), ...itemIconUrls()])], 6, false);
-  if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return art;
+export function preloadHeroArt(heroes: readonly (string | undefined)[], act?: number): Promise<void> {
+  const art = decodeAll(runStartArtUrls(heroes), 6, false);
+  const acts = act === undefined ? Promise.resolve() : preloadAct(act, heroes[0] ?? 'ninja');
+  /*
+   * 慢網路的音樂（2026-09-29）：原本開機時就等「開場那一批（含第一關魔物）」抓完才放（`main.ts` 的 `deferBgm`），
+   * 開場那批變小之後，進入一局這一批就是原本那段；照舊讓它先到，最多等 90 秒（同一個保險）。
+   */
+  if (act !== undefined) {
+    void netSpeed().then((s) => {
+      if (s === 'slow') deferBgm(Promise.race([Promise.all([art, acts]), new Promise<void>((r) => setTimeout(r, 90_000))]));
+    });
+  }
+  if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return Promise.all([art, acts]).then(() => undefined);
   // 慢網路：逐格動作排在這一位的靜態圖後面（2026-09-23）——動作還沒到時畫面靠的就是靜態立繪與牌面，小圖先到；
-  // 大圖集另外還有 `heavy-lane.ts` 管同時幾張、開場那批抓完才開始。快網路照原本兩邊一起抓（主控裁定：一般情況不能變慢）
-  const motion = netSpeed().then((s) => (s === 'slow' ? art : undefined)).then(() => Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
+  // 這一關的魔物也要先到（2026-09-29：原本開場那批含第一關魔物、抓完大圖集才開始，這一段移到進入一局之後照舊排在前面）。
+  // 大圖集另外還有 `heavy-lane.ts` 管同時幾張。快網路照原本兩邊一起抓（主控裁定：一般情況不能變慢）
+  const motion = netSpeed().then((s) => (s === 'slow' ? Promise.all([art, acts]) : undefined)).then(() => Promise.all([...new Set(heroes.map((hero) => hero ?? 'ninja'))].map(async (hero) => {
     if (hero === 'ninja') {
       const { preloadQiuqiuMotion } = await import('./qiuqiu-motion');
       await preloadQiuqiuMotion();
@@ -363,7 +400,7 @@ export function preloadHeroArt(heroes: readonly (string | undefined)[]): Promise
   }))).catch((error: unknown) => {
     console.error('逐格動作預載失敗，改用普通立繪', error);
   });
-  return Promise.all([art, motion]).then(() => undefined);
+  return Promise.all([art, acts, motion]).then(() => undefined);
 }
 
 /**

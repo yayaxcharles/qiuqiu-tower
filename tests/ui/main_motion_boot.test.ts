@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   loadManifest: vi.fn(),
   localHero: vi.fn(),
   preloadArt: vi.fn(),
-  preloadAct: vi.fn(),
+  preloadFirstFights: vi.fn(),
   whenTitleArtReady: vi.fn(),
   preloadQiuqiuMotion: vi.fn(),
   preloadCompanionMotion: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock('../../src/ui/lazy-screen', () => ({ registerLazyScreen: vi.fn() }));
 vi.mock('../../src/ui/assets', () => ({
   loadManifest: mocks.loadManifest, localHero: mocks.localHero, preloadArt: mocks.preloadArt,
 }));
-vi.mock('../../src/ui/preload', () => ({ preloadAct: mocks.preloadAct }));
+vi.mock('../../src/ui/preload', () => ({ preloadFirstFights: mocks.preloadFirstFights }));
 // 封面圖到齊才開始背景預載（2026-09-29）：替身直接回「到齊了」
 vi.mock('../../src/ui/titleart', () => ({ whenTitleArtReady: mocks.whenTitleArtReady }));
 vi.mock('../../src/ui/audio', () => ({ unlockOnFirstGesture: vi.fn() }));
@@ -53,7 +53,7 @@ beforeEach(() => {
   mocks.initLang.mockResolvedValue(undefined);
   mocks.localHero.mockReturnValue('ninja');
   mocks.preloadArt.mockResolvedValue(undefined);
-  mocks.preloadAct.mockResolvedValue(undefined);
+  mocks.preloadFirstFights.mockResolvedValue(undefined);
   mocks.whenTitleArtReady.mockResolvedValue(undefined);
   mocks.startMotionPreview.mockResolvedValue(undefined);
   mocks.preloadQiuqiuMotion.mockReturnValue(new Promise<void>(() => {}));
@@ -73,7 +73,8 @@ describe('動作模式不阻塞標題啟動', () => {
     mocks.localHero.mockReturnValue(hero);
     await import('../../src/main');
     await vi.dynamicImportSettled();
-    await vi.waitFor(() => expect(mocks.preloadAct).toHaveBeenCalledExactlyOnceWith(1));
+    // 開場那一批（2026-09-29 分批）：介面與第一關前五層的弱魔物；第一關其餘的魔物選好角色才抓（`adoptRun`）
+    await vi.waitFor(() => expect(mocks.preloadFirstFights).toHaveBeenCalledTimes(1));
     expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title');
     expect(mocks.preloadQiuqiuMotion).not.toHaveBeenCalled();
     expect(mocks.preloadCompanionMotion).not.toHaveBeenCalled();
@@ -85,7 +86,7 @@ describe('動作模式不阻塞標題啟動', () => {
     await import('../../src/main');
     await vi.waitFor(() => expect(mocks.show).toHaveBeenCalledExactlyOnceWith('title'));
     expect(mocks.preloadArt).toHaveBeenCalledTimes(1);
-    expect(mocks.preloadAct).not.toHaveBeenCalled();
+    expect(mocks.preloadFirstFights).not.toHaveBeenCalled();
   });
 
   /*
@@ -101,7 +102,7 @@ describe('動作模式不阻塞標題啟動', () => {
     expect(mocks.preloadArt).not.toHaveBeenCalled();
     ready();
     await vi.waitFor(() => expect(mocks.preloadArt).toHaveBeenCalledTimes(1));
-    await vi.waitFor(() => expect(mocks.preloadAct).toHaveBeenCalledExactlyOnceWith(1));
+    await vi.waitFor(() => expect(mocks.preloadFirstFights).toHaveBeenCalledTimes(1));
   });
 
   it('關閉動作時正常顯示標題且不預載逐格動作', async () => {

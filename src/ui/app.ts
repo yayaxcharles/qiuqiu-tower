@@ -2,7 +2,7 @@ import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopS
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { coopArtReady, preloadAct, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
+import { coopArtReady, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
 import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
 import { withCoopText } from './coop-text-loader';
@@ -253,7 +253,8 @@ export class App {
     setLocalHero(hero);
     setSfxHero(hero);
     this.syncStory(run);
-    void preloadHeroArt(run.players.map((p) => p.hero));
+    // 連同這一關其餘的魔物與底圖（2026-09-29 開場分批：原本新的一局靠封面時就抓好的第一關、續玩另外叫一次，收成這一處）
+    void preloadHeroArt(run.players.map((p) => p.hero), run.act);
   }
 
   /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
@@ -349,7 +350,7 @@ export class App {
     if (!run) return false;
     this.adoptRun(run, 0);   // 讀檔續玩也要換回那一局的角色；單機存檔一律坐 0 號（上面 `leaveCoop` 已經歸零）
     this.cs = null;
-    void preloadAct(run.act, run.players[0]?.hero);   // 讀檔續玩在二三關的，開場只預載了第一關（稽核 2026-09-04 中 4）
+    // 讀檔續玩在二三關的那一關（稽核 2026-09-04 中 4）：`adoptRun` 已經照 `run.act` 抓了（2026-09-29 收進那裡），這裡不再叫第二次
     // 舊存檔的殘局：人站在塔主節點、旗標已標最終戰——地圖上沒有下一格可點，直接開最終戰（審查 #3）。
     // 這個旗標原本由難度 5 的影球球前哨戰設定，2026-09-07 已拿掉；留著這條是為了讓當時存的檔還能接回師父戰
     const node = currentNode(run);
