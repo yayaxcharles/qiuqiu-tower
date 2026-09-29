@@ -72,7 +72,7 @@ export const enemies: EnemyDef[] = [
     line: '嗡————', lines: ['嗚嗡——嗡——', '（把地上的毛全吸走了）'],
     moves: [
       { intent: 'debuff', label: '噪音', effects: [{ kind: 'statusPlayer', name: '炸毛', amount: 2 }, { kind: 'statusPlayer', name: '翻肚', amount: 2 }] },
-      { intent: 'attack', label: '撞', effects: [{ kind: 'damage', amount: 8 }] },
+      { intent: 'attack', label: '撞', effects: [{ kind: 'damage', amount: 7 }] },   // 2026-09-29 8→7（吸塵器＋五爪貓那組贏了平均掉 21 血）
       { intent: 'special', label: '吸走', effects: [{ kind: 'discardRandomHand', n: 1 }] },
     ] },
   { id: 'black_ninja', name: '黑貓忍者', hp: [36, 40], pool: '中', pattern: 'cycle', size: 'medium', art: 'codex/monster_black_ninja',
@@ -835,9 +835,10 @@ export const enemies: EnemyDef[] = [
     line: '（打了個很長的呼嚕）', lines: ['（睡得四腳朝天）', '呼——呼——'],
     asleep: 3, onWake: [{ kind: 'statusSelf', name: '爪力', amount: 3 }],
     moves: [
-      { intent: 'attack', label: '拍', effects: [{ kind: 'damage', amount: 12 }] },
-      { intent: 'attack', label: '熊抱', effects: [{ kind: 'damage', amount: 9 }, { kind: 'block', amount: 8 }] },
-      { intent: 'attack', label: '再拍一下', effects: [{ kind: 'damage', amount: 12 }] },
+      // 2026-09-29 使用者「怪物攻擊力會不會太高」：機器人 200 局冬眠熊贏了平均掉 21 血，攻擊拉低約一成（12→11、9→8）
+      { intent: 'attack', label: '拍', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'attack', label: '熊抱', effects: [{ kind: 'damage', amount: 8 }, { kind: 'block', amount: 8 }] },
+      { intent: 'attack', label: '再拍一下', effects: [{ kind: 'damage', amount: 11 }] },
     ] },
 
   // --- 塔中（第二關）---
@@ -1028,16 +1029,17 @@ export const enemies: EnemyDef[] = [
     line: '（鼻子噴出兩道白氣，前腳刨著地）', lines: ['（獠牙刮過石頭，火星四濺）', '（低下頭，對準了你）'],
     angerOnSkill: 1,   // 機器人 100 局 26 場輸 15：+2 滾雪球太快，改 +1（跟赤鬼武夫一樣）；血 84→78（2026-09-03 驗收）
     moves: [
-      { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 12 }] },
+      // 2026-09-29 使用者「怪物攻擊力會不會太高」：山豬頭目贏了平均掉 21 血，衝撞 12→11
+      { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 11 }] },
       { intent: 'attack', label: '亂踩', effects: [{ kind: 'damage', amount: 6, times: 2 }] },
-      { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 12 }] },
+      { intent: 'attack', label: '衝撞', effects: [{ kind: 'damage', amount: 11 }] },
     ] },
   // 反彈 3：開戰就帶著，整場都在。多段小刀砍下去自己會先痛死，要嘛少段數重擊、要嘛先疊好蜷縮
   { id: 'paper_tiger', name: '紙老虎', hp: [66, 66], pool: '大魔物', pattern: 'cycle', size: 'medium', art: 'codex/monster_paper_tiger',
     line: '（紙糊的身體，吼聲卻震得地板發抖）', lines: ['（紙做的鬍鬚一根根豎起來）', '（張開嘴，裡面是空的）'],
     thorns: 2,   // 3 點對第一關的多段牌太痛（機器人贏也掉 35 血），改 2、血 72→66（2026-09-03 驗收）
     moves: [
-      { intent: 'attack', label: '撲', effects: [{ kind: 'damage', amount: 11 }] },
+      { intent: 'attack', label: '撲', effects: [{ kind: 'damage', amount: 10 }] },   // 2026-09-29 11→10（贏了平均掉 20 血）
       { intent: 'attack', label: '抓', effects: [{ kind: 'damage', amount: 7, times: 2 }] },
       { intent: 'block', label: '虛張聲勢', effects: [{ kind: 'block', amount: 12 }] },
     ] },
@@ -1412,7 +1414,7 @@ export const encounters: EncounterDef[] = [
   // 這兩組是「兩隻全規格中型怪同場」（合計 82～90 血），實測 6F 的典型牌組
   // 對它們勝率只有 2%／7%、其他中型遭遇都是 92% 起——放錯池了，移到強池（11F+）
   { id: 'ninja_can', pool: '強', enemies: ['black_ninja', 'can_spirit'], hpScale: 0.8, acts: [1] },
-  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.7, acts: [1] },   // 機器人會輸 18%，但真人三輪都一次過（使用者 2026-09-03），維持 0.7
+  { id: 'vacuum_claw', pool: '強', enemies: ['vacuum', 'five_claw'], hpScale: 0.65, acts: [1] },   // 機器人會輸 18%，但真人三輪都一次過（使用者 2026-09-03），維持 0.7
   { id: 'bandit_chipmunk', pool: '中', enemies: ['orange_bandit', 'chipmunk'], acts: [1] },
   // 石獅子＋鏡子貓：兩隻都會自己疊爪力，0.7 倍血在第一關仍 15/44 敗（機器人 300 局），搬到塔中強池才合身
   { id: 'lion_mirror', pool: '強', enemies: ['stone_lion', 'mirror_cat'], hpScale: 0.8, acts: [2] },
