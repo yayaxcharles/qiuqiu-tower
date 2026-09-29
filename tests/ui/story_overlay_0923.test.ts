@@ -108,7 +108,7 @@ describe('丟掉這一局時，劇情疊層整批收掉、不叫 onDone', () => 
 
   it('按「跳過」收掉影片：連下載一起停（慢網路下它原本會佔住一條連線把整支抓完）', () => {
     const done = vi.fn();
-    playVideo('opening', done);
+    playVideo('ending', done);
     const video = made.find((n) => n.tag === 'video')!;
     const skip = made.find((n) => n.tag === 'button')!;
     skip.listeners['click']!({});

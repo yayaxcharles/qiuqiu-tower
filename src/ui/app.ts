@@ -51,8 +51,12 @@ const screens = new Map<ScreenName, Renderer>();
 export function registerScreen(name: ScreenName, render: Renderer): void { screens.set(name, render); }
 
 
-/** 開頭影片照角色挑（`public/video/<檔名>.mp4`）；沒列的角色（鐵爪機關貓）沒有片子，直接進幻燈片 */
-const OPENING_CLIP: Partial<Record<Hero, VideoName>> = { ninja: 'opening', feifei: 'opening_feifei' };
+/**
+ * 開頭影片照角色挑（`public/video/<檔名>.mp4`）；沒列的角色直接進幻燈片。
+ * 2026-09-29 使用者裁定：球球、菲菲的開頭動畫影片移除（檔案已刪、對照表清空），四位都直接進序章幻燈片。
+ * 結尾影片（球球單人通關）不動。
+ */
+const OPENING_CLIP: Partial<Record<Hero, VideoName>> = {};
 
 export class App {
   run: RunState | null = null;
