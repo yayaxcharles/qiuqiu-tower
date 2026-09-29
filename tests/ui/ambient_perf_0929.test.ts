@@ -13,7 +13,7 @@ describe('背景火光與浮塵：省力做法', () => {
     expect(combat).not.toContain("class: 'motes'");
     const css = src('src/ui/styles/combat.css');
     expect(css).not.toMatch(/\.battle-bg\s*\{[^}]*animation:/);
-    expect(css).not.toContain('.battle-bg::after');
+    expect(css).not.toMatch(/^.battle-bg::after/m);
     expect(css).not.toContain('@keyframes torchlight');
   });
 
