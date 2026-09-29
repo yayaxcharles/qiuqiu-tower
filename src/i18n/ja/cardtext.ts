@@ -49,11 +49,14 @@ interface Ctx { prev?: Effect | undefined; plays?: number; allFoes?: boolean }
 
 function one(fx: Effect, ctx: Ctx = {}): string {
   switch (fx.kind) {
-    case 'gainQi': return `${S('蓄氣')}${fx.n}を得る`;
+    // 前一句是給同伴的（我護著你走）就補主詞「自分は」，跟中文版的「自己獲得」同一件事（2026-09-29）
+    case 'gainQi': return `${ctx.prev && ALLY_KINDS.has(ctx.prev.kind) ? '自分は' : ''}${S('蓄氣')}${fx.n}を得る`;
     case 'damageSpendQi': {
       const spend = fx.allQi ? `${S('蓄氣')}を全て使い` : `${S('蓄氣')}を最大${fx.maxQi ?? 0}使い`;
       const who = fx.target === 'all' ? `${ALL}に` : '';
       const hits = (fx.times ?? 1) > 1 ? `×${fx.times}回` : '';
+      // 沒有基本傷害的（氣貫長虹）不寫「0ダメージ（1につき+3）」
+      if (fx.amount <= 0) return `${spend}、${S('蓄氣')}1につき${who}${fx.perQi}ダメージ${hits}を与える${fx.ignoreBlock ? `。${BLOCK()}無視` : ''}`;
       return `${spend}、${who}${fx.amount}ダメージ${hits}を与える（${S('蓄氣')}1につき+${fx.perQi}）${fx.ignoreBlock ? `。${BLOCK()}無視` : ''}`;
     }
     case 'blockSpendQi': return `${S('蓄氣')}を最大${fx.maxQi}使い、${fx.recipient === 'ally' ? `相棒が` : ''}${CURL()}${fx.amount}を得る（${S('蓄氣')}1につき+${fx.perQi}）`;
