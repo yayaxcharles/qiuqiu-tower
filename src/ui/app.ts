@@ -20,7 +20,7 @@ import { clearSave, loadDefeats, loadRun, recordBest, recordDefeat, saveRun } fr
 import type { VictoryCtx } from '../content/victory-echoes';
 import type { CombatState, MapNode, RunState } from '../engine/types';
 import { type BgmName, setBgm } from './bgm';
-import { computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
+import { cardFaceUrls, computeScale, heroSpriteUrls, localHero, monsterPhaseKey, monsterUrl, setLocalHero, setLocalPartnerHero } from './assets';
 import { play, setSfxHero } from './audio';
 import type { Hero } from '../engine/hero';
 import { notice, playDialogue, toast, bubbleOverUnit, heroSpeaker } from './dialogue';
@@ -656,7 +656,12 @@ export class App {
       }
       };
       void Promise.allSettled([
-        warmEncounter(encounterId, 1500, heroSpriteUrls(run.players.map((p) => p.hero)), run.players[0]?.hero),
+        /*
+         * 這一手的牌面也一起暖（2026-09-29 開場分批）：牌面改成選好角色才抓，慢網路下第一場開打時可能還在路上，
+         * 手牌就先空著一排再冒出來。排在魔物後面、球球姿勢前面（手牌一開打就攤在眼前，姿勢要出牌才換），
+         * 共用同一個 1.5 秒上限，不另外多等
+         */
+        warmEncounter(encounterId, 1500, [...cardFaceUrls((cs.players[this.seat]?.hand ?? []).map((c) => c.cardId)), ...heroSpriteUrls(run.players.map((p) => p.hero))], run.players[0]?.hero),
         combatScreenReady,
         /*
          * 連線局：這一組搭檔的連線牌面要先抓完（2026-09-23 批次 coopload）。

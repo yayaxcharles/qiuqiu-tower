@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import APP_RAW from '../../src/ui/app.ts?raw';
-import { _setManifestForTest, heroCardUrls, isDeferredBossArt, preloadArt, runStartArtUrls, type Manifest } from '../../src/ui/assets';
+import { _setManifestForTest, cardFaceUrls, heroCardUrls, isDeferredBossArt, preloadArt, runStartArtUrls, setLocalHero, type Manifest } from '../../src/ui/assets';
 import { firstFightUrls, preloadAct, preloadHeroArt } from '../../src/ui/preload';
 import { cardById, cards, starterDeckFor } from '../../src/content/cards';
 import { encounters, enemyById } from '../../src/content/enemies';
+import { _heavyLaneStateForTest, _resetHeavyLaneForTest } from '../../src/ui/heavy-lane';
+import { _setNetSpeedForTest } from '../../src/ui/netspeed';
 
 /*
  * 開場分批（2026-09-29 效能）。
@@ -106,7 +108,7 @@ describe('選好角色進入一局才抓那一位的圖', () => {
     },
   });
 
-  it('球球：對白頭像先、戰鬥姿勢、起手牌排在其他牌前面；封面、連線牌、菲菲的版本不抓', () => {
+  it('球球：對白頭像先、起手牌排在戰鬥姿勢與其他牌前面；封面、連線牌、菲菲的版本不抓', () => {
     _setManifestForTest(fake());
     const urls = runStartArtUrls(['ninja']);
     expect(urls[0]).toBe(U('hero/ninja_portrait'));
@@ -115,6 +117,8 @@ describe('選好角色進入一局才抓那一位的圖', () => {
     const lastStarter = Math.max(...starter.map((id) => urls.indexOf(U(cardById[id]!.art))));
     expect(lastStarter).toBeGreaterThanOrEqual(0);
     expect(lastStarter, '起手牌先').toBeLessThan(urls.indexOf(U(shared.art)));
+    // 手牌一開打就整排攤開，排在三十張戰鬥姿勢後面的話慢網路下第一場開打時還是空的（實測 2026-09-29）
+    expect(lastStarter, '起手牌排在戰鬥姿勢前面').toBeLessThan(urls.indexOf(U('hero/ninja_claw')));
   });
 
   it('菲菲：有她的版本就抓她的（畫面畫哪張就抓哪張），球球的立繪一張都不抓', () => {
@@ -139,6 +143,49 @@ describe('選好角色進入一局才抓那一位的圖', () => {
     sources.length = 0;
     await preloadHeroArt(['ninja'], 1);
     expect(sources.some((u) => u.includes('/m/')), '給了關數：這一關的魔物').toBe(true);
+  });
+
+  /*
+   * 慢網路：原本大圖集（逐格動作）要等「開場那一批（含第一關魔物）」抓完才放行；開場那批變小之後，
+   * 改成進入一局時再掛一次、等這一局這一批抓完。戰鬥畫面自己叫的動作預載也走同一條（`loadHeavy`），一起被擋住。
+   * 拿掉這一段，這一條就紅。快網路不擋（主控裁定：一般情況照原本）。
+   */
+  it('慢網路：進入一局這一批抓完之前大圖集先別開抓；快網路不擋', async () => {
+    let open!: () => void;
+    const gate = new Promise<void>((r) => { open = r; });
+    stubImages(() => gate);
+    vi.stubGlobal('location', { search: '?motion=0' });
+    _setManifestForTest({ ...EMPTY, sprites: { 'hero/feifei_attack': A('hero/feifei_attack_heavy') } });
+    _resetHeavyLaneForTest();
+    try {
+      _setNetSpeedForTest('slow');
+      const all = preloadHeroArt(['feifei'], 1);
+      await vi.waitFor(() => expect(_heavyLaneStateForTest().holds).toBe(1));
+      open();
+      await all;
+      await vi.waitFor(() => expect(_heavyLaneStateForTest().holds).toBe(0));
+      _setNetSpeedForTest('fast');
+      await preloadHeroArt(['feifei'], 1);
+      await new Promise((r) => setTimeout(r, 10));
+      expect(_heavyLaneStateForTest().holds).toBe(0);
+    } finally {
+      _setNetSpeedForTest('fast');
+      _resetHeavyLaneForTest();
+    }
+  });
+
+  /*
+   * 開打前連這一手的牌面一起暖（2026-09-29 實測：牌面改成選好角色才抓之後，封面停 20 秒再開局的那一組，
+   * 第一場開打時七張手牌全空、約 2 秒後才冒出來；改之前那一組手牌是齊的）。排在魔物後面、姿勢前面，共用 1.5 秒上限。
+   */
+  it('開打前的遭遇預熱帶上這一手的牌面（本機這一位的版本），排在角色姿勢前面', () => {
+    _setManifestForTest(fake());
+    setLocalHero('feifei');
+    try {
+      expect(cardFaceUrls([shared.id, shared.id, 'no_such_card'])).toEqual([U(shared.art.replace('card/', 'card/feifei_'))]);
+    } finally { setLocalHero('ninja'); }
+    const app = APP_RAW.replace(/\r\n/g, '\n');
+    expect(app).toContain('warmEncounter(encounterId, 1500, [...cardFaceUrls((cs.players[this.seat]?.hand ?? []).map((c) => c.cardId)), ...heroSpriteUrls(');
   });
 
   it('adoptRun 把關數交給 preloadHeroArt；續玩不再另外叫第二次 preloadAct', () => {

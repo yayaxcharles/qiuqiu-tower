@@ -8,6 +8,7 @@ import { QMARK_ART, qmarkProtected } from '../engine/qmark';
 import { MERCHANT_SPRITES, artUrl, bossArtUrls, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroOfKey, localHero, monsterUrl, releaseHeldArt, runStartArtUrls, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
 import { deferBgm } from './bgm';
+import { holdHeavyLane } from './heavy-lane';
 import { netSpeed } from './netspeed';
 import { actVariantKey } from './screenbg';
 
@@ -377,12 +378,19 @@ export function preloadHeroArt(heroes: readonly (string | undefined)[], act?: nu
   const art = decodeAll(runStartArtUrls(heroes), 6, false);
   const acts = act === undefined ? Promise.resolve() : preloadAct(act, heroes[0] ?? 'ninja');
   /*
-   * 慢網路的音樂（2026-09-29）：原本開機時就等「開場那一批（含第一關魔物）」抓完才放（`main.ts` 的 `deferBgm`），
-   * 開場那批變小之後，進入一局這一批就是原本那段；照舊讓它先到，最多等 90 秒（同一個保險）。
+   * 慢網路的音樂與大圖集（2026-09-29）：原本開機時就等「開場那一批（含第一關魔物）」抓完才放音樂、才放行大圖集
+   *（`main.ts` 的 `deferBgm`、`holdHeavyLane`），開場那批變小之後，進入一局這一批就是原本那段，照舊讓它先到：
+   * - 音樂等這一批，最多 90 秒（同一個保險）；
+   * - 大圖集（逐格動作，含戰鬥畫面自己叫的那幾支）再掛一次「先別開抓」，這一批抓完才放行（`holdHeavyLane` 自帶 90 秒保險）。
+   * 快網路兩樣都不做（主控裁定：一般情況照原本）。
    */
   if (act !== undefined) {
     void netSpeed().then((s) => {
-      if (s === 'slow') deferBgm(Promise.race([Promise.all([art, acts]), new Promise<void>((r) => setTimeout(r, 90_000))]));
+      if (s !== 'slow') return;
+      const release = holdHeavyLane();
+      const batch = Promise.all([art, acts]);
+      void batch.finally(release);
+      deferBgm(Promise.race([batch, new Promise<void>((r) => setTimeout(r, 90_000))]));
     });
   }
   if (typeof location === 'undefined' || new URLSearchParams(location.search).get('motion') === '0') return Promise.all([art, acts]).then(() => undefined);

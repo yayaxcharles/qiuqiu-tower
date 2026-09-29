@@ -284,13 +284,32 @@ export function heroSelectPortraitUrls(): string[] {
 export function heroCardUrls(heroes: readonly (string | undefined)[]): string[] {
   const hs = [...new Set(heroes.map((h) => (h ?? 'ninja') as Hero))];
   const keys: string[] = [];
-  for (const h of hs) for (const id of starterDeckFor(h)) { const c = cardById[id]; if (c) keys.push(cardArtKey(c.art, h)); }
   for (const h of hs) for (const c of cardsForHero(h)) if (!c.coop) keys.push(cardArtKey(c.art, h));
-  return [...new Set(keys.map((k) => artUrl('cards', k)))].filter((u) => !u.startsWith('data:'));
+  return [...new Set([...starterCardUrls(hs), ...keys.map((k) => artUrl('cards', k))])].filter((u) => !u.startsWith('data:'));
 }
 
 /**
- * 進入一局要補的這幾位的圖，照「多快用得到」排：對白頭像 → 戰鬥姿勢 → 牌面（起手牌先）→ 其餘專屬圖 → 秘寶忍具圖示。
+ * 這幾張牌在畫面上的牌面網址（本機這一位的版本，同 `cardview.ts` 不給角色時的挑法）。
+ * 給開打前的遭遇預熱用：起手那一手一開打就整排攤開（`app.ts` 的 `startFight`，2026-09-29）。
+ */
+export function cardFaceUrls(cardIds: readonly string[]): string[] {
+  const urls = cardIds.map((id) => cardById[id]).filter((d): d is NonNullable<typeof d> => !!d).map((d) => artUrl('cards', cardArtKey(d.art)));
+  return [...new Set(urls)].filter((u) => !u.startsWith('data:'));
+}
+
+/** 起手十張的牌面（同一張只列一次）：第一場戰鬥一開打就在手上 */
+export function starterCardUrls(heroes: readonly (string | undefined)[]): string[] {
+  const urls: string[] = [];
+  for (const h of new Set(heroes.map((x) => x ?? 'ninja'))) {
+    for (const id of starterDeckFor(h)) { const c = cardById[id]; if (c) urls.push(artUrl('cards', cardArtKey(c.art, h))); }
+  }
+  return [...new Set(urls)].filter((u) => !u.startsWith('data:'));
+}
+
+/**
+ * 進入一局要補的這幾位的圖，照「多快用得到」排：對白頭像 → **起手牌** → 戰鬥姿勢 → 其餘牌面 → 其餘專屬圖 → 秘寶忍具圖示。
+ * 起手牌排在戰鬥姿勢前面（實測 2026-09-29）：手牌一開打就整排攤在眼前，戰鬥姿勢要等出牌才換、開打前遭遇預熱還會再暖一次；
+ * 起手牌只有三五張、合計約 100 KB，排在三十張姿勢（約 0.9 MB）後面的話，慢網路下第一場戰鬥開打時手牌還是空的。
  * 球球的立繪鍵沒有前綴（`heroOfKey` 認不出來），這裡照 `hero/ninja` 開頭另外收；封面那幾張不收（只有封面用、封面自己抓）。
  */
 export function runStartArtUrls(heroes: readonly (string | undefined)[]): string[] {
@@ -299,6 +318,7 @@ export function runStartArtUrls(heroes: readonly (string | undefined)[]): string
     ? Object.entries(manifest.sprites).filter(([k]) => k.startsWith('hero/ninja')).map(([, v]) => `${BASE}${v}`) : [];
   const urls = [
     ...hs.map((h) => heroArtUrl(h, 'hero/ninja_portrait')),
+    ...starterCardUrls(hs),
     ...heroSpriteUrls(hs),
     ...heroCardUrls(hs),
     ...heroArtUrls(hs),
