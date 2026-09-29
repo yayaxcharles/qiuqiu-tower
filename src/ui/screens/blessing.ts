@@ -120,7 +120,7 @@ function blessingScreen(app: App, root: HTMLElement): void {
     const verb = term(pk.kind === 'remove' ? '移除' : pk.kind === 'upgrade' ? '升級' : '換成新的');
     const ok = new Set(blessPickable(run, seat, pk.kind).map((c) => c.uid));
     showDeckPicker({
-      title: t('{upTo}選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）', { upTo: pk.upTo ? t('最多') : '', max, verb }),
+      title: t(pk.upTo ? '最多選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）' : '選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）', { max, verb }),
       cards: mine.deck, pickable: true, cancellable: true, filter: (c) => ok.has(c.uid),
       previewUpgrade: pk.kind === 'upgrade', pickCount: max, minPick: min,
       onPick: (uid) => { if (uid === null) render(); else commit(i, { u: [uid] }); },
