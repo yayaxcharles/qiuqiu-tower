@@ -20,7 +20,11 @@
       "why": "封封丟東西換成 Flow 新片（09-29 第二輪，動作本來就不同）；逐格看過：腳底貼地、大小一致、沒有特效"
     },
     {
-      "match": "size:view:*:combat_motion",
+      "match": "size:view:feifei:combat_motion",
+      "why": "只有逐格畫布高度／寬度變（新增的動作格子）；整隻高 258.3→258.3、腳底 0.0 像素，沒變"
+    },
+    {
+      "match": "size:view:fengfeng:combat_motion",
       "why": "只有逐格畫布寬度變（新增的動作格子）；整隻高 258.3→258.3、腳底 0.0 像素，沒變"
     },
     {
