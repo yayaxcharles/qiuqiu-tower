@@ -825,10 +825,10 @@
      "cells": 15
     },
     "assets/motion/hero-vids/fengfeng-slash-d.webp": {
-     "bytes": 212376,
+     "bytes": 215228,
      "size": [
-      3677,
-      397
+      3599,
+      763
      ],
      "cells": 9
     },
@@ -945,12 +945,12 @@
      "cells": 7
     },
     "assets/motion/hero-vids/fengfeng-slash-m.webp": {
-     "bytes": 68926,
+     "bytes": 86544,
      "size": [
-      1182,
-      295
+      1666,
+      287
      ],
-     "cells": 4
+     "cells": 5
     },
     "assets/motion/hero-vids/fengfeng-heavy-m.webp": {
      "bytes": 97160,
@@ -1027,11 +1027,11 @@
    },
    "downloadMB": {
     "desktop": 4.42,
-    "mobile": 1.61
+    "mobile": 1.63
    },
    "decodedMB": {
-    "desktop": 138.7,
-    "mobile": 30.5
+    "desktop": 143.6,
+    "mobile": 31.0
    },
    "size": {
     "toss": {
@@ -1119,10 +1119,10 @@
      "display": 0.42848
     },
     "slash": {
-     "rough": 0.44681,
-     "head": 0.968,
-     "corr": 0.942,
-     "own": 0.46158,
+     "rough": 0.46154,
+     "head": 0.995,
+     "corr": 0.938,
+     "own": 0.46386,
      "display": 0.42848
     },
     "heavy": {
@@ -1170,7 +1170,7 @@
      "eat": 8,
      "sweep": 7,
      "double_slash": 7,
-     "slash": 4,
+     "slash": 5,
      "heavy_slash": 6,
      "sheath": 5,
      "defeat": 10,
