@@ -59,9 +59,9 @@ s = await state();
 check(s.html === 'ja' && s.saved === 'ja', `點日本語：文件語言 ${s.html}、已存 ${s.saved}`);
 pt = await centerOf('繁中');
 await page.mouse.click(pt.x, pt.y);
-await page.waitForFunction(() => document.documentElement.lang === 'zh-Hant', null, { timeout: 15000 }).catch(() => {});
+await page.waitForFunction(() => document.documentElement.lang === 'zh-Hant-TW', null, { timeout: 15000 }).catch(() => {});
 s = await state();
-check(s.html === 'zh-Hant' && s.saved === 'zh', `點繁中：文件語言 ${s.html}、已存 ${s.saved}`);
+check(s.html === 'zh-Hant-TW' && s.saved === 'zh', `點繁中：文件語言 ${s.html}、已存 ${s.saved}`);
 
 // ④ 慢載入中離開封面：全新的頁面（英文包還沒載過），把英文包的請求拖慢 1.5 秒，點 English 後立刻進「新的一局」，載完不能被拉回封面
 const c2 = await newContext('i18n', 'clickcheck-slow', { viewport: { width: 1280, height: 720 } });
