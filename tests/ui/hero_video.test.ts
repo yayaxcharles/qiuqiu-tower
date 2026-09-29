@@ -36,8 +36,8 @@ describe('過場影片要看角色', () => {
     expect(bad, `這幾行不管玩誰都會播影片：\n${bad.join('\n')}`).toEqual([]);
   });
 
-  it('開頭影片對照表：球球與菲菲各一支、鐵爪機關貓沒有；結尾那支還在', () => {
-    expect(SRC).toMatch(/OPENING_CLIP[^\n]*=\s*\{[^}]*ninja: 'opening'[^}]*feifei: 'opening_feifei'/);
+  it('開頭影片對照表是空的（2026-09-29 使用者裁定移除球球、菲菲的開頭動畫）；結尾那支還在', () => {
+    expect(SRC).toMatch(/OPENING_CLIP: Partial<Record<Hero, VideoName>> = \{\};/);
     expect(SRC).toContain("playVideo('ending'");
   });
 
@@ -46,7 +46,9 @@ describe('過場影片要看角色', () => {
     expect(line).toMatch(/!this\.coop && \(me\(run, this\.seat\)\.hero \?\? 'ninja'\) === 'ninja' \? playVideo\('ending'/);
   });
 
-  it('菲菲的開頭影片檔真的在（對照表寫了就要有檔，不然她的開場會少一段而沒人發現）', () => {
-    expect(existsSync(new URL('../../public/video/opening_feifei.mp4', import.meta.url))).toBe(true);
+  it('開頭影片檔已移除、結尾影片檔還在', () => {
+    expect(existsSync(new URL('../../public/video/opening.mp4', import.meta.url))).toBe(false);
+    expect(existsSync(new URL('../../public/video/opening_feifei.mp4', import.meta.url))).toBe(false);
+    expect(existsSync(new URL('../../public/video/ending.mp4', import.meta.url))).toBe(true);
   });
 });

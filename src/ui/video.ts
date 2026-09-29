@@ -15,7 +15,7 @@ import { closeWithStory, lockScreen, overlayRoot, unlockScreen } from './overlay
  * 烤進檔案裡最穩。播的時候把背景音樂停住免得兩首疊在一起，播完再把背景音樂切到同一首，銜接不會斷。
  * 鎖畫面規矩跟對白疊層一樣（見 dialogue.ts）。
  */
-export type VideoName = 'opening' | 'opening_feifei' | 'ending';
+export type VideoName = 'ending';   // 開頭影片 2026-09-29 移除（見 app.ts 的 `OPENING_CLIP`）
 
 export function playVideo(name: VideoName, onDone: () => void): void {
   const layer = overlayRoot();

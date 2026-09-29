@@ -6,6 +6,9 @@ import { relicById } from '../../content/relics';
 import { describeCardText } from '../../i18n';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
+
+import { prologueSlides } from '../storyslides';
+import { warmSlides } from '../slides';
 import { heroPronoun, startRelicFor, type Hero } from '../../engine/hero';
 import { N_, getLang, glossText, t, term } from '../../i18n';
 import { cardName, relicName, relicText } from '../../i18n/names';
@@ -106,6 +109,7 @@ registerScreen('heroselect', (app, root, props) => {
     for (const node of [...cards.children, ...detail.children]) {
       node.classList.toggle('selected', node.getAttribute('data-hero') === chosen);
     }
+    warmSlides(prologueSlides(chosen));   // 序章幻燈片的圖先抓好、解碼好，按下出發換片時才不會閃
     goBtn.textContent = t('就{p}了，出發', { p: t(heroPronoun({ hero: chosen })) }); // i18n-dynamic (src/engine/hero.ts:79)
   };
 

@@ -34,6 +34,30 @@ export function slidesReady(slides: Slide[]): boolean {
   return slides.length > 0 && slides.every((s) => !artUrl('bg', s.img).startsWith('data:'));
 }
 
+/**
+ * 先把圖抓下來、解碼好（2026-09-29 使用者：「選完角色切換投影片時還是會閃回上一張圖」）。
+ * 原因：交叉淡入用兩層圖交替，換片時把新圖指給「備用那一層」再立刻顯示——圖還沒解碼完，
+ * 備用那一層還留著**兩張以前**的圖，就先閃出來；第一張則是整個幻燈片框先出現、圖還沒到，露出底下的選角畫面。
+ * 修法：預載並解碼好才換；第一張沒好之前整個框先藏著；選角畫面一選定角色就先把序章那幾張預載（`warmSlides`）。
+ */
+const warmed = new Map<string, Promise<void>>();
+export function warmImage(url: string): Promise<void> {
+  let p = warmed.get(url);
+  if (!p) {
+    if (typeof Image === 'undefined') p = Promise.resolve();
+    else {
+      const im = new Image();
+      im.src = url;
+      p = (typeof im.decode === 'function' ? im.decode() : new Promise<void>((r) => { im.onload = () => r(); im.onerror = () => r(); })).catch(() => undefined);
+    }
+    warmed.set(url, p);
+  }
+  return p;
+}
+export function warmSlides(slides: readonly Slide[]): void {
+  for (const s of slides) void warmImage(artUrl('bg', s.img));
+}
+
 export function playSlides(slides: Slide[], onDone: () => void): void {
   const layer = overlayRoot();
   const flat = slides.flatMap((s, si) => s.lines.map((l) => ({ l, si })));
@@ -52,18 +76,28 @@ export function playSlides(slides: Slide[], onDone: () => void): void {
   prefetch(flat.slice(0, 3).map((x) => voiceOf(x.l)));
   let front = imgA;
   let shownSlide = -1;
+  let swapToken = 0;   // 連點快進時，只認最後一次要換的那張
+  box.style.visibility = 'hidden';   // 第一張圖還沒解碼好之前整個框先藏著（不露出底下的選角畫面）
+  warmSlides(slides);
   const render = (): void => {
     const cur = flat[i];
     if (!cur) return;
     if (cur.si !== shownSlide) {
       shownSlide = cur.si;
-      const url = artUrl('bg', slides[cur.si]!.img);
-      const back = front === imgA ? imgB : imgA;
-      back.src = url;
-      back.classList.add('show');
-      front.classList.remove('show');
-      front = back;
-      box.querySelector('.slide-box')?.classList.toggle('at-bottom', slides[cur.si]!.box === 'bottom');
+      const slide = slides[cur.si]!;
+      const url = artUrl('bg', slide.img);
+      const mine = ++swapToken;
+      box.querySelector('.slide-box')?.classList.toggle('at-bottom', slide.box === 'bottom');
+      // 圖解碼好才換；最多等 3 秒，還沒好就照舊換（慢網路不能卡死劇情）
+      void Promise.race([warmImage(url), new Promise<void>((r) => window.setTimeout(r, 3000))]).then(() => {
+        if (ended || mine !== swapToken) return;
+        const back = front === imgA ? imgB : imgA;
+        back.src = url;
+        back.classList.add('show');
+        front.classList.remove('show');
+        front = back;
+        box.style.visibility = '';
+      });
     }
     speaker.textContent = cur.l.speaker === '旁白' ? '' : speakerDisplay(cur.l.speaker);
     text.textContent = lineDisplay(cur.l.text);   // 配音照舊拿中文原句查表
