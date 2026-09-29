@@ -23,7 +23,8 @@ const OUT = resolve(process.argv[2] ?? 'tmp-perf');
 const ONLY = process.argv[3] ? process.argv[3].split(',') : ['load', 'entry', 'combat', 'memory'];
 mkdirSync(OUT, { recursive: true });
 const CPU = Number(process.env.PERF_CPU ?? 4);
-const NET = { offline: false, latency: 150, downloadThroughput: (1.6e6) / 8, uploadThroughput: (750e3) / 8 };
+// 網路可以用環境變數換（2026-09-29：要量寬頻下有沒有變慢，例 PERF_MBPS=20 PERF_RTT=40）；不給就是中階手機那組
+const NET = { offline: false, latency: Number(process.env.PERF_RTT ?? 150), downloadThroughput: (Number(process.env.PERF_MBPS ?? 1.6) * 1e6) / 8, uploadThroughput: (750e3) / 8 };
 
 // ── 本機伺服器：跟 GitHub Pages 一樣壓縮文字檔 ──
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
@@ -256,9 +257,14 @@ try {
       await page.waitForFunction(imgsDone('.unit img'), null, { timeout: 120000, polling: 100 }).catch(() => {});
       const art = (Date.now() - t0) / 1000;
       await waitCanAct(page, 120000).catch(() => {});
+      const canAct = (Date.now() - t0) / 1000;
+      // 手牌的牌面（2026-09-29 分批載入：牌面改成選好角色才抓）：能出牌那一刻還有幾張沒畫出來、全部到齊是第幾秒
+      const HAND = '.hand .card img.card-art';
+      const handAtCanAct = await page.evaluate((sel) => { const a = [...document.querySelectorAll(sel)]; return { total: a.length, missing: a.filter((i) => !(i.complete && i.naturalWidth > 0)).length }; }, HAND);
+      const handArtSeconds = await page.waitForFunction(imgsDone(HAND), null, { timeout: 60000, polling: 50 }).then(() => (Date.now() - t0) / 1000).catch(() => 'timeout');
       const res = await page.evaluate((t) => performance.getEntriesByType('resource').filter((e) => e.startTime >= t - 5).map((e) => `${Math.round(e.startTime - t)}→${Math.round(e.responseEnd - t)}ms ${Math.round(e.transferSize / 1024)}KB ${e.name.split('/').slice(-2).join('/')}`), pt0);
       R.real['files' + wait] = res;
-      R.real['wait' + wait] = { nodeType: enc, encounter: await page.evaluate(() => window.__app.cs?.enemies.map((e) => e.defId ?? e.id).join('+')), screenSeconds: screen, unitArtSeconds: art, canActSeconds: (Date.now() - t0) / 1000,
+      R.real['wait' + wait] = { nodeType: enc, encounter: await page.evaluate(() => window.__app.cs?.enemies.map((e) => e.defId ?? e.id).join('+')), screenSeconds: screen, unitArtSeconds: art, canActSeconds: canAct, handAtCanAct, handArtSeconds,
         // 這一頁量到的網速判斷（`main.ts` 在 `?debug` 時寫上去；2026-09-29 之前的版本沒有，會是 null）
         netSpeed: await page.evaluate(() => document.documentElement.dataset.netSpeed ?? null) };
       console.log('real', wait, JSON.stringify(R.real['wait' + wait]));
