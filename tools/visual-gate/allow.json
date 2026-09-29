@@ -16,6 +16,14 @@
   ],
   "items": [
     {
+      "match": "motion:fengfeng:throw:timeline",
+      "why": "封封丟東西換成 Flow 新片（09-29 第二輪，動作本來就不同）；逐格看過：腳底貼地、大小一致、沒有特效"
+    },
+    {
+      "match": "size:view:*:combat_motion",
+      "why": "只有逐格畫布寬度變（新增的動作格子）；整隻高 258.3→258.3、腳底 0.0 像素，沒變"
+    },
+    {
       "match": "size:static:*:hero/*cover_en",
       "why": "封面「參上」英文版新圖（多語系）：只換頂端題字層，貓與煙塵一個像素不動（tools/gen_cover_i18n.py；逐一比對過繁中封面，貓與煙塵區差異 0，菲菲僅 209 像素）。閘門把封面當戰鬥立繪量頭，封面本來就比待機小"
     },
