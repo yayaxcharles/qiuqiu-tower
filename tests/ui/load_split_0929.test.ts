@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import APP_RAW from '../../src/ui/app.ts?raw';
-import NETLOAD_RAW from '../../src/ui/netload.ts?raw';
+import NETLOAD_RAW from '../../src/ui/netload-run.ts?raw';
 import { _setManifestForTest, cardFaceUrls, heroCardUrls, isDeferredBossArt, preloadArt, runStartArtUrls, setLocalHero, type Manifest } from '../../src/ui/assets';
 import { firstFightUrls, preloadAct, preloadHeroArt } from '../../src/ui/preload';
 import { cardById, cards, starterDeckFor } from '../../src/content/cards';
@@ -193,10 +193,10 @@ describe('選好角色進入一局才抓那一位的圖', () => {
 
   it('adoptRun 把關數交給 preloadHeroArt；續玩不再另外叫第二次 preloadAct', () => {
     const app = APP_RAW.replace(/\r\n/g, '\n');
-    // 2026-09-30：adoptRun 改叫 netload.ts 的 warmRun（先插隊要最低完成度，再照原本叫 preloadHeroArt）
+    // 2026-09-30：adoptRun 改叫 netload.ts 的 warmRun → netload-run.ts 的 startRun（先插隊要最低完成度，再照原本叫 preloadHeroArt，首載那支用傳的）
     expect(app).toContain('    warmRun(run, seat);');
     const netload = NETLOAD_RAW.replace(/\r\n/g, '\n');
-    expect(netload).toContain('void preloadHeroArt(run.players.map((p) => p.hero), run.act);');
+    expect(netload).toContain('void d.preloadHeroArt(run.players.map((p) => p.hero), run.act);');
     expect(app).not.toMatch(/void preloadAct\(/);
   });
 });

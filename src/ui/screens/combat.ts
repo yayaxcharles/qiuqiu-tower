@@ -28,7 +28,7 @@ import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { seatFeedback, seatFeedbackSnap, type SeatFeedbackSnap } from '../seat-feedback';
-import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../status-kind';
+import { BAD_STATUS, GOOD_STATUS, STATUS_ICON, STATUS_ORDER } from '../status-kind';
 import { createChipsLift } from '../chiplift';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
@@ -104,22 +104,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
 import { attachTextTooltip, attachTooltip, hideTooltip } from '../tooltip';
 
-const STATUS_ICON: Record<StatusName, string> = {
-  爪力: 'icon/status_claw', 貓步: 'icon/status_step', 翻肚: 'icon/status_belly',
-  懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 中毒: 'icon/status_choke',
-  隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
-  潛水: 'icon/status_stealth',
-  鐵布衫: 'icon/status_iron',   // 不借鱗甲的鍵，免得兩邊撞到
-  // 第二波魔物的五個狀態（2026-09-10 圖示補齊）
-  縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate', 不壞身: 'icon/status_iron_body',
-  沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
-  // 菁英擴充的虛化（2026-09-03；圖示 2026-09-10 補上）。
-  // 虛化的意思就是「半透明」，但圖示不能真的畫半透明——綠幕會從身體裡透出來、去背後整張帶綠
-  //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
-  虛化: 'icon/status_phase',
-  // 迷魂（2026-09-23 第二批）：沒有另畫狀態圖示，借迷魂香那支忍具的圖（同一個 icons 分類，戰鬥中一定載好了）
-  迷魂: 'codex/potion_daze_incense',
-};
+// 狀態圖示表搬到 `status-kind.ts`（2026-10-01：開局預載第一步魔物會上的狀態小圖示要查同一張，`netload-run.ts`）
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
  * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
@@ -1348,11 +1333,11 @@ registerScreen('combat', (app, root, props) => {
    */
   const warmPool: DecodePool = { seen: new Set(), keep: new Map() };
   const asked = new Set<string>();   // 送出去過的（還在解的也算）：重畫時不重送
-  const warm = (urls: readonly string[]): void => {
+  const warm = (urls: readonly string[]): Promise<void> => {
     const fresh = [...new Set(urls)].filter((u) => u && !asked.has(u));
     for (const u of fresh) asked.add(u);
     // 一次全部送出、不排隊（跟以前一張一張各自 decode 一樣）；解不開就算了，畫面照常
-    if (fresh.length) void decodeAll(fresh, fresh.length, true, warmPool);
+    return fresh.length ? decodeAll(fresh, fresh.length, true, warmPool) : Promise.resolve();
   };
   /*
    * 角色姿勢一位只暖一次（開戰那一刻；連線途中才出現的那位在下一次重畫補上），
@@ -1368,7 +1353,7 @@ registerScreen('combat', (app, root, props) => {
    */
   const motionFallbackPoses: ReadonlySet<string> = new Set([...Object.values(REST_STATE_POSES),
     POSE.hit, POSE.dodge, POSE.guard, POSE.win, POSE.lose, POSE.down]);
-  const warmHeroes = (): void => {
+  const warmHeroes = (): Promise<void> => {
     const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
     for (const q of cs.players) {
@@ -1380,7 +1365,7 @@ registerScreen('combat', (app, root, props) => {
       const motionReady = !!source && (source === 'qiuqiu' ? qiuqiuMotionReady() : companionMotionReady(source));
       for (const key of combatWarmPoses(Object.values(POSE), motionFallbackPoses, motionReady)) urls.push(heroArtUrl(q.hero, key));
     }
-    warm(urls);
+    return warm(urls);
   };
   const warmEnemies = (): void => {
     const urls: string[] = [];
@@ -1403,8 +1388,16 @@ registerScreen('combat', (app, root, props) => {
     }
     warm(urls);
   };
-  warmHeroes();
+  const heroesWarm = warmHeroes();
   warmEnemies();
+  /*
+   * 這一場打完接下去走得到的戰鬥格：魔物立繪趁這場打的時候先抓（2026-09-30 慢網路修正；回地圖才抓的話急著點的人第二場還是要等）。
+   * **等主角姿勢解好才送**（審查 2026-10-01 中-1：原本在換到戰鬥畫面那一刻插隊送，跟上面暖主角姿勢搶頻寬，
+   * HTTP/2 慢網路主角出招空白變長）。姿勢一直沒好也最多等 8 秒。開局先抓的那幾張主角姿勢這時交給這一場自己留，開局那份放掉（審查 低-5）
+   */
+  void Promise.race([heroesWarm, new Promise<void>((r) => window.setTimeout(r, 8000))]).then(() => {
+    app.warmNextFights?.();   // 動作試玩頁那種假的 app 沒有這一支
+  });
   // 開場那一次畫完才開閘，之後的變化才演（低-5）
   window.setTimeout(() => { chipsSeeded = true; }, 0);
   /**
@@ -2481,7 +2474,7 @@ registerScreen('combat', (app, root, props) => {
 
   function render(): void {
     // 只補沒暖過的：新召喚的魔物（或換了階段立繪的）、連線途中才出現的那位；角色姿勢一位只暖一次
-    warmHeroes();
+    void warmHeroes();
     warmEnemies();
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     arrowOff?.abort();   // 舊的 box 連同箭頭一起丟掉，監聽也拆掉

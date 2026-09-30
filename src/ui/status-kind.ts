@@ -26,3 +26,21 @@ export const GOOD_STATUS: readonly StatusName[] = ALL.filter((n) => STATUS_KIND[
 export const BAD_STATUS: readonly StatusName[] = ALL.filter((n) => STATUS_KIND[n] === 'bad');
 /** 狀態列的排列順序：好的排前面（物件鍵的順序由上面那張決定，測試釘著） */
 export const STATUS_ORDER: readonly StatusName[] = [...GOOD_STATUS, ...BAD_STATUS];
+
+/** 狀態 → 圖示鍵（戰鬥畫面的狀態列畫它；開局預載第一步魔物會上的那幾顆也查這張，`netload-run.ts`） */
+export const STATUS_ICON: Record<StatusName, string> = {
+  爪力: 'icon/status_claw', 貓步: 'icon/status_step', 翻肚: 'icon/status_belly',
+  懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 中毒: 'icon/status_choke',
+  隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
+  潛水: 'icon/status_stealth',
+  鐵布衫: 'icon/status_iron',   // 不借鱗甲的鍵，免得兩邊撞到
+  // 第二波魔物的五個狀態（2026-09-10 圖示補齊）
+  縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate', 不壞身: 'icon/status_iron_body',
+  沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
+  // 菁英擴充的虛化（2026-09-03；圖示 2026-09-10 補上）。
+  // 虛化的意思就是「半透明」，但圖示不能真的畫半透明——綠幕會從身體裡透出來、去背後整張帶綠
+  //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
+  虛化: 'icon/status_phase',
+  // 迷魂（2026-09-23 第二批）：沒有另畫狀態圖示，借迷魂香那支忍具的圖（同一個 icons 分類，戰鬥中一定載好了）
+  迷魂: 'codex/potion_daze_incense',
+};

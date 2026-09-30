@@ -4,7 +4,6 @@ import { blessingById } from '../content/blessings';
 import { KEEPERS } from '../content/keepers';
 import { bossPoolForAct } from '../engine/run';
 import type { EnemyDef, EnemyEffect, EnemyPool, MapNode, QmarkVariant, RunState } from '../engine/types';
-import { nextChoices } from '../engine/map';
 import { QMARK_ART, qmarkProtected } from '../engine/qmark';
 import { MERCHANT_SPRITES, artUrl, bossArtUrls, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroOfKey, localHero, monsterUrl, releaseHeldArt, runStartArtUrls, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
@@ -26,7 +25,7 @@ import { actVariantKey } from './screenbg';
 const POSES: MonsterPose[] = ['idle', 'attack', 'hurt', 'block', 'down'];
 
 /** 這隻怪自己＋牠召得出來的、分裂得出來的全部魔物 id */
-function relatedIds(id: string, out: Set<string>): void {
+export function relatedIds(id: string, out: Set<string>): void {
   if (out.has(id)) return;
   const def = enemyById[id];
   if (!def) return;
@@ -69,7 +68,7 @@ export function monsterArtKeysForAct(act: number): string[] {
 }
 
 /** `skinHero`＝決定魔物變裝的角色（鏡中菲菲看的是**座位 0**，連線時不一定是本機這位；推前審查 2026-09-15 低-1） */
-function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero(), includePhases = true): string[] {
+export function urlsFor(defs: EnemyDef[], skinHero: string | undefined = localHero(), includePhases = true): string[] {
   const urls: string[] = [];
   for (const def of defs) {
     if (def.art === 'daxia') continue;   // 師父的立繪組在 sprites 裡，首載本來就有
@@ -456,36 +455,11 @@ export function follow(ps: readonly Promise<unknown>[], pr: Progress = { done: 0
   return Promise.all(ps.map((p) => p.catch(() => undefined).then(() => { pr.done += 1; pr.on?.(); }))).then(() => undefined);
 }
 
-/** 地圖節點的圖示（`screens/map.ts` 畫、`netload.ts` 開局先抓，同一張表） */
+/** 地圖節點的圖示（`screens/map.ts` 畫、`netload-run.ts` 開局先抓，同一張表） */
 export const NODE_ICON: Record<MapNode['type'], string> = {
   戰鬥: 'icon/node_fight', 大魔物: 'icon/node_elite', 事件: 'icon/node_event',
   罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
 };
-
-/**
- * 下一步走得到的戰鬥格：那幾場的魔物立繪（含召喚、分裂、換階段）先插隊解好（慢網路修正 2026-09-30）。
- * 開局（`netload.ts`，第一層三格）與每次地圖畫出來（`screens/map.ts`）各叫一次；點下去時 `warmEncounter` 看到已解好就不用等。
- * **只挑下一步**，不是整張地圖：一格四五張、一步兩三格，解碼後幾 MB；換階段圖只在這裡與開打時抓（`preloadAct` 只抓基礎姿勢）。
- * 魔物變裝照座位 0（跟 `startFight` 傳給 `warmEncounter` 的同一位，抓的才會是畫面上那一組）。
- * 連線時同伴每投一票地圖就安靜重畫一次：同一格的已經送出就不重送（`decodeAll` 只記得「解完的」）。
- * 只讀地圖與魔物表，不動局面、不碰亂數。
- */
-let nextAsked = new Set<string>();
-let nextKey = '';
-export function nextFightUrls(run: RunState): string[] {
-  const ids = new Set<string>();
-  for (const n of nextChoices(run.map, run.currentNode)) {
-    if (n.encounterId && (n.type === '戰鬥' || n.type === '大魔物' || n.type === '塔主')) for (const id of encounterById[n.encounterId]?.enemies ?? []) relatedIds(id, ids);
-  }
-  return urlsFor([...ids].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d), run.players[0]?.hero ?? 'ninja');
-}
-export function preloadNextFights(run: RunState): Promise<void> {
-  const key = `${run.seed}|${run.act}`;
-  if (key !== nextKey) { nextKey = key; nextAsked = new Set(); }
-  const fresh = nextFightUrls(run).filter((u) => !nextAsked.has(u));
-  for (const u of fresh) nextAsked.add(u);
-  return decodeAll(fresh, Math.max(1, fresh.length), true, undefined, 'high');
-}
 
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */
 export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: readonly string[] = [],

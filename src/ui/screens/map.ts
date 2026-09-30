@@ -13,7 +13,7 @@ import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { eventById } from '../../content/events';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
-import { NODE_ICON, mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadNextFights, preloadQmarkArt } from '../preload';
+import { NODE_ICON, mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadQmarkArt } from '../preload';
 import { loadEventScreen } from '../event-loader';
 import { loadShopText } from '../shop-text-loader';
 import { loadCoopText } from '../coop-text-loader';
@@ -469,8 +469,9 @@ registerScreen('map', (app, root) => {
   // （走 `event-loader.ts`：這裡失敗了，下一次會換網址參數重抓，不會被瀏覽器記住的失敗卡死——推前審查 低-1）
   void loadEventScreen().catch(() => undefined);
   void preloadMapEvents(run);
-  // 下一步走得到的戰鬥格：魔物立繪先插隊解好（2026-09-30 慢網路修正），點下去就不用等
-  void preloadNextFights(run);
+  // 下一步走得到的戰鬥格：魔物立繪先插隊解好（2026-09-30 慢網路修正），點下去就不用等。
+  // 那一支在按需載入的 `netload-run.ts`（首載程式省一點）；封面時就先抓了、開局也用過，這裡等於同步
+  void import('../netload-run').then((m) => m.preloadNextFights(run), () => undefined);
   // 問號格變化的文字與圖（2026-09-23 第三批）：地圖上還有會變的問號格才抓，一樣不插隊、抓失敗走進去時再要一次
   if (mapHasQmark(run)) { void loadQmarkText().catch(() => undefined); void preloadQmarkArt(run); }
   // 這一關有客座店主的店：那一位的三張立繪與店主台詞（延後模組）也先在背景抓（2026-09-23 第三批 新J，design3 4-4）

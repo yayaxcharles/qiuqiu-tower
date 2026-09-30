@@ -88,7 +88,7 @@ describe('開局的時機', () => {
     expect(APP).toMatch(/rollBlessings\(run\);[^\n]*\n\s*this\.adoptRun\(run, 0\);\n\s*warmBlessing\(run, 0\);/);
     expect(APP).toContain('this.playPrologue(hero, () => this.afterPrologue());');
     // 2026-09-30 慢網路修正：進地圖前先過條件式門檻（`gateMap`），門檻放行後才換畫面
-    expect(APP).toMatch(/afterPrologue\(\): void \{[\s\S]*?this\.save\(\);\n\s*this\.gateMap\(run, \(\) => this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\)\);/);
+    expect(APP).toMatch(/afterPrologue\(\): void \{[\s\S]*?this\.save\(\);\n\s*this\.gateMap\(run, \(\) => this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\), true\);/);
     // 續玩：選到一半重新整理的回到祝福畫面
     expect(APP).toMatch(/this\.gateMap\(run, \(\) => this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\)\);\n\s*return true;/);
   });

@@ -82,7 +82,8 @@ describe('四、地圖點格子當下就有反應', () => {
   });
   it('進戰鬥等超過 0.4 秒就提示一行（比照事件格）', () => {
     const start = lf(APP).slice(lf(APP).indexOf('startFight(encounterId: string'));
-    expect(start).toContain("if (hint) hint.textContent = i18nT('正在準備戰鬥……');");
+    // 2026-10-01：已經在跑進度條（netload.ts，250 毫秒起）就不再改那行字（審查 低-8）
+    expect(start).toContain("if (hint && !this.screen.querySelector('.net-progress')) hint.textContent = i18nT('正在準備戰鬥……');");
     expect(start).toContain('window.clearTimeout(slow);');
   });
 });

@@ -45,6 +45,8 @@ const WHATIF = process.env.PERF_WHATIF ?? '';   // 「假如這樣預載」的�
 const H2 = process.env.PERF_H2 === '1';
 const CERT_DIR = process.env.PERF_CERT_DIR ?? '';
 const SEED = 'perfaudio';
+// PERF_CONTINUE=1（2026-10-01 netload 審查 中-2）：先在另一頁開一局、存檔，清掉瀏覽器快取，再開封面、停 PERF_TITLE_WAIT 毫秒按「續玩」，量到地圖為止
+const CONTINUE = process.env.PERF_CONTINUE === '1';
 const NET = { offline: false, latency: RTT, downloadThroughput: (MBPS * 1e6) / 8, uploadThroughput: 750e3 / 8 };
 
 // ── 本機伺服器：同 measure.mjs（GitHub Pages 的做法：文字檔 gzip、其餘原樣、快取十分鐘；本機是 HTTP/1.1，一個主機最多 6 條連線） ──
@@ -281,6 +283,19 @@ async function flow(page, url, tag) {
   await waitFor(page, () => { const a = [...document.querySelectorAll('.title-cat')]; return a.length > 0 && a.every((i) => i.complete && i.naturalWidth > 0); }, null, 180000, '封面圖');
   await M(page, 'title.artReady');
   await sleep(T_TITLE);
+  if (CONTINUE) {
+    await M(page, 'click.continue');
+    const clickAt = Date.now();
+    if (!(await realClick(page, 'button', { textRe: '^續玩$' }))) console.log('  ⚠ 找不到「續玩」');
+    await waitFor(page, () => document.querySelector('#stage')?.dataset.screen === 'map', null, 60000, '續玩進地圖');
+    res.continueToMapSec = (Date.now() - clickAt) / 1000;
+    await M(page, 'map.shown');
+    await sleep(5000);
+    res.totalSec = (Date.now() - t0) / 1000;
+    res.netSpeed = await page.evaluate(() => document.documentElement.dataset.netSpeed ?? null);
+    console.log(`  續玩到地圖 ${res.continueToMapSec}s`);
+    return res;
+  }
   // 種子（本局代碼）：讓每次的地圖一樣
   await page.evaluate((s) => { const i = document.querySelector('input.seed'); if (i) { i.value = s; i.dispatchEvent(new Event('input', { bubbles: true })); } }, SEED);
   await M(page, 'click.newgame');
@@ -407,12 +422,23 @@ try {
   const passes = WARM ? ['cold', 'warm'] : ['cold'];
   for (const tag of passes) {
     console.log(`── ${LABEL} ${tag}（${HERO}，${MBPS} Mbps／${RTT} ms／CPU×${CPU}，${DIST}）──`);
+    if (CONTINUE) {
+      // 先開一局、存檔（只寫本機網址的儲存），再關掉這一頁
+      const prep = await ctx.newPage();
+      assertLocal(server.url);
+      await prep.goto(server.url + '?debug', { waitUntil: 'commit' });
+      await waitFor(prep, () => !!window.__app && document.querySelector('#stage')?.dataset.screen === 'title', null, 180000, '存檔用那頁的封面');
+      await prep.evaluate(({ seed, hero }) => { const a = window.__app; a.newRun(seed, 1, hero); for (const p of a.run.players) delete p.bless; a.save(); }, { seed: SEED, hero: HERO });
+      await sleep(500);
+      await prep.close();
+    }
     const page = await ctx.newPage();
     const errs = [];
     page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
     const cdp = await ctx.newCDPSession(page);
     const net = netLog(cdp);
     await throttle(cdp);
+    if (CONTINUE) await cdp.send('Network.clearBrowserCache');   // 清快取：續玩這一頁是冷的
     if (tag === 'warm') {
       // 同一個瀏覽器的 HTTP 快取還在；存檔與設定清掉（只動本機網址的儲存）
       await page.goto(server.url + 'nettest.html', { waitUntil: 'commit' }).catch(() => {});
