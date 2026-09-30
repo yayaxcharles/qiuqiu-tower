@@ -25,11 +25,12 @@ async function adopt(run: ReturnType<typeof newRun>, seat: number) {
   const calls: string[] = [];
   const body = method('  adoptRun(run: RunState, seat: number): void {');
   const js = (await transformWithOxc(`class A { seat = 0; run: unknown = null; syncStory(run: unknown) { calls.push('story:' + (run === this.run)); } ${body} }\nreturn A;`, 'adopt.ts')).code;
-  const A = new Function('me', 'setLocalHero', 'setSfxHero', 'preloadHeroArt', 'calls', js)(
+  // 補圖改由 netload.ts 的 `warmRun(run, seat)` 接手（2026-09-30 慢網路修正：先要最低完成度，再照原本叫 preloadHeroArt 補兩位的專屬圖）
+  const A = new Function('me', 'setLocalHero', 'setSfxHero', 'warmRun', 'calls', js)(
     me,
     (h: string | undefined) => { calls.push(`art:${h ?? 'ninja'}`); },
     (h: string | undefined) => { calls.push(`sfx:${h ?? 'ninja'}`); },
-    (hs: (string | undefined)[]) => { calls.push(`preload:${hs.map((h) => h ?? 'ninja').join(',')}`); return Promise.resolve(); },
+    (r: { players: { hero?: string }[] }) => { calls.push(`preload:${r.players.map((p) => p.hero ?? 'ninja').join(',')}`); },
     calls,
   ) as new () => { seat: number; run: unknown; adoptRun(run: unknown, seat: number): void };
   const app = new A();

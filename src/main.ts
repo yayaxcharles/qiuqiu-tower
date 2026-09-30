@@ -122,6 +122,8 @@ async function boot(): Promise<void> {
   const speed = probeNetSpeed(titleArt);
   const releaseHeavy = holdHeavyLane();
   const opening = titleArt.then(() => preloadArt()).then(() => preloadFirstFights());
+  // 進入一局那一刻要送的清單（慢網路修正 2026-09-30，`ui/netload-run.ts`，按需載入的一小塊）：封面圖到齊就先抓，選好角色時已經在手上
+  void titleArt.then(() => import('./ui/netload-run')).catch(() => undefined);
   // 除錯網址（`?debug`）記下量到的速度，效能量測（`tools/perf/measure.mjs`）要對照前後兩版是不是同一種判斷
   if (wantDebug) void speed.then((s) => { const d = document.documentElement; if (d) d.dataset['netSpeed'] = s; });
   void speed.then((s) => {

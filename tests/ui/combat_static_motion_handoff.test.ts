@@ -55,6 +55,8 @@ async function fixture(source: Source) {
     MINE: '.mine', getStatus: () => 0, qiuqiuMotionReady: () => true, companionMotionReady: () => true,
     restMotionAction: (_player: unknown, displayedPose: string) => displayedPose === 'idle' ? 'idle' : undefined,
     idlePose: () => 'idle', heroArtUrl: (_hero: unknown, displayedPose: string) => displayedPose,
+    // 換姿勢走 `showHeroSrc`（2026-10-01 慢網路第二輪：新姿勢還沒下載好先留上一張）；這裡的圖都在手上，等於直接換
+    showHeroSrc: (img: { src: string }, url: string) => { img.src = url; },
     qiuqiuCombatMotionDecision,
     motionDuration: (_source: Source, action: string) => source === 'qiuqiu'
       ? qiuqiuMotionDuration(action as QiuqiuAction)

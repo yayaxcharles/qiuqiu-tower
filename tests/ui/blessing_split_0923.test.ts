@@ -87,9 +87,10 @@ describe('開局的時機', () => {
   it('新的一局與連線開局都在開局那一拍摸包袱、在背景抓；序章播完走 afterPrologue', () => {
     expect(APP).toMatch(/rollBlessings\(run\);[^\n]*\n\s*this\.adoptRun\(run, 0\);\n\s*warmBlessing\(run, 0\);/);
     expect(APP).toContain('this.playPrologue(hero, () => this.afterPrologue());');
-    expect(APP).toMatch(/afterPrologue\(\): void \{[\s\S]*?this\.save\(\);\n\s*this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\);/);
+    // 2026-09-30 慢網路修正：進地圖前先過條件式門檻（`gateMap`），門檻放行後才換畫面
+    expect(APP).toMatch(/afterPrologue\(\): void \{[\s\S]*?this\.save\(\);\n\s*this\.gateMap\(run, \(\) => this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\), true\);/);
     // 續玩：選到一半重新整理的回到祝福畫面
-    expect(APP).toMatch(/this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\);\n\s*return true;/);
+    expect(APP).toMatch(/this\.gateMap\(run, \(\) => this\.show\(anyBlessingPending\(run\) \? 'blessing' : 'map'\)\);\n\s*return true;/);
   });
   it('連線：包袱在 `begin` 裡、序章之前就摸好（同伴序章點得快、先送來的祝福動作才套得進去）', () => {
     const begin = LOBBY.slice(LOBBY.indexOf('const begin = '), LOBBY.indexOf('if (isHost) {'));
