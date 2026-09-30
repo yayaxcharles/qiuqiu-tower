@@ -1,0 +1,10 @@
+import { openPage, imp, bootRun, scan, sleep, shotPath } from './lib.mjs';
+const lang = process.argv[2] ?? 'en';
+const vp = process.argv[3] ?? 'desk';
+const c = await openPage(lang, vp, 'smoke');
+const { page } = c;
+console.log(await page.evaluate(() => ({ lang: document.documentElement.lang, dev: document.documentElement.dataset.device, orient: document.documentElement.dataset.orient, w: innerWidth, h: innerHeight, coarse: matchMedia('(pointer: coarse)').matches, screen: document.querySelector('#stage').dataset.screen })));
+await page.screenshot({ path: shotPath('_smoke_title_' + lang + '_' + vp + '.png') });
+console.log(JSON.stringify(await scan(page)).slice(0, 1500));
+console.log(await imp(page, 'ui/cardview.ts'));
+await c.close();

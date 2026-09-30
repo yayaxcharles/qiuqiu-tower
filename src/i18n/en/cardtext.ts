@@ -231,7 +231,7 @@ export function describeCardEn(def: CardDef, upgraded: boolean, plays = 0): stri
   if (!effects.length && !keywords.includes('不可打出')) parts.push('Does nothing when played.');
   if (effects.length) {
     parts.push(describeEffectsEn(effects, plays));
-    if (effects.some(hasAlly)) parts.push('Solo: "partner" means you.');
+    if (effects.some(hasAlly)) parts.push('Solo: partner = you.');
   }
   if (def.curse?.onTurnEnd) parts.push(`If this is in your hand at the end of your turn, take ${def.curse.onTurnEnd} damage.`);
   if (def.curse?.onTurnStart) parts.push(`If this is in your hand at the start of your turn, take ${def.curse.onTurnStart} damage.`);

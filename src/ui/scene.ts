@@ -1,6 +1,8 @@
+import { getLang } from '../i18n';
 import { lineDisplay, speakerDisplay } from '../i18n/speech';
 import { el } from './dom';
 import { goodsShrink, nextGoodsScale, type Box } from './goodsfit';
+import { SCENE_BOX_LIMIT, SCENE_FIT_LEVELS, SCENE_MIN_TEXT, pickSceneLevel, scrollMaxHeight } from './scenefit';
 
 /**
  * 劇場版面：整張底圖鋪滿舞台、插圖（或商品、或牌）立在中上方、底下一個跟序章幻燈片同一套的對白框，
@@ -44,6 +46,7 @@ export function sceneView(o: SceneOpts): HTMLElement {
     o.portrait2 ? el('img', { class: 'scene-portrait right', src: o.portrait2, alt: '' }) : '',
     box);
   fitArt(scene, box);
+  fitShowcaseText(scene, box);
   if (scene.querySelector('.scene-goods')) watchGoods(scene);
   return scene;
 }
@@ -142,6 +145,7 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
     // `scene` 是每次 `sceneView()` 新建的節點，畫面換掉它就跟著拔掉（淡入換場時晚 220 毫秒，舊畫面墊在底下淡出，
     // 見 screenswap.ts）。這裡只是量版面，那段時間多量一次舊的也無害
     if (!scene.isConnected || !firstText) return;
+    fitSceneText(scene, box);   // 英日的長文字先讓位，再照文字的實際位置決定插圖多高
     const k = stageScale();
     const sceneTop = scene.getBoundingClientRect().top;
     // 對白框彈入動畫（從下面 26 像素滑上來）播的時候量到的字比實際低：扣掉框現在的位移，量播完的位置（同 `refitGoods`）。
@@ -152,6 +156,61 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
     if (!textTop) return;
     const ART_TOP = 18;   // `.scene-art` 的 top，對 `.scene` 算（screens.css:685）
     img.style.height = `${Math.max(210, Math.min(360, textTop - ART_TOP - 8))}px`;
+  };
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run); else run();
+}
+
+/**
+ * 事件文字太長、把插圖蓋住時，文字這一邊讓位（2026-09-30 英日極端版面檢查 中-1）。
+ *
+ * 插圖有 `fitArt` 縮到 210 的下限（事件圖是四道門檻之一，不再往下動），英文、日文的事件開場最長 18 行加四顆選項，
+ * 下限到了對白框頂還是壓在插圖上，手機橫拿英文甚至頂到狀態列底下、標題被吃掉。所以：
+ *   第 1 級 文字 22→19.5、行距收到 1.45、選項鈕內距與字縮一點；
+ *   第 2 級 文字 17.5、左右內距 120→84（一行多放約 7% 的字）、選項鈕再縮；
+ *   第 3 級 還不夠就讓文字那一塊自己捲動（`.scene-text` 給最大高度、可上下捲），對白框頂剛好貼在插圖下面，字一個都不少。
+ * 只有英日走這條：繁中的排法今天就是這樣，不動（要動另案）。量到放得下的一個像素都不動。
+ * 純判斷放 `scenefit.ts`（測試直接呼叫）。
+ */
+function fitSceneText(scene: HTMLElement, box: HTMLElement, limit: number = SCENE_BOX_LIMIT): void {
+  for (let i = 1; i <= SCENE_FIT_LEVELS; i++) scene.classList.remove(`text-fit-${i}`);
+  scene.classList.remove('text-scroll');
+  const text = box.querySelector<HTMLElement>('.scene-text');
+  text?.style.removeProperty('max-height');
+  if (getLang() === 'zh' || !text) return;
+  const k = stageScale();
+  const boxTop = (): number => {
+    // 對白框彈入動畫（從下面 26 像素滑上來）播的時候量到的框比實際低：扣掉現在的位移（同 `refitGoods`）
+    const t = getComputedStyle(box).transform;
+    const lift = t && t !== 'none' && typeof DOMMatrixReadOnly === 'function' ? new DOMMatrixReadOnly(t).m42 : 0;
+    return (box.getBoundingClientRect().top - scene.getBoundingClientRect().top) / k - lift;
+  };
+  if (boxTop() >= limit) return;
+  const level = pickSceneLevel((l) => {
+    for (let i = 1; i <= SCENE_FIT_LEVELS; i++) scene.classList.toggle(`text-fit-${i}`, i <= l);
+    return limit - boxTop();
+  });
+  const deficit = limit - boxTop();
+  if (deficit <= 0 || level < SCENE_FIT_LEVELS) return;
+  // 再縮還不夠：文字那一塊改成可捲動，高度扣掉還缺的
+  scene.classList.add('text-scroll');
+  text.style.maxHeight = `${scrollMaxHeight(text.offsetHeight, deficit, SCENE_MIN_TEXT)}px`;
+}
+
+/**
+ * 中間放的是牌（挑一張帶走、大俠傳功）或獲得的秘寶展示（`.reward-cards`、`.showcase`）而不是事件插圖時，
+ * 對白框的字也不能壓到它們：位置是固定的（畫面正中偏上），所以框頂要在那一塊底邊往上 `SHOWCASE_OVERLAP` 以內（透明漸層那一段算設計）。
+ * 量法與讓位的做法同 `fitSceneText`（英日才走，放得下不動）。
+ */
+const SHOWCASE_OVERLAP = 28;
+function fitShowcaseText(scene: HTMLElement, box: HTMLElement): void {
+  if (scene.querySelector('img.event-art') || !scene.querySelector('.scene-art > .reward-cards, .scene-art > .showcase')) return;
+  const run = (): void => {
+    if (!scene.isConnected) return;
+    const art = scene.querySelector<HTMLElement>('.scene-art');
+    if (!art) return;
+    const k = stageScale();
+    const top = scene.getBoundingClientRect().top;
+    fitSceneText(scene, box, (art.getBoundingClientRect().bottom - top) / k - SHOWCASE_OVERLAP);
   };
   if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run); else run();
 }

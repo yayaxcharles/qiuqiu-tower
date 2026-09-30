@@ -112,3 +112,8 @@ html[data-device="tablet"] .tut-bar .tut-touch { color: #ffd98a; }
 .card-peek > .shop-item.poor > :not(.price) { opacity: 1; }
 /* 長按時手機、平板會跳出圖片選單或選字：牌上一律不要 */
 html[data-device="phone"] .card, html[data-device="tablet"] .card { -webkit-touch-callout: none; }
+
+/* 事件文字太長、蓋到插圖時（`scene.ts` 的 `fitSceneText`，只有英日走）：手機的選項鈕本來最矮 72，四顆就占掉 300 多像素，
+   讓位的兩級把鈕高收到 60、字縮一點（按鈕在 0.54 倍縮放下實際仍有約 32 像素高，拇指按得到）。文字捲動那一級不用改 */
+html[data-device="phone"][data-orient="landscape"] #stage .scene.text-fit-1 .scene-actions .btn:not(.small) { min-height: 62px; font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] #stage .scene.text-fit-2 .scene-actions .btn:not(.small) { min-height: 54px; font-size: 17px; padding-top: 4px; padding-bottom: 4px; }
