@@ -32,10 +32,11 @@ import { clear, el, ENTER_MS, keepLoops } from './dom';
 import { retireLeavingScreen, swapScreen } from './screenswap';
 import { closeScreenModals, closeStoryOverlays, setOverlayRoot } from './overlay';
 import { hideTooltip } from './tooltip';
+import { relayout } from './layouthooks';
 import { me } from '../engine/runplayer';
 import { listJoin, t as i18nT, term } from '../i18n';
 import { enemyName, potionName, relicName } from '../i18n/names';
-import { noteJoin } from '../i18n/speech';
+import { noteJoin, speakerDisplay } from '../i18n/speech';
 
 export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 'event' | 'shop' | 'rest' | 'chest' | 'bossdoor' | 'actclear' | 'result' | 'lobby' | 'debug' | 'blessing';
 
@@ -130,9 +131,12 @@ export class App {
       const shortSide = Math.min(window.screen.width, window.screen.height);
       const device = coarse ? (shortSide < 600 ? 'phone' : 'tablet') : 'desktop';
       const html = document.documentElement;
+      const was = `${html.dataset['device']}|${html.dataset['orient']}`;
       html.dataset['device'] = device;
       html.dataset['orient'] = h > w ? 'portrait' : 'landscape';
       this.stage.style.transform = `scale(${computeScale(w, h)})`;
+      // 方向或裝置變了（手機直拿轉橫拿）：手機橫拿專用的樣式才剛套上，先前量的退讓要重量（見 layouthooks.ts）
+      if (was !== `${device}|${html.dataset['orient']}`) relayout();
     };
     window.addEventListener('resize', fit);
     window.visualViewport?.addEventListener('resize', fit);
@@ -927,7 +931,7 @@ export class App {
      */
     const enc = n.encounterId ? encounterById[n.encounterId] : undefined;
     const hero = run.players[0]?.hero;
-    if (n.encounterId) return listJoin((enc?.enemies ?? []).map((id) => encounterSkin(enc, id, hero)?.name ?? enemyName(id, hero)));
+    if (n.encounterId) return listJoin((enc?.enemies ?? []).map((id) => { const sk = encounterSkin(enc, id, hero)?.name; return sk ? speakerDisplay(sk) : enemyName(id, hero); }));
     return term(n.type);
   }
 }

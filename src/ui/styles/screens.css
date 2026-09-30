@@ -449,6 +449,11 @@
    滑鼠停上去看全文（`shop.ts` 的 `title`）。只夾罐頭鋪貨架（`.scene-goods` 裡）：開局祝福也用 `.shop-item`，不能連帶夾到
    （推前審查 中）；手機按住放大的那張畫在疊層、不在貨架裡，自然是全文。 */
 .scene-goods .shop-item:not(.card-item) .small { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+/* 英日的說明比繁中長，四行放不下（英文 13 段、日文 8 段被截在最後一句，常是「價格打三折」「套組加成」這類影響買不買的規則，2026-09-30 檢查 中-4）：
+   英日放寬到六行、字 11.5→10.5；貨架高度多約 20 像素由 `refitGoods` 自動縮貨架補回。繁中維持四行、字級不動。
+   手機按住放大的複製品在疊層裡、不受這條夾行影響，本來就是全文。 */
+html[lang="en"] .scene-goods .shop-item:not(.card-item) .small,
+html[lang="ja"] .scene-goods .shop-item:not(.card-item) .small { -webkit-line-clamp: 6; line-clamp: 6; font-size: 10.5px; }
 /* 價錢做成價標底部那條牛皮紙色的帶子，橫貫整格、切齊圓角，
    像貼在貨架上的標價條；深色的字壓在淺色帶子上才讀得動 */
 .shop-item .price {
@@ -690,6 +695,16 @@
 .bless-mate img { width: 30px; height: 30px; filter: grayscale(1) opacity(.5); }
 .bless-mate img.took { filter: drop-shadow(0 0 4px #ffd35c); }
 .scene .bless-say { margin: 6px 0 0; font-size: 20px; text-align: center; }
+/*
+ * 旁白蓋到卡片說明時的退讓（`blessfit.ts` 量現場、撞到才加類別；繁中旁白兩行、留得下，一條都不生效）：
+ * 第 1 級旁白字 22→19、行距 1.6→1.45、去掉字距（英文的 1.5 像素字距很吃行寬）；第 2 級再收下內距與主角那一句；
+ * 還不夠才縮卡片排（`scale`，原點在上緣）。旁白的選擇器要跟 `.scene .scene-box.narration .scene-text`（四個類別）同分、排在它後面。
+ */
+.bless-row { transform-origin: top center; }
+.scene.bless-fit-1 .scene-box .scene-text { font-size: 19px; line-height: 1.45; letter-spacing: 0; }
+.scene.bless-fit-2 .scene-box .scene-text { font-size: 18px; line-height: 1.4; }
+.scene.bless-fit-2 .dialogue-box.scene-box { padding-bottom: 14px; }
+.scene.bless-fit-2 .scene-box .bless-say { font-size: 17px; margin-top: 2px; }
 /* 紙箱：秘寶的圖放大立在中上（圖示原檔夠大，放到 200 還清楚），輕輕上下浮 */
 .scene-art img.chest-loot { height: 200px; width: auto; filter: drop-shadow(0 12px 18px #000000b3); animation: loot-float 2.6s ease-in-out infinite; }
 
@@ -837,6 +852,21 @@
 .scene .scene-box.narration { padding-left: 120px; padding-right: 120px; background: linear-gradient(to top, rgba(8, 6, 4, .9) 0%, rgba(8, 6, 4, .82) 62%, rgba(8, 6, 4, 0) 100%); }
 .scene .scene-box.narration .scene-text { color: #f6efe3; }
 .scene .event-note { color: #ffd98a; }
+/*
+ * 事件文字太長、蓋到插圖時的退讓（`scene.ts` 的 `fitSceneText` 量現場、超過才加類別，只有英日走；繁中一條都不生效）：
+ * 第 1 級文字 19.5 像素、行距 1.45、選項鈕收內距；第 2 級文字 17.5、左右內距 84、選項鈕再縮；
+ * 還不夠（`.text-scroll`）文字那一塊自己捲動、最大高度由程式設，字一個都不少。
+ * 選擇器都是 `.scene.text-fit-N` 加上跟原本同分或更高的後代，排在原規則後面。
+ */
+.scene.text-fit-1 .scene-text { font-size: 19.5px; line-height: 1.45; }
+.scene.text-fit-1 .scene-actions { margin-top: 10px; gap: 8px; }
+.scene.text-fit-1 .scene-actions .btn { font-size: 17.5px; padding-top: 7px; padding-bottom: 7px; }
+.scene.text-fit-2 .scene-text { font-size: 17.5px; line-height: 1.4; }
+.scene.text-fit-2 .dialogue-box.scene-box, .scene.text-fit-2 .scene-box.narration { padding-left: 84px; padding-right: 84px; padding-bottom: 16px; }
+.scene.text-fit-2 .scene-box .dialogue-speaker { left: 84px; }
+.scene.text-fit-2 .scene-actions { margin-top: 8px; gap: 6px; }
+.scene.text-fit-2 .scene-actions .btn { font-size: 16px; padding-top: 5px; padding-bottom: 5px; border-radius: 10px; }
+.scene.text-scroll .scene-text { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #ffd98a80 transparent; padding-right: 8px; }
 .scene-portrait { bottom: 120px; }
 .scene:has(.scene-goods) .scene-portrait { bottom: 110px; }
 
@@ -1462,6 +1492,14 @@
   filter: drop-shadow(0 6px 14px #000000cc);
 }
 .event-art-loot .showcase { margin: 0; }
+/* 獲得物展示放不進畫面時收小（`lootfit.ts` 量現場、超出上緣才加類別；放得下的一條都不生效）：
+   第 1 級拿掉圖示上方那段效果（對白框裡有「獲得…」列）、第 2 級圖示與名字縮小、單排不換行 */
+.showcase.icons.fit-1 .loot-above, .showcase.icons.fit-2 .loot-above { display: none; }
+.showcase.icons.fit-2 { flex-wrap: nowrap; gap: 20px; }
+.showcase.icons.fit-2 .gain-stack { max-width: 250px; gap: 4px; }
+.showcase.icons.fit-2 .showcase-icon { height: 96px; }
+.showcase.icons.fit-2 .loot-name { font-size: 21px; letter-spacing: 1px; }
+.showcase.icons.fit-2 .loot-below { flex-direction: column; align-items: center; gap: 2px; text-align: center; }
 
 /*
  * 開房畫面（連線版 2026-09-11）。

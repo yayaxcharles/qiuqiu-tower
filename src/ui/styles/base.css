@@ -28,7 +28,7 @@ html:lang(ja) body { font-family: "Yu Gothic UI", "Yu Gothic", Meiryo, "Hiragino
 
 /* 手機直立時蓋一層「請橫放」；平板與電腦不管方向都直接顯示舞台 */
 #rotate-hint { display: none; position: fixed; inset: 0; z-index: 1000; background: #0f0a06f2; color: #fff3d6; place-items: center; text-align: center; font-size: 22px; line-height: 1.6; }
-#rotate-hint .rotate-card { padding: 28px 36px; border: 1.5px solid #ffd98a8c; border-radius: 16px; background: #2a1a0dcc; }
+#rotate-hint .rotate-card { box-sizing: border-box; max-width: calc(100vw - 32px); padding: 28px 36px; border: 1.5px solid #ffd98a8c; border-radius: 16px; background: #2a1a0dcc; }   /* 英文卡片寬到貼滿左右邊（2026-09-30 檢查 低-3）：留 16 像素的邊 */
 #rotate-hint .rotate-icon { font-size: 44px; margin-bottom: 8px; }
 #rotate-hint small { display: block; font-size: 14px; color: #c9b58f; margin-top: 4px; }
 html[data-device="phone"][data-orient="portrait"] #rotate-hint { display: grid; }

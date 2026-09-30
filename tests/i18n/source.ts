@@ -166,6 +166,8 @@ export function contentSource(): ContentSource {
     ...DIFFICULTY_NAMES, ...ACT_NAMES, '暗器', '拳腳', '劍術', '攻', '守', '強', '弱', '召', '秘寶', '忍具',
     '安全', '換牌', '代價', '賭運氣', '升級', '移除', '換成新的', '雙人', ...Object.values(KEEPERS).map((k) => k.name),
   ].forEach(add);
+  // 影子鏈那場的名牌「球球的影子」等（`encounterSkin`）：戰鬥紀錄的說話者用它，走代號詞表（`speakerL`）
+  for (const enc of encounters) for (const id of enc.enemies) for (const h of HEROES) { const s = encounterSkin(enc, id, h); if (s) add(s.name); }
   const gloss: Record<string, string> = { ...glossary };
   const card: Record<string, string> = {};
   for (const c of cards) {

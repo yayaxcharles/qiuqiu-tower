@@ -110,7 +110,7 @@ describe('② 防禦改成蜷縮＋獲得蓄氣', () => {
     _setPackForTest('ja', ja);
     expect(ja.describeCard(c, false, 0)).toContain('自分は');
     _setPackForTest('en', en);
-    expect(en.describeCard(c, false, 0)).toBe('Your partner gains 8 Curl. Gain 2 Qi. Solo: "partner" means you.');
+    expect(en.describeCard(c, false, 0)).toBe('Your partner gains 8 Curl. Gain 2 Qi. Solo: partner = you.');
     _setPackForTest('zh', null);
   });
 });

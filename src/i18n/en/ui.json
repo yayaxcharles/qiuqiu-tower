@@ -836,5 +836,6 @@
  "🎬 介紹影片": "🎬 Trailer",
  "正在準備地圖與音效……": "Preparing the map and sounds…",
  "準備中 {done}/{total}": "Loading {done}/{total}",
- "網路較慢，聲音與圖片會陸續補上": "Slow connection: sounds and pictures will fill in as they arrive"
+ "網路較慢，聲音與圖片會陸續補上": "Slow connection: sounds and pictures will fill in as they arrive",
+ "難{level}": "D{level}"
 }

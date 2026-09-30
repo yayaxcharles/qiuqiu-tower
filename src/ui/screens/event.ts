@@ -27,6 +27,7 @@ import { showPotionSwap, swapPotion } from '../potionswap';
 import { el } from '../dom';
 import { burst } from '../fx';
 import { renderHud } from '../hud';
+import { fitLoot } from '../lootfit';
 import { sceneView } from '../scene';
 import { me } from '../../engine/runplayer';
 import { eventArtReady, preloadEventResults, warmResultArt, whenEventArtDecoded } from '../preload';
@@ -345,6 +346,10 @@ registerScreen('event', (app, root, props) => {
       extra: [stamp, gainRows(gains, me(run, seat).relics), note ? el('p', { class: 'event-note' }, note) : ''],
       actions: button ? [button] : [],
     })));
+    const scene = root.lastElementChild as HTMLElement;   // 剛 append 的那個 `.scene`
+    // 拿到三四樣時展示區會往上長出畫面：超出才收小，見 lootfit.ts。要排在 `sceneView` 裡插圖縮高（`fitArt`，下一個畫格）之後量：
+    // 展示區是貼著插圖下緣長的，插圖縮矮了它才往上頂；同一格的 `requestAnimationFrame` 依登記順序跑，畫面第一次畫出來就是定案的樣子
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => fitLoot(scene)); else fitLoot(scene);
   }
   /** 稀有事件：名牌旁掛金色小牌「難得一見」（2026-09-23 第三批，design3 5-1）。其他事件原樣回 */
   function markRare(scene: HTMLElement): HTMLElement {
