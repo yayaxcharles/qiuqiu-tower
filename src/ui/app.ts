@@ -4,7 +4,7 @@ import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './
 import { playVideo, type VideoName } from './video';
 import { coopArtReady, follow, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt, type Progress } from './preload';
 import { MAP_GATE_MS, gateProgress, progressBar, runProgress, warmRun } from './netload';
-import { knownNetSpeed, netSpeed } from './netspeed';
+import { guessNetSpeed } from './netspeed';
 import { heroVoice, prefetch } from './voicegate';
 import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
@@ -269,15 +269,17 @@ export class App {
    * 第一次進大地圖前的條件式門檻（2026-09-30 慢網路修正，量測報告 4.2、6.1）：
    * 急著點過序章的人，地圖出來時底圖與節點圖示還在路上（0.8 Mbps 一片黑 3～4 秒、圖示缺 6 秒以上）。
    * 開局那一刻要的 A 層（`netload.ts`／`netload-run.ts`）還沒齊才擋，最多等 8 秒，到了照樣進去（背景繼續抓）、公告一次「會陸續補上」。
-   * **量到快網路就不擋**：已經量完是快的當場放行；還在量（封面才出來幾秒就按續玩）就等量完，一量出是快的立刻放行。
-   * 進度條只在「過了 250 毫秒還沒齊、而且量出來是慢網路」才出現（快網路一閃都不要）。
+   * **只有慢網路才擋**：量到快的當場放行；還在量（封面才出來幾秒就按續玩）就照到目前收到的速度估（`guessNetSpeed`），
+   * 估得出是快的、或剛開始量還估不出來，都當快網路放行——續玩那一下不能比以前慢
+   *（2026-10-01 第二輪：原本還在量就等量完，快網路清快取續玩要停 0.8 秒、沒有任何提示）。
+   * 進度條只在「過了 250 毫秒還沒齊」才出現（快網路一閃都不要）。
    * `coverNow`（序章播完那條路）：地圖色的蓋層**當下**就放——幻燈片是先叫回呼、再自己淡出（slides.ts），晚放就先露出底下的選角畫面。
    * 續玩那條路沒有幻燈片，蓋層跟進度條一起出現（審查 2026-10-01 中-2：原本續玩也當下就蓋，快網路也會閃一下）。
    * 等的期間舞台點不動（`fight-pending`，同開打前）；連線斷了回標題（`leaveCoop`）或重新同步（`dropPendingFlows`）會拆掉蓋層、解鎖，這一段就不接了。
    */
   private gateMap(run: RunState, go: () => void, coverNow = false): void {
     const w = runProgress(run);
-    if (!w || w.over || knownNetSpeed() === 'fast') { go(); return; }
+    if (!w || w.over || guessNetSpeed() !== 'slow') { go(); return; }
     let cover: HTMLElement | null = null;
     const put = (): HTMLElement => {
       if (!cover) { cover = el('div', { class: 'net-gate' }); this.stage.insertBefore(cover, this.overlay); }
@@ -286,15 +288,13 @@ export class App {
     if (coverNow) put();
     this.fightPending = true;
     this.stage.classList.add('fight-pending');
-    const fast = netSpeed().then((s) => (s === 'fast' ? undefined : new Promise<void>(() => undefined)));
-    void gateProgress(Promise.race([w.ready, fast]), () => progressBar(put(), i18nT('正在準備地圖與音效……'), w.pr), MAP_GATE_MS, 250,
-      () => netSpeed().then((s) => s === 'slow')).then(() => {
+    void gateProgress(w.ready, () => progressBar(put(), i18nT('正在準備地圖與音效……'), w.pr), MAP_GATE_MS).then(() => {
       const c = cover as HTMLElement | null;
       if ((c && !c.isConnected) || this.run !== run) { c?.remove(); return; }
       this.fightPending = false;
       this.stage.classList.remove('fight-pending');
       go();
-      if (!w.over && knownNetSpeed() !== 'fast') notice(i18nT('網路較慢，聲音與圖片會陸續補上'));
+      if (!w.over) notice(i18nT('網路較慢，聲音與圖片會陸續補上'));
       if (!c) return;
       const out = typeof c.animate === 'function' ? c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished : Promise.resolve();
       void out.finally(() => c.remove());

@@ -7,7 +7,7 @@
  *     B 層（狀態小圖示 → 第一步魔物 → 起手牌面 → 主角六張姿勢）要等 A 層到齊；六張姿勢第一場開打後放掉。
  *  2. 開打前：只等這場魔物與手牌、插隊、3 秒上限；進度條先收才換戰鬥畫面；吐槽先抽好先抓（四位角色含混搭，陣列是同一個物件）。
  *  3. 下一步走得到的戰鬥格：只挑下一步、同一張不重送、沒抓成的下次再試；戰鬥中那次不插隊。
- *  4. 條件式進度條：250 毫秒寬限、只在慢網路出現、最多 8 秒；進地圖前門檻（序章／續玩兩條路）、離開連線與重新同步拆蓋層並解鎖。
+ *  4. 條件式進度條：250 毫秒寬限、只在量到慢網路時擋、最多 8 秒；進地圖前門檻（序章／續玩兩條路）、離開連線與重新同步拆蓋層並解鎖。
  *  5. 全部音效開局就抓。
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -224,6 +224,69 @@ describe('2. 開打前（startFight）', () => {
   });
 });
 
+describe('2b. 主角換姿勢不畫空白（第二輪，動作流暢度鐵則）', () => {
+  async function helper() {
+    const a = COMBAT.indexOf('  const heroShown = new Map<number, string>();');
+    const b = COMBAT.indexOf('\n  };\n', COMBAT.indexOf('  const showHeroSrc = '));
+    if (a < 0 || b < 0) throw new Error('找不到 showHeroSrc');
+    const js = (await transformWithOxc(`${COMBAT.slice(a, b + 5)}\nreturn showHeroSrc;`, 'hero-src.ts')).code;
+    return new Function(js)() as (img: HTMLImageElement, url: string, seat: number) => void;
+  }
+  /** 假的 Image：`loaded` 裡的網址當場就是好的，其餘等 `finish()` 才解完 */
+  function images(loaded: Set<string>) {
+    const waiting: (() => void)[] = [];
+    vi.stubGlobal('Image', class {
+      complete = false; naturalWidth = 0; private v = '';
+      set src(v: string) { this.v = v; if (loaded.has(v)) { this.complete = true; this.naturalWidth = 10; } }
+      get src(): string { return this.v; }
+      decode(): Promise<void> { return loaded.has(this.v) ? Promise.resolve() : new Promise<void>((r) => waiting.push(() => { loaded.add(this.v); r(); })); }
+    });
+    return { finish: async () => { for (const f of waiting.splice(0)) f(); await flush(); } };
+  }
+  const fakeImg = (): HTMLImageElement => {
+    const img = { src: '', dataset: {} as Record<string, string>, addEventListener: () => undefined };
+    return img as unknown as HTMLImageElement;
+  };
+
+  it('新姿勢還沒下載好：先留著上一張（不是空白），好了才換', async () => {
+    const show = await helper();
+    const loaded = new Set(['/idle.webp']);
+    const net = images(loaded);
+    const img = fakeImg();
+    show(img, '/idle.webp', 0);
+    expect(img.src).toBe('/idle.webp');
+    show(img, '/claw.webp', 0);
+    expect(img.src, '爪擊那張還在路上：畫面維持待機那張').toBe('/idle.webp');
+    await net.finish();
+    expect(img.src).toBe('/claw.webp');
+  });
+  it('已經在手上就當場換（平常都是這條，畫面跟以前一模一樣）', async () => {
+    const show = await helper();
+    images(new Set(['/idle.webp', '/claw.webp']));
+    const img = fakeImg();
+    show(img, '/idle.webp', 0);
+    show(img, '/claw.webp', 0);
+    expect(img.src).toBe('/claw.webp');
+  });
+  it('還沒換上去之前又換了別的姿勢：舊的那張到了也不會蓋掉新的', async () => {
+    const show = await helper();
+    const loaded = new Set(['/idle.webp', '/hit.webp']);
+    const net = images(loaded);
+    const img = fakeImg();
+    show(img, '/idle.webp', 0);
+    show(img, '/claw.webp', 0);
+    show(img, '/hit.webp', 0);
+    expect(img.src).toBe('/hit.webp');
+    await net.finish();
+    expect(img.src).toBe('/hit.webp');
+  });
+  it('接線：整格重畫、收姿勢、多段輪換都走它', () => {
+    expect(COMBAT).toContain("if (sprite) showHeroSrc(sprite, heroArtUrl(q.hero, displayedPose), q.seat);");
+    expect(COMBAT).toContain("if (cat) showHeroSrc(cat, heroArtUrl(my().hero, pose), mySeat);");
+    expect(COMBAT).toContain("if (img) showHeroSrc(img, i % 2 ? second : first, mySeat);");
+  });
+});
+
 describe('3. 下一步走得到的戰鬥格先預載', () => {
   beforeEach(() => { useRunDeps(deps(sfxFetch)); });
 
@@ -304,12 +367,6 @@ describe('4. 條件式進度條的時機（gateProgress）', () => {
     expect(hide).toHaveBeenCalledOnce();
     expect(over).toBe(true);
   });
-  it('量出來不是慢網路就不出現', async () => {
-    const show = vi.fn(() => () => undefined);
-    void gateProgress(new Promise(() => undefined), show, MAP_GATE_MS, 250, () => Promise.resolve(false));
-    await vi.advanceTimersByTimeAsync(5000);
-    expect(show).not.toHaveBeenCalled();
-  });
   it('一直沒齊：最多 8 秒就放行', async () => {
     const hide = vi.fn();
     let over = false;
@@ -341,8 +398,7 @@ describe('4b. 進地圖前的門檻（App.gateMap）', () => {
     const calls: string[] = [];
     const G = await appClass(method('  private gateMap(run: RunState, go: () => void, coverNow = false): void {').replace('private ', ''), {
       runProgress: () => opts.w,
-      knownNetSpeed: () => opts.known,
-      netSpeed: () => opts.verdict,
+      guessNetSpeed: () => opts.known,
       el: (_tag: string, attrs: { class: string }) => ({ className: attrs.class, isConnected: true, remove() { this.isConnected = false; calls.push('cover-removed'); } }),
       gateProgress,
       progressBar: () => { calls.push('bar'); return () => calls.push('bar-hidden'); },
@@ -375,22 +431,14 @@ describe('4b. 進地圖前的門檻（App.gateMap）', () => {
     expect(go).toHaveBeenCalledOnce();
     expect(calls).toEqual([]);
   });
-  it('續玩、網速還在量、量出來是快的：不蓋、不出進度條，量完就進（審查 中-2）', async () => {
+  it('網速還估不出來（封面才出來就按續玩）：當快網路，當下就進、不蓋、不出進度條（第二輪：原本等量完，快網路要停 0.8 秒）', async () => {
     const run = {};
-    let fast = (_: 'fast'): void => undefined;
-    const opts = { known: null as 'fast' | 'slow' | null, verdict: new Promise<'fast' | 'slow'>((r) => { fast = r; }), w: slowW() };
-    const { g, calls } = await build(opts);
+    const { g, calls } = await build({ known: null, verdict: new Promise(() => undefined), w: slowW() });
     g.run = run;
     const go = vi.fn();
     g.gateMap(run, go);
-    expect(calls).toEqual(['lock']);
-    await vi.advanceTimersByTimeAsync(600);
-    expect(calls, '還在量的時候不出現').toEqual(['lock']);
-    opts.known = 'fast';
-    fast('fast');
-    await vi.advanceTimersByTimeAsync(0);
     expect(go).toHaveBeenCalledOnce();
-    expect(calls).toEqual(['lock', 'unlock']);
+    expect(calls).toEqual([]);
   });
   it('續玩、A 層 250 毫秒內就齊了：不蓋', async () => {
     const run = {};
@@ -448,6 +496,25 @@ describe('4b. 進地圖前的門檻（App.gateMap）', () => {
     expect(method('  afterPrologue(): void {')).toContain("this.gateMap(run, () => this.show(anyBlessingPending(run) ? 'blessing' : 'map'), true);");
     expect(method('  continueRun(from?: RunState): boolean {')).toContain("this.gateMap(run, () => this.show(anyBlessingPending(run) ? 'blessing' : 'map'));");
     expect(APP).toContain(".slide-overlay, .cine-overlay, .actwalk-overlay:not(.out), .net-gate'");
+  });
+});
+
+describe('4d. 還在量的時候先估網速（guessNetSpeed）', () => {
+  it('剛開始不到 0.2 秒估不出來；之後照收到的速度估；量完就照量完的', async () => {
+    vi.resetModules();
+    let now = 0;
+    let feed: ((list: { getEntries(): unknown[] }) => void) | null = null;
+    vi.spyOn(performance, 'now').mockImplementation(() => now);
+    vi.stubGlobal('PerformanceObserver', class { constructor(cb: typeof feed) { feed = cb; } observe() {} disconnect() {} });
+    const ns = await import('../../src/ui/netspeed');
+    void ns.probeNetSpeed();
+    expect(ns.guessNetSpeed(), '剛開始').toBeNull();
+    now = 500;
+    feed!({ getEntries: () => [{ responseEnd: 400, encodedBodySize: 100_000 }] });
+    expect(ns.guessNetSpeed(), '0.5 秒收 100 KB（1.6 Mbps）').toBe('slow');
+    feed!({ getEntries: () => [{ responseEnd: 450, encodedBodySize: 150_000 }] });
+    expect(ns.guessNetSpeed(), '0.5 秒收 250 KB（4 Mbps）').toBe('fast');
+    vi.restoreAllMocks();
   });
 });
 

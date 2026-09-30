@@ -38,11 +38,10 @@ export function runProgress(run: RunState): RunWarm | null {
 
 /**
  * 條件式進度條的時機（只管時間，畫面由 `show` 決定）：`ready` 在 `graceMs` 內好了就**完全不出現**（快網路一閃都不要）；
- * 沒好、而且 `slow()` 說是慢網路，才叫 `show`（回傳收掉的函式）；`ready` 好了或到 `maxMs`（0＝不設上限）就先收掉、再結束
+ * 沒好才叫 `show`（回傳收掉的函式）；`ready` 好了或到 `maxMs`（0＝不設上限）就先收掉、再結束
  *（接在回傳值後面的換畫面一定在進度條收掉之後）。
  */
-export function gateProgress(ready: Promise<unknown>, show: () => () => void, maxMs = 0, graceMs = 250,
-  slow: () => Promise<boolean> = () => Promise.resolve(true)): Promise<void> {
+export function gateProgress(ready: Promise<unknown>, show: () => () => void, maxMs = 0, graceMs = 250): Promise<void> {
   return new Promise<void>((done) => {
     let hide: (() => void) | undefined;
     let over = false;
@@ -54,7 +53,7 @@ export function gateProgress(ready: Promise<unknown>, show: () => () => void, ma
       hide?.();
       done();
     };
-    const grace = setTimeout(() => { void slow().then((s) => { if (!over && s) hide = show(); }); }, graceMs);
+    const grace = setTimeout(() => { if (!over) hide = show(); }, graceMs);
     const cap = maxMs > 0 ? setTimeout(finish, maxMs) : undefined;
     void ready.then(finish, finish);
   });

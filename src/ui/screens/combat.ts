@@ -452,6 +452,33 @@ registerScreen('combat', (app, root, props) => {
    * 另一位的手牌不該被我看到（那是他的資訊），他的按鈕也不該被我按到。
    */
   const mySeat = (props as { seat?: number } | null)?.seat ?? app.seat;
+  /*
+   * 主角立繪換姿勢時**不畫成空白**（2026-10-01 慢網路修正第二輪，動作流暢度鐵則）。
+   * 開打前不再等三十張姿勢之後，慢網路第一次出招換到的那張可能還在下載；直接換 `src` 的話，
+   * 下載好之前那一格是空的（HTTP/2 慢網路量到 1.3 秒）。還沒下載好就先留著畫面上最後一張畫得出來的，
+   * 好了再換上去；已經在手上（平常都是）就跟以前一樣當場換，畫面一模一樣。
+   * `heroShown`：每個座位畫面上最後一張「真的畫出來」的主角立繪。
+   */
+  const heroShown = new Map<number, string>();
+  const showHeroSrc = (img: HTMLImageElement, url: string, seat: number): void => {
+    if (typeof Image === 'undefined') { img.src = url; return; }   // 沒有瀏覽器（單元測試）
+    const probe = new Image();
+    probe.src = url;
+    const prev = heroShown.get(seat);
+    const ready = probe.complete && probe.naturalWidth > 0;
+    if (ready || !prev || prev === url) {
+      delete img.dataset['want'];
+      img.src = url;
+      if (ready) heroShown.set(seat, url);
+      else img.addEventListener('load', () => { if (img.src.endsWith(url)) heroShown.set(seat, url); }, { once: true });
+      return;
+    }
+    img.dataset['want'] = url;
+    img.src = prev;
+    const swap = (): void => { if (img.dataset['want'] === url) { delete img.dataset['want']; img.src = url; heroShown.set(seat, url); } };
+    if (typeof probe.decode === 'function') void probe.decode().then(swap, () => undefined);
+    else probe.addEventListener('load', swap, { once: true });
+  };
   /**
    * 連線用的會話（單機是 null）。
    *
@@ -837,7 +864,7 @@ registerScreen('combat', (app, root, props) => {
         if (seat === mySeat && cs.phase === 'player') {
           pose = idlePose();
           const image = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-          if (image) image.src = heroArtUrl(q.hero, pose);
+          if (image) showHeroSrc(image, heroArtUrl(q.hero, pose), seat);
         }
         // 只就地收姿勢；整頁重畫會重建手牌，並截斷飄字與其他單位的動作。
         idleMotion(seat);
@@ -1160,6 +1187,9 @@ registerScreen('combat', (app, root, props) => {
     const n = cs.players.length;
     const displayedPose = mine ? pose : matePose(q);
     const picture = spriteBox(heroArtUrl(q.hero, displayedPose), term(heroName(q)));
+    // 新姿勢還沒下載好就先畫上一張（見 `showHeroSrc`）
+    const sprite = picture.querySelector<HTMLImageElement>('img.sprite');
+    if (sprite) showHeroSrc(sprite, heroArtUrl(q.hero, displayedPose), q.seat);
     const node = el('div', {
       class: `unit player${mine ? ' mine' : ''}${q.down ? ' downed' : ''}${q.ready && n > 1 ? ' ready' : ''}`,
       'data-seat': String(q.seat),
@@ -3852,7 +3882,7 @@ registerScreen('combat', (app, root, props) => {
           window.setTimeout(() => {
             if (seq !== mine || app.cs !== cs) return;
             const img = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-            if (img) img.src = i % 2 ? second : first;
+            if (img) showHeroSrc(img, i % 2 ? second : first, mySeat);
           }, i * 150);
         }
       }
@@ -3949,7 +3979,7 @@ registerScreen('combat', (app, root, props) => {
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
       const cat = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-      if (cat) cat.src = heroArtUrl(my().hero, pose);
+      if (cat) showHeroSrc(cat, heroArtUrl(my().hero, pose), mySeat);
       for (const q of cs.players) if (!motionActors.get(q.seat)?.active) idleMotion(q.seat);
       for (const e of cs.enemies) {
         const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);
