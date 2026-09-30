@@ -4,11 +4,13 @@
  * 意圖牌是不換行的單行牌子，寬度隨字數；魔物之間只隔約 205 像素。英文長招式加括號補充
  * （「Debuff Belly Drum(Seen Through)」）最寬 249，三隻並排就互相蓋住。名字牌寬只有 190（單位框寬），
  * 英文關主名字（「Cow Cat Second-in-Command」211）超出框、也比旁邊的血條寬。
- * 作法同 `fitCardText`：畫好之後量現場，一次縮 0.5 像素到放得下；放得下的一個像素都不動（繁中全部如此）。
+ * 作法同 `fitCardText`：畫好之後量現場，一次縮 0.5 像素到放得下；放得下的一個像素都不動，而且只有英日走（見 `fitUnitLabels`）。
  * 名字牌縮字時**把牌子的高度與行高先釘死**：戰鬥畫面每個單位由下往上疊，名字多高、立繪就往上浮多少，
  * 少 3 像素立繪就往下掉 3 像素（`phone.css` 檔頭那條教訓；角色位置是推前四道門檻之一）。
  * 純計算放這裡（測試直接呼叫），量版面的那一段在 `fitUnitLabels`。
  */
+
+import { getLang } from '../i18n';
 
 /** 意圖牌最寬（版面像素）：魔物之間至少隔 205，留 5 像素空隙 */
 export const INTENT_MAX_W = 200;
@@ -54,8 +56,13 @@ function fitName(node: HTMLElement): void {
   node.style.fontSize = `${s}px`;
 }
 
-/** 畫好之後叫（節點要已經在文件裡）：`field` 是戰場容器 */
+/**
+ * 畫好之後叫（節點要已經在文件裡）：`field` 是戰場容器。
+ * 只有英日走：繁中量過（397 招 × 原樣／灌大數字，桌機最寬 179、手機橫拿最寬 196，名字牌都在框內），本來就放得下；
+ * 明擺著跳過，繁中畫面就一定不會被這一條動到（手機橫拿的 196 離線只差 4 像素，字一改就會踩線）。
+ */
 export function fitUnitLabels(field: ParentNode): void {
+  if (getLang() === 'zh') return;
   for (const n of field.querySelectorAll<HTMLElement>('.unit .intent')) fitIntent(n);
   for (const n of field.querySelectorAll<HTMLElement>('.unit .name')) fitName(n);
 }

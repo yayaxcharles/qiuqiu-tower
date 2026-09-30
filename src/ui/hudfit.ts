@@ -15,15 +15,19 @@
  *   4 從最舊的秘寶開始收進「+N」，直到放得下
  */
 
-/** 狀態列右邊留白（`.hud` 的 padding-right）：最右邊那顆鈕的右緣不能超過 `HUD_WIDTH - HUD_PAD` */
+/**
+ * 最右邊那顆鈕的右緣不能超過 `HUD_WIDTH - HUD_PAD`。`HUD_PAD` 是 0：線畫在舞台邊，不畫在右內距（14）上——
+ * 原本擠的時候按鈕就可以吃掉右內距、只要沒掉出舞台就算放得下，繁中有些「剛好放得下」的組合靠的就是這 14 像素，
+ * 線畫在內距上會把它們也推去退讓（繁中畫面不能變）。真的放不下、掉出舞台才退讓。
+ */
 export const HUD_WIDTH = 1280;
-export const HUD_PAD = 14;
+export const HUD_PAD = 0;
 /** 每一級要加在 `.hud` 上的類別（第 0 級不加） */
 export const HUD_LEVEL_CLASSES: readonly string[] = ['crowded', 't-icons', 't-short'];
 /** 最多退到第幾級（第 4 級＝收秘寶，不是類別） */
 export const HUD_MAX_LEVEL = HUD_LEVEL_CLASSES.length + 1;
-/** 超出幾像素以內不算（小數點誤差） */
-export const HUD_SLACK = 0.5;
+/** 超出幾像素以內不算（小數點誤差；量測腳本也是超出舞台 1 像素才算掉出去） */
+export const HUD_SLACK = 1;
 
 /** 第 `level` 級要掛的類別（累加：第 2 級＝擠＋只留圖示） */
 export function hudClassesFor(level: number): string[] {

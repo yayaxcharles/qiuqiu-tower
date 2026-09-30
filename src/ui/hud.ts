@@ -20,7 +20,7 @@ import { showRelicList } from './reliclist';
 import { attachTextTooltip, attachTooltip, hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 import { t, term } from '../i18n';
-import { dropUntilFits, hudClassesFor, hudOverflow, pickHudLevel, splitIcon } from './hudfit';
+import { dropUntilFits, HUD_SLACK, hudClassesFor, hudOverflow, pickHudLevel, splitIcon } from './hudfit';
 import { potionName, potionText, relicLong, relicName } from '../i18n/names';
 
 /**
@@ -266,7 +266,7 @@ function fitHud(hud: HTMLElement, relics: HTMLElement, moreBtn: (n: number) => H
     }
     return 0;
   };
-  if (over() <= 0.5) return;
+  if (over() <= HUD_SLACK) return;
   // 從第 1 級（擠）起試；每一級都放不下就停在最後一級，再去收秘寶
   pickHudLevel((l) => {
     hud.classList.remove('t-icons', 't-short');

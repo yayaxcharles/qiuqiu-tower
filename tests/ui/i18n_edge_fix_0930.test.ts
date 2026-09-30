@@ -81,8 +81,9 @@ describe('高-1、高-2 狀態列：放不下就逐級退讓，音樂／音效�
     expect(hudClassesFor(99)).toEqual(['crowded', 't-icons', 't-short']);
   });
   it('右緣算法：最右那顆的左緣加寬度，超出 1280−14 的部分', () => {
-    expect(hudOverflow(1100, 166)).toBe(0);
-    expect(hudOverflow(1200, 160)).toBe(94);
+    expect(hudOverflow(1100, 166)).toBe(-14);   // 右緣 1266 還有 14 像素的空
+    expect(hudOverflow(1200, 160)).toBe(80);
+    expect(HUD_PAD).toBe(0);                    // 線畫在舞台邊：繁中「剛好放得下」（按鈕吃了右內距）的組合不能被推去退讓
   });
   it('「🔊 SFX」拆成圖示與字（字前面帶空白）；沒有空白就整段當字', () => {
     expect(splitIcon('🔊 SFX')).toEqual({ icon: '🔊', label: ' SFX' });
@@ -107,7 +108,8 @@ describe('高-1、高-2 狀態列：放不下就逐級退讓，音樂／音效�
     expect(hud).toContain("relics.querySelector('.hud-relic-more')?.remove();\n    relics.append(moreBtn(total - shown));");
   });
   it('樣式：生命條不再是被壓扁的那格；只留圖示、短標的規則都在，而且是掛在 `.hud.t-icons`／`.hud.t-short` 底下（平常不生效）', () => {
-    expect(comp).toMatch(/\.hud-hp \{[^}]*flex: 0 0 auto;[^}]*min-width: 146px;/);
+    expect(comp).toMatch(/^\.hud-hp \{[^}]*min-width: 146px;/m);
+    expect(comp).not.toMatch(/^\.hud-hp \{[^}]*flex: (0 0 auto|none);/m);   // 146 以上照舊會縮，繁中原本靠這個吸收一點點超出（`.hud.crowded .hud-hp` 那條本來就是固定的）
     expect(comp).toContain('.hud.t-icons .hud-sound .lbl, .hud.t-icons .hud-seed .lbl,');
     expect(comp).toContain('.hud.t-short .hud-comp .lbl, .hud.t-short .hud-deck .lbl, .hud.t-short .hud-diff .full { display: none; }');
     expect(comp).toContain('.hud-deck .ico, .hud-diff .short { display: none; }');
@@ -256,6 +258,7 @@ describe('中-6、中-7 意圖牌與名字牌：放不下就縮字（意圖牌�
     const label = read('src/ui/labelfit.ts');
     expect(label).toContain('node.style.height = `${h}px`;\n  node.style.lineHeight = `${h}px`;');
     expect(label.indexOf('node.style.height')).toBeLessThan(label.indexOf('shrinkToFit(base, base * NAME_MIN_RATIO'));
+    expect(label).toContain("if (getLang() === 'zh') return;");   // 繁中一律跳過（量過本來就放得下），繁中畫面不會被這條動到
   });
 });
 
