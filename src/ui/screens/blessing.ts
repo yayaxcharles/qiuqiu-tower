@@ -16,6 +16,7 @@ import { showDeckPicker } from '../deckview';
 import { heroSpeaker, notice, toast } from '../dialogue';
 import { el } from '../dom';
 import { renderHud } from '../hud';
+import { layoutHooks } from '../layouthooks';
 import { sceneView } from '../scene';
 import { actVariantKey, clearKeepBg, screenBg } from '../screenbg';
 import { relicName, relicText, potionName } from '../../i18n/names';
@@ -198,7 +199,9 @@ function blessingScreen(app: App, root: HTMLElement): void {
     const extra: (Node | string)[] = [];
     if (choosing === null && !took && !sent) extra.push(el('p', { class: 'bless-say' }, t('{name}：「{line}」', { name: term(heroName(mine)), line: say(open.line) })));
     if (runMods(run).unlucky && risky && !took) extra.push(el('p', { class: 'event-note' }, t('這個難度下，賭運氣的成功機率打七折（例如 50% 只剩 35%）、掉血多一半（卡面寫的是一般難度的數字）')));
-    root.append(sceneView({ art: body, speaker: choosing === null && !took && !sent ? '' : heroName(mine), text, extra, actions }));
+    const scene = sceneView({ art: body, speaker: choosing === null && !took && !sent ? '' : heroName(mine), text, extra, actions });
+    root.append(scene);
+    layoutHooks.bless?.(scene);   // 英日旁白長，蓋到卡片說明時才讓位（繁中不變），見 blessfit.ts
   }
 
   if (coop) {

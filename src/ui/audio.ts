@@ -123,6 +123,18 @@ function resume(audio: AudioContext): Promise<void> {
 }
 
 /**
+ * 進入一局就把全部音效先抓好（慢網路修正 2026-09-30）：原本只預載十個，其餘第一次用到才抓，
+ * 500 毫秒沒到就整個不播——慢網路下第一次點地圖格子（`step`）幾乎必無聲。
+ * 名單在 `netload-run.ts` 的 `ALL_SFX`（按需載入那一塊，首載程式省一點）。回傳每一個的「抓完（或失敗）」給進度用；音效關著就不抓。
+ * 還沒解鎖（重新整理接回連線局，還沒點過畫面）只先下載進瀏覽器快取，解鎖後 `load` 再拿（`decodeAudioData` 會吃掉那份位元組，不能先留）。
+ */
+export function preloadSfx(names: readonly Sfx[]): Promise<unknown>[] {
+  if (!enabled) return [];
+  return names.filter((n) => !buffers.has(n)).map((n) => (ctx ? load(n)
+    : fetch(fileUrl(`assets/sfx/${n}.mp3`)).then((r) => r.arrayBuffer()).catch(() => undefined)));
+}
+
+/**
  * 第一次點擊時才建立音訊環境並開始預載。
  *
  * 瀏覽器的自動播放限制：使用者互動之前建立的 `AudioContext` 會是 suspended 狀態，

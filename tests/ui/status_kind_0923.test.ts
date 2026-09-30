@@ -19,7 +19,9 @@ describe('狀態清單從一張表產生', () => {
 
   it('戰鬥畫面不再自己手寫一份', () => {
     const src = COMBAT_RAW.replace(/\r\n/g, '\n');
-    expect(src).toContain("import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../status-kind';");
+    // 2026-10-01：狀態圖示表也搬進 status-kind.ts（開局預載第一步魔物會上的狀態小圖示要查同一張）
+    expect(src).toContain("import { BAD_STATUS, GOOD_STATUS, STATUS_ICON, STATUS_ORDER } from '../status-kind';");
+    expect(src).not.toMatch(/const STATUS_ICON\b/);
     expect(src).not.toMatch(/const (STATUS_ORDER|GOOD_STATUS|BAD_STATUS)\b/);
   });
 });

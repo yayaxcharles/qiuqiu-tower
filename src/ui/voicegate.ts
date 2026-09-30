@@ -76,6 +76,11 @@ export function prefetch(items: readonly { group: string | null; text: string }[
   void load().then((m) => m?.prefetchVoice(items));
 }
 
+/** 進入一局就先載配音程式與查表（慢網路修正 2026-09-30）；配音或音效關著就不抓 */
+export function warmVoice(): Promise<unknown> {
+  return voiceAllowed() ? load().then((m) => m?.warmMap()) : Promise.resolve();
+}
+
 /** 停掉正在講的那句（還沒載入就只是讓載入中的那幾句作廢） */
 export function hush(): void {
   epoch++;

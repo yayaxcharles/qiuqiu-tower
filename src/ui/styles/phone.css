@@ -61,6 +61,10 @@ html[data-device="phone"][data-orient="landscape"] .hud .hud-hp { min-width: 150
 html[data-device="phone"][data-orient="landscape"] .hud.crowded .btn.small { padding: 3px 6px; }
 html[data-device="phone"][data-orient="landscape"] .hud.crowded .hud-vol { width: 36px; }
 html[data-device="phone"][data-orient="landscape"] .hud .hud-hp span { font-size: 18px; }
+/* 只留圖示（狀態列放不下，`hudfit.ts`）時的按鈕：上面 `.hud .btn.small` 的內距 3×6 會把圖示鈕壓成 17＋12 寬，手指點不準；
+   加大內距與間距，每顆可點區約 35×30 版面像素（0.54 倍縮放下約 19×16 像素），三顆音訊鈕之間留 6 像素 */
+html[data-device="phone"][data-orient="landscape"] .hud.t-icons .btn.small { padding: 5px 9px; }
+html[data-device="phone"][data-orient="landscape"] .hud.t-icons .hud-sound { margin-left: 6px; }
 /* 罐頭鋪：名字、價錢在格子裡放大；說明文字格子放不下，跟手牌一樣按住放大（shop.ts 的秘寶／忍具格也掛 cardpeek） */
 html[data-device="phone"][data-orient="landscape"] .shop-item .shop-name { font-size: 19px; }
 html[data-device="phone"][data-orient="landscape"] .shop-item .price { font-size: 19px; }
@@ -112,3 +116,8 @@ html[data-device="tablet"] .tut-bar .tut-touch { color: #ffd98a; }
 .card-peek > .shop-item.poor > :not(.price) { opacity: 1; }
 /* 長按時手機、平板會跳出圖片選單或選字：牌上一律不要 */
 html[data-device="phone"] .card, html[data-device="tablet"] .card { -webkit-touch-callout: none; }
+
+/* 事件文字太長、蓋到插圖時（`scene.ts` 的 `fitSceneText`，只有英日走）：手機的選項鈕本來最矮 72，四顆就占掉 300 多像素，
+   讓位的兩級把鈕高收到 60、字縮一點（按鈕在 0.54 倍縮放下實際仍有約 32 像素高，拇指按得到）。文字捲動那一級不用改 */
+html[data-device="phone"][data-orient="landscape"] #stage .scene.text-fit-1 .scene-actions .btn:not(.small) { min-height: 62px; font-size: 19px; }
+html[data-device="phone"][data-orient="landscape"] #stage .scene.text-fit-2 .scene-actions .btn:not(.small) { min-height: 54px; font-size: 17px; padding-top: 4px; padding-bottom: 4px; }

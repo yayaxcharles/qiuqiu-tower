@@ -1,5 +1,6 @@
 // 英文語言包（延後載入，見 `src/i18n/index.ts`）。譯文在同資料夾的 JSON，牌面文字是 `cardtext.ts` 的英文規則
 import type { LangPack } from '../index';
+import '../layout';   // 英日才用得到的版面退讓，語言包載入時才掛上去（見 src/ui/layouthooks.ts）
 import ui from './ui.json';
 import content from './content.json';
 import lines from './lines.json';

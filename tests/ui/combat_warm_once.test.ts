@@ -38,6 +38,8 @@ async function mount(opts: { motion?: boolean; ready?: readonly string[] } = {})
     monsterUrl: (a: string, pose: string) => `/${a}_${pose}.webp`,
     hasMonsterPose: () => false, hasSprite: () => false, artUrl: () => '',
     BOSS_ART: {}, BOSS_HURT_ART: [], BOSS_MOVE_ART: {}, BOSS_MOVE_ART_PHASE: [],
+    // 暖完主角姿勢後預載下一步戰鬥格（慢網路修正 2026-10-01）會叫 app.warmNextFights；沒給的話測試結束後才丟未處理的錯
+    app: { warmNextFights: vi.fn() },
   };
   const code = `${mountWarm}\nreturn { rerender() {\n${renderWarm}\n} };`;
   const compiled = await transformWithOxc(code, 'combat-warm.ts');

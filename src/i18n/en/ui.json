@@ -833,5 +833,9 @@
  "最多選 {max} 張牌{verb}（不選＝回去看包袱裡的其他東西）": "Pick up to {max} {max|card|cards}: {verb} (skip = go back and see what else is in the bundle)",
  "替爺爺寫過回信": "wrote a reply for Grandpa",
  "躲著看它練過招": "secretly watched it train",
- "🎬 介紹影片": "🎬 Trailer"
+ "🎬 介紹影片": "🎬 Trailer",
+ "正在準備地圖與音效……": "Preparing the map and sounds…",
+ "準備中 {done}/{total}": "Loading {done}/{total}",
+ "網路較慢，聲音與圖片會陸續補上": "Slow connection: sounds and pictures will fill in as they arrive",
+ "難{level}": "D{level}"
 }

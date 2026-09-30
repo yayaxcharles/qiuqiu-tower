@@ -1,6 +1,7 @@
 import { lineDisplay, speakerDisplay } from '../i18n/speech';
 import { el } from './dom';
 import { goodsShrink, nextGoodsScale, type Box } from './goodsfit';
+import { layoutHooks, layoutOk, watchLayout } from './layouthooks';
 
 /**
  * 劇場版面：整張底圖鋪滿舞台、插圖（或商品、或牌）立在中上方、底下一個跟序章幻燈片同一套的對白框，
@@ -44,6 +45,7 @@ export function sceneView(o: SceneOpts): HTMLElement {
     o.portrait2 ? el('img', { class: 'scene-portrait right', src: o.portrait2, alt: '' }) : '',
     box);
   fitArt(scene, box);
+  layoutHooks.showcase?.(scene, box);   // 中間放牌或獲得物展示時，對白框不壓到它們（英日才掛，見 src/i18n/layout.ts）
   if (scene.querySelector('.scene-goods')) watchGoods(scene);
   return scene;
 }
@@ -141,7 +143,8 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
   const run = (): void => {
     // `scene` 是每次 `sceneView()` 新建的節點，畫面換掉它就跟著拔掉（淡入換場時晚 220 毫秒，舊畫面墊在底下淡出，
     // 見 screenswap.ts）。這裡只是量版面，那段時間多量一次舊的也無害
-    if (!scene.isConnected || !firstText) return;
+    if (!scene.isConnected || !firstText || !layoutOk()) return;   // 手機直拿時量到的尺寸不作數，轉橫後由 `relayout` 重跑
+    layoutHooks.scene?.(scene, box);   // 英日的長文字先讓位（英日語言包掛上來的，見 src/i18n/layout.ts），再照文字的實際位置決定插圖多高
     const k = stageScale();
     const sceneTop = scene.getBoundingClientRect().top;
     // 對白框彈入動畫（從下面 26 像素滑上來）播的時候量到的字比實際低：扣掉框現在的位移，量播完的位置（同 `refitGoods`）。
@@ -153,6 +156,7 @@ function fitArt(scene: HTMLElement, box: HTMLElement): void {
     const ART_TOP = 18;   // `.scene-art` 的 top，對 `.scene` 算（screens.css:685）
     img.style.height = `${Math.max(210, Math.min(360, textTop - ART_TOP - 8))}px`;
   };
+  watchLayout(scene, run);
   if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run); else run();
 }
 

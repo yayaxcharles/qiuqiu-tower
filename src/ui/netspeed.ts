@@ -26,6 +26,13 @@ export function netSpeed(): Promise<NetSpeed> { return verdict; }
 /** 現在知道的結果；還在量回 `null` */
 export function knownNetSpeed(): NetSpeed | null { return known; }
 
+/**
+ * 還在量的話照「到目前為止收到的速度」先估（2026-10-01 慢網路修正第二輪：進地圖前的門檻要當場決定擋不擋，
+ * 等量完的話封面才出來就按續玩要多停 0.5 秒）。剛開始量不到 0.2 秒估不準，回 `null`（門檻當快網路）。
+ */
+let estimate: () => NetSpeed | null = () => null;
+export function guessNetSpeed(): NetSpeed | null { return known ?? estimate(); }
+
 type Conn = { saveData?: boolean; effectiveType?: string };
 
 /**
@@ -64,6 +71,7 @@ function measure(): Promise<NetSpeed> {
     if (typeof PerformanceObserver === 'undefined' || typeof performance === 'undefined') { decide('fast'); return; }
     const t0 = performance.now();
     let bytes = 0;
+    estimate = () => { const ms = performance.now() - t0; return ms < 200 ? null : bytes / ms >= FAST_BYTES / WINDOW_MS ? 'fast' : 'slow'; };
     try {
       observer = new PerformanceObserver((list) => {
         for (const e of list.getEntries() as PerformanceResourceTiming[]) {

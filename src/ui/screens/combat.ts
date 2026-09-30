@@ -28,7 +28,7 @@ import { COLLECT_FLY, collectTiming } from '../collect';
 import { battleBgKey, battleBgStyle } from '../screenbg';
 import { telegraphTarget, willAct } from '../telegraph';
 import { seatFeedback, seatFeedbackSnap, type SeatFeedbackSnap } from '../seat-feedback';
-import { BAD_STATUS, GOOD_STATUS, STATUS_ORDER } from '../status-kind';
+import { BAD_STATUS, GOOD_STATUS, STATUS_ICON, STATUS_ORDER } from '../status-kind';
 import { createChipsLift } from '../chiplift';
 import { heroName, heroOf, heroPronoun } from '../../engine/hero';
 import type { Hero } from '../../engine/hero';
@@ -48,6 +48,7 @@ import { enemyLeft, nextLineup, playerLeft, speechBubbleAt } from '../enemylayou
 import { burst } from '../fx';
 import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
+import { layoutHooks } from '../layouthooks';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
 import { combatWarmPoses } from '../rest-state-motion';
@@ -104,22 +105,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 import { overlayRoot } from '../overlay';
 import { attachTextTooltip, attachTooltip, hideTooltip } from '../tooltip';
 
-const STATUS_ICON: Record<StatusName, string> = {
-  爪力: 'icon/status_claw', 貓步: 'icon/status_step', 翻肚: 'icon/status_belly',
-  懶洋洋: 'icon/status_lazy', 炸毛: 'icon/status_puff', 中毒: 'icon/status_choke',
-  隱身: 'icon/status_stealth', 定身: 'icon/status_stun', 反彈: 'icon/status_thorns',
-  潛水: 'icon/status_stealth',
-  鐵布衫: 'icon/status_iron',   // 不借鱗甲的鍵，免得兩邊撞到
-  // 第二波魔物的五個狀態（2026-09-10 圖示補齊）
-  縮殼: 'icon/status_curl', 飛行: 'icon/status_fly', 鱗甲: 'icon/status_plate', 不壞身: 'icon/status_iron_body',
-  沉睡: 'icon/status_sleep', 消散: 'icon/status_fade',
-  // 菁英擴充的虛化（2026-09-03；圖示 2026-09-10 補上）。
-  // 虛化的意思就是「半透明」，但圖示不能真的畫半透明——綠幕會從身體裡透出來、去背後整張帶綠
-  //（codex_gen.py 的坑 5）。改用「實心淡色本體＋錯位殘影」表達。
-  虛化: 'icon/status_phase',
-  // 迷魂（2026-09-23 第二批）：沒有另畫狀態圖示，借迷魂香那支忍具的圖（同一個 icons 分類，戰鬥中一定載好了）
-  迷魂: 'codex/potion_daze_incense',
-};
+// 狀態圖示表搬到 `status-kind.ts`（2026-10-01：開局預載第一步魔物會上的狀態小圖示要查同一張，`netload-run.ts`）
 /**
  * 狀態牌子上要寫的字。引擎內部叫「潛水」，但那只是「下回合開始換成隱身」的暫存記號，
  * 規格 §2 的名詞表根本沒有這個詞、牌面也刻意不講（見 `cardtext.ts` 的 `isDive`），
@@ -467,6 +453,33 @@ registerScreen('combat', (app, root, props) => {
    * 另一位的手牌不該被我看到（那是他的資訊），他的按鈕也不該被我按到。
    */
   const mySeat = (props as { seat?: number } | null)?.seat ?? app.seat;
+  /*
+   * 主角立繪換姿勢時**不畫成空白**（2026-10-01 慢網路修正第二輪，動作流暢度鐵則）。
+   * 開打前不再等三十張姿勢之後，慢網路第一次出招換到的那張可能還在下載；直接換 `src` 的話，
+   * 下載好之前那一格是空的（HTTP/2 慢網路量到 1.3 秒）。還沒下載好就先留著畫面上最後一張畫得出來的，
+   * 好了再換上去；已經在手上（平常都是）就跟以前一樣當場換，畫面一模一樣。
+   * `heroShown`：每個座位畫面上最後一張「真的畫出來」的主角立繪。
+   */
+  const heroShown = new Map<number, string>();
+  const showHeroSrc = (img: HTMLImageElement, url: string, seat: number): void => {
+    if (typeof Image === 'undefined') { img.src = url; return; }   // 沒有瀏覽器（單元測試）
+    const probe = new Image();
+    probe.src = url;
+    const prev = heroShown.get(seat);
+    const ready = probe.complete && probe.naturalWidth > 0;
+    if (ready || !prev || prev === url) {
+      delete img.dataset['want'];
+      img.src = url;
+      if (ready) heroShown.set(seat, url);
+      else img.addEventListener('load', () => { if (img.src.endsWith(url)) heroShown.set(seat, url); }, { once: true });
+      return;
+    }
+    img.dataset['want'] = url;
+    img.src = prev;
+    const swap = (): void => { if (img.dataset['want'] === url) { delete img.dataset['want']; img.src = url; heroShown.set(seat, url); } };
+    if (typeof probe.decode === 'function') void probe.decode().then(swap, () => undefined);
+    else probe.addEventListener('load', swap, { once: true });
+  };
   /**
    * 連線用的會話（單機是 null）。
    *
@@ -852,7 +865,7 @@ registerScreen('combat', (app, root, props) => {
         if (seat === mySeat && cs.phase === 'player') {
           pose = idlePose();
           const image = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-          if (image) image.src = heroArtUrl(q.hero, pose);
+          if (image) showHeroSrc(image, heroArtUrl(q.hero, pose), seat);
         }
         // 只就地收姿勢；整頁重畫會重建手牌，並截斷飄字與其他單位的動作。
         idleMotion(seat);
@@ -1175,6 +1188,9 @@ registerScreen('combat', (app, root, props) => {
     const n = cs.players.length;
     const displayedPose = mine ? pose : matePose(q);
     const picture = spriteBox(heroArtUrl(q.hero, displayedPose), term(heroName(q)));
+    // 新姿勢還沒下載好就先畫上一張（見 `showHeroSrc`）
+    const sprite = picture.querySelector<HTMLImageElement>('img.sprite');
+    if (sprite) showHeroSrc(sprite, heroArtUrl(q.hero, displayedPose), q.seat);
     const node = el('div', {
       class: `unit player${mine ? ' mine' : ''}${q.down ? ' downed' : ''}${q.ready && n > 1 ? ' ready' : ''}`,
       'data-seat': String(q.seat),
@@ -1348,11 +1364,11 @@ registerScreen('combat', (app, root, props) => {
    */
   const warmPool: DecodePool = { seen: new Set(), keep: new Map() };
   const asked = new Set<string>();   // 送出去過的（還在解的也算）：重畫時不重送
-  const warm = (urls: readonly string[]): void => {
+  const warm = (urls: readonly string[]): Promise<void> => {
     const fresh = [...new Set(urls)].filter((u) => u && !asked.has(u));
     for (const u of fresh) asked.add(u);
     // 一次全部送出、不排隊（跟以前一張一張各自 decode 一樣）；解不開就算了，畫面照常
-    if (fresh.length) void decodeAll(fresh, fresh.length, true, warmPool);
+    return fresh.length ? decodeAll(fresh, fresh.length, true, warmPool) : Promise.resolve();
   };
   /*
    * 角色姿勢一位只暖一次（開戰那一刻；連線途中才出現的那位在下一次重畫補上），
@@ -1368,7 +1384,7 @@ registerScreen('combat', (app, root, props) => {
    */
   const motionFallbackPoses: ReadonlySet<string> = new Set([...Object.values(REST_STATE_POSES),
     POSE.hit, POSE.dodge, POSE.guard, POSE.win, POSE.lose, POSE.down]);
-  const warmHeroes = (): void => {
+  const warmHeroes = (): Promise<void> => {
     const urls: string[] = [];
     // 每一位都暖一次：連線時同伴可能是另一個角色，只暖自己的話同伴整場都在等圖下載
     for (const q of cs.players) {
@@ -1380,7 +1396,7 @@ registerScreen('combat', (app, root, props) => {
       const motionReady = !!source && (source === 'qiuqiu' ? qiuqiuMotionReady() : companionMotionReady(source));
       for (const key of combatWarmPoses(Object.values(POSE), motionFallbackPoses, motionReady)) urls.push(heroArtUrl(q.hero, key));
     }
-    warm(urls);
+    return warm(urls);
   };
   const warmEnemies = (): void => {
     const urls: string[] = [];
@@ -1403,8 +1419,16 @@ registerScreen('combat', (app, root, props) => {
     }
     warm(urls);
   };
-  warmHeroes();
+  const heroesWarm = warmHeroes();
   warmEnemies();
+  /*
+   * 這一場打完接下去走得到的戰鬥格：魔物立繪趁這場打的時候先抓（2026-09-30 慢網路修正；回地圖才抓的話急著點的人第二場還是要等）。
+   * **等主角姿勢解好才送**（審查 2026-10-01 中-1：原本在換到戰鬥畫面那一刻插隊送，跟上面暖主角姿勢搶頻寬，
+   * HTTP/2 慢網路主角出招空白變長）。姿勢一直沒好也最多等 8 秒。開局先抓的那幾張主角姿勢這時交給這一場自己留，開局那份放掉（審查 低-5）
+   */
+  void Promise.race([heroesWarm, new Promise<void>((r) => window.setTimeout(r, 8000))]).then(() => {
+    app.warmNextFights?.();   // 動作試玩頁那種假的 app 沒有這一支
+  });
   // 開場那一次畫完才開閘，之後的變化才演（低-5）
   window.setTimeout(() => { chipsSeeded = true; }, 0);
   /**
@@ -1926,7 +1950,7 @@ registerScreen('combat', (app, root, props) => {
     const shown = shownEnemy(e);
     node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
     chipLift.settle(node);   // 牌子列整排換了，排數可能變了（見 `chipLift`）
-    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown));
+    if (!reviving) { node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown)); layoutHooks.labels?.(node); }   // 換了意圖牌，新的那塊也要量（英日才會動）
     // 打掉飛行的那一下：東西打到才掉下來（跟 enemyUnit 同一個判準）。虛化只在魔物自己的回合變，不用跟
     node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);
   }
@@ -2417,6 +2441,7 @@ registerScreen('combat', (app, root, props) => {
     }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, logLine(l)))));
     chipLift.settle(field);   // 換掉的那幾格：牌子折幾排當場量好，後面量立繪位置的才準（見 `chipLift`）
+    layoutHooks.labels?.(field);   // 英日的長招式名、長關主名放不下就縮字（英日語言包掛上來的，見 src/i18n/layout.ts）
     // 狀態列只在它畫的東西變了才重建（見 `hudKey`）
     const hudNow = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
     if (hudNow !== hudShown || !box.querySelector('.hud')) {
@@ -2481,7 +2506,7 @@ registerScreen('combat', (app, root, props) => {
 
   function render(): void {
     // 只補沒暖過的：新召喚的魔物（或換了階段立繪的）、連線途中才出現的那位；角色姿勢一位只暖一次
-    warmHeroes();
+    void warmHeroes();
     warmEnemies();
     hideTooltip();   // 掛著提示的節點馬上要被換掉，不先關會留一個孤兒黏在畫面上
     arrowOff?.abort();   // 舊的 box 連同箭頭一起丟掉，監聽也拆掉
@@ -2569,6 +2594,7 @@ registerScreen('combat', (app, root, props) => {
     root.append(box);
     // 牌子折成好幾排的那幾格，立繪框當場放回原位（見 `chipLift`）。要排在下面量位置的發牌、瞄準箭頭、手牌滑動之前
     chipLift.settle(field);
+    layoutHooks.labels?.(field);   // 同 patchField
     paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
     // dealFrom 排在同一拍（不是下一幀）：動畫要到下一幀才開始播，這時候補上位移還來得及。
@@ -3859,7 +3885,7 @@ registerScreen('combat', (app, root, props) => {
           window.setTimeout(() => {
             if (seq !== mine || app.cs !== cs) return;
             const img = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-            if (img) img.src = i % 2 ? second : first;
+            if (img) showHeroSrc(img, i % 2 ? second : first, mySeat);
           }, i * 150);
         }
       }
@@ -3956,7 +3982,7 @@ registerScreen('combat', (app, root, props) => {
       // 呼叫 render() 會把整個戰場重生一次，正在飄的傷害數字（1 秒）會被砍在半路、
       // 倒地與生命條的動畫也一起中斷——「動畫不順」的根就在這裡。
       const cat = root.querySelector<HTMLImageElement>(`${MINE} .sprite`);
-      if (cat) cat.src = heroArtUrl(my().hero, pose);
+      if (cat) showHeroSrc(cat, heroArtUrl(my().hero, pose), mySeat);
       for (const q of cs.players) if (!motionActors.get(q.seat)?.active) idleMotion(q.seat);
       for (const e of cs.enemies) {
         const img = root.querySelector<HTMLImageElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite`);

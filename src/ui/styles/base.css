@@ -28,7 +28,7 @@ html:lang(ja) body { font-family: "Yu Gothic UI", "Yu Gothic", Meiryo, "Hiragino
 
 /* 手機直立時蓋一層「請橫放」；平板與電腦不管方向都直接顯示舞台 */
 #rotate-hint { display: none; position: fixed; inset: 0; z-index: 1000; background: #0f0a06f2; color: #fff3d6; place-items: center; text-align: center; font-size: 22px; line-height: 1.6; }
-#rotate-hint .rotate-card { padding: 28px 36px; border: 1.5px solid #ffd98a8c; border-radius: 16px; background: #2a1a0dcc; }
+#rotate-hint .rotate-card { box-sizing: border-box; max-width: calc(100vw - 32px); padding: 28px 36px; border: 1.5px solid #ffd98a8c; border-radius: 16px; background: #2a1a0dcc; }   /* 英文卡片寬到貼滿左右邊（2026-09-30 檢查 低-3）：留 16 像素的邊 */
 #rotate-hint .rotate-icon { font-size: 44px; margin-bottom: 8px; }
 #rotate-hint small { display: block; font-size: 14px; color: #c9b58f; margin-top: 4px; }
 html[data-device="phone"][data-orient="portrait"] #rotate-hint { display: grid; }
@@ -664,8 +664,18 @@ img { -webkit-user-drag: none; }
 .dialogue-overlay .dialogue-hint, .dialogue-overlay.narration .dialogue-hint { color: #d9cdb4; }
 .dialogue-portrait { bottom: 130px; left: 48px; }
 
-/* 開打前暖機那一小段時間（最多 1.5 秒）整個舞台不吃點擊：連點「開打」或再點地圖會多跑一次開戰（稽核 2026-09-04 中 7） */
+/* 開打前暖機那一小段時間（魔物與手牌最多 3 秒、戰鬥畫面程式最多 8 秒；2026-09-30 起）與進地圖前的門檻，整個舞台不吃點擊：連點「開打」或再點地圖會多跑一次開戰（稽核 2026-09-04 中 7） */
 #stage.fight-pending { pointer-events: none; }
+/* 慢網路的條件式進度條（2026-09-30，netload.ts；開打前那條最多等魔物與手牌 3 秒、戰鬥畫面程式 8 秒）：進地圖前那一層鋪地圖的退路漸層（同 map.css 的 `.map-bg`），
+   卡片沿用手機「請橫放」那張的配色；開打前那條直接擺在地圖下緣 */
+.net-gate { position: absolute; inset: 0; z-index: 80; background: linear-gradient(#1b2440, #3a3128 45%, #6b543a); }
+.net-progress { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 30; width: 380px; padding: 14px 22px 12px;
+  border: 1.5px solid #ffd98a8c; border-radius: 16px; background: #2a1a0dcc; color: #fff3d6; text-align: center; font-size: 18px; }
+.net-gate .net-progress { bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+.net-progress b { display: block; font-weight: 600; margin-bottom: 10px; }
+.net-bar { display: block; height: 10px; border-radius: 5px; background: #ffffff26; overflow: hidden; }
+.net-bar i { display: block; height: 100%; width: 0; background: #e8b04a; transition: width .2s ease-out; }
+.net-progress small { display: block; margin-top: 8px; font-size: 14px; color: #c9b58f; }
 /* 關主門推開的那 0.9 秒同理：狀態列的層級是 10、畫在門上面又照樣可以按，
    這段期間按「牌組」或「圖鑑」會開一個疊層，接著關主開場對白也是疊層，兩個疊在一起
    要先關掉一個才點得動另一個（稽核 2026-09-10 低-1）。門由 bossdoor.ts 掛上、時間到自己拆 */

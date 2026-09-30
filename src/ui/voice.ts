@@ -54,6 +54,9 @@ function loadMap(): Promise<Record<string, VoiceClip> | null> {
   return mapTask;
 }
 
+/** 進入一局就先抓查表（慢網路修正 2026-09-30，`voicegate.ts` 的 `warmVoice`）：第一句吐槽不必再排「程式→查表→音檔」三段接力 */
+export function warmMap(): Promise<unknown> { return loadMap(); }
+
 const buffers = new Map<string, Promise<AudioBuffer | undefined>>();
 function loadClip(ctx: AudioContext, file: string): Promise<AudioBuffer | undefined> {
   const hit = buffers.get(file);
