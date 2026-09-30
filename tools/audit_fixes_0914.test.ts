@@ -46,7 +46,9 @@ describe('總稽核 2026-09-14 的畫面層修正', () => {
       return app.slice(at, app.indexOf('\n  }\n', at));
     };
     // 2026-09-29：連同這一關其餘的魔物（`run.act`）一起抓
-    expect(body('  adoptRun(run: RunState, seat: number): void {')).toContain('preloadHeroArt(run.players.map((p) => p.hero), run.act)');
+    // 2026-09-30 慢網路修正：adoptRun 改叫 netload.ts 的 warmRun，由它先插隊要最低完成度、再照原本叫這一行
+    expect(body('  adoptRun(run: RunState, seat: number): void {')).toContain('warmRun(run, seat);');
+    expect(readFileSync('src/ui/netload.ts', 'utf-8')).toContain('preloadHeroArt(run.players.map((p) => p.hero), run.act)');
     expect(body('  newRun(seed?: string')).toContain('this.adoptRun(');
     expect(body('  continueRun(from?: RunState): boolean {')).toContain('this.adoptRun(run, 0)');
     expect(readFileSync('src/ui/screens/lobby.ts', 'utf-8')).toContain('app.adoptRun(run, seat);');

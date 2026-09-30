@@ -122,6 +122,23 @@ function resume(audio: AudioContext): Promise<void> {
   return resuming;
 }
 
+/** 全部音效（`Sfx` 的每一個）；慢網路最常被跳過的四個排前面 */
+const ALL_SFX: Sfx[] = ['step', 'enemy_down', 'blocked', 'poison', 'claw', 'hit', 'hit_heavy', 'hurt', 'block', 'dodge', 'thorns',
+  'stealth', 'buff', 'debuff', 'heal', 'draw', 'click', 'turn_end', 'turn_start', 'fish', 'buy', 'potion', 'upgrade', 'relic',
+  'victory', 'defeat', 'hurt_feifei', 'victory_feifei'];
+
+/**
+ * 進入一局就把全部音效先抓好（慢網路修正 2026-09-30）：原本只預載十個，其餘第一次用到才抓，
+ * 500 毫秒沒到就整個不播——慢網路下第一次點地圖格子（`step`）幾乎必無聲。
+ * 回傳每一個的「抓完（或失敗）」給進度用；音效關著就不抓。
+ * 還沒解鎖（重新整理接回連線局，還沒點過畫面）只先下載進瀏覽器快取，解鎖後 `load` 再拿（`decodeAudioData` 會吃掉那份位元組，不能先留）。
+ */
+export function preloadSfx(): Promise<unknown>[] {
+  if (!enabled) return [];
+  return ALL_SFX.filter((n) => !buffers.has(n)).map((n) => (ctx ? load(n)
+    : fetch(fileUrl(`assets/sfx/${n}.mp3`)).then((r) => r.arrayBuffer()).catch(() => undefined)));
+}
+
 /**
  * 第一次點擊時才建立音訊環境並開始預載。
  *

@@ -1842,15 +1842,28 @@ export function castLineFor(hero: string | undefined, text: string): string {
 
 /** 從一組台詞裡隨機挑一句。**只給演出用**（台詞、音效），會影響玩法的抽選一律走 cs.rng／runRng，不然同種子就重現不出同一局 */
 export function pick<T>(xs: readonly T[]): T {
-  // 同一組不連抽同一句（2026-09-15 改寫稿附的提醒）：記住每組上一次抽到哪一句，再抽到就往後挪一格。只在演出層，不動玩法亂數
+  const t = planPick(xs);
+  planned.delete(xs);
+  return t;
+}
+/**
+ * 先決定這一組下一次 `pick` 會抽到哪一句（慢網路修正 2026-09-30）：開戰時先抽好這場可能講的吐槽、預抓那幾句的配音，
+ * 講的當下 `pick` 就照這一句（還沒講之前再問一次也是同一句）。只在演出層，用的是 `Math.random`，不動玩法亂數、連線兩台各抽各的。
+ */
+export function planPick<T>(xs: readonly T[]): T {
+  // 同一組不連抽同一句（2026-09-15 改寫稿附的提醒）：記住每組上一次抽到哪一句，再抽到就往後挪一格
   if (xs.length <= 1) return xs[0]!;
-  let i = Math.floor(Math.random() * xs.length);
-  const last = lastPick.get(xs);
-  if (i === last) i = (i + 1) % xs.length;
+  let i = planned.get(xs);
+  if (i === undefined) {
+    i = Math.floor(Math.random() * xs.length);
+    if (i === lastPick.get(xs)) i = (i + 1) % xs.length;
+    planned.set(xs, i);
+  }
   lastPick.set(xs, i);
   return xs[i]!;
 }
 const lastPick = new WeakMap<readonly unknown[], number>();
+const planned = new WeakMap<readonly unknown[], number>();
 
 /** 結局依牌組傾向換的那幾句用哪一派。`poison` 只有菲菲會判到，`stealth` 只有球球會判到 */
 /**

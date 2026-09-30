@@ -13,7 +13,7 @@ import { runRng } from '../../engine/run';
 import { enemyById, encounterById } from '../../content/enemies';
 import { eventById } from '../../content/events';
 import { artUrl, monsterUrl, mapHeroKey } from '../assets';
-import { mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadQmarkArt } from '../preload';
+import { NODE_ICON, mapHasQmark, preloadMapEvents, preloadMapKeepers, preloadNextFights, preloadQmarkArt } from '../preload';
 import { loadEventScreen } from '../event-loader';
 import { loadShopText } from '../shop-text-loader';
 import { loadCoopText } from '../coop-text-loader';
@@ -26,10 +26,8 @@ import { listJoin, t, term } from '../../i18n';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-const ICON: Record<MapNode['type'], string> = {
-  戰鬥: 'icon/node_fight', 大魔物: 'icon/node_elite', 事件: 'icon/node_event',
-  罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
-};
+// 表搬到 `preload.ts` 的 `NODE_ICON`（2026-09-30 慢網路修正：開局要先抓同一批，兩邊不能各寫一份）
+const ICON = NODE_ICON;
 /** 變過的問號格畫成哪一種節點的圖示（伏擊＝戰鬥、行腳商＝罐頭鋪、路邊紙箱＝紙箱） */
 const VARIANT_ICON: Record<QmarkVariant, MapNode['type']> = { 伏擊: '戰鬥', 行腳商: '罐頭鋪', 路邊紙箱: '紙箱' };
 
@@ -471,6 +469,8 @@ registerScreen('map', (app, root) => {
   // （走 `event-loader.ts`：這裡失敗了，下一次會換網址參數重抓，不會被瀏覽器記住的失敗卡死——推前審查 低-1）
   void loadEventScreen().catch(() => undefined);
   void preloadMapEvents(run);
+  // 下一步走得到的戰鬥格：魔物立繪先插隊解好（2026-09-30 慢網路修正），點下去就不用等
+  void preloadNextFights(run);
   // 問號格變化的文字與圖（2026-09-23 第三批）：地圖上還有會變的問號格才抓，一樣不插隊、抓失敗走進去時再要一次
   if (mapHasQmark(run)) { void loadQmarkText().catch(() => undefined); void preloadQmarkArt(run); }
   // 這一關有客座店主的店：那一位的三張立繪與店主台詞（延後模組）也先在背景抓（2026-09-23 第三批 新J，design3 4-4）

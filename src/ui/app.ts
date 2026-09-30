@@ -1,8 +1,11 @@
-import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
+import { victoryLinesFor, coopBossLines, dialogue, firstMeetLine, pick, planPick, setCoopStory, storyFor, type DialogueLine } from '../content/dialogue';
 import { playSlides, slidesReady, type Slide } from './slides';
 import { actClearSlides, endingSlides, prologueSlides, topSceneSlides } from './storyslides';
 import { playVideo, type VideoName } from './video';
-import { coopArtReady, preloadHeroArt, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt } from './preload';
+import { coopArtReady, follow, preloadNextFights, warmBlessing, warmEncounter, warmEventArt, warmQmarkArt, type Progress } from './preload';
+import { MAP_GATE_MS, gateProgress, progressBar, runProgress, warmRun } from './netload';
+import { knownNetSpeed } from './netspeed';
+import { heroVoice, prefetch } from './voicegate';
 import { anyBlessingPending, rollBlessings } from '../engine/blessing';
 import { loadEventScreen } from './event-loader';
 import { withCoopText } from './coop-text-loader';
@@ -45,6 +48,10 @@ export type ScreenName = 'title' | 'heroselect' | 'map' | 'combat' | 'reward' | 
 const STORY_LITERAL = true;
 /** 走進事件格時，事件畫面那一塊最多等多久（2026-09-23 推前審查 低-1，見 `enterEvent`） */
 const EVENT_SCREEN_WAIT_MS = 10_000;
+/** 開打前等這場魔物與手牌最多多久（2026-09-30 慢網路修正：1.5 → 3 秒，主角姿勢不再算在裡面，見 `startFight`） */
+const ENCOUNTER_WAIT_MS = 3000;
+/** 開打前等戰鬥畫面程式最多多久（2026-09-30：原本沒有上限；到了照樣換過去，由「正在準備戰鬥畫面」載入畫面接手） */
+const COMBAT_CODE_WAIT_MS = 8000;
 type Renderer = (app: App, root: HTMLElement, props: unknown) => void;
 
 const screens = new Map<ScreenName, Renderer>();
@@ -190,7 +197,7 @@ export class App {
     // 安靜重畫（同一頁只因同伴投票而重畫）照舊就地清掉。
     // 整片不透明的劇情層（幻燈片、過場影片、過關走路）蓋著時，玩家看的是那一層、不是底下的舊畫面：
     // 不淡入也不墊，新畫面直接畫好，由那一層自己淡出（不然那一層一收，先露出早就不在的舊畫面）
-    const covered = !!this.stage.querySelector('.slide-overlay, .cine-overlay, .actwalk-overlay:not(.out)');
+    const covered = !!this.stage.querySelector('.slide-overlay, .cine-overlay, .actwalk-overlay:not(.out), .net-gate');
     const fade = !opts.quiet && !covered && typeof this.screen.animate === 'function';
     const leaving = fade && this.screen.firstChild ? this.screen : null;
     if (leaving) this.screen = swapScreen(this.stage, leaving);
@@ -253,8 +260,35 @@ export class App {
     setLocalHero(hero);
     setSfxHero(hero);
     this.syncStory(run);
-    // 連同這一關其餘的魔物與底圖（2026-09-29 開場分批：原本新的一局靠封面時就抓好的第一關、續玩另外叫一次，收成這一處）
-    void preloadHeroArt(run.players.map((p) => p.hero), run.act);
+    // 先插隊要「最低可玩完成度」（地圖圖、音效、戰鬥與配音程式），再接原本那批（`preloadHeroArt`：這一位的圖、這一關其餘的魔物與底圖；
+    // 2026-09-29 開場分批收成這一處）。見 netload.ts（2026-09-30 慢網路修正）
+    warmRun(run, seat);
+  }
+
+  /**
+   * 第一次進大地圖前的條件式門檻（2026-09-30 慢網路修正，量測報告 4.2、6.1）：
+   * 急著點過序章的人，地圖出來時底圖與節點圖示還在路上（0.8 Mbps 一片黑 3～4 秒、圖示缺 6 秒以上）。
+   * 開局那一刻要的 A 層（`netload.ts`）還沒齊才擋：蓋一層地圖色的底，250 毫秒內齊了就不出進度條，最多等 8 秒，
+   * 到了照樣進去（背景繼續抓），並公告一次「會陸續補上」。量到快網路（`netspeed.ts`）不擋——續玩那一下不能比以前慢。
+   * 蓋層要**當下**就放：幻燈片是先叫回呼、再自己淡出（slides.ts），晚放就會先露出底下的選角畫面。
+   * 等的期間舞台點不動（`fight-pending`，同開打前）；連線斷了回標題（`leaveCoop`）或重新同步（`dropPendingFlows`）會拆掉蓋層，這一段就不接了。
+   */
+  private gateMap(run: RunState, go: () => void): void {
+    const w = runProgress(run);
+    if (!w || w.pr.done >= w.pr.total || knownNetSpeed() === 'fast') { go(); return; }
+    const cover = el('div', { class: 'net-gate' });
+    this.stage.insertBefore(cover, this.overlay);
+    this.fightPending = true;
+    this.stage.classList.add('fight-pending');
+    void gateProgress(w.ready, () => progressBar(cover, i18nT('正在準備地圖與音效……'), w.pr), MAP_GATE_MS).then(() => {
+      if (!cover.isConnected || this.run !== run) { cover.remove(); return; }
+      this.fightPending = false;
+      this.stage.classList.remove('fight-pending');
+      go();
+      if (w.pr.done < w.pr.total) notice(i18nT('網路較慢，聲音與圖片會陸續補上'));
+      const out = typeof cover.animate === 'function' ? cover.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished : Promise.resolve();
+      void out.finally(() => cover.remove());
+    });
   }
 
   /** `hero`＝選角畫面挑的那一位（2026-09-12）。沒填就是球球，舊的呼叫端不用改 */
@@ -286,7 +320,7 @@ export class App {
     const run = this.run;
     if (!run) return;
     this.save();
-    this.show(anyBlessingPending(run) ? 'blessing' : 'map');
+    this.gateMap(run, () => this.show(anyBlessingPending(run) ? 'blessing' : 'map'));
   }
 
   /**
@@ -361,8 +395,8 @@ export class App {
       this.startFight(node.encounterId, true);
       return true;
     }
-    // 選祝福選到一半重新整理的（2026-09-23 第三批）：回到同四張；舊存檔沒有包袱，照舊進地圖
-    this.show(anyBlessingPending(run) ? 'blessing' : 'map');
+    // 選祝福選到一半重新整理的（2026-09-23 第三批）：回到同四張；舊存檔沒有包袱，照舊進地圖（慢網路先過 `gateMap`）
+    this.gateMap(run, () => this.show(anyBlessingPending(run) ? 'blessing' : 'map'));
     return true;
   }
 
@@ -414,7 +448,8 @@ export class App {
     setCoopStory(null);   // 敘事情境是模組層級的，離開連線就清掉（推前審查 低-2）
     // 連線出問題時大廳壓在頁面最上緣的紅色橫幅（`lobby.ts` 的 `troubleBanner`）沒有人會拿掉，
     // 回標題開單機它還在（總稽核 B 中-1）。離開連線就撕掉。
-    document.querySelectorAll('.net-trouble, .net-link').forEach((n) => n.remove());
+    // 進地圖前的門檻蓋層（`gateMap`，2026-09-30）也一起拆：那一段看到蓋層不在就不接
+    document.querySelectorAll('.net-trouble, .net-link, .net-gate').forEach((n) => n.remove());
     /*
      * **那一局也一起丟掉**（2026-09-23 稽核 高-1）。原本只清 `coop`／`seat`，`run` 還是那個兩人局：
      * 序章幻燈片（或關主開場、過關過場）蓋在標題上，點完 onDone 就 `show('map')`，
@@ -440,6 +475,7 @@ export class App {
     closeStoryOverlays();
     this.fightPending = false;
     this.stage.classList.remove('fight-pending');
+    document.querySelectorAll('.net-gate').forEach((n) => n.remove());   // 進地圖前的門檻蓋層（`gateMap`）
   }
 
   /**
@@ -631,6 +667,8 @@ export class App {
       this.stage.classList.remove('fight-pending');
       if (this.cs !== cs) return;
       this.show('combat', { bonusFish, bonusUpgrades });
+      // 這一場打完接下去走得到的戰鬥格：魔物立繪趁這場打的時候先抓（2026-09-30 慢網路修正；回地圖才抓的話，急著點的人第二場還是要等）
+      void preloadNextFights(run);
       // 魔物的開場台詞從頭上冒泡泡（一隻接一隻），左上角的紀錄照舊保留當備查
       window.setTimeout(() => {
         if (this.cs !== cs) return;
@@ -655,14 +693,18 @@ export class App {
         toast(pick(storyFor(mine.hero).battleStart), heroSpeaker(), at);
       }
       };
-      void Promise.allSettled([
+      // 開打前等的進度（地圖上的條件式進度條數這個）：這場魔物與手牌一張一格、戰鬥畫面程式一格
+      const pr: Progress = { done: 0, total: 0 };
+      const ready = Promise.allSettled([
         /*
          * 這一手的牌面也一起暖（2026-09-29 開場分批）：牌面改成選好角色才抓，慢網路下第一場開打時可能還在路上，
-         * 手牌就先空著一排再冒出來。排在魔物後面、球球姿勢前面（手牌一開打就攤在眼前，姿勢要出牌才換），
-         * 共用同一個 1.5 秒上限，不另外多等
+         * 手牌就先空著一排再冒出來。排在魔物後面（手牌一開打就攤在眼前）。
+         * 2026-09-30 慢網路修正：主角三十張姿勢**不再一起等**（約 1 MB，慢網路冷快取第一場 100% 撞滿上限），改在下面背景暖；
+         * 上限 1.5 → 3 秒（只剩魔物與手牌，平常地圖上已先抓好下一步的魔物，不用等）
          */
-        warmEncounter(encounterId, 1500, [...cardFaceUrls((cs.players[this.seat]?.hand ?? []).map((c) => c.cardId)), ...heroSpriteUrls(run.players.map((p) => p.hero))], run.players[0]?.hero),
-        combatScreenReady,
+        warmEncounter(encounterId, ENCOUNTER_WAIT_MS, cardFaceUrls((cs.players[this.seat]?.hand ?? []).map((c) => c.cardId)), run.players[0]?.hero, pr),
+        // 戰鬥畫面程式也設上限（2026-09-30）：原本沒有，HTTP/2 慢網路模擬下被背景下載壓住、停在地圖上 6～11 秒。到了照樣換過去，由載入畫面接著等
+        follow([Promise.race([combatScreenReady, new Promise<void>((r) => window.setTimeout(r, COMBAT_CODE_WAIT_MS))])], pr),
         /*
          * 連線局：這一組搭檔的連線牌面要先抓完（2026-09-23 批次 coopload）。
          * 手牌第一次畫到連線牌時圖要已經在，不能先空一格再冒出來。平常序章還沒點完就抓好了，這裡通常不用等；
@@ -670,7 +712,18 @@ export class App {
          * 原本 20 秒，等的時候舞台點不動又沒有提示，玩家會以為當機（2026-09-23 推前審查二 中-1）。
          */
         ...(this.coop ? [Promise.race([coopArtReady(), new Promise<void>((res) => window.setTimeout(res, 6000))])] : []),
-      ]).then(proceed);
+      ]);
+      /*
+       * 這場主角可能講的吐槽先抽好、先抓配音（2026-09-30 慢網路修正）：原本每句講的當下才下載，0.8 Mbps 下近半超過 1.5 秒被放棄。
+       * 只抓這一場的四句（開戰、打贏、肚子餓、血少；初見那句本來就沒配音不抓），講的時候 `pick` 照抽好的這句（dialogue.ts 的 `planPick`）
+       */
+      const st = storyFor(me(run, this.seat).hero);
+      prefetch([...(firstNew ? [] : [st.battleStart]), st.battleWin, st.hungry, st.lowHp].map((xs) => ({ group: heroVoice(heroSpeaker()), text: planPick(xs) })));
+      // 主角姿勢照舊先暖（戰鬥畫面掛上時 `warmHeroes` 會再暖一次並留參照），只是不等、不插隊
+      void decodeAll(heroSpriteUrls(run.players.map((p) => p.hero)), 3, false);
+      // 250 毫秒內齊了就不出現；沒齊才在地圖上顯示「正在準備戰鬥」進度條，齊了（或上限到了）就收
+      void gateProgress(ready, () => progressBar(this.screen, i18nT('正在準備戰鬥……'), pr));
+      void ready.then(proceed);
     };
     if (isBoss) {
       // 關主開場依「這隻關主是誰」挑：師父的戲只在第三關的 tower_master 身上。

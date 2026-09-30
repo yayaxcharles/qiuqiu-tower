@@ -3,7 +3,8 @@ import { eventById, events } from '../content/events';
 import { blessingById } from '../content/blessings';
 import { KEEPERS } from '../content/keepers';
 import { bossPoolForAct } from '../engine/run';
-import type { EnemyDef, EnemyEffect, EnemyPool, QmarkVariant, RunState } from '../engine/types';
+import type { EnemyDef, EnemyEffect, EnemyPool, MapNode, QmarkVariant, RunState } from '../engine/types';
+import { nextChoices } from '../engine/map';
 import { QMARK_ART, qmarkProtected } from '../engine/qmark';
 import { MERCHANT_SPRITES, artUrl, bossArtUrls, coopArtUrlsFor, decodeAll, eventArtHero, eventArtKey, hasMonsterPose, monsterPhaseKey, heroOfKey, localHero, monsterUrl, releaseHeldArt, runStartArtUrls, warmed, type DecodePool, type MonsterPose } from './assets';
 import { SLIDES_BY_ACT, bgKeysForAct } from './bgacts';
@@ -444,9 +445,51 @@ export function coopArtReady(): Promise<void> { return coopDone; }
 /** 測試用：現在手上留著哪幾張連線牌面 */
 export function _coopArtHeldForTest(): string[] { return [...coopPool.keep.keys()]; }
 
+/**
+ * 一批下載的進度（慢網路修正 2026-09-30）：地圖前、開打前那兩個條件式進度條數的就是它。
+ * `follow` 把一組「抓完（成功或失敗都算）」接上來：失敗也算完成，不然一張抓不到進度條就永遠停在九成。
+ */
+export interface Progress { done: number; total: number; on?: () => void }
+export function follow(ps: readonly Promise<unknown>[], pr: Progress = { done: 0, total: 0 }): Promise<void> {
+  pr.total += ps.length;
+  pr.on?.();
+  return Promise.all(ps.map((p) => p.catch(() => undefined).then(() => { pr.done += 1; pr.on?.(); }))).then(() => undefined);
+}
+
+/** 地圖節點的圖示（`screens/map.ts` 畫、`netload.ts` 開局先抓，同一張表） */
+export const NODE_ICON: Record<MapNode['type'], string> = {
+  戰鬥: 'icon/node_fight', 大魔物: 'icon/node_elite', 事件: 'icon/node_event',
+  罐頭鋪: 'icon/node_shop', 貓窩: 'icon/node_rest', 紙箱: 'icon/node_chest', 塔主: 'icon/node_boss',
+};
+
+/**
+ * 下一步走得到的戰鬥格：那幾場的魔物立繪（含召喚、分裂、換階段）先插隊解好（慢網路修正 2026-09-30）。
+ * 開局（`netload.ts`，第一層三格）與每次地圖畫出來（`screens/map.ts`）各叫一次；點下去時 `warmEncounter` 看到已解好就不用等。
+ * **只挑下一步**，不是整張地圖：一格四五張、一步兩三格，解碼後幾 MB；換階段圖只在這裡與開打時抓（`preloadAct` 只抓基礎姿勢）。
+ * 魔物變裝照座位 0（跟 `startFight` 傳給 `warmEncounter` 的同一位，抓的才會是畫面上那一組）。
+ * 連線時同伴每投一票地圖就安靜重畫一次：同一格的已經送出就不重送（`decodeAll` 只記得「解完的」）。
+ * 只讀地圖與魔物表，不動局面、不碰亂數。
+ */
+let nextAsked = new Set<string>();
+let nextKey = '';
+export function nextFightUrls(run: RunState): string[] {
+  const ids = new Set<string>();
+  for (const n of nextChoices(run.map, run.currentNode)) {
+    if (n.encounterId && (n.type === '戰鬥' || n.type === '大魔物' || n.type === '塔主')) for (const id of encounterById[n.encounterId]?.enemies ?? []) relatedIds(id, ids);
+  }
+  return urlsFor([...ids].map((id) => enemyById[id]).filter((d): d is EnemyDef => !!d), run.players[0]?.hero ?? 'ninja');
+}
+export function preloadNextFights(run: RunState): Promise<void> {
+  const key = `${run.seed}|${run.act}`;
+  if (key !== nextKey) { nextKey = key; nextAsked = new Set(); }
+  const fresh = nextFightUrls(run).filter((u) => !nextAsked.has(u));
+  for (const u of fresh) nextAsked.add(u);
+  return decodeAll(fresh, Math.max(1, fresh.length), true, undefined, 'high');
+}
+
 /** 開打前把這場的魔物（含召喚物）解碼好；最多等 `timeoutMs`，沒等到也照樣開打 */
 export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: readonly string[] = [],
-  skinHero: string | undefined = localHero()): Promise<void> {
+  skinHero: string | undefined = localHero(), pr?: Progress): Promise<void> {
   const enc = encounterById[encounterId];
   if (!enc) return Promise.resolve();
   const ids = new Set<string>();
@@ -474,9 +517,14 @@ export function warmEncounter(encounterId: string, timeoutMs = 1500, heroPoses: 
   // `hold` 逐張決定：魔物那批照 2026-09-04 低 14 的規矩留參照；球球那 27 張解成點陣圖約 33 MB，
   // 戰鬥畫面掛上時 `combat.ts` 的 `warmHeroes()` 自己會再暖一次並留自己那份（`warmPool`，每場一份、跟著閉包回收），
   // 這裡不必再永久壓一份。
+  //
+  // **2026-09-30 慢網路修正**：開打那一處（`app.ts` 的 `startFight`）不再把主角三十張姿勢傳進來等——
+  // 那一批約 1 MB，慢網路下 1.5 秒內不可能到齊，冷快取第一場 20／20 次撞滿上限（量測報告 2.5）；只預載魔物也沒用，
+  // 要兩件一起做才從 1.8 秒降到 0.3 秒（報告 5.1）。姿勢改成背景暖、不等。這支本身照舊：第三個參數給什麼就等什麼。
+  // 同一批一次全送、插隊（`high`）：只剩這場的魔物與手牌十來張，一張一個工人，`pr` 才數得出進度（地圖上的進度條）
   const monsters = urlsFor(defs, skinHero);
   const held = new Set(monsters);
-  const work = decodeAll([...new Set([...monsters, ...heroPoses])], 6, (u) => held.has(u));
+  const work = follow([...new Set([...monsters, ...heroPoses])].map((u) => decodeAll([u], 1, held.has(u), undefined, 'high')), pr);
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<void>((r) => { timer = setTimeout(r, timeoutMs); });
   return Promise.race([work, timeout]).finally(() => { if (timer !== undefined) clearTimeout(timer); });
