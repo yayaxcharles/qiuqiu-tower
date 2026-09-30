@@ -1,7 +1,7 @@
 import { getLang, glossText, langVersion, term, zhGlossary } from '../i18n';
 import { el } from './dom';
 import { overlayRoot } from './overlay';
-import { tipTop } from './tippos';
+import { layoutHooks } from './layouthooks';
 
 /**
  * 名詞表照目前的語言換（多語系第一片，2026-09-29）：比對的是**畫面上的譯名**（Curl、丸まり），
@@ -59,7 +59,8 @@ function showTip(anchor: HTMLElement, word: string, body?: string): void {
   const scale = s.width / 1280;   // 舞台被 transform 縮過，量到的座標要換算回 1280×720
   tip.style.left = `${Math.max(0, Math.min(1280 - 280, (r.left - s.left) / scale))}px`;
   // 框高要掛上去才量得到；下緣會出舞台就換位置（`tippos.ts`），放得下的照原樣
-  tip.style.top = `${tipTop((r.top - s.top) / scale, tip.offsetHeight)}px`;
+  const y = (r.top - s.top) / scale;
+  tip.style.top = `${layoutHooks.tipTop?.(y, tip.offsetHeight) ?? Math.max(0, y - 90)}px`;
 }
 
 /**

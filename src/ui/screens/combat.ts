@@ -48,7 +48,7 @@ import { enemyLeft, nextLineup, playerLeft, speechBubbleAt } from '../enemylayou
 import { burst } from '../fx';
 import { playAttackImpactAccent } from '../attack-impact-accent';
 import { renderHud } from '../hud';
-import { fitUnitLabels } from '../labelfit';
+import { layoutHooks } from '../layouthooks';
 import { monsterPose } from '../monsterpose';
 import { idlePoseKey } from '../heropose';
 import { combatWarmPoses } from '../rest-state-motion';
@@ -1927,7 +1927,7 @@ registerScreen('combat', (app, root, props) => {
     const shown = shownEnemy(e);
     node.querySelector(':scope > .chips')?.replaceWith(enemyChips(e, enemyById[e.enemyId], reviving));
     chipLift.settle(node);   // 牌子列整排換了，排數可能變了（見 `chipLift`）
-    if (!reviving) node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown));
+    if (!reviving) { node.querySelector('.sprite-box > .intent')?.replaceWith(intentChip(shown)); layoutHooks.labels?.(node); }   // 換了意圖牌，新的那塊也要量（英日才會動）
     // 打掉飛行的那一下：東西打到才掉下來（跟 enemyUnit 同一個判準）。虛化只在魔物自己的回合變，不用跟
     node.classList.toggle('airborne', !e.dead && getStatus(shown, '飛行') > 0);
   }
@@ -2418,7 +2418,7 @@ registerScreen('combat', (app, root, props) => {
     }
     box.querySelector('.log')?.replaceWith(el('div', { class: 'log' }, ...cs.log.slice(-4).map((l) => el('div', {}, logLine(l)))));
     chipLift.settle(field);   // 換掉的那幾格：牌子折幾排當場量好，後面量立繪位置的才準（見 `chipLift`）
-    fitUnitLabels(field);   // 英日的長招式名、長關主名放不下就縮字（見 labelfit.ts）
+    layoutHooks.labels?.(field);   // 英日的長招式名、長關主名放不下就縮字（英日語言包掛上來的，見 src/i18n/layout.ts）
     // 狀態列只在它畫的東西變了才重建（見 `hudKey`）
     const hudNow = hudKey(me(run, app.seat), my().fishDelta, hudCounters());
     if (hudNow !== hudShown || !box.querySelector('.hud')) {
@@ -2571,7 +2571,7 @@ registerScreen('combat', (app, root, props) => {
     root.append(box);
     // 牌子折成好幾排的那幾格，立繪框當場放回原位（見 `chipLift`）。要排在下面量位置的發牌、瞄準箭頭、手牌滑動之前
     chipLift.settle(field);
-    fitUnitLabels(field);   // 同 patchField：英日的長招式名、長關主名放不下就縮字（見 labelfit.ts）
+    layoutHooks.labels?.(field);   // 同 patchField
     paintFlashes(performance.now());   // 同 patchField：整頁重畫也要把還在演的秘寶補回去（稽核 2026-09-10 複核 中-1）
     // 這兩件都要量元素位置，得等節點真的進到文件裡才量得到，所以放在 append 之後。
     // dealFrom 排在同一拍（不是下一幀）：動畫要到下一幀才開始播，這時候補上位移還來得及。

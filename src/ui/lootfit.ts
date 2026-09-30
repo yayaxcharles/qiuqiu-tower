@@ -20,6 +20,8 @@ export function pickLootLevel(over: (level: number) => number, max = LOOT_LEVELS
   return max;
 }
 
+import { layoutOk, watchLayout } from './layouthooks';
+
 /** 量現場：展示區上緣比 `LOOT_TOP_LIMIT` 高出幾像素（＞0＝跑出去） */
 function lootOver(scene: HTMLElement): number {
   const box = scene.querySelector<HTMLElement>('.scene-art .showcase.icons');
@@ -29,14 +31,24 @@ function lootOver(scene: HTMLElement): number {
   return LOOT_TOP_LIMIT - (box.getBoundingClientRect().top - stage.top) / k;
 }
 
-/** 畫好之後叫（節點要已經在文件裡）：獲得物展示超出上緣才收小 */
+/** 流程（冪等：先還原再量）：超出上緣才一級一級收小。`over(level)`＝套上那一級後還超出幾像素（0 級＝原樣） */
+export function runLootFit(reset: () => void, over: (level: number) => number): number {
+  reset();
+  if (over(0) <= 0) return 0;
+  return pickLootLevel((l) => over(l));
+}
+
+/** 畫好之後叫（節點要已經在文件裡）：獲得物展示超出上緣才收小；手機直拿時不量，轉橫後由 `relayout` 重跑 */
 export function fitLoot(scene: HTMLElement): void {
   const box = scene.querySelector<HTMLElement>('.scene-art .showcase.icons');
-  if (!box || !scene.isConnected) return;
-  for (let i = 1; i <= LOOT_LEVELS; i++) box.classList.remove(`fit-${i}`);
-  if (lootOver(scene) <= 0) return;
-  pickLootLevel((l) => {
-    for (let i = 1; i <= LOOT_LEVELS; i++) box.classList.toggle(`fit-${i}`, i <= l);
-    return lootOver(scene);
-  });
+  if (!box) return;
+  const run = (): void => {
+    if (!scene.isConnected || !layoutOk()) return;
+    runLootFit(
+      () => { for (let i = 1; i <= LOOT_LEVELS; i++) box.classList.remove(`fit-${i}`); },
+      (l) => { for (let i = 1; i <= LOOT_LEVELS; i++) box.classList.toggle(`fit-${i}`, i <= l); return lootOver(scene); },
+    );
+  };
+  watchLayout(scene, run);
+  run();
 }

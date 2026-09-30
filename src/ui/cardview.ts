@@ -7,6 +7,7 @@ import { upgradedChangedChars } from './carddiff';
 import { el } from './dom';
 import { cardTypeLabel, describeCardText, term } from '../i18n';
 import { markupKeywords } from './tooltip';
+import { layoutHooks } from './layouthooks';
 
 export interface CardViewOpts {
   /** 只有傳牌表定義（沒有 uid）時才看這個；傳牌張實例的話以實例上的升級狀態為準 */
@@ -86,27 +87,24 @@ export function cardNode(card: CardInstance | CardDef, opts: CardViewOpts = {}):
 }
 
 /**
- * 牌面文字放不下時逐級退讓（2026-09-06 字體放大後的保險；2026-09-30 英日極端版面檢查 高-3、中-5 補了後面三級）。
+ * 牌面文字放不下時逐級退讓（2026-09-06 字體放大後的保險；2026-09-30 英日極端版面檢查 高-3、中-5 補了後面的換行與讓牌圖）。
  * 牌面高度固定，牌池最長的牌（42 字）剛好四行。要量高度得先掛進畫面，所以排到下一個畫格；
  * 那時還沒掛上（例如只拿來量尺寸）或不在瀏覽器裡（測試）就跳過。放得下的牌一個像素都不動（繁中全部如此）。
  *
  * 先處理牌名，因為牌名換行會多佔一行的高度、規則文字要在那之後才量：
  *   ① 牌名固定一行，放不下就一路縮到 9px；
- *   ② 縮到 9px 還放不下（英文「Secret Art: Thousand-Pound Drop」這種）就換成兩行、字改 `NAME_WRAP_SIZE`，不再切掉字母。
+ *   ② 縮到 9px 還放不下（英文「Secret Art: Thousand-Pound Drop」這種）：換成兩行（`layoutHooks.card`，英日語言包掛上來的，見 `cardfit.ts`）。
  * 規則文字：
  *   ③ 字從 15／13 一路每次降 0.5，最低 10；
- *   ④ 縮到 10 還被切（英文連線牌尾巴那句單人規則）：先把行距 1.3 收到 1.2，再一次 2 像素縮牌圖高度（最多縮到七成），
- *      把高度讓給文字。牌圖是裝飾，最後才動它；字不再縮，手機上 10 像素已經很小。
+ *   ④ 縮到 10 還被切（英文連線牌尾巴那句單人規則）：收行距、把牌圖高度讓給文字（同一個掛鉤）。字不再縮，手機上 10 像素已經很小。
+ * ②④ 只有英日走到，放在語言包旁邊，首載不背這段程式。
  */
-export const NAME_WRAP_SIZE = 0.85;   // 換兩行時牌名字級是原本的幾成
-export const ART_MIN_RATIO = 0.7;     // 牌圖最多縮到原高的幾成
-
 function fitCardText(node: HTMLElement): void {
   if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') return;
   window.requestAnimationFrame(() => {
     const t = node.querySelector<HTMLElement>('.card-text');
     if (!t || !node.isConnected) return;
-    // 牌名固定一行（英日的牌名比中文長，2026-09-29 多語系）：放不下就一路縮到放得下，最小 9px；再不行換兩行
+    // 牌名固定一行（英日的牌名比中文長，2026-09-29 多語系）：放不下就一路縮到放得下，最小 9px
     const name = node.querySelector<HTMLElement>('.card-name');
     if (name) {
       let ns = parseFloat(getComputedStyle(name).fontSize);
@@ -114,35 +112,13 @@ function fitCardText(node: HTMLElement): void {
         ns -= 0.5;
         name.style.fontSize = `${ns}px`;
       }
-      if (name.scrollWidth > name.clientWidth) {
-        name.style.fontSize = '';
-        const base = parseFloat(getComputedStyle(name).fontSize);
-        name.classList.add('wrap');
-        let ws = Math.round(base * NAME_WRAP_SIZE * 2) / 2;
-        name.style.fontSize = `${ws}px`;
-        // 兩行放不下（單字太長或還是三行）再縮，最低 10
-        for (let i = 0; i < 6 && ws > 10 && (name.scrollWidth > name.clientWidth || name.scrollHeight > ws * 1.2 * 2 + 6); i++) {
-          ws -= 0.5;
-          name.style.fontSize = `${ws}px`;
-        }
-      }
+      if (name.scrollWidth > name.clientWidth) layoutHooks.card?.(node, 'name');
     }
     let size = parseFloat(getComputedStyle(t).fontSize);
     for (let i = 0; i < 10 && t.scrollHeight > t.clientHeight && size > 10; i++) {
       size -= 0.5;
       t.style.fontSize = `${size}px`;
     }
-    if (t.scrollHeight > t.clientHeight) {
-      t.style.lineHeight = '1.2';
-      const art = node.querySelector<HTMLElement>('.card-art');
-      if (art && t.scrollHeight > t.clientHeight) {
-        const full = art.offsetHeight;   // 版面高度（不受手牌歪斜、舞台縮放影響）
-        let h = full;
-        for (let i = 0; i < 16 && t.scrollHeight > t.clientHeight && h - 2 >= full * ART_MIN_RATIO; i++) {
-          h -= 2;
-          art.style.height = `${h}px`;
-        }
-      }
-    }
+    if (t.scrollHeight > t.clientHeight) layoutHooks.card?.(node, 'text');
   });
 }

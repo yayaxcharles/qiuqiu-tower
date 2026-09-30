@@ -20,7 +20,7 @@ import { showRelicList } from './reliclist';
 import { attachTextTooltip, attachTooltip, hideTooltip } from './tooltip';
 import { me } from '../engine/runplayer';
 import { t, term } from '../i18n';
-import { dropUntilFits, HUD_SLACK, hudClassesFor, hudOverflow, pickHudLevel, splitIcon } from './hudfit';
+import { layoutHooks } from './layouthooks';
 import { potionName, potionText, relicLong, relicName } from '../i18n/names';
 
 /**
@@ -241,50 +241,25 @@ export function renderHud(app: App, root: HTMLElement, fishDelta = 0, combat?: {
 /**
  * 「🔊 音效」拆成圖示（`.ico`）與字（`.lbl`）兩段（字前面帶空白，平常看起來跟一整串字一模一樣）。
  * 狀態列放不下時（`hudfit.ts`）只留圖示、字藏起來；完整名稱本來就掛在 `title` 或提示框。
+ * 關閉時三顆開關都是 🔇，只留圖示就分不出誰是誰：另外帶一個字的短標（`.kd`，音／効／ボ、M／S／V），只在只留圖示時顯示。
+ * `tmp`＝暫時狀態（分享鈕的 ✅⏳⚠）：整句就是字，圖示另外放（`.ico.tmp`），只留圖示時才顯示，一般狀態維持原字。
  */
-function iconLabel(node: HTMLElement, text: string): void {
-  const { icon, label } = splitIcon(text);
-  node.replaceChildren(el('span', { class: 'ico' }, icon), el('span', { class: 'lbl' }, label));
+function iconLabel(node: HTMLElement, text: string, tmp = ''): void {
+  if (tmp) { node.replaceChildren(el('span', { class: 'ico tmp' }, tmp), el('span', { class: 'lbl' }, text)); return; }
+  const at = text.indexOf(' ');   // 「🔊 SFX」：第一個空白前是圖示、空白起是字（沒有空白就整段當字）
+  const icon = at > 0 ? text.slice(0, at) : '';
+  const label = at > 0 ? text.slice(at) : text;
+  node.replaceChildren(el('span', { class: 'ico' }, icon), el('span', { class: 'lbl' }, label), ...(icon === '🔇' ? [el('span', { class: 'kd' }, label.trim().slice(0, 1))] : []));
 }
 
 /**
- * 畫完狀態列就量現場：最右邊那顆鈕超出右緣，就照 `hudfit.ts` 的順序一級一級退讓（同步量、同步改，畫格開始前就定案，
- * 戰鬥中每動一次就重畫也不會閃）。放得下就什麼都不動，所以平常的畫面一個像素都不變。
- * 多數畫面的畫面層先插進舞台、再交給各畫面去畫，畫完狀態列當場就量得到。戰鬥整頁重畫是先把整個 `.combat` 組好、
- * 狀態列還在游離的節點裡，`root.append(box)` 才掛上去：量不到時排一個微任務（同一段程式跑完、下一格畫面開始畫之前），
- * 掛上去了再量；這一段沒人接手（畫面在這之前就被換掉）就放棄。
+ * 畫完狀態列就量現場，放不下才逐級退讓（流程在 `hudfit.ts`，量與改在 `src/i18n/layout.ts`；不放首載：放得下的畫面一步都不走）。
+ * 英日語言包載入時就把 `layoutHooks.hud` 掛好，當場同步量、同步改（畫格開始前就定案，戰鬥中每動一次就重畫也不會閃）；
+ * 繁中沒有語言包，第一次畫狀態列時按需載入那一份（之後同步）——只有最極端的組合才會在那一下多閃一格。
  */
 function fitHud(hud: HTMLElement, relics: HTMLElement, moreBtn: (n: number) => HTMLElement, total: number): void {
-  if (!hud.isConnected) {
-    if (typeof queueMicrotask === 'function') queueMicrotask(() => { if (hud.isConnected) fitHud(hud, relics, moreBtn, total); });
-    return;
-  }
-  const over = (): number => {
-    for (let i = hud.children.length - 1; i >= 0; i--) {
-      const c = hud.children[i] as HTMLElement;
-      if (c.offsetWidth > 0) return hudOverflow(c.offsetLeft, c.offsetWidth);
-    }
-    return 0;
-  };
-  if (over() <= HUD_SLACK) return;
-  // 從第 1 級（擠）起試；每一級都放不下就停在最後一級，再去收秘寶
-  pickHudLevel((l) => {
-    hud.classList.remove('t-icons', 't-short');
-    for (const c of hudClassesFor(l)) hud.classList.add(c);
-    return over();
-  }, 1);
-  // 圖示與短標都用上了還放不下：最舊的秘寶（排在最後面）一顆一顆收進「+N」
-  let shown = relics.querySelectorAll('.hud-relic').length;
-  dropUntilFits(over, () => {
-    const icons = relics.querySelectorAll<HTMLElement>('.hud-relic');
-    const tail = icons[icons.length - 1];
-    if (!tail) return false;
-    tail.remove();
-    shown--;
-    relics.querySelector('.hud-relic-more')?.remove();
-    relics.append(moreBtn(total - shown));
-    return true;
-  });
+  if (layoutHooks.hud) layoutHooks.hud(hud, relics, moreBtn, total);
+  else void import('../i18n/layout').then(() => layoutHooks.hud?.(hud, relics, moreBtn, total));
 }
 
 /**
@@ -326,7 +301,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
   const label = full ? t('本局代碼 {seed} ⧉', { seed: shown }) : run ? t('📤 分享局面') : t('🎲 本局代碼');
   const node = el('button', { class: full ? 'hud-seed seed-copy' : 'btn small hud-seed seed-copy' });
   // 狀態列那顆拆成圖示＋字（擠的時候只留圖示，`hudfit.ts`）；結算畫面那顆是整串代碼，照舊
-  const setText = (text: string, target: HTMLElement = node): void => { if (full) target.textContent = text; else iconLabel(target, text); };
+  const setText = (text: string, target: HTMLElement = node, tmp = ''): void => { if (full) target.textContent = text; else iconLabel(target, text, tmp); };
   setText(label);
   if (full || !run) {
     attachTextTooltip(node, t('本局代碼 {seed}', { seed }), t('點一下複製。貼到首頁的「本局代碼」欄，可以重玩這一局（同一張地圖、同樣的怪）。'));
@@ -350,7 +325,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
       // 不會同時存在（稽核 2026-09-10 低-3 實測）。哪天結算畫面補上狀態列，這裡要改成
       // 只在同一個畫面根節點裡找，不然 1.4 秒後的計時器會把文字寫到另一顆上。
       const live = document.querySelector<HTMLElement>('.seed-copy') ?? node;
-      setText(`✅ ${t('已複製！')}`, live);
+      setText(t('已複製！'), live, '✅');
       // 連點時舊的計時器會在新的一次還顯示「產生中…」時把字改回去，看起來像沒反應
       window.clearTimeout(resetTimer);
       resetTimer = window.setTimeout(() => {
@@ -377,7 +352,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
   node.addEventListener('click', () => {
     if (full || !run) { copy(seed); return; }
     // 壓縮是非同步的，先把按鈕改成「產生中」，免得玩家以為沒反應又點一次
-    setText(`⏳ ${t('產生中…')}`);
+    setText(t('產生中…'), node, '⏳');
     // **分享的是「上一個存檔點」，不是此刻的 run**（稽核 2026-09-07 高 1）。
     // 進節點時 `currentNode` 就被推到新節點，但那個節點還沒結算——存檔機制特地避開這一刻
     //（見 app.ts 的 save() 註解）。壓當下的 run 會出兩種事：收到的人站在一個還沒打的節點上，
@@ -389,7 +364,7 @@ export function seedTag(seed: string, full = false, run?: RunState): HTMLElement
     void encodeRun(shared).then((code) => {
       if (code) { copy(code); return; }
       // 壓不動（太舊的瀏覽器）就退回分享種子，並且講清楚差別，不要默默給一串意思不同的東西
-      setText(`⚠ ${t('太長了，改給你本局代碼')}`);
+      setText(t('太長了，改給你本局代碼'), node, '⚠');
       window.setTimeout(() => copy(seed), 900);
     });
   });

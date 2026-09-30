@@ -49,9 +49,6 @@
 .hud-hp {
   position: relative;
   width: 220px;
-  /* 血量是整場最要緊的數字：保底 146，再擠就由 `hudfit.ts` 一級一級退讓別的格，生命條不再被壓成幾像素（英文難度 2 以上曾被壓到 4 像素，2026-09-30）。
-     不寫 `flex: none`：146 以上它照舊會縮（繁中原本就靠這個吸收一點點超出），畫面才不會變 */
-  min-width: 146px;
   height: 24px;
   /* 血條做成嵌在樑上的凹槽：內側暗、外側有一圈深邊，看起來是挖進去的 */
   background: #241a12;
@@ -74,7 +71,8 @@
   box-shadow: inset 0 1px 0 #ffffff59;
   transition: width 380ms ease-out;
 }
-.hud-hp span { position: relative; }
+.hud-hp span { position: relative; white-space: nowrap; }   /* 窄到放不下時字被切、不換行：`hudfit.ts` 量字寬靠這個，也才看得出「比自己的字窄」 */
+/* 血量是整場最要緊的數字：生命條沒有固定下限（繁中原本靠它縮一點吸收超出，不能動），但窄到放不下自己的字時，`hudfit.ts` 會把別的格退讓到它讀得到為止（英文難度 2 以上曾被壓到 4 像素） */
 .hud-fish {
   display: flex;
   align-items: center;
@@ -180,10 +178,13 @@
  *   .t-short 難度牌子縮成短標、牌組鈕留「🎴 張數」、圖鑑鈕只留圖示
  * 圖示鈕留著全部功能，音樂、音效、語音三顆一眼找得到（2026-09-30 英日極端版面檢查 高-1）。
  */
-.hud-deck .ico, .hud-diff .short { display: none; }
+.hud-deck .ico, .hud-diff .short, .hud-sound .kd, .hud-seed .ico.tmp { display: none; }
 .hud.t-icons .hud-sound .lbl, .hud.t-icons .hud-seed .lbl,
 .hud.t-short .hud-comp .lbl, .hud.t-short .hud-deck .lbl, .hud.t-short .hud-diff .full { display: none; }
 .hud.t-short .hud-deck .ico, .hud.t-short .hud-diff .short { display: inline; }
+/* 只留圖示時：關閉的三顆開關都是 🔇，後面補一個字的短標分得出誰是誰；分享鈕的暫時狀態（✅⏳⚠）只在這時顯示，一般狀態維持原字 */
+.hud.t-icons .hud-sound .kd { display: inline; font-size: .72em; margin-left: 1px; }
+.hud.t-icons .hud-seed .ico.tmp { display: inline; }
 .hud.t-icons .hud-sound { margin-left: 2px; padding-left: 8px; padding-right: 8px; }
 .hud.t-icons .hud-vol { margin-left: 2px; }
 .hud-relic { transition: transform 120ms ease-out; cursor: pointer; }   /* 點了開本局秘寶清單 */

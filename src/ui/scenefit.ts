@@ -1,5 +1,5 @@
 /*
- * 事件文字讓位給插圖的純判斷（2026-09-30 英日極端版面檢查 中-1；量版面的那一段在 `scene.ts` 的 `fitSceneText`）。
+ * 事件文字讓位給插圖的純流程（2026-09-30 英日極端版面檢查 中-1；量版面的轉接器在 `src/i18n/layout.ts`，只有英日語言包才會載入）。
  *
  * 插圖 `fitArt` 最矮縮到 210（`scene.ts`），插圖上緣 18，所以插圖最低會到場景座標 228。
  * 對白框上緣是一段透明漸層（36～60 像素的內距），插圖疊進 30 像素以內算設計、不算蓋住（跟檢查報告同一條線），
@@ -22,4 +22,28 @@ export function pickSceneLevel(deficit: (level: number) => number, max = SCENE_F
 /** 讓文字捲動時的最大高度：現在的高度扣掉還缺的，至少 `min` */
 export function scrollMaxHeight(textHeight: number, deficit: number, min = SCENE_MIN_TEXT): number {
   return Math.max(min, Math.round(textHeight - deficit));
+}
+
+export interface SceneAdapter {
+  /** 還原：退讓的類別、捲動的最大高度都拿掉 */
+  reset(): void;
+  /** 對白框上緣的位置（場景座標，扣掉進場動畫的位移） */
+  boxTop(): number;
+  /** 套上第 `level`（1～2）級的類別 */
+  setLevel(level: number): void;
+  /** 文字那一塊現在的高度 */
+  textHeight(): number;
+  /** 讓文字那一塊捲動、最大高度設成 `maxHeight` */
+  scroll(maxHeight: number): void;
+}
+
+/** 整個流程（冪等：先還原再量）。回傳最後停在第幾級：0 原樣、1～2 縮排版、3 捲動 */
+export function runSceneFit(a: SceneAdapter, limit = SCENE_BOX_LIMIT): number {
+  a.reset();
+  if (a.boxTop() >= limit) return 0;
+  const level = pickSceneLevel((l) => { a.setLevel(l); return limit - a.boxTop(); });
+  const deficit = limit - a.boxTop();
+  if (deficit <= 0 || level < SCENE_FIT_LEVELS) return level;
+  a.scroll(scrollMaxHeight(a.textHeight(), deficit));
+  return SCENE_FIT_LEVELS + 1;
 }
