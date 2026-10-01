@@ -178,6 +178,7 @@ describe('塔主第二階段先下載：等第一階段好了才開始', () => {
       prefetchEnemyMotionLate: (kind: string) => { prefetched.push(`${kind}:倒下`); return Promise.resolve(); },
       fxOwnersOf: (id: string, phase: number, kind?: string) => [kind, `enemy:${id}@${phase}`],
       fxNamesFor: (owners: string[]) => (owners.includes('iron_claw_p2') ? ['blast_large'] : []),
+      syncAllAuras() {},   // 特效圖集到了補一次氣場（師父，2026-10-01）
       prefetchFx: (names: string[]) => { prefetched.push(`特效:${names.join(',')}`); return Promise.resolve(); },
       ended: false,
     };

@@ -157,5 +157,6 @@ function prefetchMasterAhead(run: RunState, key: string): void {
   masterAheadKey = key;
   const alive = (): boolean => nextKey === key;
   // 程式放在戰鬥畫面那一塊（開局時 A 層就抓了）：這裡直接引用逐格、特效那幾支的話，打包會把它們各拆成一個檔、首載程式變大（實測 +158 位元組）
-  void import('./screens/combat').then((m) => m.prefetchMasterMotionAhead(alive)).catch(() => undefined);
+  // 先等這一局主角的動作就緒（最多 2 分鐘）再排，不跟主角分頻寬
+  void import('./screens/combat').then((m) => m.prefetchMasterMotionAhead(alive, run.players.map((p) => p.hero))).catch(() => undefined);
 }

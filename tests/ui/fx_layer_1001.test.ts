@@ -448,6 +448,7 @@ describe('combat.ts：一階倒下的下載排在哪', () => {
       },
       prefetchEnemyMotionLate: (k: string) => { got.push(`倒下:${k}`); return Promise.resolve(); },
       fxOwnersOf, fxNamesFor,
+      syncAllAuras() {},   // 特效圖集到了補一次氣場（師父，2026-10-01）
       prefetchFx: (names: string[]) => { got.push(`特效:${names.join(',')}`); return Promise.resolve(); },
     };
     const code = (await transformWithOxc(prefetchSource, 'fx-prefetch.ts')).code;

@@ -451,6 +451,32 @@ describe('師父：戰鬥畫面', () => {
     expect(g.played.some(([, a]) => a === 'change')).toBe(false);
   });
 
+  it('同一次結算跳了兩級（第一階段→第三階段）：不演變身（不然會從第一階段的樣子淡到第三階段的立繪），直接換第三階段立繪', async () => {
+    const f = await field({ phase: 2, invulnIn: 1 });
+    f.api.startPhaseChange(f.e, 0);
+    expect(f.enemyPhaseChanges.size).toBe(0);
+    f.mount();
+    expect(f.played.some(([, a]) => a === 'change')).toBe(false);
+    expect(f.canvasShown()).toBe(false);
+  });
+
+  it('變身演出中黑氣沿用上一階段的濃淡（身上還是那一階段的樣子），演完才換成新階段的', async () => {
+    const f = await field({ phase: 1, invulnIn: 1 });
+    f.api.startPhaseChange(f.e, 0);
+    const owners = (): string[] => [...new Set(f.api.enemyAuraCues(f.e).filter((c) => c.on === 'aura').map((c) => c.owner))];
+    expect(owners()).toEqual(['daxia_p1']);
+    expect(f.api.enemyAuraCues(f.e).find((c) => c.on === 'aura')!.opacity).toBe(0.48);
+    f.advance(1950);
+    expect(owners()).toEqual(['daxia_p2']);
+  });
+
+  it('特效圖集下載好：場上每一隻補一次氣場（冷快取、重新整理接回時黑氣不必等第一次被重畫）', () => {
+    const c = SRC.replace(/\r\n/g, '\n');
+    expect(c).toContain('const syncAllAuras = (): void => { if (app.cs === cs && !ended) for (const e of cs.enemies) syncEnemyAura(e); };');
+    expect(c).toContain(".then(() => (fighting() ? prefetchFx(fxNames) : undefined)).catch(() => undefined)\n          // 黑氣圖集到了：場上的師父馬上補上（冷快取、重新整理接回時不必等他第一次被重畫）\n          .then(() => syncAllAuras()).catch(() => undefined)");
+    expect(c).toContain(".then(() => (app.cs === cs && !ended ? prefetchFx(fxNamesFor([kind])) : undefined)).catch(() => undefined)\n          .then(() => syncAllAuras()).catch(() => undefined)");
+  });
+
   it('變身圖集還沒到：不登記，照舊閃白＋直接換下一階段立繪；閉關氣場馬上就有', async () => {
     const f = await field({ phase: 1, invulnIn: 1, changeReady: false });
     f.api.startPhaseChange(f.e, 0);
@@ -626,10 +652,15 @@ describe('師父：下載', () => {
     expect(n).toContain('prefetchMasterAhead(run, key);');
     expect(n).toContain("if (run.act < 3 || masterAheadKey === key) return;");
     expect(n).toContain("new URLSearchParams(location.search).get('motion') === '0'");
-    expect(n).toContain("import('./screens/combat').then((m) => m.prefetchMasterMotionAhead(alive))");
+    expect(n).toContain("import('./screens/combat').then((m) => m.prefetchMasterMotionAhead(alive, run.players.map((p) => p.hero)))");
     const c = SRC.replace(/\r\n/g, '\n');
     const fn = c.slice(c.indexOf('export async function prefetchMasterMotionAhead'));
-    expect(fn.slice(0, 900)).toContain('await prefetchEnemyMotionAhead([first], alive);\n  if (alive()) await prefetchFx(');
-    expect(fn.slice(0, 900)).toContain('await prefetchEnemyMotionAhead(rest, alive);');
+    const body = fn.slice(0, 1800);
+    // 先等這一局主角的動作就緒（有上限），再排師父；地圖上的特效只下載不解碼（審查 2026-10-01 低）
+    expect(body).toMatch(/for \(let waited = 0; waited < heroWaitMs && !heroReady\(\); waited \+= 1000\)[\s\S]*await prefetchEnemyMotionAhead\(\[first\], alive\);/);
+    expect(body).toContain("fxOwnersOf('tower_master', phase, kind))), false);");
+    expect(body).toContain('await prefetchEnemyMotionAhead(rest, alive);');
+    expect(body).toContain('qiuqiuMotionReady()');
+    expect(body).toContain("companionMotionReady(h as 'feifei' | 'dangdang' | 'fengfeng')");
   });
 });

@@ -177,7 +177,9 @@ export function fxReady(name: string): boolean {
  * 背景下載這幾支特效（**不插隊**，走大檔那一條排在後面）；下載好再排背景解開，第一次放時不在主執行緒解碼。
  * 失敗的從快取拿掉，下次再試。由 combat.ts 決定什麼時候排（排在這一場的魔物動作後面，見那邊的下載順序）。
  */
-export async function prefetchFx(names: readonly string[]): Promise<void> {
+export async function prefetchFx(names: readonly string[],
+  /** 下載好要不要排背景解開：師父在第三關地圖上先下載的傳 false（還要好一陣子才用得到，不先壓一份點陣圖） */
+  decode = true): Promise<void> {
   for (const name of names) {
     const sprite = await loadSprite(name);
     if (!sprite) continue;
@@ -189,7 +191,7 @@ export async function prefetchFx(names: readonly string[]): Promise<void> {
     await loadHeavy(image, fileUrl(sprite.texture), false);
     try {
       await imageLoaded(image);
-      void prepareDecodedAtlas(image, false);
+      if (decode) void prepareDecodedAtlas(image, false);
     } catch { if (images.get(sprite.texture) === image) images.delete(sprite.texture); }
   }
 }
