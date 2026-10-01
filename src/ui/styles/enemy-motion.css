@@ -1,7 +1,3 @@
-/* 狸大人變身（2026-10-01）：煙最濃那一格交還二階立繪，煙在立繪上方淡出（長度照資料，combat.ts 掛 animation-duration） */
-.enemy-motion.motion-change-fade { animation: motion-change-fade .55s ease-out forwards; }
-@keyframes motion-change-fade { from { opacity: 1; } to { opacity: 0; } }
-
 .enemy-motion {
   position: absolute;
   left: 50%;

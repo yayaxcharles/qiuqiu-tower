@@ -121,7 +121,7 @@ describe('建畫布時就帶要畫的動作（不留空畫布）', () => {
     const enemyMotionActors = new Map<number, unknown>([[7, { kind: 'iron_claw', action: 'idle', busyUntil: 0, actor: { element: oldCanvas, play() {}, pause() {}, dispose() {} } }]]);
     const e = { uid: 7, enemyId: 'iron_claw', phase: 1, dead: true, reviveIn: 0 };
     const bindings: Record<string, unknown> = {
-      enemyMotionActors, enemyPhaseChanges: new Map(), enemyMotionMoveClip: () => undefined,
+      enemyMotionActors, enemyPhaseChanges: new Map(), phaseSmoke: new Map(), enemyMotionMoveClip: () => undefined,
       root: { querySelector: () => box },
       qiuqiuEnemyMotionAllowed: () => true, motionEnabled: true, heroOf: () => 'ninja',
       qiuqiuEnemyMotionKind: (_id: string, phase: number) => (phase > 0 ? 'iron_claw_p2' : 'iron_claw'),

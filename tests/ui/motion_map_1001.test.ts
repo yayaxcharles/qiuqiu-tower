@@ -75,7 +75,8 @@ function sourceBetween(start: string, end: string): string {
 const mountSource = sourceBetween('  const MOTION_DEATH_FADE_MS', '  app.disposers.push(() => {');
 
 type FakeEl = { parentNode: FakeEl | null; children: FakeEl[]; classes: Set<string>; append(c: FakeEl): void; remove(): void;
-  classList: { add(k: string): void; remove(k: string): void; contains(k: string): boolean }; closest(): FakeEl | null; style: Record<string, string> };
+  classList: { add(k: string): void; remove(k: string): void; contains(k: string): boolean }; closest(): FakeEl | null; style: Record<string, string>;
+  animations: { keyframes: unknown; options: Record<string, unknown> }[]; animate(keyframes: unknown, options: Record<string, unknown>): void };
 function fakeEl(): FakeEl {
   const node: FakeEl = {
     parentNode: null, children: [], classes: new Set(),
@@ -84,6 +85,8 @@ function fakeEl(): FakeEl {
     classList: { add: (k) => { node.classes.add(k); }, remove: (k) => { node.classes.delete(k); }, contains: (k) => node.classes.has(k) },
     closest: () => node.parentNode,
     style: {} as Record<string, string>,
+    animations: [],
+    animate: (keyframes, options) => { node.animations.push({ keyframes, options }); },
   };
   return node;
 }
@@ -104,7 +107,7 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
   const enemyMotionActors = new Map<number, { kind: string; action: string; actor: { element: FakeEl } }>();
   const enemyPhaseChanges = new Map<number, { kind: string; until: number }>();
   const bindings: Record<string, unknown> = {
-    enemyMotionActors, enemyPhaseChanges,
+    enemyMotionActors, enemyPhaseChanges, phaseSmoke: new Map(),
     root: { querySelector: (sel: string) => (sel.endsWith('.sprite-box') ? box : unit) },
     qiuqiuEnemyMotionAllowed: () => true, motionEnabled: true, heroOf: () => 'ninja',
     qiuqiuEnemyMotionKind: (id: string, phase: number) => (phase > 0 ? `${id}_p2` : id),
@@ -116,7 +119,8 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
     createEnemyMotionActor: (kind: string) => {
       created.push(kind);
       const canvas = fakeEl();
-      return { element: canvas, play: (a: string, clip?: string) => { played.push([kind, a, clip]); }, pause() {}, dispose: () => { disposed.push(kind); } };
+      return { element: canvas, play: (a: string, clip?: string) => { played.push([kind, a, clip]); }, pause() {},
+        holdLast: () => { played.push([kind, 'holdLast', undefined]); }, dispose: () => { disposed.push(kind); } };
     },
     isSideMotionKind: () => true, hurtSet: new Set(opts.hurt ? [7] : []), acting: opts.acting ?? new Map(), enemyStaticPose: () => 'idle',
     staticIdle: () => opts.staticIdleKind ?? true, playsLongDeath: () => false,
@@ -223,13 +227,43 @@ describe('變身：換階段那一刻播變身，演完交還第二階段立繪'
     f.timers.find((t) => t.ms >= 1900)!.fn();
     expect(f.box.classList.contains('has-enemy-motion')).toBe(false);   // 二階立繪露出來了
     expect(smoke.parentNode).toBe(f.box);                                  // 煙還在立繪上方
-    expect(smoke.classes.has('motion-change-fade')).toBe(true);
-    expect(smoke.style.animationDuration).toBe('550ms');
+    // 計時到了先補畫最後一格（煙最濃那一格）再停，慢機器不會停在半路露出側面（審查 2026-10-01 低）
+    expect(f.played.at(-1)).toEqual(['tanuki_lord', 'holdLast', undefined]);
+    // 淡出用 animate() 掛在畫布上（樣式表的受擊紅閃蓋不掉，審查 2026-10-01 中）
+    expect(smoke.animations).toEqual([{ keyframes: [{ opacity: 1 }, { opacity: 0 }], options: { duration: 550, fill: 'forwards', easing: 'ease-out' } }]);
     expect(f.enemyMotionActors.get(7)?.kind).toBe('tanuki_lord_p2');      // 這一隻已經換成第二階段那一套
     const gone = f.timers.find((t) => t.ms === 600)!;
     gone.fn();
     expect(smoke.parentNode).toBe(null);
     expect(f.disposed).toContain('tanuki_lord');
+  });
+
+  it('淡出中被打（這一格整個換新框）或第二階段就緒整頁重畫：煙跟著搬到新框、淡出不重來；淡完才丟；倒下了就不留', async () => {
+    const f = await field({ enemyId: 'tanuki_lord', phase: 1, fade: 550 });
+    f.api.startPhaseChange(f.e, 0);
+    f.mount();
+    const smoke = f.box.children[0]!;
+    f.advance(1950);
+    f.timers.find((t) => t.ms >= 1900)!.fn();
+    smoke.classList.add('x');   // 淡出開始了
+    // 挨打：combat.ts 的 patchField 換了一個新的立繪框，再掛一次
+    const newUnit = fakeEl();
+    const newBox = fakeEl();
+    newUnit.append(newBox);
+    f.api.mountEnemyMotion(f.e, newBox);
+    expect(smoke.parentNode).toBe(newBox);
+    expect(smoke.animations.length).toBe(1);   // 沒有重新開始淡出
+    f.timers.find((t) => t.ms === 600)!.fn();
+    expect(smoke.parentNode).toBe(null);
+    f.api.mountEnemyMotion(f.e, newBox);
+    expect(newBox.children.includes(smoke)).toBe(false);
+  });
+
+  it('單位帶受擊類別（.hit）時：淡出不靠樣式表（enemy-motion.css 沒有淡出那條，紅閃那條蓋不掉它）', () => {
+    const css = readFileSync(join(ROOT, 'src/ui/styles/enemy-motion.css'), 'utf8');
+    expect(css).not.toMatch(/motion-change-fade|opacity:\s*0\s*;\s*}/);
+    const c = SRC.replace(/\r\n/g, '\n');
+    expect(c).toContain("canvas.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: fade, fill: 'forwards', easing: 'ease-out' });");
   });
 
   it('沒有淡出的（橘皮大王）：演完直接交還立繪，畫布不留', async () => {

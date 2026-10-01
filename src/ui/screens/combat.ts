@@ -548,6 +548,12 @@ registerScreen('combat', (app, root, props) => {
    * 演完（`startPhaseChange` 的計時）才交還第二階段（立繪）。牠出手或倒下就馬上收掉。
    */
   const enemyPhaseChanges = new Map<number, { kind: EnemyMotionKind; until: number }>();
+  /**
+   * 變身演完、正在立繪上方淡出的那一格煙（狸大人）：uid → 畫布。
+   * 淡出期間這一格被重畫（挨打、第二階段就緒整頁重畫）會換新的立繪框，mountEnemyMotion 把它掛回新框，淡出照樣跑完
+   *（淡出用 `animate()` 掛在畫布上，搬家不會中斷；審查 2026-10-01 低）。
+   */
+  const phaseSmoke = new Map<number, HTMLCanvasElement>();
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
   /**
@@ -1126,17 +1132,24 @@ registerScreen('combat', (app, root, props) => {
       const state = enemyMotionActors.get(e.uid);
       const smoke = fade > 0 && live && box && !live.dead && state?.kind === entry.kind ? state : undefined;
       if (smoke) {
-        smoke.actor.pause();
+        // 計時到了就先補畫最後一格（煙最濃那一格）再停：慢機器上畫面可能還停在前幾格、露出側面造型（審查 2026-10-01 低）
+        smoke.actor.holdLast();
         enemyMotionActors.delete(e.uid);
+        phaseSmoke.set(e.uid, smoke.actor.element);
       }
       if (live && box) mountEnemyMotion(live, box);
       if (smoke && box) {
         const canvas = smoke.actor.element;
         if (canvas.parentNode !== box) box.append(canvas);
-        canvas.style.animationDuration = `${fade}ms`;
-        canvas.classList.add('motion-change-fade');
+        /*
+         * 淡出用 `animate()`，不用 CSS 類別（審查 2026-10-01 中）：受擊紅閃那條 `.combat .unit.hit :is(..., .enemy-motion)`
+         * 權重比較高，會把 CSS 的淡出整個換掉——變身中打一張有傷害的牌，煙就全不透明停 0.6 秒再瞬間消失。
+         * 用腳本掛的動畫排在樣式表的動畫之上，紅閃與抖動照樣疊得上去，透明度只有這一條在改。
+         */
+        canvas.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: fade, fill: 'forwards', easing: 'ease-out' });
         const gone = window.setTimeout(() => {
           motionImpactTimers.delete(gone);
+          if (phaseSmoke.get(e.uid) === canvas) phaseSmoke.delete(e.uid);
           smoke.actor.dispose();
           canvas.remove();
         }, fade + 50);
@@ -1147,6 +1160,10 @@ registerScreen('combat', (app, root, props) => {
   };
 
   const mountEnemyMotion = (e: EnemyCombat, box: HTMLElement): void => {
+    // 正在淡出的變身煙：這一格換了新框就跟著搬過去（倒下了就不留）
+    const smoke = phaseSmoke.get(e.uid);
+    if (smoke && e.dead) { phaseSmoke.delete(e.uid); smoke.remove(); }
+    else if (smoke && smoke.parentNode !== box) box.append(smoke);
     if (!qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
       disposeEnemyMotion(e.uid);
       box.classList.remove('has-enemy-motion');

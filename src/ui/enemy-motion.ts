@@ -352,6 +352,8 @@ export function createEnemyMotionActor(
   /** `clip`＝這一招自己的片段（`enemyMotionMoveClip`）；沒給或這一套沒有就播預設出招 */
   play(action: EnemyMotionAction, clip?: string): void;
   pause(): void;
+  /** 停在這個動作的最後一格（變身演完交還立繪時：慢機器計時到了還沒畫到最後一格，也要先補畫，見 combat.ts 的 startPhaseChange） */
+  holdLast(): void;
   dispose(): void;
 } {
   const kindData = kindOf(kind);
@@ -466,6 +468,12 @@ export function createEnemyMotionActor(
     pause: () => {
       if (raf !== 0) window.cancelAnimationFrame(raf);
       raf = 0;
+    },
+    holdLast: () => {
+      if (disposed) return;
+      if (raf !== 0) window.cancelAnimationFrame(raf);
+      raf = 0;
+      draw(Math.max(0, motionOf(kindData, action, clip).frames.length - 1));
     },
     dispose: () => {
       if (disposed) return;

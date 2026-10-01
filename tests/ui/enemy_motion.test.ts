@@ -495,3 +495,22 @@ describe('額外片段（招式片段、變身）', () => {
     actor.dispose();
   });
 });
+
+describe('變身演完補畫最後一格（審查 2026-10-01 低）', () => {
+  it('holdLast：不管計時走到哪，畫最後一格（狸大人煙最濃那一格）並停下', async () => {
+    await motion.preloadEnemyMotion(['tanuki_lord']);
+    await motion.prefetchEnemyMotionExtras('tanuki_lord', true);
+    for (let i = 0; i < 20; i++) await new Promise((r) => setTimeout(r, 0));
+    const data = (await import('../../src/ui/side-motion/tanuki_lord.json')).default as { extras: { change: { frames: { rect: number[] }[] } } };
+    const actor = motion.createEnemyMotionActor('tanuki_lord');
+    actor.play('change');
+    const first = data.extras.change.frames[0]!.rect;
+    expect(lastDraw().slice(1, 5)).toEqual(first);
+    actor.holdLast();
+    const last = data.extras.change.frames.at(-1)!.rect;
+    expect(lastDraw().slice(1, 5)).toEqual(last);
+    const pending = rafs.size;
+    expect(pending).toBe(0);   // 停下了，不再排下一格
+    actor.dispose();
+  });
+});
