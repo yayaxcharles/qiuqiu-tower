@@ -8,6 +8,7 @@
  *   node tools/perf/motion_map_check.mjs <dist 資料夾> <輸出夾> <orange_king|frog_daimyo|tanuki_lord|roomba_king> <fast|slow> [標籤]
  * slow＝0.8 Mbps／300 毫秒、冷快取（新的設定資料夾）；fast＝不限速。
  * 環境變數 MM_WAIT_MS：開打後等多久才讓牠出第一招（預設 4000；slow 想看「圖還沒到」就設 0）。
+ * MM_POISON＝1：牠出手前身上帶毒（回合開頭先扣血）。MM_BLOCK＝這幾張圖集一律下載失敗（看退回預設）。
  */
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -70,9 +71,17 @@ await cdp.send('Network.enable');
 if (NET === 'slow') {
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 300, downloadThroughput: (0.8e6) / 8, uploadThroughput: 750e3 / 8 });
 }
+// MM_BLOCK＝逗號分隔的圖集名（例：orange_king-slam,orange_king-rage）：這幾張一律下載失敗，看「片段圖集沒到」時退回預設、不卡住
+const BLOCK = (process.env.MM_BLOCK ?? '').split(',').filter(Boolean);
+if (BLOCK.length) await cdp.send('Network.setBlockedURLs', { urls: BLOCK.map((name) => `*motion/side/${name}*`) });
 const t0 = Date.now();
 const atlasLog = [];
 const atlasById = new Map();
+// 所有請求（慢網路時看大檔那一條被誰佔著）：網址 → 送出、到齊時間
+const allReq = new Map();
+cdp.on('Network.requestWillBeSent', (e) => { allReq.set(e.requestId, { url: e.request.url.replace(/^.*\/(assets|qiuqiu-tower)\//, ''), sent: Date.now(), done: 0 }); });
+cdp.on('Network.loadingFinished', (e) => { const r = allReq.get(e.requestId); if (r) r.done = Date.now(); });
+const pendingNow = () => [...allReq.values()].filter((r) => !r.done).map((r) => `${r.url.slice(0, 80)}（${((Date.now() - r.sent) / 1000).toFixed(0)} 秒）`);
 cdp.on('Network.requestWillBeSent', (e) => {
   if (!/motion\/side\//.test(e.request.url)) return;
   const r = { url: e.request.url.replace(/^.*motion\/side\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, ''), sent: Date.now(), done: 0 };
@@ -156,6 +165,8 @@ await waitScreen(page, 'combat', 180000);
 await page.waitForFunction(CAN_ACT, null, { timeout: 180000 });
 await mark('可以出牌');
 await sleep(WAIT);
+const pendingAtFirstMove = pendingNow();
+const requestsBeforeFirstMove = allReq.size;
 await shot('00_待機');
 
 async function burst(prefix, ms, gap = 120) {
@@ -225,7 +236,7 @@ for (let i = 0; i < marks.length; i++) {
       canvasMsAfterFlip: (() => { let k = firstP2; while (k < ss.length && ss[k].canvas) k++; return (ss[Math.min(k, ss.length - 1)].t - ss[firstP2].t); })(),
       imgAfter: ss.at(-1)?.img } : undefined });
 }
-const summary = { boss: BOSS, net: NET, waitMs: WAIT, segs,
+const summary = { boss: BOSS, net: NET, waitMs: WAIT, pendingAtFirstMove: pendingAtFirstMove.slice(0, 30), requestsBeforeFirstMove, segs,
   atlasRequests: atlasLog.map((x) => `${x.url} 送出 ${sec(x.sent)} 到齊 ${x.done > 0 ? sec(x.done) : x.done < 0 ? '失敗' : '沒到'}`),
   logs: c.logs.slice(0, 20) };
 writeFileSync(join(OUT, 'timeline.json'), JSON.stringify({ marks, samples, draws, shots }, null, 1));
