@@ -307,6 +307,38 @@
   },
   "feifei": {
    "atlases": {
+    "assets/motion/hero-vids/feifei-guard-d.webp": {
+     "bytes": 288214,
+     "size": [
+      3834,
+      816
+     ],
+     "cells": 12
+    },
+    "assets/motion/hero-vids/feifei-kick-d.webp": {
+     "bytes": 260206,
+     "size": [
+      4073,
+      426
+     ],
+     "cells": 11
+    },
+    "assets/motion/hero-vids/feifei-eat-d.webp": {
+     "bytes": 428600,
+     "size": [
+      3819,
+      819
+     ],
+     "cells": 17
+    },
+    "assets/motion/hero-vids/feifei-roll-d.webp": {
+     "bytes": 142754,
+     "size": [
+      2560,
+      407
+     ],
+     "cells": 8
+    },
     "assets/motion/hero-vids/feifei-shuriken-d.webp": {
      "bytes": 271168,
      "size": [
@@ -371,6 +403,54 @@
      ],
      "cells": 12
     },
+    "assets/motion/hero-vids/feifei-ncombo-d.webp": {
+     "bytes": 275994,
+     "size": [
+      3930,
+      406
+     ],
+     "cells": 11
+    },
+    "assets/motion/hero-vids/feifei-nrain-d.webp": {
+     "bytes": 323502,
+     "size": [
+      4024,
+      817
+     ],
+     "cells": 13
+    },
+    "assets/motion/hero-vids/feifei-guard-m.webp": {
+     "bytes": 106176,
+     "size": [
+      1575,
+      305
+     ],
+     "cells": 6
+    },
+    "assets/motion/hero-vids/feifei-kick-m.webp": {
+     "bytes": 86948,
+     "size": [
+      1374,
+      320
+     ],
+     "cells": 5
+    },
+    "assets/motion/hero-vids/feifei-eat-m.webp": {
+     "bytes": 148520,
+     "size": [
+      2105,
+      310
+     ],
+     "cells": 8
+    },
+    "assets/motion/hero-vids/feifei-roll-m.webp": {
+     "bytes": 52814,
+     "size": [
+      962,
+      283
+     ],
+     "cells": 4
+    },
     "assets/motion/hero-vids/feifei-shuriken-m.webp": {
      "bytes": 108530,
      "size": [
@@ -434,17 +514,75 @@
       311
      ],
      "cells": 6
+    },
+    "assets/motion/hero-vids/feifei-ncombo-m.webp": {
+     "bytes": 109288,
+     "size": [
+      1591,
+      305
+     ],
+     "cells": 6
+    },
+    "assets/motion/hero-vids/feifei-nrain-m.webp": {
+     "bytes": 146744,
+     "size": [
+      2178,
+      308
+     ],
+     "cells": 8
     }
    },
    "downloadMB": {
-    "desktop": 2.72,
-    "mobile": 1.02
+    "desktop": 4.36,
+    "mobile": 1.64
    },
    "decodedMB": {
-    "desktop": 83.7,
-    "mobile": 19.7
+    "desktop": 136.8,
+    "mobile": 31.2
    },
    "size": {
+    "ncombo": {
+     "rough": 0.45324,
+     "head": 1.014,
+     "corr": 0.986,
+     "own": 0.44698,
+     "display": 0.44698
+    },
+    "nrain": {
+     "rough": 0.45324,
+     "head": 1.014,
+     "corr": 0.987,
+     "own": 0.44698,
+     "display": 0.44698
+    },
+    "guard": {
+     "rough": 0.45161,
+     "head": 1.024,
+     "corr": 0.988,
+     "own": 0.44103,
+     "display": 0.44698
+    },
+    "kick": {
+     "rough": 0.45161,
+     "head": 1.024,
+     "corr": 0.987,
+     "own": 0.44103,
+     "display": 0.44698
+    },
+    "eat": {
+     "rough": 0.45324,
+     "head": 1.014,
+     "corr": 0.986,
+     "own": 0.44698,
+     "display": 0.44698
+    },
+    "roll": {
+     "rough": 0.45324,
+     "head": 1.014,
+     "corr": 0.986,
+     "own": 0.44698,
+     "display": 0.44698
+    },
     "shuriken": {
      "rough": 0.45161,
      "head": 1.024,
@@ -510,6 +648,10 @@
    },
    "frames": {
     "desktop": {
+     "guard": 12,
+     "kick": 11,
+     "eat": 17,
+     "roll": 8,
      "shuriken": 11,
      "seal": 14,
      "attack1": 11,
@@ -517,9 +659,15 @@
      "hurt": 17,
      "toss": 11,
      "defeat": 19,
-     "run": 12
+     "run": 12,
+     "needle_combo": 11,
+     "needle_rain": 13
     },
     "mobile": {
+     "guard": 6,
+     "kick": 5,
+     "eat": 8,
+     "roll": 4,
      "shuriken": 6,
      "seal": 7,
      "attack1": 7,
@@ -527,12 +675,62 @@
      "hurt": 8,
      "toss": 6,
      "defeat": 9,
-     "run": 6
+     "run": 6,
+     "needle_combo": 6,
+     "needle_rain": 8
     }
    }
   },
   "dangdang": {
    "atlases": {
+    "assets/motion/hero-vids/dangdang-toss-d.webp": {
+     "bytes": 231514,
+     "size": [
+      3780,
+      403
+     ],
+     "cells": 12
+    },
+    "assets/motion/hero-vids/dangdang-dodge-d.webp": {
+     "bytes": 189452,
+     "size": [
+      3212,
+      401
+     ],
+     "cells": 10
+    },
+    "assets/motion/hero-vids/dangdang-counter-d.webp": {
+     "bytes": 256352,
+     "size": [
+      3880,
+      802
+     ],
+     "cells": 13
+    },
+    "assets/motion/hero-vids/dangdang-eat-d.webp": {
+     "bytes": 333050,
+     "size": [
+      3806,
+      802
+     ],
+     "cells": 17
+    },
+    "assets/motion/hero-vids/dangdang-kick-d.webp": {
+     "bytes": 244818,
+     "size": [
+      3855,
+      405
+     ],
+     "cells": 12
+    },
+    "assets/motion/hero-vids/dangdang-rapid-d.webp": {
+     "bytes": 341224,
+     "size": [
+      3745,
+      806
+     ],
+     "cells": 17
+    },
     "assets/motion/hero-vids/dangdang-guard-d.webp": {
      "bytes": 236124,
      "size": [
@@ -605,6 +803,62 @@
      ],
      "cells": 12
     },
+    "assets/motion/hero-vids/dangdang-sweepk-d.webp": {
+     "bytes": 311102,
+     "size": [
+      3859,
+      822
+     ],
+     "cells": 16
+    },
+    "assets/motion/hero-vids/dangdang-toss-m.webp": {
+     "bytes": 71324,
+     "size": [
+      1174,
+      303
+     ],
+     "cells": 5
+    },
+    "assets/motion/hero-vids/dangdang-dodge-m.webp": {
+     "bytes": 69190,
+     "size": [
+      1195,
+      300
+     ],
+     "cells": 5
+    },
+    "assets/motion/hero-vids/dangdang-counter-m.webp": {
+     "bytes": 100402,
+     "size": [
+      1832,
+      301
+     ],
+     "cells": 7
+    },
+    "assets/motion/hero-vids/dangdang-eat-m.webp": {
+     "bytes": 112904,
+     "size": [
+      1872,
+      301
+     ],
+     "cells": 8
+    },
+    "assets/motion/hero-vids/dangdang-kick-m.webp": {
+     "bytes": 73558,
+     "size": [
+      1201,
+      303
+     ],
+     "cells": 5
+    },
+    "assets/motion/hero-vids/dangdang-rapid-m.webp": {
+     "bytes": 114850,
+     "size": [
+      1966,
+      303
+     ],
+     "cells": 8
+    },
     "assets/motion/hero-vids/dangdang-guard-m.webp": {
      "bytes": 87744,
      "size": [
@@ -676,17 +930,67 @@
       301
      ],
      "cells": 6
+    },
+    "assets/motion/hero-vids/dangdang-sweepk-m.webp": {
+     "bytes": 127950,
+     "size": [
+      2197,
+      308
+     ],
+     "cells": 9
     }
    },
    "downloadMB": {
-    "desktop": 2.38,
-    "mobile": 0.89
+    "desktop": 4.2,
+    "mobile": 1.52
    },
    "decodedMB": {
-    "desktop": 97.0,
-    "mobile": 18.9
+    "desktop": 160.8,
+    "mobile": 32.1
    },
    "size": {
+    "toss": {
+     "rough": 0.45161,
+     "head": 1.014,
+     "corr": 0.98,
+     "own": 0.44538,
+     "display": 0.44538
+    },
+    "dodge": {
+     "rough": 0.45161,
+     "head": 1.014,
+     "corr": 0.98,
+     "own": 0.44538,
+     "display": 0.44538
+    },
+    "counter": {
+     "rough": 0.45161,
+     "head": 1.014,
+     "corr": 0.979,
+     "own": 0.44538,
+     "display": 0.44538
+    },
+    "eat": {
+     "rough": 0.45161,
+     "head": 1.014,
+     "corr": 0.981,
+     "own": 0.44538,
+     "display": 0.44538
+    },
+    "kick": {
+     "rough": 0.45161,
+     "head": 1.014,
+     "corr": 0.98,
+     "own": 0.44538,
+     "display": 0.44538
+    },
+    "rapid": {
+     "rough": 0.45161,
+     "head": 1.004,
+     "corr": 0.98,
+     "own": 0.44981,
+     "display": 0.44538
+    },
     "guard": {
      "rough": 0.45161,
      "head": 1.014,
@@ -749,6 +1053,13 @@
      "corr": 0.982,
      "own": 0.44981,
      "display": 0.44538
+    },
+    "sweepk": {
+     "rough": 0.45161,
+     "head": 1.014,
+     "corr": 0.981,
+     "own": 0.44538,
+     "display": 0.44538
     }
    },
    "runCycle": {
@@ -759,6 +1070,12 @@
    },
    "frames": {
     "desktop": {
+     "toss": 12,
+     "dodge": 10,
+     "counter": 13,
+     "eat": 17,
+     "kick": 12,
+     "rapid_combo": 17,
      "guard": 12,
      "punch": 12,
      "focus": 16,
@@ -767,9 +1084,16 @@
      "shoulder": 14,
      "hurt": 16,
      "defeat": 19,
-     "run": 12
+     "run": 12,
+     "sweep_combo": 16
     },
     "mobile": {
+     "toss": 5,
+     "dodge": 5,
+     "counter": 7,
+     "eat": 8,
+     "kick": 5,
+     "rapid_combo": 8,
      "guard": 6,
      "punch": 6,
      "focus": 8,
@@ -778,7 +1102,8 @@
      "shoulder": 7,
      "hurt": 7,
      "defeat": 10,
-     "run": 6
+     "run": 6,
+     "sweep_combo": 9
     }
    }
   },

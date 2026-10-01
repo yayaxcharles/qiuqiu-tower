@@ -9,6 +9,7 @@ import motionData from '../../src/ui/qiuqiu-motion-data.json';
 import extraMotionData from '../../src/ui/qiuqiu-extra-motion-data.json';
 import attackMotionData from '../../src/ui/qiuqiu-attack-motion-data.json';
 import feifeiData from '../../src/ui/feifei-motion-data.json';
+import feifeiNeedleData from '../../src/ui/feifei-needle-motion-data.json';
 import dangdangData from '../../src/ui/dangdang-motion-data.json';
 import dangdangAttackData from '../../src/ui/dangdang-attack-motion-data.json';
 import fengfengData from '../../src/ui/fengfeng-motion-data.json';
@@ -27,8 +28,9 @@ const HEROES: readonly Hero[] = ['qiuqiu', 'feifei', 'dangdang', 'fengfeng'];
 /** 每位換成新片的動作（清單.md 總結；09-29 重生後菲菲加空手擲與倒下、封封加平斬、重劈、收刀與倒下；待機維持停格呼吸） */
 const VIDS_ACTIONS: Readonly<Record<Hero, readonly string[]>> = {
   qiuqiu: ['attack1', 'attack2', 'attack3', 'attack4', 'toss', 'hurt', 'defeat', 'run', 'seal', 'guard', 'win', 'focus', 'dash', 'kick', 'eat', 'taiji', 'shuriken'],
-  feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'hurt', 'run', 'toss', 'defeat', 'kick', 'eat', 'roll'],
-  dangdang: ['guard', 'punch', 'focus', 'palm', 'win', 'shoulder', 'hurt', 'defeat', 'run', 'toss', 'dodge', 'counter', 'eat', 'kick', 'rapid_combo'],
+  // 10-01 補：菲菲連針、針雨（針術那套）；噹噹橫掃連踢
+  feifei: ['shuriken', 'seal', 'guard', 'attack1', 'win', 'hurt', 'run', 'toss', 'defeat', 'kick', 'eat', 'roll', 'needle_combo', 'needle_rain'],
+  dangdang: ['guard', 'punch', 'focus', 'palm', 'win', 'shoulder', 'hurt', 'defeat', 'run', 'toss', 'dodge', 'counter', 'eat', 'kick', 'rapid_combo', 'sweep_combo'],
   fengfeng: ['focus', 'guard', 'win', 'thrust', 'hurt', 'run', 'slash', 'heavy_slash', 'sheath', 'defeat', 'toss', 'dodge', 'eat', 'sweep', 'double_slash'],
 };
 /**
@@ -37,8 +39,8 @@ const VIDS_ACTIONS: Readonly<Record<Hero, readonly string[]>> = {
  */
 const KEEP_OLD: Readonly<Record<Hero, readonly string[]>> = {
   qiuqiu: ['idle'],
-  feifei: ['idle', 'needle_combo'],
-  dangdang: ['idle'],
+  feifei: ['idle', 'needle_backhand'],
+  dangdang: ['idle', 'heavy_palm'],
   fengfeng: ['idle'],
 };
 
@@ -57,7 +59,7 @@ const TRIMMED: Readonly<Partial<Record<Hero, Readonly<Record<string, number>>>>>
 };
 const OLD: Readonly<Record<Hero, Record<string, Motion>>> = {
   qiuqiu: { ...motionData.actions, ...extraMotionData.actions, ...attackMotionData.actions } as unknown as Record<string, Motion>,
-  feifei: feifeiData.actions as unknown as Record<string, Motion>,
+  feifei: { ...feifeiData.actions, ...feifeiNeedleData.actions } as unknown as Record<string, Motion>,
   dangdang: { ...dangdangData.actions, ...dangdangAttackData.actions } as unknown as Record<string, Motion>,
   fengfeng: { ...fengfengData.actions, ...fengfengAttackData.actions } as unknown as Record<string, Motion>,
 };
@@ -118,8 +120,10 @@ describe('命中那一格剛好在原本寫死的命中時間開始（原速毫�
     // 揮爪_v2a 第 30 格＝爪痕最大；貓抓B 第 36 格；空手擲第 34 格出手；突進第 31 格拳頭打到最遠
     qiuqiu: [['attack1', 70, 30], ['attack3', 100, 30], ['attack2', 90, 36], ['attack4', 160, 36], ['toss', 240, 34], ['dash', 60, 31]],
     // 彈針第 36 格手伸直（程式的針從這裡飛出去）；爪擊第 24 格；結印第 28 格＝分身停住的那格（原速 170）
-    feifei: [['shuriken', 285, 36], ['attack1', 340, 24], ['seal', 170, 28]],
-    dangdang: [['punch', 300, 28], ['palm', 340, 32], ['shoulder', 360, 50]],
+    // 連針第 10、40 格手臂伸到最遠＝兩針出手；針雨第 38 格手在頭頂開始往前揮＝出手
+    feifei: [['shuriken', 285, 36], ['attack1', 340, 24], ['seal', 170, 28], ['needle_combo', 220, 10], ['needle_combo', 380, 40], ['needle_rain', 350, 38]],
+    // 橫掃連踢第 18、42 格兩記低掃最遠、第 77 格側踢最遠
+    dangdang: [['punch', 300, 28], ['palm', 340, 32], ['shoulder', 360, 50], ['sweep_combo', 220, 18], ['sweep_combo', 460, 42], ['sweep_combo', 700, 77]],
     fengfeng: [['thrust', 300, 45]],
   };
   it.each(HEROES)('%s', (hero) => {
@@ -312,7 +316,7 @@ type Kind = 'feifei' | 'dangdang' | 'fengfeng';
 const KINDS: readonly Kind[] = ['feifei', 'dangdang', 'fengfeng'];
 /** 每位挑一個出牌動作看畫的是哪張圖集（新片）、一個沒有新片的看還是舊圖集 */
 const PROBE: Readonly<Record<Kind, { vids: [string, string]; old: [string, string] }>> = {
-  feifei: { vids: ['attack1', 'feifei-claw-d.webp'], old: ['needle_combo', 'assets/motion/feifei/needle_combo_v3.webp'] },
+  feifei: { vids: ['attack1', 'feifei-claw-d.webp'], old: ['needle_backhand', 'assets/motion/feifei/needle_backhand_v3.webp'] },
   dangdang: { vids: ['punch', 'dangdang-punch-d.webp'], old: ['idle', 'assets/motion/dangdang/idle_hurt.webp'] },
   fengfeng: { vids: ['thrust', 'fengfeng-thrust-d.webp'], old: ['idle', 'assets/motion/fengfeng/idle_hurt.webp'] },
 };
@@ -422,7 +426,15 @@ describe('菲菲彈針換了圖，飛針的出手點跟著新圖的手', () => {
     const before = patterns.feifeiNeedleOrigin('shuriken', 0);
     await motion.preloadCompanionMotion('feifei');
     expect(patterns.feifeiNeedleOrigin('shuriken', 0)).toEqual(shuriken.releaseOrigins![0]);
-    expect(patterns.feifeiNeedleOrigin('needle_combo', 0)).toEqual({ x: 132, y: -116 });   // 沒換圖的針術照舊
+    expect(patterns.feifeiNeedleOrigin('needle_backhand', 0)).toEqual({ x: 148, y: -119 });   // 沒換圖的針術照舊
+    // 連針（10-01 換圖）兩波各一個出手點，照波次輪流；針雨一個
+    const combo = (feifeiVids as unknown as VidsFile).variants.desktop.actions.needle_combo as Motion & { releaseOrigins?: { x: number; y: number }[] };
+    expect(combo.releaseOrigins?.length).toBe(2);
+    expect(patterns.feifeiNeedleOrigin('needle_combo', 0)).toEqual(combo.releaseOrigins![0]);
+    expect(patterns.feifeiNeedleOrigin('needle_combo', 1)).toEqual(combo.releaseOrigins![1]);
+    expect(patterns.feifeiNeedleOrigin('needle_combo', 2)).toEqual(combo.releaseOrigins![0]);
+    const rain = (feifeiVids as unknown as VidsFile).variants.desktop.actions.needle_rain as Motion & { releaseOrigins?: { x: number; y: number }[] };
+    expect(patterns.feifeiNeedleOrigin('needle_rain', 0)).toEqual(rain.releaseOrigins![0]);
 
     vi.resetModules();
     broken = (src) => src.includes('hero-vids');
