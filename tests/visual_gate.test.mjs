@@ -7,10 +7,21 @@ import { applyAllow, compareEvents, compareRest, filmMetrics, gateStatus, timeli
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 describe('畫面比對閘門的設定', () => {
-  it('deploy.sh 開頭提醒推前先跑 gate:visual，但沒有接成必經步驟（只出現在註解裡）', () => {
-    const lines = read('tools/deploy.sh').split('\n');
-    expect(lines.slice(0, 12).some((l) => l.startsWith('#') && l.includes('npm run gate:visual'))).toBe(true);
-    expect(lines.filter((l) => !l.trimStart().startsWith('#') && l.includes('gate:visual'))).toEqual([]);
+  // 2026-10-02 使用者裁定接成必經步驟（原本這條測的是「只出現在註解裡、沒接上」）
+  it('deploy.sh 推之前先跑閘門、比要推的那一筆、沒過就停；離開碼不能被管線蓋掉', () => {
+    const src = read('tools/deploy.sh');
+    const code = src.split('\n').filter((l) => !l.trimStart().startsWith('#'));
+    const gateAt = code.findIndex((l) => l.includes('node tools/visual-gate/gate.mjs'));
+    const pushAt = code.findIndex((l) => /^\s*git push /.test(l));
+    const workerAt = code.findIndex((l) => l.includes('wrangler deploy'));
+    expect(gateAt, '要有跑閘門那一行').toBeGreaterThan(-1);
+    expect(gateAt, '閘門要在推送之前').toBeLessThan(pushAt);
+    expect(gateAt, '閘門要在中繼部署之前（沒過時還沒做任何收不回來的事）').toBeLessThan(workerAt);
+    expect(code[gateAt]).toContain('--head "$sha"');
+    // 10-02 的事故：`gate | tail && deploy`，tail 永遠回成功。閘門那一行不准接管線，下一行要直接拿離開碼
+    expect(code[gateAt]).not.toMatch(/\|\s*\w/);
+    expect(code[gateAt + 1]).toMatch(/gate_rc=\$\?/);
+    expect(src).toMatch(/四道門檻兩次都沒過，不推[\s\S]*?exit 1/);
   });
 
   it('playwright-core 列在 optionalDependencies：推送閘門照鎖檔借套件時，主資料夾還沒重裝也不會被擋', () => {

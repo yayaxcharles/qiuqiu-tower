@@ -12,7 +12,7 @@
     "balance": "vitest run tests/balance.report.test.ts",
     "size": "python tools/check_size.py",
     "gate:visual": "node tools/visual-gate/gate.mjs",
-    "docs:dump": "vitest run tools/dump_cards.test.ts tools/dump_events.test.ts tools/dump_monsters.test.ts tools/dump_monster_acts.test.ts"
+    "docs:dump": "vitest run tools/dump_cards.test.ts tools/dump_events.test.ts tools/dump_monsters.test.ts tools/dump_monster_acts.test.ts tools/dump_feifei_events.test.ts tools/dump_feifei_lines.test.ts tools/dump_dangdang_events.test.ts"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

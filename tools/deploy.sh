@@ -21,6 +21,8 @@
 #   3. 抓線上首頁，確認主程式檔名跟閘門打出來的一樣（不一樣＝線上還是舊版，或快取沒換）
 
 set -u
+# 一律在倉庫根目錄跑：閘門與打包都用相對路徑，從子資料夾叫會找不到檔、被誤當成「門檻沒過」（審查 2026-10-02 低-3）
+cd "$(git rev-parse --show-toplevel)" || exit 1
 remote="${1:-coopdeploy}"
 src="${2:-coop}"
 case "$remote" in
@@ -42,6 +44,8 @@ else
     node tools/visual-gate/gate.mjs --head "$sha" --site "$gate_site" > "$gate_log" 2>&1
     gate_rc=$?   # 先拿閘門自己的離開碼再挑重點印；不能寫成 `| grep`，管線的離開碼會變成 grep 的
     grep -E '畫面比對閘門|：(通過|不通過)|✗|報告：|錯誤|Error' "$gate_log"
+    # 沒過時把最後一段原始輸出也印出來：打包失敗、找不到 Chrome 這類訊息上面那行挑不到（審查 2026-10-02 低-2）
+    [ "$gate_rc" = "0" ] || { echo "   ── 閘門最後 20 行 ──"; tail -20 "$gate_log"; }
     rm -f "$gate_log"
     [ "$gate_rc" = "0" ] && break
     [ "$gate_rc" = "1" ] || break   # 2＝閘門自己出錯，重跑也沒用
