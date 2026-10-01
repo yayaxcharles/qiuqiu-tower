@@ -145,13 +145,13 @@ function timingFor(motion: Motion): { durations: number[]; total: number } {
   return timing;
 }
 
-function imageFor(texture: string): HTMLImageElement {
+function imageFor(texture: string, urgent = true): HTMLImageElement {
   const cached = images.get(texture);
   if (cached) return cached;
   const image = new Image();
   images.set(texture, image);
   // 網址交給大檔那一條設（`heavy-lane.ts`，2026-09-23）；這一場就要畫的魔物，排隊的話插到最前面
-  void loadHeavy(image, fileUrl(texture), true);
+  void loadHeavy(image, fileUrl(texture), urgent);
   return image;
 }
 
@@ -173,12 +173,18 @@ function texturesOf(kind: EnemyMotionKind, data: MotionKind): string[] {
 /**
  * 先把這一套要畫的圖集**下載**下來，不解碼、不算就緒（2026-10-01：塔主第二階段的出招與爆炸）。
  * 第一階段那套好了才叫（`combat.ts`），不跟第一階段搶頻寬；不解碼，就不會在第一階段多壓一份點陣圖（稽核 2026-09-28 低-2 的顧慮）。
- * 變身那一刻照舊走 `preloadEnemyMotion`：圖已經在手上，只剩解碼（最多等 0.8 秒）。
+ * **不插隊**（審查 2026-10-01 中）：慢網路大檔那一條只有兩個位子，插隊的話會把主角第一次用到的動作圖集擠到後面；
+ * 排在後面，輪到了才下載。變身那一刻照舊走 `preloadEnemyMotion`（插隊）：已經下載好就只剩解碼，還在排隊的移到最前面。
+ * 下載失敗的從快取拿掉，變身時才會真的重抓。
  */
 export async function prefetchEnemyMotion(kind: EnemyMotionKind): Promise<void> {
   if (readyKinds.has(kind)) return;
   await ensureKindData(kind);
-  for (const texture of texturesOf(kind, kindOf(kind))) imageFor(texture);
+  await Promise.all(texturesOf(kind, kindOf(kind)).map(async (texture) => {
+    const image = imageFor(texture, false);
+    await loadHeavy(image, fileUrl(texture), false);
+    try { await imageLoaded(image); } catch { if (images.get(texture) === image) images.delete(texture); }
+  }));
 }
 
 async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {

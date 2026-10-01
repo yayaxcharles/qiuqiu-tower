@@ -24,6 +24,10 @@ const TAG = process.argv[6] ?? `${BOSS}-${NET}`;
 const DWELL = Number(process.env.BOSS_DWELL_MS ?? 0);
 // 每次讓牠出招、打死之前，最多等這一段要用的逐格圖集下載完多久（預設 0＝不等，照手速打）
 const ATLAS_WAIT = Number(process.env.BOSS_ATLAS_WAIT_MS ?? 0);
+// 環境變數 BOSS_HERO_PROBE＝逗號分隔的主角牌（只用在鐵爪、蛙大名）：第一次出招後下一手換成這幾張，每張隔 BOSS_PROBE_GAP_MS 出一次，
+// 記主角有沒有演出逐格動作（量先下載第二階段會不會擠到主角的圖集）
+const PROBES = (process.env.BOSS_HERO_PROBE ?? '').split(',').filter(Boolean);
+const PROBE_GAP = Number(process.env.BOSS_PROBE_GAP_MS ?? 8000);
 const OUT = join(OUT_ROOT, TAG);
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
@@ -39,7 +43,14 @@ if (NET === 'slow') {
 }
 const atlasLog = [];
 const atlasById = new Map();
+// 主角的逐格圖集（球球）另記一份：看先下載第二階段會不會把主角第一次用到的動作擠到後面（審查 2026-10-01 中）
+const heroLog = [];
 cdp.on('Network.requestWillBeSent', (e) => {
+  if (/motion\/qiuqiu\/.*\.webp/.test(e.request.url)) {
+    const r = { url: e.request.url.replace(/^.*motion\/qiuqiu\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, ''), sent: Date.now(), done: 0 };
+    heroLog.push(r); atlasById.set(e.requestId, r);
+    return;
+  }
   if (!/motion\/side\//.test(e.request.url)) return;
   const r = { url: e.request.url.replace(/^.*motion\/side\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, ''), sent: Date.now(), done: 0 };
   atlasLog.push(r); atlasById.set(e.requestId, r);
@@ -91,6 +102,8 @@ await page.evaluate((BOSS) => {
       img: img ? (img.getAttribute('src') || '').replace(/^.*\//, '').replace(/\?.*$/, '') : null,
       imgVis: img ? getComputedStyle(img).visibility + '/' + getComputedStyle(img).opacity : null,
       cls: unit ? [...unit.classList].filter((k) => /dead|motion|falling|dying/.test(k)).join(' ') : 'gone',
+      heroMotion: !!document.querySelector('.unit.player[data-seat="0"] .sprite-box.has-qiuqiu-motion'),
+      heroImg: (document.querySelector('.unit.player[data-seat="0"] .sprite-box img.sprite')?.getAttribute('src') || '').replace(/^.*\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, ''),
       atlases: performance.getEntriesByType('resource').filter((r) => /motion\/side\//.test(r.name)).map((r) => r.name.replace(/^.*motion\/side\//, '').replace(/\?.*$/, '') + '@' + Math.round(r.responseEnd)),
     });
   }, 80);
@@ -152,6 +165,28 @@ async function hit(label) {
   }, { POINT_FN, BOSS });
   if (tp) await page.mouse.click(tp.x, tp.y);
 }
+/** 主角出一張指定的牌（要目標的點關主），之後等 PROBE_GAP 毫秒 */
+async function playCard(id) {
+  await page.evaluate((BOSS) => { const cs = window.__app.cs; cs.players[0].energy = 9; const e = cs.enemies.find((x) => x.enemyId === BOSS); if (e.hp < 70) e.hp = 90; }, BOSS);
+  await page.waitForFunction(CAN_ACT, null, { timeout: 30000 }).catch(() => {});
+  const pt = await page.evaluate(({ id, POINT_FN }) => {
+    const f = eval(POINT_FN); const p = window.__app.cs.players[0];
+    const card = p.hand.find((x) => x.cardId === id); if (!card) return null;
+    const node = document.querySelector(`.hand .card[data-uid="${card.uid}"]`); return node ? f(node) : null;
+  }, { id, POINT_FN });
+  await mark(`主角出牌:${id}`);
+  if (!pt) { await mark('找不到 ' + id); return; }
+  await page.mouse.click(pt.x, pt.y); await sleep(200);
+  if (await page.evaluate(() => !!document.querySelector('.target-catcher'))) {
+    const tp = await page.evaluate(({ POINT_FN, BOSS }) => {
+      const f = eval(POINT_FN); const e = window.__app.cs.enemies.find((x) => x.enemyId === BOSS);
+      const node = document.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite-box`); return node ? f(node) : null;
+    }, { POINT_FN, BOSS });
+    if (tp) await page.mouse.click(tp.x, tp.y);
+  }
+  await page.mouse.move(640, 60);
+  await sleep(PROBE_GAP);
+}
 
 if (BOSS === 'roomba_king') {
   await endTurn('出招1_召喚', 4);
@@ -162,7 +197,18 @@ if (BOSS === 'roomba_king') {
 } else {
   // 待機改畫立繪的不等走路那張（2026-10-01 起根本不抓）；只等出招那張
   if (BOSS === 'iron_claw') await waitAtlases(['iron_claw-swipe'], '出招前');
+  if (PROBES.length) {
+    // 下一手換成這幾張主角牌（每張是不同的動作，整場第一次用）：第二階段先下載正在跑的這段時間出
+    await page.evaluate((ids) => {
+      const p = window.__app.cs.players[0]; let u = 99001;
+      p.drawPile.unshift(...ids.map((id) => ({ uid: u++, cardId: id, upgraded: false })));
+    }, PROBES);
+  }
   await endTurn('出招1', 8);
+  if (PROBES.length) {
+    for (const id of PROBES) await playCard(id);
+    await endTurn('出招1b', 0);   // 重抽一手貓抓，下面換階段、打死用
+  }
   // 第一階段多打幾回合的樣子（環境變數 BOSS_P1_HOLD_MS，預設 0）：第二階段的圖集在這段時間先下載
   if (Number(process.env.BOSS_P1_HOLD_MS ?? 0) > 0) { await sleep(Number(process.env.BOSS_P1_HOLD_MS)); await mark('第一階段多打一陣子'); }
   // 打到第二階段：兩隻的門檻都是 55，血設 58、貓抓 6 → 52
@@ -198,8 +244,21 @@ for (let i = 0; i < marks.length; i++) {
 }
 const last = samples[samples.length - 1];
 const sec = (t) => ((t - t0) / 1000).toFixed(1) + 's';
-const summary = { boss: BOSS, net: NET, dist: DIST, dwellMs: DWELL, atlasWaitMs: ATLAS_WAIT, segs, atlasesLoaded: last?.atlases ?? [],
-  atlasRequests: atlasLog.map((x) => `${x.url} 送出 ${sec(x.sent)} 到齊 ${x.done > 0 ? sec(x.done) : x.done < 0 ? '失敗' : '沒到'}`), logs: c.logs.slice(0, 20) };
+// 每張主角牌：點下去之後 3 秒內，主角那一格有幾成時間掛著逐格畫布、靜態立繪換過哪幾張
+// 延後下載的出牌動作（qiuqiu-motion.ts 的 DEFERRED_QIUQIU_CARD_ACTIONS）：圖還沒到就用替身動作頂著，所以看「那張圖集比出牌早還是晚到」
+const PROBE_ATLAS = { juye: 'generated_toss', yungong: 'generated_focus', qianliyan: 'generated_scroll', taiji: 'generated_taiji', qinggong: 'generated_qinggong' };
+const probes = marks.filter((m) => m.what.startsWith('主角出牌:')).map((m) => {
+  const card = m.what.slice(5);
+  const ss = samples.filter((s) => s.t >= m.t + 250 && s.t < m.t + 3000);
+  const atlas = PROBE_ATLAS[card];
+  const done = heroLog.filter((r) => r.url === atlas && r.done > 0).map((r) => r.done).sort((a, b) => a - b)[0];
+  return { card, atlas, at: sec(m.t), atlasDone: done ? sec(done) : '沒到',
+    atlasVsPlay: done ? `${((done - m.t) / 1000).toFixed(1)}s` : null,   // 負的＝出牌前就到了（演新動作）；正的＝出牌後才到（先用替身）
+    heroMotionPct: ss.length ? Math.round(100 * ss.filter((s) => s.heroMotion).length / ss.length) : null };
+});
+const summary = { boss: BOSS, net: NET, dist: DIST, dwellMs: DWELL, atlasWaitMs: ATLAS_WAIT, segs, probes, atlasesLoaded: last?.atlases ?? [],
+  atlasRequests: atlasLog.map((x) => `${x.url} 送出 ${sec(x.sent)} 到齊 ${x.done > 0 ? sec(x.done) : x.done < 0 ? '失敗' : '沒到'}`),
+  heroAtlases: heroLog.map((x) => `${x.url} 送出 ${sec(x.sent)} 到齊 ${x.done > 0 ? sec(x.done) : x.done < 0 ? '失敗' : '沒到'}`), logs: c.logs.slice(0, 20) };
 writeFileSync(join(OUT, 'timeline.json'), JSON.stringify({ marks, samples }, null, 1));
 writeFileSync(join(OUT, 'summary.json'), JSON.stringify(summary, null, 1));
 console.log(JSON.stringify(summary, null, 1));

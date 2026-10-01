@@ -242,7 +242,9 @@ describe('接線', () => {
     expect(fm).toContain('const image = imageFor(motion, true);');
     expect(fm).not.toMatch(/image\.src = /);
     const em = ENEMY_RAW.replace(/\r\n/g, '\n');
-    expect(em).toContain('void loadHeavy(image, fileUrl(texture), true);');
+    // 畫到、這一場要用的照舊插隊（預設 true）；只有塔主第二階段先下載那一支傳 false（審查 2026-10-01 中）
+    expect(em).toContain('function imageFor(texture: string, urgent = true): HTMLImageElement {');
+    expect(em).toContain('void loadHeavy(image, fileUrl(texture), urgent);');
     expect(em).not.toMatch(/image\.src = /);
   });
 });

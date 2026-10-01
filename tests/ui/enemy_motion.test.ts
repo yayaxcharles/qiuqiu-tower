@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import motionData from '../../src/ui/enemy-motion-data.json';
-import COMBAT_SRC from '../../src/ui/screens/combat.ts?raw';
 import type {
   EnemyMotionAction,
   EnemyMotionKind,
@@ -365,9 +364,38 @@ describe('慢網路：只抓會上畫面的圖集、第二階段先下載', () =
     expect(sideSources().length).toBe(2);
   });
 
-  it('戰鬥畫面：第一階段那套好了才先下載下一階段', () => {
-    const c = COMBAT_SRC.replace(/\r\n/g, '\n');
-    expect(c).toContain('const later = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase + 1);');
-    expect(c).toContain('if (now && later && later !== now) void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined);');
+  it('先下載不插隊：慢網路排在主角那些圖集後面；變身時真的要用才插到最前面（審查 2026-10-01 中）', async () => {
+    const lane = await import('../../src/ui/heavy-lane');
+    lane.armHeavyLane(2);
+    const release = lane.holdHeavyLane();   // 先擋住，看排隊的順序
+    try {
+      void lane.loadHeavy(new FakeImage() as unknown as HTMLImageElement, 'assets/motion/qiuqiu/hero-a.webp');
+      const prefetch = motion.prefetchEnemyMotion('iron_claw_p2');
+      for (let i = 0; i < 50 && lane._heavyLaneStateForTest().waiting.length < 3; i++) await new Promise((r) => setTimeout(r, 0));
+      const order = (): string[] => lane._heavyLaneStateForTest().waiting.map((u) => u.replace(/^.*\//, '').replace(/\.webp.*$/, ''));
+      expect(order()).toEqual(['hero-a', 'iron_claw-laser_p2', 'iron_claw-down_p2']);
+      void motion.preloadEnemyMotion(['iron_claw_p2']);
+      for (let i = 0; i < 50 && order()[0] === 'hero-a'; i++) await new Promise((r) => setTimeout(r, 0));
+      expect(order().slice(0, 2).sort()).toEqual(['iron_claw-down_p2', 'iron_claw-laser_p2']);
+      expect(order()[2]).toBe('hero-a');
+      release();
+      await prefetch;
+    } finally {
+      release();
+      lane._resetHeavyLaneForTest();
+    }
+  });
+
+  it('先下載失敗的從快取拿掉，之後真的要用時會重抓', async () => {
+    const lane = await import('../../src/ui/heavy-lane');
+    lane._resetHeavyLaneForTest();
+    // 讓這一次建出來的圖都是「載入失敗」（complete 但沒有寬度，見 decoded-atlas.ts 的 imageLoaded）
+    const broken = class extends FakeImage { naturalWidth = 0; addEventListener(): void {} };
+    vi.stubGlobal('Image', broken);
+    await motion.prefetchEnemyMotion('iron_claw_p2');
+    vi.stubGlobal('Image', FakeImage);
+    const before = FakeImage.sources.length;
+    await motion.preloadEnemyMotion(['iron_claw_p2']).catch(() => undefined);
+    expect(FakeImage.sources.length - before).toBe(2);   // 雷射、爆炸各重抓一次
   });
 });

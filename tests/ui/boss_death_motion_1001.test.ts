@@ -87,10 +87,13 @@ describe('待機改立繪的魔物：倒下時逐格畫布要掛回立繪框（�
     expect(box.classList.contains('has-enemy-motion')).toBe(false);
   });
 
-  it('挨打：站著交還立繪時不播（沒有挨打片段，播了只會在背景抓走路圖集、空轉）；畫布在畫面上、待機照播的照舊播', async () => {
+  it('挨打：待機改立繪的一律不播（沒有挨打片段，播了只會抓走路圖集、空轉）；待機照播逐格的照舊播', async () => {
     const hidden = await runDeath('iron_claw_p2', { longDeath: true, hasKnockdown: true, staticIdleKind: true, call: "playEnemyMotion(7, 'hurt');" });
     expect(hidden.played).toEqual([]);
     expect(hidden.state.action).toBe('idle');
+    // 出招中被反彈打到（畫布正掛在畫面上）：也不換成走路、不打斷收招（審查 低-2）
+    const attacking = await runDeath('iron_claw_p2', { longDeath: true, hasKnockdown: true, staticIdleKind: true, attached: true, call: "playEnemyMotion(7, 'hurt');" });
+    expect(attacking.played).toEqual([]);
     const roomba = await runDeath('roomba_king', { longDeath: true, hasKnockdown: true, staticIdleKind: false, attached: true, call: "playEnemyMotion(7, 'hurt');" });
     expect(roomba.played).toEqual(['hurt']);
   });
@@ -99,5 +102,84 @@ describe('待機改立繪的魔物：倒下時逐格畫布要掛回立繪框（�
     const { box, canvas, played } = await runDeath('roomba_king', { longDeath: true, hasKnockdown: true, staticIdleKind: false, attached: true });
     expect(played).toEqual(['knockdown']);
     expect(box.children).toEqual([canvas]);
+  });
+});
+
+/** 跑 mountEnemyMotion（連同它用到的 disposeEnemyMotion、playEnemyMotion 那幾段） */
+const mountSource = sourceBetween('  const MOTION_DEATH_FADE_MS', '  app.disposers.push(() => {');
+
+describe('建畫布時就帶要畫的動作（不留空畫布）', () => {
+  async function mountChanged(falling: boolean) {
+    const unit = fakeEl();
+    const box = fakeEl() as FakeEl & { closest: () => FakeEl };
+    box.closest = () => unit;
+    unit.append(box);
+    const oldCanvas = fakeEl();
+    const created: { kind: string; options: unknown }[] = [];
+    const newCanvas = fakeEl();
+    // 原本掛著第一階段那一套；這一拍變成第二階段（換了一套），而且已經倒下
+    const enemyMotionActors = new Map<number, unknown>([[7, { kind: 'iron_claw', action: 'idle', busyUntil: 0, actor: { element: oldCanvas, play() {}, pause() {}, dispose() {} } }]]);
+    const e = { uid: 7, enemyId: 'iron_claw', phase: 1, dead: true, reviveIn: 0 };
+    const bindings: Record<string, unknown> = {
+      enemyMotionActors,
+      root: { querySelector: () => box },
+      qiuqiuEnemyMotionAllowed: () => true, motionEnabled: true, heroOf: () => 'ninja',
+      qiuqiuEnemyMotionKind: (_id: string, phase: number) => (phase > 0 ? 'iron_claw_p2' : 'iron_claw'),
+      enemyMotionReady: () => true, ensureEnemyMotion() {},
+      fallingUids: new Set(falling ? [7] : []), willRevive: () => false,
+      createEnemyMotionActor: (kind: string, options?: unknown) => {
+        created.push({ kind, options });
+        return { element: newCanvas, play() {}, pause() {}, dispose() {} };
+      },
+      isSideMotionKind: () => true, hurtSet: new Set(), acting: new Map(), enemyStaticPose: () => 'down',
+      staticIdle: () => true, playsLongDeath: () => true,
+      enemyMotionHas: (_k: string, a: string) => a !== 'hurt',
+      enemyMotionDuration: () => 600, qiuqiuEnemyMotionHold: () => 2700, BOSS_DEATH_HOLD_MS: 400,
+      motionImpactTimers: new Set(), cs: { phase: 'won', players: [] }, performance: { now: () => 1000 },
+      window: { setTimeout: () => 1, clearTimeout() {} },
+    };
+    bindings.app = { cs: bindings.cs };
+    const code = (await transformWithOxc(`${mountSource}\nmountEnemyMotion(e, box);`, 'boss-mount-motion.ts')).code;
+    new Function(...Object.keys(bindings), 'e', 'box', code)(...Object.values(bindings), e, box);
+    return { created, box, newCanvas, state: enemyMotionActors.get(7) as { action: string } };
+  }
+
+  it('已倒下（不在等倒下）時換了一套：建畫布就畫倒下，掛上去的不是空畫布', async () => {
+    const { created, box, newCanvas, state } = await mountChanged(false);
+    expect(created).toEqual([{ kind: 'iron_claw_p2', options: { action: 'knockdown' } }]);
+    expect(state.action).toBe('knockdown');
+    expect(newCanvas.parentNode).toBe(box);
+  });
+
+  it('還在等倒下：記成待機、畫布先不掛，倒下那一拍才從第一格開演', async () => {
+    const { created, newCanvas, state } = await mountChanged(true);
+    expect(created).toEqual([{ kind: 'iron_claw_p2', options: { action: 'idle' } }]);
+    expect(state.action).toBe('idle');
+    expect(newCanvas.parentNode).toBe(null);
+  });
+});
+
+/** 開打那一段：第一階段那一套好了，才先下載下一階段 */
+const prefetchSource = sourceBetween('    for (const enemy of cs.enemies) {\n      const now = ', '\n  }\n\n  const refreshMotion');
+
+describe('塔主第二階段先下載：等第一階段好了才開始', () => {
+  it('第一階段還沒好不先下載；好了才下載第二階段；沒有第二階段的不下載', async () => {
+    let finish = (): void => {};
+    const preloadCalls: string[][] = [];
+    const prefetched: string[] = [];
+    const bindings: Record<string, unknown> = {
+      cs: { enemies: [{ enemyId: 'iron_claw', phase: 0 }, { enemyId: 'roomba_king', phase: 0 }] },
+      qiuqiuEnemyMotionKind: (id: string, phase: number) => (id === 'iron_claw' ? (phase > 0 ? 'iron_claw_p2' : 'iron_claw') : id),
+      preloadEnemyMotion: (kinds: string[]) => { preloadCalls.push(kinds); return new Promise<void>((r) => { finish = r; }); },
+      prefetchEnemyMotion: (kind: string) => { prefetched.push(kind); return Promise.resolve(); },
+    };
+    const code = (await transformWithOxc(prefetchSource, 'boss-prefetch.ts')).code;
+    new Function(...Object.keys(bindings), code)(...Object.values(bindings));
+    expect(preloadCalls).toEqual([['iron_claw']]);
+    await Promise.resolve();
+    expect(prefetched).toEqual([]);
+    finish();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(prefetched).toEqual(['iron_claw_p2']);
   });
 });

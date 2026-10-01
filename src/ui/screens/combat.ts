@@ -733,7 +733,7 @@ registerScreen('combat', (app, root, props) => {
     for (const kind of new Set(requested)) if (kind) ensureEnemyMotion(kind);
     /*
      * 塔主第二階段（2026-10-01，使用者：「爆炸應該很華麗」）：第一階段那套好了之後，先把第二階段的出招、爆炸圖集**下載**下來，
-     * 不解碼、不算就緒（`prefetchEnemyMotion`）。0.8 Mbps 實測變身那一刻才開始抓，要 30～50 秒才演得出來，
+     * 不解碼、不算就緒、不插隊（`prefetchEnemyMotion`；插隊會把主角第一次用到的動作圖集擠到後面，審查 2026-10-01 中）。0.8 Mbps 實測變身那一刻才開始抓，要 30～50 秒才演得出來，
      * 第二階段打得快的話整段爆炸都看不到。變身那一刻照舊由 mountEnemyMotion 叫 ensureEnemyMotion（只剩解碼），抓好重畫也照舊。
      */
     for (const enemy of cs.enemies) {
@@ -992,10 +992,11 @@ registerScreen('combat', (app, root, props) => {
       return;
     }
     /*
-     * 同一批魔物挨打（2026-10-01）：牠們沒有挨打片段，播「挨打」會退回待機＝走路片段。畫布不在畫面上（站著交還立繪）時
-     * 播了也看不到，只會在背景去抓那張從來不上畫面的走路圖集（慢網路跟出招、爆炸搶頻寬）、空轉逐格迴圈，所以不播。
+     * 同一批魔物挨打（2026-10-01）：牠們沒有挨打片段，播「挨打」會退回待機＝走路片段。一律不播：
+     * 站著交還立繪時播了也看不到，只會在背景去抓那張從來不上畫面的走路圖集（慢網路跟出招、爆炸搶頻寬）、空轉逐格迴圈；
+     * 出招中被反彈打到時也不該把出招換成走路、打斷收招計時（審查 低-2）。挨打的紅閃與抖動照舊由 combat.css 掛。
      */
-    if (action === 'hurt' && staticIdle(state.kind) && !enemyMotionHas(state.kind, 'hurt') && !state.actor.element.isConnected) return;
+    if (action === 'hurt' && staticIdle(state.kind) && !enemyMotionHas(state.kind, 'hurt')) return;
     state.action = action;
     state.busyUntil = action === 'attack' || (action === 'knockdown' && playsLongDeath(state.kind))
       ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
