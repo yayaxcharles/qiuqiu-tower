@@ -783,10 +783,12 @@ registerScreen('combat', (app, root, props) => {
        * 全部不插隊：慢網路主角的動作、第二階段的出招與爆炸照舊排在它們前面。
        */
       if (now && later && later !== now) {
+        const startPhase = enemy.phase;   // 引擎是原地改這隻的資料：要先記下開打時的階段
         const fxNames = fxNamesFor([...fxOwnersOf(enemy.enemyId, enemy.phase, now), ...fxOwnersOf(enemy.enemyId, enemy.phase + 1, later)]);
         void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined)
           .then(() => prefetchEnemyMotionExtras(now, true)).catch(() => undefined)
-          .then(() => prefetchEnemyMotionLate(now)).catch(() => undefined)
+          // 已經打到第二階段了（慢網路排到這裡時常常是）：第一階段的倒下用不到，不抓（實測 0.8 Mbps 換階段後還在抓 1.5 MB 的鐵爪一階倒下）
+          .then(() => ((cs.enemies.find((x) => x.uid === enemy.uid)?.phase ?? startPhase) === startPhase ? prefetchEnemyMotionLate(now) : undefined)).catch(() => undefined)
           .then(() => prefetchFx(fxNames)).catch(() => undefined)
           .then(() => prefetchEnemyMotionExtras(later, false)).catch(() => undefined);
       }

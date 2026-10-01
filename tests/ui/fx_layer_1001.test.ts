@@ -381,3 +381,33 @@ describe('combat.ts：什麼時候放、放在誰身上', () => {
     expect(await run({ stateAction: 'idle', label: '', attacked: false, call: 'fireDeathFx(e);', seats: [] })).toEqual([]);
   });
 });
+
+describe('combat.ts：一階倒下的下載排在哪', () => {
+  const prefetchSource = sourceBetween('    for (const enemy of cs.enemies) {\n      const now = ', '\n  }\n\n  const refreshMotion');
+  async function order(phaseChangesBeforeLate: boolean): Promise<string[]> {
+    const got: string[] = [];
+    const boss = { uid: 1, enemyId: 'iron_claw', phase: 0 };
+    const bindings: Record<string, unknown> = {
+      cs: { enemies: [boss] },
+      qiuqiuEnemyMotionKind: (id: string, phase: number) => (phase > 0 ? `${id}_p2` : id),
+      preloadEnemyMotion: () => Promise.resolve(),
+      prefetchEnemyMotion: (k: string) => { got.push(`先下載:${k}`); return Promise.resolve(); },
+      prefetchEnemyMotionExtras: (k: string) => { got.push(`片段:${k}`); if (phaseChangesBeforeLate && k === 'iron_claw') boss.phase = 1; return Promise.resolve(); },
+      prefetchEnemyMotionLate: (k: string) => { got.push(`倒下:${k}`); return Promise.resolve(); },
+      fxOwnersOf, fxNamesFor,
+      prefetchFx: (names: string[]) => { got.push(`特效:${names.join(',')}`); return Promise.resolve(); },
+    };
+    const code = (await transformWithOxc(prefetchSource, 'fx-prefetch.ts')).code;
+    new Function(...Object.keys(bindings), code)(...Object.values(bindings));
+    for (let i = 0; i < 20; i++) await new Promise((r) => setTimeout(r, 0));
+    return got;
+  }
+
+  it('第二階段出招爆炸 → 這一階段招式片段 → 一階倒下 → 這一場的特效 → 第二階段招式片段', async () => {
+    expect(await order(false)).toEqual(['先下載:iron_claw_p2', '片段:iron_claw', '倒下:iron_claw', '特效:blast_large,blast_small', '片段:iron_claw_p2']);
+  });
+
+  it('排到一階倒下時已經打到第二階段（慢網路常見）：不抓一階倒下，特效照排', async () => {
+    expect(await order(true)).toEqual(['先下載:iron_claw_p2', '片段:iron_claw', '特效:blast_large,blast_small', '片段:iron_claw_p2']);
+  });
+});
