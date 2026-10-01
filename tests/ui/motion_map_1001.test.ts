@@ -90,7 +90,7 @@ function fakeEl(): FakeEl {
 type Played = [string, string, string | undefined];
 /** 搭一個只有一隻塔主的戰場，回傳可以呼叫 combat.ts 那幾段的環境 */
 async function field(opts: { enemyId: string; phase: number; staticIdleKind?: boolean; acting?: Map<number, { label: string; attacked: boolean }>;
-  clipFor?: (kind: string, label: string) => string | undefined; changeReady?: boolean; ready?: (kind: string) => boolean }) {
+  clipFor?: (kind: string, label: string) => string | undefined; changeReady?: boolean; ready?: (kind: string) => boolean; hurt?: boolean }) {
   const unit = fakeEl();
   const box = fakeEl();
   unit.append(box);
@@ -115,7 +115,7 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
       const canvas = fakeEl();
       return { element: canvas, play: (a: string, clip?: string) => { played.push([kind, a, clip]); }, pause() {}, dispose() {} };
     },
-    isSideMotionKind: () => true, hurtSet: new Set(), acting: opts.acting ?? new Map(), enemyStaticPose: () => 'idle',
+    isSideMotionKind: () => true, hurtSet: new Set(opts.hurt ? [7] : []), acting: opts.acting ?? new Map(), enemyStaticPose: () => 'idle',
     staticIdle: () => opts.staticIdleKind ?? true, playsLongDeath: () => false,
     enemyMotionHas: (_k: string, a: string) => a !== 'hurt',
     enemyMotionDuration: (_k: string, a: string) => (a === 'change' ? 1900 : 1350),
@@ -162,6 +162,27 @@ describe('招式對片段：戰鬥畫面', () => {
       acting: new Map([[7, { label: '放出小掃把', attacked: false }]]), clipFor: () => undefined });
     summon.mount();
     expect(summon.played.some(([, a]) => a === 'attack')).toBe(false);
+  });
+});
+
+describe('出招排在挨打前面（牠出手那一步同時被毒扣血）', () => {
+  it('中了毒的橘皮大王出肚皮壓：照樣播出招片段（原本挨打優先，逐格出招一次都看不到）', async () => {
+    const f = await field({ enemyId: 'orange_king', phase: 0, hurt: true, acting: new Map([[7, { label: '肚皮壓', attacked: true }]]),
+      clipFor: (_k, label) => (label === '肚皮壓' ? 'slam' : undefined) });
+    f.mount();
+    expect(f.played).toEqual([['orange_king', 'attack', 'slam']]);
+    expect(f.canvasShown()).toBe(true);
+  });
+
+  it('出招演到一半挨打（毒、反彈）：不打斷出招；沒在出招的照舊播挨打', async () => {
+    const f = await field({ enemyId: 'roomba_king', phase: 0, staticIdleKind: false, acting: new Map([[7, { label: '滾刷', attacked: true }]]) });
+    f.mount();
+    expect(f.played).toEqual([['roomba_king', 'attack', undefined]]);
+    f.api.playEnemyMotion(7, 'hurt');
+    expect(f.played.length).toBe(1);
+    f.advance(1400);   // 出招演完了
+    f.api.playEnemyMotion(7, 'hurt');
+    expect(f.played.at(-1)).toEqual(['roomba_king', 'hurt', undefined]);
   });
 });
 

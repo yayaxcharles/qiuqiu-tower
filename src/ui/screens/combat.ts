@@ -1008,6 +1008,8 @@ registerScreen('combat', (app, root, props) => {
      * 出招中被反彈打到時也不該把出招換成走路、打斷收招計時（審查 低-2）。挨打的紅閃與抖動照舊由 combat.css 掛。
      */
     if (action === 'hurt' && staticIdle(state.kind) && !enemyMotionHas(state.kind, 'hurt')) return;
+    // 出招演到一半挨打（同一步的中毒結算、反彈）：不打斷出招，紅閃＋數字照舊（跟上面出招排在挨打前面同一條）
+    if (action === 'hurt' && state.action === 'attack' && state.busyUntil > performance.now()) return;
     state.action = action;
     state.clip = action === 'attack' ? clip : undefined;
     state.busyUntil = action === 'attack' || action === 'change' || (action === 'knockdown' && playsLongDeath(state.kind))
@@ -1146,9 +1148,14 @@ registerScreen('combat', (app, root, props) => {
     const act = acting.get(e.uid);
     const moveClip = act && !e.dead && e.invulnIn === 0 ? enemyMotionMoveClip(kind, act.label) : undefined;
     const action: EnemyMotionAction = changing ? 'change' : e.dead && !fallingUids.has(e.uid) ? 'knockdown'
-      // 橫向捲軸那幾套沒有受擊片段：挨打時待機照跑不重來，紅閃＋抖動照舊由 combat.css 掛在畫布上
-      : hurtSet.has(e.uid) ? (side ? 'idle' : 'hurt')
-        : act?.attacked || moveClip !== undefined ? 'attack' : 'idle';
+      /*
+       * 出招排在挨打前面（2026-10-01，跟靜態立繪 `enemySprite` 同一個順序，稽核 2026-09-08 中 1）：牠出手那一拍常常同時掉血——
+       * 回合開頭的中毒結算（連線菲菲的毒針袋）、反彈都在同一步扣血。挨打優先的話，中了毒的魔物出手時逐格出招一次都看不到
+       *（本機連線實測：橘皮大王整場只演了變身與倒下，肚皮壓、丟魚骨頭都退回靜態出招圖）。
+       */
+      : act?.attacked || moveClip !== undefined ? 'attack'
+        // 橫向捲軸那幾套沒有受擊片段：挨打時待機照跑不重來，紅閃＋抖動照舊由 combat.css 掛在畫布上
+        : hurtSet.has(e.uid) ? (side ? 'idle' : 'hurt') : 'idle';
     const keepAttack = action === 'idle' && state.action === 'attack' && state.busyUntil > performance.now();
     /*
      * 沒有自己出招片段的（山豬頭目、唐傘小僧、小掃把⋯⋯）：出招那一拍交還靜態的出招立繪；
