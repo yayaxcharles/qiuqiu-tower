@@ -1165,6 +1165,7 @@ export const FEIFEI_CARD_NAME: Readonly<Record<string, string>> = {
  */
 export const DANGDANG_CARD_NAME: Readonly<Record<string, string>> = {
   luanwu: '橫掃千軍',   // 忍術·手裏劍亂舞（全體 5 傷打兩輪）。他沒有手裏劍，是掃堂帶過一圈
+  dieda: '絕學·貓藥草', // 絕學·貓爪抓（6 傷＋回 3）。他那張圖是砸破一甕藥草，跟「爪」對不上（使用者 2026-10-01）
 };
 
 /**
