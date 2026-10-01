@@ -259,7 +259,7 @@ export const cards: readonly CardDef[] = [
     upgrade: { effects: [{ kind: 'damage', amount: 10 }, { kind: 'drawIfTargetStatus', name: '翻肚', n: 1 }] } },
   { id: 'jiaochulai', name: '交出來', cost: 2, type: 技, rarity: 'common', pool: '忍術', target: 'enemy', art: 'card/jiaochulai',
     effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 5 }], upgrade: { effects: [{ kind: 'stealBlock' }, { kind: 'damage', amount: 7 }] } },
-  // 2026-09-17 使用者裁定：**2 費 → 3 費**。理由同崩拳——噹噹的「震盪波」是 2 費罕見、
+  // 2026-09-17 使用者裁定：**2 費 → 3 費**。理由同崩拳——噹噹的「震盪波」當時是 2 費罕見（10-02 起 1 費）、
   // 全體最多 8（升 10）且要吃蜷縮，這張 2 費常見全體 9（升 12）又不吃任何代價，整個壓過去
   { id: 'susu', name: '速速退散', cost: 3, type: 攻, rarity: 'common', pool: '忍術', target: 'all', art: 'card/susu',
     effects: [{ kind: 'damage', amount: 9, target: 'all' }], upgrade: { effects: [{ kind: 'damage', amount: 12, target: 'all' }] } },
@@ -881,7 +881,8 @@ export const cards: readonly CardDef[] = [
   { id: 'dangdang_yibi', name: '原樣奉還', cost: 2, type: 攻, rarity: 'uncommon', pool: '忍術', hero: 'dangdang', target: 'enemy', art: 'card/dangdang_yibi',
     effects: [{ kind: 'damageByOwnStatus', name: '反彈', mul: 2 }],
     upgrade: { effects: [{ kind: 'damageByOwnStatus', name: '反彈', mul: 3 }] } },
-  { id: 'dangdang_zhendang', name: '震盪波', cost: 2, type: 攻, rarity: 'uncommon', pool: '忍術', hero: 'dangdang', target: 'all', art: 'card/dangdang_zhendang',
+  // 2026-10-02 使用者裁定：**2 費 → 1 費**。已經要把蜷縮卸掉換傷害（最多 8，升 10），再收 2 費太差
+  { id: 'dangdang_zhendang', name: '震盪波', cost: 1, type: 攻, rarity: 'uncommon', pool: '忍術', hero: 'dangdang', target: 'all', art: 'card/dangdang_zhendang',
     effects: [{ kind: 'damageSpendBlock', max: 8, target: 'all' }],
     upgrade: { effects: [{ kind: 'damageSpendBlock', max: 10, target: 'all' }] } },
   { id: 'dangdang_jianzhao', name: '見招拆招', cost: 1, type: 技, rarity: 'uncommon', pool: '忍術', hero: 'dangdang', target: 'self', art: 'card/dangdang_jianzhao',
