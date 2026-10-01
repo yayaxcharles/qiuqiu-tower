@@ -245,8 +245,8 @@ export function bossDeathMotionLeft(
 }
 
 /** 敵人逐格不能被通用 650ms 收姿勢計時提早截斷。 */
-export function qiuqiuEnemyMotionHold(kind: EnemyMotionKind, action: EnemyMotionAction, baseMs: number): number {
-  return Math.max(baseMs, enemyMotionDuration(kind, action));
+export function qiuqiuEnemyMotionHold(kind: EnemyMotionKind, action: EnemyMotionAction, baseMs: number, clip?: string): number {
+  return Math.max(baseMs, enemyMotionDuration(kind, action, clip));
 }
 
 /** 將連線批次的累積游標轉成逐張牌互不重疊的命中／紀錄區間。 */
