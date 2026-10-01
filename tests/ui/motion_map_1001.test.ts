@@ -51,7 +51,7 @@ describe('招式對片段：資料', () => {
     }
   });
 
-  it('連線兩台：同一招對到同一段（只看資料與引擎裡的招式原文，不看介面語言、不看誰先下載好）', () => {
+  it('連線兩台：同一招對到同一段（只看資料與引擎裡的招式原文，不看介面語言；畫面上要兩邊圖集都到了才播同一段，還沒到的那邊退回預設出招）', () => {
     for (const kind of SIDE_MOTION_KINDS) {
       const a = dataOf(kind);
       const b = JSON.parse(JSON.stringify(a)) as typeof a;   // 另一台各自載入的同一份資料

@@ -9,6 +9,7 @@
  * slow＝0.8 Mbps／300 毫秒、冷快取（新的設定資料夾）；fast＝不限速。
  * 環境變數 MM_WAIT_MS：開打後等多久才讓牠出第一招（預設 4000；slow 想看「圖還沒到」就設 0）。
  * MM_POISON＝1：牠出手前身上帶毒（回合開頭先扣血）。MM_BLOCK＝這幾張圖集一律下載失敗（看退回預設）。
+ * MM_DWELL_MS：開打前先在地圖停多久（慢網路比圖集下載順序用）。
  */
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -115,6 +116,8 @@ const CAN_ACT = () => {
 };
 
 await bootRun(page, server.url, 'ninja', `motionmap-${BOSS}`);
+// MM_DWELL_MS：開局後先在地圖停多久才開打（模擬一路打上來，地圖與主角的圖先下載完；慢網路比下載順序用）
+if (Number(process.env.MM_DWELL_MS ?? 0) > 0) await sleep(Number(process.env.MM_DWELL_MS));
 await page.evaluate((BOSS) => {
   window.__bx = { samples: [], marks: [] };
   setInterval(() => {
