@@ -40,7 +40,23 @@ FX: dict[str, dict] = {
     "blast_small": {"first": 0, "last": 62},
     # 煙霧（來源已從影片第 14 格起取，前面 Flow 自己加的白色爆星不在裡面）：第 71 格以後只剩細渣
     "smoke": {"first": 0, "last": 70},
+    # ---- 師父（2026-10-01 Flow 新生，使用者核准「走火入魔特效」）：兩支都是可循環的片段（來源已挑好頭尾最像的兩格），整段收 ----
+    # 黑氣：黑色帶暗紫邊的煙柱，從底部往上捲（待機、出招時疊在身上；換階段放大爆發）
+    "daxia_black_qi": {"first": 0, "last": 71},
+    # 閉關氣場：淡金白色圓環慢慢轉、金色光點往上飄。來源背景留了一層很淡的粉色霧（綠幕反推顏色的殘留），
+    # 打包時把「透明度低、不帶金色」的那一層壓淡（`fade_haze`），圓環與光點不動
+    "daxia_seclude_aura": {"first": 0, "last": 50, "fade_haze": True},
 }
+
+
+def fade_haze(im: Image.Image) -> Image.Image:
+    """閉關氣場的粉色霧：透明度 < 100、綠不比藍多（金色的綠明顯比藍多，霧是灰粉、綠藍差不多）的像素，透明度乘 0.2"""
+    import numpy as np
+    a = np.array(im)
+    rgb = a[..., :3].astype(int)
+    haze = (a[..., 3] > 0) & (a[..., 3] < 100) & (rgb[..., 1] - rgb[..., 2] < 10)
+    a[..., 3] = np.where(haze, (a[..., 3].astype(int) * 0.2).astype(np.uint8), a[..., 3])
+    return Image.fromarray(a, "RGBA")
 
 
 def pack(src_root: Path, name: str, spec: dict) -> tuple[Image.Image, dict]:
@@ -50,6 +66,8 @@ def pack(src_root: Path, name: str, spec: dict) -> tuple[Image.Image, dict]:
     cells = []
     for i in idx:
         im = Image.open(src_root / name / f"{i:02d}.webp").convert("RGBA")
+        if spec.get("fade_haze"):
+            im = fade_haze(im)
         box = im.getchannel("A").point(lambda v: 255 if v > 6 else 0).getbbox() or (0, 0, 1, 1)
         crop = im.crop(box)
         cells.append((crop, ax - box[0], ay - box[1]))

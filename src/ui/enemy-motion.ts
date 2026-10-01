@@ -16,6 +16,8 @@ export const SIDE_MOTION_KINDS = [
   'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer',
   'armor_ghost', 'kappa', 'lantern_ghost',
   'orange_bandit', 'plated_beetle', 'tengu', 'vacuum', 'wraith_samurai',
+  // 師父三個階段各一套（2026-10-01 Flow 新生；長相不同，每一套只收自己那一階段的片段）
+  'daxia_p1', 'daxia_p2', 'daxia_p3',
 ] as const;
 export type SideMotionKind = typeof SIDE_MOTION_KINDS[number];
 export type EnemyMotionKind = 'rat' | 'ninja' | SideMotionKind;
@@ -30,6 +32,8 @@ const LONG_DEATH_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>([
   'iron_claw', 'iron_claw_p2', 'roomba_king',
   'frog_daimyo', 'frog_daimyo_p2', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2',
   'drum_tanuki', 'guardian_statue', 'iron_arhat', 'mask_dancer',
+  // 師父只會在第三階段倒下（前兩條血打光是換階段）：戰敗整段 4 秒（紫火→金光→單膝跪成 defeat3）
+  'daxia_p3',
 ]);
 /**
  * 待機不播逐格、改畫原本立繪的（2026-09-29 使用者：「待機一直在原地走路好怪」「待機時都有原本圖片」）。
@@ -41,6 +45,8 @@ const STATIC_IDLE_KINDS: ReadonlySet<EnemyMotionKind> = new Set<SideMotionKind>(
   'armor_ghost', 'drum_tanuki', 'frog_daimyo', 'frog_daimyo_p2', 'iron_arhat', 'iron_claw', 'iron_claw_p2',
   'kappa', 'mask_dancer', 'orange_king', 'orange_king_p2', 'tanuki_lord', 'tanuki_lord_p2', 'wraith_samurai',
   'plated_beetle',
+  // 師父：待機一直是原本的靜態立繪（使用者 2026-10-01：不要原地走路），身上的黑氣交給特效圖層
+  'daxia_p1', 'daxia_p2', 'daxia_p3',
 ]);
 export function staticIdle(kind: EnemyMotionKind): boolean {
   return STATIC_IDLE_KINDS.has(kind);
@@ -74,6 +80,8 @@ type Motion = {
   texture: string;
   /** 變身片段：停在最後一格交還立繪，那一格在立繪上方淡出幾秒（狸大人的煙，2026-10-01） */
   fade?: number;
+  /** 變身片段：最後一格淡出的同時，底下的立繪從透明淡入（交叉淡入，師父 2026-10-01） */
+  crossfade?: boolean;
   /** 關鍵格（hit、spark、fall⋯⋯）在這一段開演後第幾毫秒（`pack_side_motion.py` 換算）：特效圖層照它對時間 */
   marks?: Record<string, number>;
   mirror?: boolean;
@@ -203,6 +211,11 @@ export function enemyMotionMoveClip(kind: EnemyMotionKind, label: string | undef
   return clip !== undefined && textureDrawable(data!.extras![clip]!.texture) ? clip : undefined;
 }
 
+/** 變身演完交還立繪時，底下的立繪也從透明淡入（真的交叉淡入；師父：站姿 → 閉關打坐，2026-10-01） */
+export function enemyMotionChangeCrossfade(kind: EnemyMotionKind): boolean {
+  return kinds[kind]?.extras?.change?.crossfade === true;
+}
+
 /** 變身演完交還立繪時，最後一格在立繪上方淡出幾毫秒（0＝直接換） */
 export function enemyMotionChangeFade(kind: EnemyMotionKind): number {
   return Math.round((kinds[kind]?.extras?.change?.fade ?? 0) * 1000);
@@ -251,9 +264,13 @@ function texturesOf(kind: EnemyMotionKind, data: MotionKind): string[] {
   return [...new Set(actionsOf(data).filter((motion) => !(skipIdle && motion === data.actions.idle)).map((motion) => motion.texture))];
 }
 
-/** 額外片段的圖集（招式片段、變身）：不算進就緒，見 `fetchExtras` */
-function extraTexturesOf(data: MotionKind): string[] {
-  const base = new Set(actionsOf(data).map((motion) => motion.texture));
+/**
+ * 額外片段的圖集（招式片段、變身）：不算進就緒，見 `fetchExtras`。
+ * 扣掉的是「基本動作真的會下載的」那幾張（`texturesOf`）：師父的待機只是借第一段片段的第 0 格佔位（從來不下載），
+ * 原本連待機那張一起扣，那一段片段的圖集就永遠沒人抓（實測第一階段金鐘罩、第二階段十二連環、第三階段亡命一擊都退回靜態，2026-10-01）
+ */
+function extraTexturesOf(kind: EnemyMotionKind, data: MotionKind): string[] {
+  const base = new Set(texturesOf(kind, data));
   return [...new Set(Object.values(data.extras ?? {}).map((motion) => motion.texture))].filter((texture) => !base.has(texture));
 }
 
@@ -261,8 +278,8 @@ function extraTexturesOf(data: MotionKind): string[] {
  * 額外片段的圖集在背景下載（2026-10-01）：**不插隊**。`decode`：下載好再排背景解開，第一次播時不在主執行緒解碼。
  * 失敗的從快取拿掉：這一招照舊播預設片段，下一場再試。
  */
-async function fetchExtras(data: MotionKind, decode: boolean): Promise<void> {
-  await Promise.all(extraTexturesOf(data).map(async (texture) => {
+async function fetchExtras(kind: EnemyMotionKind, data: MotionKind, decode: boolean): Promise<void> {
+  await Promise.all(extraTexturesOf(kind, data).map(async (texture) => {
     const image = imageFor(texture, false);
     await loadHeavy(image, fileUrl(texture), false);
     try {
@@ -297,7 +314,7 @@ export async function prefetchEnemyMotion(kind: EnemyMotionKind): Promise<void> 
  */
 export async function prefetchEnemyMotionExtras(kind: EnemyMotionKind, decode: boolean): Promise<void> {
   await ensureKindData(kind);
-  await fetchExtras(kindOf(kind), decode);
+  await fetchExtras(kind, kindOf(kind), decode);
 }
 
 /** 晚一點才下載的基本動作的圖集（`late`，塔主第一階段的倒下） */
@@ -311,16 +328,39 @@ export function lateTexturesOf(kind: EnemyMotionKind): string[] {
  *（這一階段基本 → 第二階段出招與爆炸 → 這一階段招式片段 → **這裡** → 特效 → 第二階段招式片段）。
  * 失敗的從快取拿掉：這一次照舊靜態倒下，下一場再試。
  */
-export async function prefetchEnemyMotionLate(kind: EnemyMotionKind): Promise<void> {
+export async function prefetchEnemyMotionLate(kind: EnemyMotionKind, decode = true): Promise<void> {
   await ensureKindData(kind);
   await Promise.all(lateTexturesOf(kind).map(async (texture) => {
     const image = imageFor(texture, false);
     await loadHeavy(image, fileUrl(texture), false);
     try {
       await imageLoaded(image);
-      void prepareDecodedAtlas(image, false);
+      // decode＝false：還要好幾回合才用得到（師父第一階段就先下載第三階段的戰敗），先只下載，不在第一階段多壓一份點陣圖
+      if (decode) void prepareDecodedAtlas(image, false);
     } catch { if (images.get(texture) === image) images.delete(texture); }
   }));
+}
+
+/**
+ * 師父的圖集提早在背景下載（2026-10-01）：進第三關、在地圖上（`netload-run.ts` 的 `preloadNextFights`）就排，
+ * 打到師父時多半已經在手上。**一次只排一張**，每張都排在大檔那一條的最後面（不插隊）：
+ * 主角的動作、一般魔物的圖集照舊先走；之後才排進來的一般魔物，前面最多只多一張師父的。
+ * 只下載、不解碼（開打時 combat.ts 那一串才解）。`keepGoing` 回 false 就不再排下一張（離開這一局）。
+ * 失敗的從快取拿掉：開打時照舊再抓，沒到就退回靜態立繪。
+ */
+export async function prefetchEnemyMotionAhead(kinds: readonly EnemyMotionKind[], keepGoing: () => boolean = () => true): Promise<void> {
+  for (const kind of kinds) {
+    if (!keepGoing()) return;
+    try { await ensureKindData(kind); } catch { continue; }
+    const data = kindOf(kind);
+    for (const texture of new Set([...texturesOf(kind, data), ...extraTexturesOf(kind, data), ...lateTexturesOf(kind)])) {
+      if (!keepGoing()) return;
+      if (textureDrawable(texture)) continue;
+      const image = imageFor(texture, false);
+      await loadHeavy(image, fileUrl(texture), false);
+      try { await imageLoaded(image); } catch { if (images.get(texture) === image) images.delete(texture); }
+    }
+  }
 }
 
 async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
