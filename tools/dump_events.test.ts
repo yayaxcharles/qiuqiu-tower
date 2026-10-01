@@ -5,7 +5,7 @@
 //
 // 做成 dump 工具而不是手寫一份：手寫的隔天就過期，而 `npx vitest run` 會一起跑到 tools/，
 // 所以改完文案跑一次測試，這份就是最新的（跟 docs/牌池總表.json 同一套作法）。
-import { writeFileSync } from 'node:fs';
+import { writeDoc } from './docs-dump';
 import { it } from 'vitest';
 import { events } from '../src/content/events';
 // 球球第二批的開頭與結果延後載入，這支一載入才填回事件資料（2026-09-23 b2fin）；不載的話那十八篇在文案表裡是空的
@@ -47,7 +47,7 @@ it('dump events', () => {
   const lines: string[] = [];
   lines.push('# 爪破魔塔：事件文案總表', '');
   lines.push(`共 ${events.length} 個事件。這份是從 \`src/content/events.ts\` 產生的，`);
-  lines.push('改完文案跑一次 `npx vitest run tools/dump_events.test.ts` 就會更新。', '');
+  lines.push('改完文案跑一次 `npm run docs:dump` 就會更新。', '');
   lines.push('- **關卡**：沒寫就是三關都可能遇到。');
   lines.push('- **前置**：要先在別的事件做過某個選擇才會出現（前後集）。');
   lines.push('- 每個選項底下的「→」是實際會發生的事，拿來對照文字有沒有講清楚。', '');
@@ -74,6 +74,6 @@ it('dump events', () => {
     }
     lines.push('');
   }
-  writeFileSync('docs/事件文案.md', lines.join('\n'), 'utf-8');
+  writeDoc('docs/事件文案.md', lines.join('\n'));   // 平常跑測試不寫檔（tools/docs-dump.ts）
   console.log(`事件文案.md：${events.length} 個事件`);
 });

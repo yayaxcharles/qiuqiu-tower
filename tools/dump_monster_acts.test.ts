@@ -1,7 +1,8 @@
 // 產生 docs/分關載入.json：每張魔物立繪與底圖最早在第幾關會用到（tools/check_size.py 拿它把二三關的圖歸「分關載入」）。
-// `npx vitest run` 會一起跑到（tools/ 也在測試範圍），所以檔案不會過期；改了遭遇、關主池或底圖分關規則，
-// 跑完測試把 docs/分關載入.json 一起提交就好
-import { readFileSync, writeFileSync } from 'node:fs';
+// 平常跑測試只**比對**、不寫檔（2026-10-02，tools/docs-dump.ts）：過期了這裡會紅。改了遭遇、關主池、底圖分關規則或加了圖，
+// 跑 `npm run docs:dump` 更新，把 docs/分關載入.json 一起提交
+import { readFileSync } from 'node:fs';
+import { WRITE_DOCS, docUpToDate, writeDoc } from './docs-dump';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
 import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
@@ -101,7 +102,10 @@ it('dump monster acts', () => {
   expect(portraits.size, '前提：四隻都有自己的站姿').toBe(4);
 
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
-  writeFileSync('docs/分關載入.json', JSON.stringify(sorted, null, 1) + '\n', 'utf-8');
+  const text = JSON.stringify(sorted, null, 1) + '\n';
+  writeDoc('docs/分關載入.json', text);
+  // check_size.py 靠這份把二三關的圖排除在首載外，過期就會量錯，所以不寫檔時要對得上
+  if (!WRITE_DOCS) expect(docUpToDate('docs/分關載入.json', text), 'docs/分關載入.json 過期了：跑 npm run docs:dump 更新後一起提交').toBe(true);
   const n = (a: number) => Object.values(sorted).filter((v) => v === a).length;
   console.log(`分關載入：第一關 ${n(1)} 檔、第二關 ${n(2)}、第三關 ${n(3)}、沒用到 ${n(9)}`);
   // 事件主圖一張都不准算首載（2026-09-23 0-2）：拿掉上面 `eventMainKeys` 那一圈，三關都排得到的三十張會掉回首載，這裡就紅
