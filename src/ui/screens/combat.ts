@@ -735,7 +735,8 @@ registerScreen('combat', (app, root, props) => {
       // 就緒之後才排額外片段（不跟這一場馬上要畫的搶頻寬）；第二階段變身那一刻也走這裡，先下載過的只剩解碼
       // 特效圖集（燈籠妖吐火的爆炸⋯⋯）排在招式片段後面
       if (!extrasAfterNextPhase.has(kind)) {
-        void prefetchEnemyMotionExtras(kind, true).catch(() => undefined).then(() => prefetchFx(fxNamesFor([kind]))).catch(() => undefined);
+        void prefetchEnemyMotionExtras(kind, true).catch(() => undefined)
+          .then(() => (app.cs === cs && !ended ? prefetchFx(fxNamesFor([kind])) : undefined)).catch(() => undefined);
       }
       if (app.cs === cs && !ended) render();
     }).catch((error: unknown) => console.error('敵人動作素材載入失敗', kind, error));
@@ -785,12 +786,14 @@ registerScreen('combat', (app, root, props) => {
       if (now && later && later !== now) {
         const startPhase = enemy.phase;   // 引擎是原地改這隻的資料：要先記下開打時的階段
         const fxNames = fxNamesFor([...fxOwnersOf(enemy.enemyId, enemy.phase, now), ...fxOwnersOf(enemy.enemyId, enemy.phase + 1, later)]);
+        // 這一場已經打完（或換了畫面）：後面幾步都用不到了，不再排（慢網路打完了還在抓特效、二階招式片段）
+        const fighting = (): boolean => app.cs === cs && !ended;
         void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined)
           .then(() => prefetchEnemyMotionExtras(now, true)).catch(() => undefined)
           // 已經打到第二階段了（慢網路排到這裡時常常是）：第一階段的倒下用不到，不抓（實測 0.8 Mbps 換階段後還在抓 1.5 MB 的鐵爪一階倒下）
-          .then(() => ((cs.enemies.find((x) => x.uid === enemy.uid)?.phase ?? startPhase) === startPhase ? prefetchEnemyMotionLate(now) : undefined)).catch(() => undefined)
-          .then(() => prefetchFx(fxNames)).catch(() => undefined)
-          .then(() => prefetchEnemyMotionExtras(later, false)).catch(() => undefined);
+          .then(() => (fighting() && (cs.enemies.find((x) => x.uid === enemy.uid)?.phase ?? startPhase) === startPhase ? prefetchEnemyMotionLate(now) : undefined)).catch(() => undefined)
+          .then(() => (fighting() ? prefetchFx(fxNames) : undefined)).catch(() => undefined)
+          .then(() => (fighting() ? prefetchEnemyMotionExtras(later, false) : undefined)).catch(() => undefined);
       }
     }
   }

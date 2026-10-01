@@ -51,6 +51,12 @@ cdp.on('Network.requestWillBeSent', (e) => {
     heroLog.push(r); atlasById.set(e.requestId, r);
     return;
   }
+  // 特效圖集（2026-10-01 特效圖層）：記成 fx/<名>，看它有沒有在慢網路跟主角搶位子
+  if (/motion\/fx\//.test(e.request.url)) {
+    const r = { url: 'fx/' + e.request.url.replace(/^.*motion\/fx\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, ''), sent: Date.now(), done: 0 };
+    atlasLog.push(r); atlasById.set(e.requestId, r);
+    return;
+  }
   if (!/motion\/side\//.test(e.request.url)) return;
   const r = { url: e.request.url.replace(/^.*motion\/side\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, ''), sent: Date.now(), done: 0 };
   atlasLog.push(r); atlasById.set(e.requestId, r);

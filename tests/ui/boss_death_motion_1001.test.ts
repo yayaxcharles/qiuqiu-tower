@@ -179,7 +179,9 @@ describe('塔主第二階段先下載：等第一階段好了才開始', () => {
       fxOwnersOf: (id: string, phase: number, kind?: string) => [kind, `enemy:${id}@${phase}`],
       fxNamesFor: (owners: string[]) => (owners.includes('iron_claw_p2') ? ['blast_large'] : []),
       prefetchFx: (names: string[]) => { prefetched.push(`特效:${names.join(',')}`); return Promise.resolve(); },
+      ended: false,
     };
+    bindings.app = { cs: bindings.cs };   // 這一場還在打
     const code = (await transformWithOxc(prefetchSource, 'boss-prefetch.ts')).code;
     new Function(...Object.keys(bindings), code)(...Object.values(bindings));
     expect(preloadCalls).toEqual([['iron_claw']]);
