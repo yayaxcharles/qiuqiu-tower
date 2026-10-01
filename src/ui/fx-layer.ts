@@ -172,6 +172,14 @@ export async function prefetchFx(names: readonly string[]): Promise<void> {
 
 /* ---------- 畫面 ---------- */
 
+/** 這張畫布後面還有不是特效的東西嗎（逐格畫布、立繪⋯⋯） */
+function hasNonFxAfter(canvas: Element): boolean {
+  for (let n = canvas.nextSibling as (Element & { classList?: DOMTokenList }) | null; n; n = n.nextSibling as typeof n) {
+    if (!n.classList?.contains('fx-layer')) return true;
+  }
+  return false;
+}
+
 export type FxHost = () => HTMLElement | null | undefined;
 
 export type FxHandle = { element: HTMLCanvasElement; stop(fadeMs?: number): void;
@@ -237,8 +245,9 @@ export function playFx(cue: FxCue, host: FxHost, delayMs = 0, env: FxEnv = defau
     if (back) {
       if (canvas.parentNode !== box) box.insertBefore(canvas, box.firstChild?.nextSibling ?? null);   // 插在地上的影子後面、立繪前面
     }
-    // 前面那層要排在框的最後：主角、魔物的逐格畫布也是 z-index 1，重掛時會被 append 到後面、把特效蓋住（實測燈籠妖吐火的爆炸整團被主角擋掉）
-    else if (canvas.parentNode !== box || canvas.nextSibling) box.append(canvas);
+    // 前面那層要排在框的最後：主角、魔物的逐格畫布也是 z-index 1，重掛時會被排到後面、把特效蓋住（實測燈籠妖吐火的爆炸整團被主角擋掉）。
+    // 後面只剩別的特效畫布就不搬（兩支前層特效同框時不互相搬來搬去，審查 2026-10-01 低）
+    else if (canvas.parentNode !== box || hasNonFxAfter(canvas)) box.append(canvas);
     return true;
   };
   const draw = (index: number): void => {
@@ -258,7 +267,8 @@ export function playFx(cue: FxCue, host: FxHost, delayMs = 0, env: FxEnv = defau
     raf = 0;
     if (finished) return;
     if (!attach()) { finish(); return; }
-    if (startedAt === null) startedAt = now;
+    // 延遲是負的＝該開演的時間已經過了（倒下片段比特效早開演）：從那個進度接著播
+    if (startedAt === null) startedAt = now - Math.max(0, -delayMs);
     const index = fxFrameAt(sprite, now - startedAt, speed, loop);
     if (index < 0) { finish(); return; }
     draw(index);
@@ -330,12 +340,14 @@ export function createFxLayer(env: FxEnv = defaultEnv) {
   };
   return {
     /** 放一個時機的所有提示。`hostOf` 照提示的 host（self／target）給宿主；`marks`＝這一段動作的關鍵格（毫秒） */
-    fire(cues: readonly FxCue[], hostOf: (cue: FxCue) => FxHost | undefined, marks?: Readonly<Record<string, number>>): FxHandle[] {
+    fire(cues: readonly FxCue[], hostOf: (cue: FxCue) => FxHost | undefined, marks?: Readonly<Record<string, number>>,
+      /** 這一段動作已經演了幾毫秒（倒下片段比這裡早開演時扣掉，特效才對得上片段裡的那一格） */
+      elapsedMs = 0): FxHandle[] {
       const out: FxHandle[] = [];
       for (const cue of cues) {
         const host = hostOf(cue);
         if (!host) continue;
-        const handle = track(playFx(cue, host, fxCueDelay(cue, marks), env));
+        const handle = track(playFx(cue, host, fxCueDelay(cue, marks) - Math.max(0, elapsedMs), env));
         if (handle) out.push(handle);
       }
       return out;

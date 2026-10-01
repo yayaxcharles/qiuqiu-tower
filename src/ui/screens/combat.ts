@@ -1191,8 +1191,11 @@ registerScreen('combat', (app, root, props) => {
   const fireDeathFx = (e: EnemyCombat): void => {
     const state = enemyMotionActors.get(e.uid);
     const kind = state?.action === 'knockdown' ? state.kind : undefined;
+    // 倒下片段可能比這裡早開演（打死那一拍重畫時就開演了，分段擊殺時差更多）：扣掉已經演的，爆炸才對得上片段裡的火花（審查 2026-10-01 低）
+    const played = kind && state && state.busyUntil > 0
+      ? Math.max(0, enemyMotionDuration(kind, 'knockdown') - Math.max(0, state.busyUntil - performance.now())) : 0;
     fxLayer.fire(fxCuesFor(fxOwnersOf(e.enemyId, e.phase, kind), 'death'),
-      (cue) => (cue.host === 'target' ? undefined : enemyBoxOf(e.uid)), kind ? enemyMotionMarks(kind, 'knockdown') : undefined);
+      (cue) => (cue.host === 'target' ? undefined : enemyBoxOf(e.uid)), kind ? enemyMotionMarks(kind, 'knockdown') : undefined, played);
   };
 
   /**
@@ -3672,7 +3675,7 @@ registerScreen('combat', (app, root, props) => {
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, blocked: b.intent === 'block' && e.invulnIn === 0, learned: b.learned });
     }
-    // 這一拍魔物打到誰（特效圖層 target 用）：血或蜷縮少了、沒倒下的那幾位。看引擎狀態，連線兩台一致
+    // 這一拍魔物打到誰（特效圖層 target 用）：血或蜷縮少了的那幾位（被打倒的也算，爆炸照樣打在他那一格）。看引擎狀態，連線兩台一致
     fxTargetSeats = () => cs.players.filter((q) => {
       const was = before.players.get(q.seat);
       const after = comparison?.players.get(q.seat);

@@ -75,7 +75,7 @@ describe('特效提示表（fx/cues.json）：寫錯字會紅', () => {
       const clipMs = motion.frames.reduce((a, f) => a + f.duration * 1000, 0);
       const fx = fxData(cue.fx);
       const fxMs = fx.frames.reduce((a, f) => a + f.duration * 1000, 0) / (cue.speed ?? 1);
-      expect(fxCueDelay(cue, motion.marks) + fxMs, `${cue.owner} ${cue.fx}`).toBeLessThanOrEqual(clipMs + 300 + 120);
+      expect(fxCueDelay(cue, motion.marks) + fxMs, `${cue.owner} ${cue.fx}`).toBeLessThanOrEqual(clipMs + 300);
     }
   });
 });
@@ -183,6 +183,7 @@ function fakeEnv() {
       const node = fakeNode() as unknown as HTMLCanvasElement & Node;
       Object.assign(node, {
         style: {}, className: '', width: 0, height: 0,
+        classList: { contains: (k: string) => (node as unknown as { className: string }).className.split(' ').includes(k) },
         setAttribute() {},
         getContext: () => ({ setTransform() {}, clearRect() {}, drawImage: () => { draws.push(now); } }),
       });
@@ -256,6 +257,33 @@ describe('特效圖層：掛上去、跟著框搬家、播完收掉、不擋點�
     box.append(heroCanvas);   // 主角換姿勢重掛逐格畫布
     advance(32);
     expect(box.children.at(-1)).toBe(handle.element as unknown as Node);
+  });
+
+  it('兩支前層特效同框：只排在非特效的東西後面，彼此不互相搬來搬去', () => {
+    const { env, advance } = fakeEnv();
+    const box = fakeNode();
+    const one = playFx({ owner: 'x', on: 'death', fx: 'test' }, () => box as unknown as HTMLElement, 0, env)!;
+    const two = playFx({ owner: 'x', on: 'death', fx: 'test' }, () => box as unknown as HTMLElement, 0, env)!;
+    advance(16);
+    const order = (): Node[] => [...box.children];
+    const first = order();
+    let moves = 0;
+    const origAppend = box.append.bind(box);
+    box.append = (n: Node) => { moves += 1; origAppend(n); };
+    advance(160);
+    expect(moves).toBe(0);
+    expect(order()).toEqual(first);
+    expect(first).toEqual([one.element as unknown as Node, two.element as unknown as Node]);
+  });
+
+  it('延遲是負的（倒下片段比特效早開演）：從該有的進度接著播，不從第一格重來', () => {
+    const { env, advance } = fakeEnv();
+    const box = fakeNode();
+    const late = playFx({ owner: 'x', on: 'death', fx: 'test' }, () => box as unknown as HTMLElement, -500, env)!;
+    advance(16);
+    // 10 格×83 毫秒＝833 毫秒；已經過了 500，再 400 毫秒就該播完
+    advance(400);
+    expect(late.done).toBe(true);
   });
 
   it('後面那層插在地上的影子後面、立繪前面（z-index 0）', () => {
@@ -371,6 +399,23 @@ describe('combat.ts：什麼時候放、放在誰身上', () => {
   it('閃過（血與蜷縮都沒少）：不放；別的招（卡住）：不放', async () => {
     expect(await run({ label: '全開', attacked: true, call: 'fireMoveFx(e, 1, act);', seats: [{ seat: 0, was: [50, 0], now: [50, 0] }] })).toEqual([]);
     expect(await run({ label: '卡住', attacked: false, call: 'fireMoveFx(e, 1, act);', seats: [{ seat: 0, was: [50, 0], now: [40, 0] }] })).toEqual([]);
+  });
+
+  it('倒下片段比這裡早開演（分段擊殺）：特效扣掉片段已經演的時間', async () => {
+    const offsets: number[] = [];
+    const bindings: Record<string, unknown> = {
+      enemyMotionActors: new Map([[7, { kind: 'iron_claw_p2', action: 'knockdown', busyUntil: 10_000 }]]),
+      fxLayer: { fire: (_c: unknown, _h: unknown, _m: unknown, played: number) => { offsets.push(played); } },
+      fxCuesFor, fxOwnersOf,
+      enemyBoxOf: () => () => 'box', playerBoxOf: () => () => 'p',
+      enemyMotionMarks: () => ({}), enemyMotionMoveClip: () => undefined,
+      enemyMotionDuration: () => 2667,
+      performance: { now: () => 10_000 - 2667 + 450 },   // 片段已經演了 450 毫秒
+      qiuqiuEnemyMotionKind: () => 'iron_claw_p2',
+    };
+    const code = (await transformWithOxc(`${helpers}\nfireDeathFx(e);`, 'fx-death-offset.ts')).code;
+    new Function(...Object.keys(bindings), 'e', code)(...Object.values(bindings), { uid: 7, enemyId: 'iron_claw', phase: 1 });
+    expect(offsets).toEqual([450]);
   });
 
   it('倒下：逐格倒下真的在演才放那一套的提示（照倒下的關鍵格），退回靜態倒下的不放', async () => {
