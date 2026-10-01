@@ -65,6 +65,19 @@ describe('師父：三個階段各一套，不跨階段', () => {
     expect(kindsReport.daxia_p2!.palm!.seconds).toBeLessThanOrEqual(1.35);
   });
 
+  it('其他七段也從跟待機最接近的那格起手、收回到跟待機一樣（主控 2026-10-01；逐格量過，第一格與待機的差都在 9 以內）', () => {
+    const want: [string, string, number, number][] = [
+      ['daxia_p1', 'guard', 8, 86], ['daxia_p1', 'headbutt', 13, 84], ['daxia_p2', 'combo', 1, 94], ['daxia_p2', 'guard', 4, 80],
+      ['daxia_p2', 'flurry', 4, 92], ['daxia_p3', 'lunge', 2, 86], ['daxia_p3', 'doublepalm', 2, 94],
+    ];
+    for (const [kind, clip, first, last] of want) {
+      const entry = kindsReport[kind]![clip]!;
+      expect(entry.src_frames![0], `${kind} ${clip} 起手`).toBe(first);
+      expect(entry.src_frames!.at(-1), `${kind} ${clip} 收手`).toBe(last);
+      expect(entry.seconds!, `${kind} ${clip} 總長`).toBeLessThanOrEqual(1.35);
+    }
+  });
+
   it('醉拳沒有合格片：第二階段對不到片段（照舊畫靜態 drunk2）', () => {
     expect(enemyMoveClipOf(side('daxia_p2'), '醉拳')).toBeUndefined();
     expect(Object.keys(side('daxia_p2').extras!)).not.toContain('drunk');

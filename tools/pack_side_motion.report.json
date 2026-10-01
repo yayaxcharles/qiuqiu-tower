@@ -2510,13 +2510,15 @@
   "daxia_p1": {
    "guard": {
     "src": "guard",
-    "frames": 26,
+    "frames": 28,
     "seconds": 1.35,
     "atlas": [
-     3897,
-     660
+     3908,
+     662
     ],
     "src_frames": [
+     8,
+     12,
      14,
      16,
      18,
@@ -2547,13 +2549,15 @@
    },
    "headbutt": {
     "src": "headbutt",
-    "frames": 27,
+    "frames": 29,
     "seconds": 1.35,
     "atlas": [
-     3854,
-     662
+     4003,
+     663
     ],
     "src_frames": [
+     13,
+     16,
      18,
      20,
      22,
@@ -2568,8 +2572,6 @@
      40,
      42,
      44,
-     46,
-     58,
      60,
      62,
      64,
@@ -2580,7 +2582,9 @@
      74,
      76,
      78,
-     80
+     80,
+     82,
+     84
     ]
    },
    "palm": {
@@ -2754,13 +2758,15 @@
    },
    "combo": {
     "src": "combo",
-    "frames": 27,
+    "frames": 23,
     "seconds": 1.35,
     "atlas": [
-     4041,
-     1058
+     3973,
+     706
     ],
     "src_frames": [
+     1,
+     5,
      6,
      8,
      10,
@@ -2779,26 +2785,23 @@
      36,
      38,
      40,
-     42,
-     44,
-     46,
-     48,
-     50,
-     52,
-     54,
-     56,
-     58
+     86,
+     90,
+     94
     ]
    },
    "guard": {
     "src": "guard",
-    "frames": 26,
+    "frames": 27,
     "seconds": 1.35,
     "atlas": [
-     3973,
-     697
+     3979,
+     1054
     ],
     "src_frames": [
+     4,
+     7,
+     10,
      12,
      14,
      16,
@@ -2822,20 +2825,20 @@
      74,
      76,
      78,
-     80,
-     82,
-     84
+     80
     ]
    },
    "flurry": {
     "src": "flurry",
-    "frames": 27,
+    "frames": 29,
     "seconds": 1.35,
     "atlas": [
-     4081,
+     3934,
      1054
     ],
     "src_frames": [
+     4,
+     8,
      10,
      12,
      14,
@@ -2975,13 +2978,16 @@
    },
    "lunge": {
     "src": "lunge",
-    "frames": 28,
+    "frames": 30,
     "seconds": 1.35,
     "atlas": [
-     3991,
-     1038
+     3842,
+     1044
     ],
     "src_frames": [
+     2,
+     7,
+     12,
      14,
      16,
      18,
@@ -2998,7 +3004,6 @@
      40,
      42,
      44,
-     64,
      66,
      68,
      70,
@@ -3014,13 +3019,17 @@
    },
    "doublepalm": {
     "src": "doublepalm",
-    "frames": 26,
+    "frames": 28,
     "seconds": 1.35,
     "atlas": [
-     3803,
+     4095,
      1086
     ],
     "src_frames": [
+     2,
+     6,
+     10,
+     14,
      16,
      18,
      20,
@@ -3038,15 +3047,13 @@
      44,
      46,
      48,
-     50,
-     74,
      76,
-     78,
-     80,
+     79,
      82,
-     84,
-     86,
-     88
+     85,
+     88,
+     91,
+     94
     ]
    },
    "flurry": {
@@ -3208,19 +3215,19 @@
   "assets/motion/side/wraith_samurai-walk.webp": 113528,
   "assets/motion/side/wraith_samurai-attack.webp": 372064,
   "assets/motion/side/wraith_samurai-down.webp": 106484,
-  "assets/motion/side/daxia_p1-guard.webp": 429820,
-  "assets/motion/side/daxia_p1-headbutt.webp": 435284,
+  "assets/motion/side/daxia_p1-guard.webp": 460208,
+  "assets/motion/side/daxia_p1-headbutt.webp": 466556,
   "assets/motion/side/daxia_p1-palm.webp": 476550,
   "assets/motion/side/daxia_p1-shout.webp": 477960,
   "assets/motion/side/daxia_p1-to_p2.webp": 836180,
   "assets/motion/side/daxia_p2-palm.webp": 724816,
-  "assets/motion/side/daxia_p2-combo.webp": 658632,
-  "assets/motion/side/daxia_p2-guard.webp": 607684,
-  "assets/motion/side/daxia_p2-flurry.webp": 655742,
+  "assets/motion/side/daxia_p2-combo.webp": 555282,
+  "assets/motion/side/daxia_p2-guard.webp": 634030,
+  "assets/motion/side/daxia_p2-flurry.webp": 698894,
   "assets/motion/side/daxia_p2-to_p3.webp": 946098,
   "assets/motion/side/daxia_p3-defeat.webp": 2231902,
-  "assets/motion/side/daxia_p3-lunge.webp": 742038,
-  "assets/motion/side/daxia_p3-doublepalm.webp": 693950,
+  "assets/motion/side/daxia_p3-lunge.webp": 814360,
+  "assets/motion/side/daxia_p3-doublepalm.webp": 778104,
   "assets/motion/side/daxia_p3-flurry.webp": 772954,
   "assets/motion/side/daxia_p3-meditate.webp": 742274
  }
