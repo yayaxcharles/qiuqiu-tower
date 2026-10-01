@@ -43,6 +43,7 @@ const PLAN = {
     { force: { intent: 'attack', label: '丟魚骨頭', effects: [{ kind: 'damage', amount: 6, times: 2 }] }, name: '02_丟魚骨頭_預設出招' },
     { phaseHp: 58, name: '03_變身' },
     { force: { intent: 'attack', label: '泰山壓頂', effects: [{ kind: 'damage', amount: 27, pierce: true }] }, name: '04_二階_泰山壓頂_預設出招' },
+    { kill: true, name: '05_打死_二階爆炸' },
   ] },
   frog_daimyo: { act: 3, steps: [
     { force: { intent: 'attack', label: '跳壓', effects: [{ kind: 'damage', amount: 20, pierce: true }] }, name: '01_跳壓' },
@@ -55,6 +56,7 @@ const PLAN = {
     { force: { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] }, name: '01_醉八仙_預設出招' },
     { phaseHp: 133, name: '02_變身' },
     { force: { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 10, times: 3 }] }, name: '03_二階_醉拳真髓_預設出招' },
+    { kill: true, name: '04_打死_二階爆炸' },
   ] },
   roomba_king: { act: 2, steps: [
     { force: { intent: 'debuff', label: '吸走', effects: [{ kind: 'discardRandomHand', n: 2 }] }, name: '01_吸走' },
@@ -197,7 +199,9 @@ async function hitToPhase(step) {
   await page.evaluate(({ BOSS, hp }) => {
     const cs = window.__app.cs; cs.players[0].energy = 9;
     const e = cs.enemies.find((x) => x.enemyId === BOSS); e.hp = hp; e.block = 0;
-    if (e.statuses) for (const k of ['縮殼', '隱身']) delete e.statuses[k];
+    // 打死那一下：反彈拿掉（不然球球被刺）；叫出來的小弟一起清掉，打死魔王就收場
+    if (e.statuses) for (const k of ['縮殼', '隱身', ...(hp === 1 ? ['反彈'] : [])]) delete e.statuses[k];
+    if (hp === 1) for (const x of cs.enemies) if (x !== e) { x.hp = 0; x.dead = true; }
   }, { BOSS, hp: step.phaseHp });
   const pt = await page.evaluate(({ POINT_FN }) => { const f = eval(POINT_FN); const n = document.querySelector('.hand .card'); return n ? f(n) : null; }, { POINT_FN });
   await mark(step.name);
@@ -208,7 +212,8 @@ async function hitToPhase(step) {
     const node = document.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite-box`); return node ? f(node) : null;
   }, { POINT_FN, BOSS });
   if (tp) await page.mouse.click(tp.x, tp.y);
-  await burst(step.name, 3000);
+  await burst(step.name, step.phaseHp === 1 ? 4000 : 3000, step.phaseHp === 1 ? 150 : 120);
+  if (step.phaseHp === 1) { await mark(step.name + '完'); return; }
   await page.waitForFunction(CAN_ACT, null, { timeout: 90000 }).catch(() => {});
   await mark(step.name + '完');
   await sleep(800);
@@ -216,7 +221,8 @@ async function hitToPhase(step) {
 }
 
 for (const step of PLAN.steps) {
-  if (step.phaseHp) await hitToPhase(step); else await forceAndEndTurn(step);
+  if (step.kill) await hitToPhase({ ...step, phaseHp: 1 });
+  else if (step.phaseHp) await hitToPhase(step); else await forceAndEndTurn(step);
 }
 await mark('結束');
 
