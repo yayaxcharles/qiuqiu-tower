@@ -719,7 +719,10 @@
      ],
      "duration": 0.0491
     }
-   ]
+   ],
+   "marks": {
+    "hit": 491
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/iron_claw-down_p2.webp",
@@ -1143,7 +1146,11 @@
      ],
      "duration": 0.0833
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 333,
+    "fall": 1499
+   }
   }
  }
 }

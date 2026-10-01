@@ -537,7 +537,10 @@
      ],
      "duration": 0.0659
     }
-   ]
+   ],
+   "marks": {
+    "hit": 527
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/lantern_ghost-down.webp",
@@ -701,7 +704,11 @@
      ],
      "duration": 0.0708
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 142,
+    "fall": 708
+   }
   }
  }
 }

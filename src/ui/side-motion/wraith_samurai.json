@@ -368,7 +368,11 @@
      ],
      "duration": 0.0818
     }
-   ]
+   ],
+   "marks": {
+    "hit": 327,
+    "end": 982
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/wraith_samurai-down.webp",
@@ -532,7 +536,11 @@
      ],
      "duration": 0.0708
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 212,
+    "fall": 637
+   }
   }
  }
 }

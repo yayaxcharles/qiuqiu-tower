@@ -550,7 +550,11 @@
      ],
      "duration": 0.0474
     }
-   ]
+   ],
+   "marks": {
+    "hit": 379,
+    "back": 1232
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/frog_daimyo-down_p2.webp",
@@ -1039,7 +1043,11 @@
      ],
      "duration": 0.0811
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 406,
+    "fall": 1460
+   }
   }
  },
  "extras": {
@@ -1387,7 +1395,13 @@
      ],
      "duration": 0.0519
     }
-   ]
+   ],
+   "marks": {
+    "jump": 260,
+    "air": 363,
+    "land": 519,
+    "up": 1090
+   }
   }
  },
  "moves": {

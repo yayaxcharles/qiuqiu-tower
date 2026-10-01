@@ -446,7 +446,10 @@
      ],
      "duration": 0.0692
     }
-   ]
+   ],
+   "marks": {
+    "hit": 484
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/kappa-down.webp",
@@ -623,7 +626,11 @@
      ],
      "duration": 0.0654
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 131,
+    "fall": 654
+   }
   }
  }
 }

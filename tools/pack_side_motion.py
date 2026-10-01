@@ -29,6 +29,9 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "public" / "assets" / "motion" / "side"
 OUT_DATA = ROOT / "src" / "ui" / "side-motion"
 TOWER_ART = ROOT / "public" / "assets" / "monsters"
+# 2026-10-01 Flow 新生的片段（四隻一階塔主倒下、橘皮大王二階龍捲滾與蓄力）：放在素材盤點資料夾，**不併進 qiuqiu-side**
+#（那邊是大冒險自己的倉庫）。每隻一份 anims_new.json，格式跟 anims.json 一樣、只含新動作
+NEW_SRC = Path("F:/ClaudeWork/爪破_大冒險素材盤點_20261001/新片段/sprites/monsters")
 
 # 圖集比畫面大多少倍（retina 螢幕才不糊）；來源本身不夠大就不放大（來源多大就多大）
 OVERSAMPLE = 1.2
@@ -53,8 +56,21 @@ def attack(src, first, last):
     return {"action": "attack", "src": src, "first": first, "last": last, "max_s": ATTACK_MAX_S}
 
 
-def death(src, first, last, long=False):
-    return {"action": "knockdown", "src": src, "first": first, "last": last, "long": long}
+def death(src, first, last, long=False, segments=None, late=False, new=False, marks=None):
+    """倒下。segments＝要的格段（含頭尾，段與段之間的格子剪掉，例：跳過模型自己加的白光格）。
+    late＝不算進就緒、晚一點才下載（塔主第一階段的倒下，2026-10-01，見 enemy-motion.ts 的 late）。
+    new＝來源是 10-01 Flow 新片段（NEW_SRC 底下的 anims_new.json，不動 qiuqiu-side）。
+    marks＝自訂關鍵格（來源格號），跟來源 anims.json 的關鍵格一起換算成毫秒寫進 json（特效圖層照它對時間）"""
+    clip = {"action": "knockdown", "src": src, "first": first, "last": last, "long": long}
+    if segments:
+        clip["segments"] = segments
+    if late:
+        clip["late"] = True
+    if new:
+        clip["new"] = True
+    if marks:
+        clip["marks"] = marks
+    return clip
 
 
 # ---- 2026-10-01 招式對片段＋變身（使用者看過盤點對照圖說「好」） ----
@@ -63,9 +79,12 @@ def death(src, first, last, long=False):
 CHANGE_MAX_S = 1.9   # 變身：原片 4 秒，跳格＋加速壓到 2 秒內（使用者 2026-10-01）
 
 
-def move(src, segments, labels):
+def move(src, segments, labels, new=False):
     """某幾招改播自己的片段（招式名照 enemies.ts 的 label）。segments＝要的格段（含頭尾），段與段之間的格子剪掉"""
-    return {"action": "move", "src": src, "segments": segments, "labels": labels, "max_s": ATTACK_MAX_S}
+    clip = {"action": "move", "src": src, "segments": segments, "labels": labels, "max_s": ATTACK_MAX_S}
+    if new:
+        clip["new"] = True
+    return clip
 
 
 def change(src, first, last, step=3, max_s=CHANGE_MAX_S, fade_s=0.0):
@@ -83,7 +102,8 @@ size＝爪破魔塔那隻的框（small／medium／large），算 lift 用。
 KINDS: dict[str, dict] = {
     # ---- 2026-09-28 試做（使用者看過說好），數字不動 ----
     "iron_claw": {"src": "iron_claw", "display": 0.69, "lift": 2.7, "size": "large", "long": True,
-                  "clips": [idle("walk"), attack("swipe", 20, 64)]},
+                  # 一階倒下（2026-10-01 Flow 新生）：前 16 格只是站著，第 22 格前後火花爆開，第 64 格趴平冒煙
+                  "clips": [idle("walk"), attack("swipe", 20, 64), death("down", 16, 88, long=True, late=True, new=True)]},
     "iron_claw_p2": {"src": "iron_claw", "display": 0.63, "lift": 1.6, "size": "large", "long": True,
                      "clips": [idle("walk_p2"), attack("laser_p2", 12, 66), death("down_p2", 0, 62, long=True)]},
     "roomba_king": {"src": "roomba_king", "display": 0.57, "lift": 2.1, "size": "large", "long": True,
@@ -97,7 +117,8 @@ KINDS: dict[str, dict] = {
     # 原本借第二階段的爆炸，等於第一階段就要先載那張最大的圖集（稽核 2026-09-28 低-2）
     # 蛙大名：頭照舊圖比，第一階段 0.667 頭偏小 → 0.72
     "frog_daimyo": {"src": "frog_daimyo", "display": 0.72, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("tongue", 2, 52)],
+                    # 一階倒下（2026-10-01 Flow 新生）：扇子飛出、暈眩後仰倒、一圈白塵、頭上星星
+                    "clips": [idle("walk"), attack("tongue", 2, 52), death("down", 8, 80, long=True, late=True, new=True)],
                     # 「跳壓」（2026-10-01）：蹲、起跳（第 2～12 格），中間站直騰空的第 13～29 格剪掉（爪破沒有騰空位移，
                     # 原地站著一秒很怪），接前傾、落地濺水、爬起來（第 30～60 格）
                     "extras": [move("jump", [(2, 12), (30, 60)], ["跳壓"])]},
@@ -106,13 +127,21 @@ KINDS: dict[str, dict] = {
                        # 「重跳壓」：同上，剪掉站直騰空的第 15～23 格。「跳壓」也對到這段：換階段那一拍出的還是第一階段宣告的招
                        "extras": [move("jump_p2", [(2, 14), (24, 60)], ["重跳壓", "跳壓"])]},
     "orange_king": {"src": "orange_king", "display": 0.678, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("throw", 8, 50)],
+                    # 一階倒下（2026-10-01 Flow 新生）：魚骨掉地、王冠彈飛、仰倒一大圈白塵。第 62～63 格塵團中間有模型自己加的橘白衝擊星，剪掉
+                    "clips": [idle("walk"), attack("throw", 8, 50),
+                              death("down", 4, 84, long=True, late=True, new=True, segments=[(4, 61), (64, 84)])],
                     # 「肚皮壓」播大跳砸下（來源已剪掉跳太高的影片第 18～34 格）；換階段播暴怒變身（甩掉魚骨、吼、長出尖刺）
                     "extras": [move("slam", [(2, 48)], ["肚皮壓"]), change("rage", 8, 95)]},
     "orange_king_p2": {"src": "orange_king", "display": 0.678, "size": "large", "long": True, "art": "orange_king_p2",
-                       "clips": [idle("walk_p2"), attack("jump_p2", 28, 72), death("down_p2", 2, 74, long=True)]},
+                       "clips": [idle("walk_p2"), attack("jump_p2", 28, 72), death("down_p2", 2, 74, long=True)],
+                       # 二階招式片段（2026-10-01 Flow 新生）：「龍捲滾」縮成刺球原地滾、後方揚塵、攤開站回（剪掉中間滾了一陣的第 49～59 格）；
+                       # 「蓄力」播吸氣鼓脹、背刺豎起變長、吐氣縮回（盤點的「爆刺」；二階沒有叫爆刺的招，蓄力最貼。鼓滿撐著的第 45～69 格剪掉）
+                       "extras": [move("roll_p2", [(14, 48), (60, 84)], ["龍捲滾"], new=True),
+                                  move("burst_p2", [(6, 44), (70, 88)], ["蓄力"], new=True)]},
     "tanuki_lord": {"src": "tanuki_lord", "display": 0.695, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("leaf", 12, 46)],
+                    # 一階倒下（2026-10-01 Flow 新生 v2）：斗笠滑下、往前栽後翻成仰躺、白煙、星星。第 55～59 格煙團邊有模型自己加的白色尖角爆光，剪掉
+                    "clips": [idle("walk"), attack("leaf", 12, 46),
+                              death("down", 8, 84, long=True, late=True, new=True, segments=[(8, 54), (60, 84)])],
                     # 換階段播煙霧變身（丟斗笠、白煙包住全身）。2026-10-01 審查：煙散開後露出的是大冒險的側面、戴斗笠造型，
                     # 跟正面二階立繪接不上 → 只演到煙最濃、身體整個蓋住的第 60 格（實測露出身體的像素最少），
                     # 交還二階立繪、那一格煙在立繪上方淡出 0.55 秒。速度照舊（約 2 倍速）。「肚皮鼓」片段自帶白色震波圈，不用
@@ -202,7 +231,10 @@ def pick(n: int, clip: dict) -> tuple[list[int], float]:
     # 倒下
     if clip["long"]:
         step = 2
-        idx = list(range(first, last + 1, step))
+        if clip.get("segments"):
+            idx = [i for a, b in clip["segments"] for i in range(a, min(n - 1, b) + 1, step)]
+        else:
+            idx = list(range(first, last + 1, step))
         dur = min(step / SRC_FPS, DEATH_LONG_MAX_S / len(idx))
         return idx, round(dur, 4)
     step = max(1, round(count / 12))
@@ -212,8 +244,31 @@ def pick(n: int, clip: dict) -> tuple[list[int], float]:
     return idx, round(DEATH_SHORT_S / len(idx), 4)
 
 
-def pack_action(src_root: Path, src_id: str, action: str, idx: list[int], pack: float):
-    meta = json.loads((src_root / src_id / "anims.json").read_text(encoding="utf-8"))[action]
+def anims_of(src_root: Path, src_id: str, clip: dict) -> dict:
+    """來源的 anims.json；10-01 Flow 新片段（clip["new"]）讀 NEW_SRC 底下的 anims_new.json（格式一樣，只含新動作）"""
+    if clip.get("new"):
+        return json.loads((NEW_SRC / src_id / "anims_new.json").read_text(encoding="utf-8"))
+    return json.loads((src_root / src_id / "anims.json").read_text(encoding="utf-8"))
+
+
+def marks_ms(meta: dict, clip: dict, idx: list[int], duration: float) -> dict:
+    """來源的關鍵格（hit、spark、fall⋯⋯）換算成「片段開演後幾毫秒」：特效圖層照它對時間（2026-10-01）。
+    只收落在挑到的格子範圍裡的；被剪掉那段裡的關鍵格算到下一格"""
+    raw = {k: v for k, v in meta.items() if isinstance(v, int) and not isinstance(v, bool) and k != "fps"}
+    raw.update(clip.get("marks", {}))
+    out = {}
+    for name, frame in raw.items():
+        if frame < idx[0] or frame > idx[-1]:
+            continue
+        before = sum(1 for i in idx if i < frame)
+        out[name] = round(before * duration * 1000)
+    return out
+
+
+def pack_action(src_root: Path, src_id: str, action: str, idx: list[int], pack: float, clip: dict | None = None):
+    root = NEW_SRC if clip and clip.get("new") else src_root
+    meta = anims_of(src_root, src_id, clip or {})[action]
+    src_root = root
     frames = [meta["frames"][i] for i in idx]
     cells = []
     for fr in frames:
@@ -264,6 +319,7 @@ def main() -> None:
         actions = {}
         extras = {}
         moves = {}
+        late = {}
         textures = set()
         for clip in spec["clips"] + spec.get("extras", []):
             name = clip["action"]
@@ -273,14 +329,15 @@ def main() -> None:
             # 圖集比畫面大 OVERSAMPLE 倍，但不超過來源
             over = OVERSAMPLE_LONG_DEATH if clip.get("long") else OVERSAMPLE
             pack = min(1.0, display * over)
-            n = len(anims[clip["src"]]["frames"])
+            meta = anims_of(src_root, spec["src"], clip)[clip["src"]] if clip.get("new") else anims[clip["src"]]
+            n = len(meta["frames"])
             idx, duration = pick(n, clip)
             tex = texture_name(spec["src"], clip["src"])
             # 圖集檔名只看來源動作：同一段來源給兩套用的話，兩套的縮放與挑的格子要一樣，不然後寫的格子位置對不上圖
             if tex in packs and packs[tex] != (pack, tuple(idx)):
                 raise SystemExit(f"{tex} 被兩套用不同的縮放或格子打包，格子位置會對不上圖集")
             packs[tex] = (pack, tuple(idx))
-            sheet, frames = pack_action(src_root, spec["src"], clip["src"], idx, pack)
+            sheet, frames = pack_action(src_root, spec["src"], clip["src"], idx, pack, clip)
             path = ROOT / "public" / tex
             if tex not in written:
                 sheet.save(path, "WEBP", quality=QUALITY, method=6)
@@ -292,19 +349,27 @@ def main() -> None:
             }
             if clip.get("fade"):
                 motion["fade"] = clip["fade"]
-            if name in ("move", "change"):
+            marks = marks_ms(meta, clip, idx, duration)
+            if marks:
+                motion["marks"] = marks
+            if clip.get("late"):
+                # 不算進就緒、晚一點才下載（enemy-motion.ts 的 late；塔主第一階段的倒下）
+                late[name] = motion
+            elif name in ("move", "change"):
                 extras[key] = motion
                 for label in clip.get("labels", []):
                     moves[label] = key
             else:
                 actions[name] = motion
             report.setdefault(kind, {})[key] = {"src": clip["src"], "frames": len(frames), "seconds": round(duration * len(frames), 2),
-                                               "atlas": list(sheet.size)}
+                                               "atlas": list(sheet.size), "src_frames": idx}
         data = {"native_height": 1, "default_height": 1, "mirror": False, "actions": actions}
         if extras:
             data["extras"] = extras
         if moves:
             data["moves"] = moves
+        if late:
+            data["late"] = late
         (OUT_DATA / f"{kind}.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         report[kind]["_lift"] = lift
         report[kind]["_textures"] = sorted(textures)

@@ -550,7 +550,11 @@
      ],
      "duration": 0.0692
     }
-   ]
+   ],
+   "marks": {
+    "hit": 346,
+    "end": 1176
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/vacuum-down.webp",
@@ -714,7 +718,11 @@
      ],
      "duration": 0.0708
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 142,
+    "fall": 637
+   }
   }
  }
 }

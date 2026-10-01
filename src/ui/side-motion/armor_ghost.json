@@ -459,7 +459,10 @@
      ],
      "duration": 0.073
     }
-   ]
+   ],
+   "marks": {
+    "hit": 584
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/armor_ghost-down.webp",
@@ -623,7 +626,11 @@
      ],
      "duration": 0.0708
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 142,
+    "fall": 637
+   }
   }
  }
 }

@@ -70,7 +70,8 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMarks, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, prefetchEnemyMotionLate, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createFxLayer, fxCuesFor, fxNamesFor, fxOwnersOf, prefetchFx, type FxCue } from '../fx-layer';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -554,6 +555,13 @@ registerScreen('combat', (app, root, props) => {
    *（淡出用 `animate()` 掛在畫布上，搬家不會中斷；審查 2026-10-01 低）。
    */
   const phaseSmoke = new Map<number, HTMLCanvasElement>();
+  /**
+   * 魔物特效圖層（2026-10-01，見 fx-layer.ts）：倒下的爆炸、雷射與火球打到身上的爆炸、（之後師父的）氣場。
+   * 提示寫在 `fx/cues.json`；這裡只在幾個時機（倒下、出某一招、換階段、重畫那一格）叫它。
+   */
+  const fxLayer = createFxLayer();
+  const enemyBoxOf = (uid: number) => () => root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${uid}"] .sprite-box`);
+  const playerBoxOf = (seat: number) => () => root.querySelector<HTMLElement>(`.unit.player[data-seat="${seat}"] .sprite-box`);
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
   /**
@@ -725,7 +733,11 @@ registerScreen('combat', (app, root, props) => {
     enemyMotionAsked.add(kind);
     void preloadEnemyMotion([kind]).then(() => {
       // 就緒之後才排額外片段（不跟這一場馬上要畫的搶頻寬）；第二階段變身那一刻也走這裡，先下載過的只剩解碼
-      if (!extrasAfterNextPhase.has(kind)) void prefetchEnemyMotionExtras(kind, true).catch(() => undefined);
+      // 特效圖集（燈籠妖吐火的爆炸⋯⋯）排在招式片段後面
+      if (!extrasAfterNextPhase.has(kind)) {
+        void prefetchEnemyMotionExtras(kind, true).catch(() => undefined)
+          .then(() => (app.cs === cs && !ended ? prefetchFx(fxNamesFor([kind])) : undefined)).catch(() => undefined);
+      }
       if (app.cs === cs && !ended) render();
     }).catch((error: unknown) => console.error('敵人動作素材載入失敗', kind, error));
   }
@@ -766,9 +778,22 @@ registerScreen('combat', (app, root, props) => {
        * 下載順序（審查 2026-10-01）：這一階段的基本圖集 → 第二階段的出招與爆炸 → 這一階段的招式片段與變身 → 第二階段的招式片段。
        * 使用者最在意關主爆炸華麗；招式片段、變身沒到只是退回預設出招／直接換立繪。
        */
+      /*
+       * 2026-10-01 特效圖層＋一階倒下：招式片段之後接「這一階段的倒下」（一刀從第一階段打死很少見，排在常看到的招式片段後面；
+       * 第一階段還在打就要到，所以排在第二階段的招式片段前面），再接這一場的特效圖集（倒下爆炸、雷射命中），最後才是第二階段的招式片段。
+       * 全部不插隊：慢網路主角的動作、第二階段的出招與爆炸照舊排在它們前面。
+       */
       if (now && later && later !== now) {
+        const startPhase = enemy.phase;   // 引擎是原地改這隻的資料：要先記下開打時的階段
+        const fxNames = fxNamesFor([...fxOwnersOf(enemy.enemyId, enemy.phase, now), ...fxOwnersOf(enemy.enemyId, enemy.phase + 1, later)]);
+        // 這一場已經打完（或換了畫面）：後面幾步都用不到了，不再排（慢網路打完了還在抓特效、二階招式片段）
+        const fighting = (): boolean => app.cs === cs && !ended;
         void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined)
-          .then(() => prefetchEnemyMotionExtras(now, true)).then(() => prefetchEnemyMotionExtras(later, false)).catch(() => undefined);
+          .then(() => prefetchEnemyMotionExtras(now, true)).catch(() => undefined)
+          // 已經打到第二階段了（慢網路排到這裡時常常是）：第一階段的倒下用不到，不抓（實測 0.8 Mbps 換階段後還在抓 1.5 MB 的鐵爪一階倒下）
+          .then(() => (fighting() && (cs.enemies.find((x) => x.uid === enemy.uid)?.phase ?? startPhase) === startPhase ? prefetchEnemyMotionLate(now) : undefined)).catch(() => undefined)
+          .then(() => (fighting() ? prefetchFx(fxNames) : undefined)).catch(() => undefined)
+          .then(() => (fighting() ? prefetchEnemyMotionExtras(later, false) : undefined)).catch(() => undefined);
       }
     }
   }
@@ -1159,6 +1184,41 @@ registerScreen('combat', (app, root, props) => {
     motionImpactTimers.add(timer);
   };
 
+  /**
+   * 倒下的特效（2026-10-01，使用者：「爆炸應該很華麗」）：逐格倒下真的在演（`knockdown`）才放那一套的提示，
+   * 時間照那一段倒下的關鍵格（例：鐵爪一階第 22 格火花爆開）。圖集沒到、退回靜態倒下的，只放掛在魔物編號上的提示。
+   */
+  const fireDeathFx = (e: EnemyCombat): void => {
+    const state = enemyMotionActors.get(e.uid);
+    const kind = state?.action === 'knockdown' ? state.kind : undefined;
+    // 倒下片段可能比這裡早開演（打死那一拍重畫時就開演了，分段擊殺時差更多）：扣掉已經演的，爆炸才對得上片段裡的火花（審查 2026-10-01 低）
+    const played = kind && state && state.busyUntil > 0
+      ? Math.max(0, enemyMotionDuration(kind, 'knockdown') - Math.max(0, state.busyUntil - performance.now())) : 0;
+    fxLayer.fire(fxCuesFor(fxOwnersOf(e.enemyId, e.phase, kind), 'death'),
+      (cue) => (cue.host === 'target' ? undefined : enemyBoxOf(e.uid)), kind ? enemyMotionMarks(kind, 'knockdown') : undefined, played);
+  };
+
+  /**
+   * 出招的特效：`move:<招式名>`（引擎裡的原文）與 `attack`（任何攻擊招）。打在誰身上看引擎狀態（這一拍血或蜷縮少了的那一位），
+   * 不看畫面，連線兩台才會打在同一位身上；閃過（隱身吃掉、血與蜷縮都沒少）就不放。
+   * 時間照這一招片段的關鍵格（`hit`）；畫面上沒在播逐格（圖還沒到）也照同一個時間放。
+   */
+  const fireMoveFx = (e: EnemyCombat, phase: number, act: Acted): void => {
+    const kind = qiuqiuEnemyMotionKind(e.enemyId, phase);
+    const cues: FxCue[] = [
+      ...fxCuesFor(fxOwnersOf(e.enemyId, phase, kind), `move:${act.label}`),
+      ...(act.attacked ? fxCuesFor(fxOwnersOf(e.enemyId, phase, kind), 'attack') : []),
+    ];
+    if (cues.length === 0) return;
+    const state = enemyMotionActors.get(e.uid);
+    const marks = kind ? enemyMotionMarks(kind, 'attack', state?.kind === kind && state.action === 'attack' ? state.clip : enemyMotionMoveClip(kind, act.label)) : undefined;
+    const targets = fxTargetSeats();
+    for (const cue of cues) {
+      if (cue.host === 'target') for (const seat of targets) fxLayer.fire([cue], () => playerBoxOf(seat), marks);
+      else fxLayer.fire([cue], () => enemyBoxOf(e.uid), marks);
+    }
+  };
+
   const mountEnemyMotion = (e: EnemyCombat, box: HTMLElement): void => {
     // 正在淡出的變身煙：這一格換了新框就跟著搬過去（倒下了就不留）
     const smoke = phaseSmoke.get(e.uid);
@@ -1259,6 +1319,7 @@ registerScreen('combat', (app, root, props) => {
     locallyPlayedMotion.clear();
     for (const state of enemyMotionActors.values()) state.actor.dispose();
     enemyMotionActors.clear();
+    fxLayer.dispose();
   });
   /** 同伴的動作套用**之前**那一刻的快照，`settle` 拿它比對出要演什麼 */
   let remoteBefore: Snap | null = null;
@@ -1431,6 +1492,8 @@ registerScreen('combat', (app, root, props) => {
    * 650 毫秒後跟著還原成待機。魔物只在 `endTurn` 裡行動，所以出牌那幾次結算這張表一定是空的。
    */
   let acting = new Map<number, Acted>();
+  /** 這一拍魔物打到哪幾位（特效圖層 target 用；每一拍在決定 acting 時一起換） */
+  let fxTargetSeats: () => number[] = () => [];
   /** 這一拍被打到的魔物：有挨打圖的換挨打圖（2026-09-03 晚補的動態） */
   let hurtSet = new Set<number>();
   /** 動作尚未打到前，死亡狀態已同步結算；暫存上一張立繪，重畫也不能提前露出倒地圖。 */
@@ -2174,6 +2237,8 @@ registerScreen('combat', (app, root, props) => {
     }
     const picture = node.querySelector<HTMLElement>('.sprite-box');
     if (picture) mountEnemyMotion(e, picture);
+    // 站著時一直有的氣場（特效圖層的 aura，給師父用；現在表上還沒有）：該有的補上、換階段或倒下的收掉
+    if (picture) fxLayer.syncAura(`e${e.uid}`, e.dead ? [] : fxCuesFor(fxOwnersOf(e.enemyId, e.phase, qiuqiuEnemyMotionKind(e.enemyId, e.phase)), 'aura'), enemyBoxOf(e.uid));
     // 點的當下才看在不在選目標：選目標改成就地修補（`patchTargeting` 只換 `targetable` 類別），
     // 節點不會為了開始選目標而重建，監聽得先掛好（2026-09-23 效能）
     node.addEventListener('click', () => { if (targeting && !e.dead) pickTarget(e.uid); });
@@ -3610,6 +3675,15 @@ registerScreen('combat', (app, root, props) => {
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, blocked: b.intent === 'block' && e.invulnIn === 0, learned: b.learned });
     }
+    // 這一拍魔物打到誰（特效圖層 target 用）：血或蜷縮少了的那幾位（被打倒的也算，爆炸照樣打在他那一格）。看引擎狀態，連線兩台一致
+    fxTargetSeats = () => cs.players.filter((q) => {
+      const was = before.players.get(q.seat);
+      const after = comparison?.players.get(q.seat);
+      if (!was) return false;
+      const hp = after?.hp ?? q.hp;
+      const block = after?.block ?? q.block;
+      return hp < was.hp || block < was.block;
+    }).map((q) => q.seat);
     // 換階段的變身要在重畫之前登記：重畫時引擎已經是第二階段，沒登記的話會先閃一下第二階段的立繪
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
@@ -3885,6 +3959,7 @@ registerScreen('combat', (app, root, props) => {
               sfx('enemy_down');
             }
             finishEnemyMotion(e.uid);
+            fireDeathFx(e);
           };
           const after = !delayedImpact && !throwFlight && staged.length > 1 ? (staged.length - 1) * 150 : 0;
           if (after <= 0) { fall(target); return; }
@@ -3918,7 +3993,15 @@ registerScreen('combat', (app, root, props) => {
         if ((a?.charged ?? e.charged) && !b.charged) burst(node, 'charge');
       }
       const afterEnemyPhase = a?.phase ?? e.phase;
-      if (afterEnemyPhase > b.phase) { bossPhaseTalk(e.enemyId, afterEnemyPhase); phaseBurst(node); }
+      if (afterEnemyPhase > b.phase) {
+        bossPhaseTalk(e.enemyId, afterEnemyPhase); phaseBurst(node);
+        // 換階段那一刻的特效（給師父的「換階段黑氣爆發」用；現在表上還沒有）
+        fxLayer.fire(fxCuesFor(fxOwnersOf(e.enemyId, afterEnemyPhase, qiuqiuEnemyMotionKind(e.enemyId, afterEnemyPhase)), 'change'),
+          (cue) => (cue.host === 'target' ? undefined : enemyBoxOf(e.uid)));
+      }
+      // 出招的特效（2026-10-01：鐵爪二階「全開」雷射、燈籠妖「吐火」打到身上的爆炸）
+      const fxAct = !afterDead ? acting.get(e.uid) : undefined;
+      if (fxAct) fireMoveFx(e, b.phase, fxAct);
     }
     /** 挨打那一下：紅閃、邊緣紅暈、飄數字、音效，重的再震一下（被刺那一下延到東西飛到時也走這支） */
     const playerHurtFx = (cat: HTMLElement, amount: number, maxHp: number, poisoned: boolean): void => {
