@@ -18,12 +18,15 @@ import { loadHeavy } from './heavy-lane';
  * - 不降畫質：圖集是來源原尺寸，畫布照裝置像素比放大（最多 2 倍），跟逐格動作一樣。
  */
 
-export type FxEvent = 'death' | 'change' | 'attack' | 'aura' | `move:${string}`;
+export type FxEvent = 'death' | 'change' | 'attack' | 'aura' | 'seclude' | `move:${string}`;
 
 export type FxCue = Readonly<{
   /** 誰的：逐格動作那一套（`iron_claw_p2`），或 `enemy:<魔物編號>`、`enemy:<魔物編號>@<階段>`（階段 0 起算；師父這種沒有逐格動作的用這個） */
   owner: string;
-  /** 什麼時候：death（倒下）、change（換階段那一刻）、attack（出任何攻擊招）、move:<招式名>（出這一招）、aura（站著時一直有，循環） */
+  /**
+   * 什麼時候：death（倒下）、change（換階段那一刻）、attack（出任何攻擊招）、move:<招式名>（出這一招）、aura（站著時一直有，循環）、
+   * seclude（閉關＝蹲下調息、無敵那一回合，一直有、循環；換階段的變身片段演完才開始，2026-10-01 師父）
+   */
   on: string;
   /** 哪一支特效（`fx/sprites/<名>.json`） */
   fx: string;
@@ -44,8 +47,12 @@ export type FxCue = Readonly<{
   loop?: boolean;
   /** 左右翻過來 */
   flip?: boolean;
-  /** 停下時淡出幾毫秒（循環的停下、或宿主倒下） */
+  /** 停下時淡出幾毫秒（循環的停下、或宿主倒下）；不循環的在播完前這麼久開始淡出（不會整團突然不見） */
   fadeOutMs?: number;
+  /** 開演時淡入幾毫秒 */
+  fadeInMs?: number;
+  /** 不透明度（0～1，預設 1）：同一支特效在不同場合濃淡不同時用（師父的黑氣：一階淡、二階中、三階濃，不另外出圖） */
+  opacity?: number;
 }>;
 
 type FxFrame = { rect: [number, number, number, number]; pivot: [number, number]; duration: number };
@@ -96,6 +103,23 @@ export function fxBounds(sprite: Readonly<FxSprite>, scale: number): { width: nu
     maxY = Math.max(maxY, (h - py) * k);
   }
   return { width: Math.ceil(maxX - minX), height: Math.ceil(maxY - minY), cx: -Math.floor(minX), cy: -Math.floor(minY) };
+}
+
+/** 整段播一次多長（毫秒） */
+export function fxTotalMs(sprite: Readonly<FxSprite>, speed: number): number {
+  return sprite.frames.reduce((sum, f) => sum + (f.duration * 1000) / Math.max(0.01, speed), 0);
+}
+
+/**
+ * 這一刻的不透明度（純計算）：`opacity` × 淡入 ×（不循環的）播完前淡出。`t`＝開演後幾毫秒。
+ */
+export function fxOpacityAt(cue: FxCue, t: number, totalMs: number, loop: boolean): number {
+  const base = Math.min(1, Math.max(0, cue.opacity ?? 1));
+  const fadeIn = cue.fadeInMs ?? 0;
+  const fadeOut = loop ? 0 : (cue.fadeOutMs ?? 0);
+  let k = fadeIn > 0 ? Math.min(1, Math.max(0, t) / fadeIn) : 1;
+  if (fadeOut > 0) k = Math.min(k, Math.max(0, (totalMs - t) / fadeOut));
+  return Math.round(base * Math.min(1, k) * 1000) / 1000;
 }
 
 /** 播到第幾格（超過總長：循環的繞回、不循環的回 -1＝播完） */
@@ -202,6 +226,7 @@ export function playFx(cue: FxCue, host: FxHost, delayMs = 0, env: FxEnv = defau
   const loop = cue.loop === true || cue.on === 'aura';
   const speed = cue.speed ?? 1;
   const back = cue.layer === 'back';
+  const totalMs = fxTotalMs(sprite, speed);
   const canvas = env.createCanvas();
   canvas.className = `fx-layer${back ? ' fx-back' : ''}`;
   canvas.setAttribute('aria-hidden', 'true');
@@ -219,6 +244,7 @@ export function playFx(cue: FxCue, host: FxHost, delayMs = 0, env: FxEnv = defau
     pointerEvents: 'none',
     maxWidth: 'none',
     maxHeight: 'none',
+    opacity: String(fxOpacityAt(cue, 0, totalMs, loop)),
   });
   const dpr = Math.min(2, Math.max(1, env.dpr()));
   canvas.width = Math.ceil(bounds.width * dpr);
@@ -272,6 +298,11 @@ export function playFx(cue: FxCue, host: FxHost, delayMs = 0, env: FxEnv = defau
     const index = fxFrameAt(sprite, now - startedAt, speed, loop);
     if (index < 0) { finish(); return; }
     draw(index);
+    // 淡入、不循環的播完前淡出（停下時的淡出另外用 animate()，蓋在這個值上面）
+    if (!fading) {
+      const alpha = String(fxOpacityAt(cue, now - startedAt, totalMs, loop));
+      if (canvas.style.opacity !== alpha) canvas.style.opacity = alpha;
+    }
     raf = env.requestFrame(tick);
   };
   const begin = (): void => {
@@ -298,7 +329,9 @@ export function playFx(cue: FxCue, host: FxHost, delayMs = 0, env: FxEnv = defau
       if (finished || fading) return;
       if (fadeMs <= 0 || !canvas.parentNode) { finish(); return; }
       fading = true;
-      canvas.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: fadeMs, fill: 'forwards', easing: 'ease-out' });
+      // 從現在的濃淡開始淡（師父的黑氣本來就半透明；從 1 開始淡的話會先閃一下全黑）
+      const from = Number(canvas.style.opacity || '1');
+      canvas.animate?.([{ opacity: Number.isFinite(from) ? from : 1 }, { opacity: 0 }], { duration: fadeMs, fill: 'forwards', easing: 'ease-out' });
       timer = env.setTimer(finish, fadeMs);
     },
   };
@@ -357,7 +390,11 @@ export function createFxLayer(env: FxEnv = defaultEnv) {
      * 已經在放的不重來（循環照跑、框換了自己會搬），表上沒有的淡出收掉。
      */
     syncAura(key: string, cues: readonly FxCue[], host: FxHost): void {
-      const want = new Map<string, FxCue>(cues.map((cue, i) => [`${key}|${cue.fx}|${i}|${cue.owner}`, cue]));
+      // 每一條提示用它在表上的位置當名字（氣場與閉關一起傳、哪一條先後不同都認得出是同一條，不會重來）
+      const want = new Map<string, FxCue>(cues.map((cue, i) => {
+        const at = CUES.indexOf(cue);
+        return [`${key}|${cue.on}|${cue.fx}|${at >= 0 ? at : `x${i}`}|${cue.owner}`, cue];
+      }));
       for (const [id, handle] of auras) {
         if (!id.startsWith(`${key}|`)) continue;
         if (!want.has(id) || handle.done) {

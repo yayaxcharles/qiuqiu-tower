@@ -330,10 +330,11 @@ export function buildFeifeiStatusImpactPlan(
 export function qiuqiuEnemyMotionKind(enemyId: string, phase = 0): EnemyMotionKind | undefined {
   if (enemyId === 'rat' || enemyId === 'rat_guard') return 'rat';
   if (enemyId === 'black_ninja' || enemyId === 'black_ninja_elite' || enemyId === 'sparring_partner') return 'ninja';
-  // 從橫向捲軸搬來的（2026-09-28）：有第二階段的換成另一套
+  // 從橫向捲軸搬來的（2026-09-28）：有第二階段的換成另一套；師父三個階段各一套（2026-10-01），超出的階段用最後一套
   const side = SIDE_MOTION_BY_ENEMY[enemyId];
   if (!side) return undefined;
-  return phase > 0 && side[1] ? side[1] : side[0];
+  for (let at = Math.min(Math.max(0, phase), side.length - 1); at > 0; at -= 1) if (side[at]) return side[at];
+  return side[0];
 }
 
 /**
@@ -343,7 +344,7 @@ export function qiuqiuEnemyMotionKind(enemyId: string, phase = 0): EnemyMotionKi
  * 唐傘小僧、小掃把、狸小弟（沒有出招片段，不要新動作配舊出招圖）；
  * 老鼠、黑貓忍者照舊用原本那兩套（畫風跟牠們的靜態圖一致）。
  */
-const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, EnemyMotionKind?]>> = {
+const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, EnemyMotionKind?, EnemyMotionKind?]>> = {
   iron_claw: ['iron_claw', 'iron_claw_p2'],
   roomba_king: ['roomba_king'],
   frog_daimyo: ['frog_daimyo', 'frog_daimyo_p2'],
@@ -361,6 +362,8 @@ const SIDE_MOTION_BY_ENEMY: Readonly<Record<string, readonly [EnemyMotionKind, E
   tengu: ['tengu'],
   vacuum: ['vacuum'],
   wraith_samurai: ['wraith_samurai'],
+  // 師父（2026-10-01 Flow 新生）：三個階段長相不同，各一套、不混用
+  tower_master: ['daxia_p1', 'daxia_p2', 'daxia_p3'],
 };
 
 /** 這隻魔物（含各階段）會叫出來的魔物編號：開打時一起抓牠們的動作（見 combat.ts 的預載） */

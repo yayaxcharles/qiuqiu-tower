@@ -56,12 +56,15 @@ def attack(src, first, last):
     return {"action": "attack", "src": src, "first": first, "last": last, "max_s": ATTACK_MAX_S}
 
 
-def death(src, first, last, long=False, segments=None, late=False, new=False, marks=None):
+def death(src, first, last, long=False, segments=None, late=False, new=False, marks=None, max_s=None):
     """倒下。segments＝要的格段（含頭尾，段與段之間的格子剪掉，例：跳過模型自己加的白光格）。
     late＝不算進就緒、晚一點才下載（塔主第一階段的倒下，2026-10-01，見 enemy-motion.ts 的 late）。
     new＝來源是 10-01 Flow 新片段（NEW_SRC 底下的 anims_new.json，不動 qiuqiu-side）。
-    marks＝自訂關鍵格（來源格號），跟來源 anims.json 的關鍵格一起換算成毫秒寫進 json（特效圖層照它對時間）"""
+    marks＝自訂關鍵格（來源格號），跟來源 anims.json 的關鍵格一起換算成毫秒寫進 json（特效圖層照它對時間）。
+    max_s＝長倒下的上限（預設 DEATH_LONG_MAX_S；師父戰敗照原速演完 4 秒，使用者 2026-10-01「全遊戲最華麗」）"""
     clip = {"action": "knockdown", "src": src, "first": first, "last": last, "long": long}
+    if max_s:
+        clip["max_s"] = max_s
     if segments:
         clip["segments"] = segments
     if late:
@@ -87,10 +90,13 @@ def move(src, segments, labels, new=False):
     return clip
 
 
-def change(src, first, last, step=3, max_s=CHANGE_MAX_S, fade_s=0.0):
+def change(src, first, last, step=3, max_s=CHANGE_MAX_S, fade_s=0.0, new=False):
     """換階段那一刻播的變身片段（放在第一階段那一套，演完交還第二階段的立繪）。
     fade_s＞0：停在最後一格（煙最濃、整隻蓋住的那一格）交還立繪，那一格在立繪上方淡出這麼多秒（combat.ts 的 startPhaseChange）"""
-    return {"action": "change", "src": src, "first": first, "last": last, "step": step, "max_s": max_s, "fade": fade_s}
+    clip = {"action": "change", "src": src, "first": first, "last": last, "step": step, "max_s": max_s, "fade": fade_s}
+    if new:
+        clip["new"] = True
+    return clip
 
 
 """
@@ -182,6 +188,44 @@ KINDS: dict[str, dict] = {
     # 怨靈武者：出招前 10 格是從煙裡現身，從第 10 格開始
     "wraith_samurai": {"src": "wraith_samurai", "display": 0.774, "size": "medium",
                        "clips": [idle("walk"), attack("attack", 10, 42), death("down", 0, 44)]},
+
+    # ---- 師父（tower_master，art daxia；2026-10-01 Flow 新生，使用者核准「逐格出招、走火入魔特效、戰敗」三項） ----
+    # 三個階段長相不同（一：乾淨道服戴斗笠／二：道服破、螺旋眼／三：沒斗笠、紫火、白眼），**每一套只收自己那一階段的片段**，
+    # 招式名也只對自己那一階段的招（使用者 2026-10-01：「師父三階段長相不同要小心」）。
+    # 待機照舊畫靜態立繪（enemy-motion.ts 的 staticIdle）：idle 只是借第一段片段的第 0 格（＝待機立繪那個姿勢）佔位，從來不上畫面、不下載。
+    # 大小、腳底：來源單位就是遊戲立繪像素（boss/*.webp 560×493），`sprite_box`＝照 anims_new.json 的 spriteBox
+    # 把每一格的「立繪框底邊中點」對到畫布的腳底，display＝立繪框寬 ÷ 560（combat.css 的 .master 320／340／350），
+    # 逐格與靜態圖疊起來大小、位置一模一樣（比頭、腳底都不用另調）。
+    # 招式片段原片 4 秒，剪掉前後站著的格子與中間定住的格子，壓到 1.35 秒（跟其他魔物同一條節奏）。
+    # 換階段那一刻引擎已經是下一階段（框是下一階段的大小），所以變身片段用下一階段的 display（change_display）。
+    # 醉拳沒有合格片（三次都有動作線，紀錄見素材盤點的「師父補片紀錄.md」），照舊畫靜態 drunk2。
+    "daxia_p1": {"src": "daxia_p1", "display": 320 / 560, "change_display": 340 / 560, "sprite_box": True, "oversample": 1.2,
+                 "idle_from": "guard",
+                 "clips": [],
+                 "extras": [move("guard", [(14, 38), (62, 86)], ["金鐘罩"], new=True),          # 抱胸→蹲馬步雙掌合十（定住那段剪掉）→站回抱胸
+                            move("headbutt", [(18, 46), (58, 80)], ["鐵頭功"], new=True),       # 踏出弓步、斗笠往前頂（第 41 格最遠）→收回
+                            move("palm", [(16, 50), (74, 92)], ["拆招", "沾衣十八跌"], new=True),  # 右掌推直（第 47 格）→收回抱胸
+                            move("shout", [(16, 46), (62, 86)], ["獅吼功"], new=True),          # 雙掌舉胸前、張大嘴→收回
+                            # 換階段一→二：摀胸發抖→黑煙冒出、道服變破、螺旋眼→握拳站成二階待機（結尾＝idle2）。前 12 格只是站著抱胸
+                            change("to_p2", 12, 95, new=True)]},
+    "daxia_p2": {"src": "daxia_p2", "display": 340 / 560, "change_display": 350 / 560, "sprite_box": True, "oversample": 1.2,
+                 "idle_from": "combo",
+                 "clips": [],
+                 "extras": [move("palm", [(26, 60), (72, 90)], ["穿心掌", "拆招", "沾衣十八跌"], new=True),   # 單掌推直（第 58 格最遠）
+                            move("combo", [(6, 58)], ["十二連環"], new=True),                  # 左右交替出拳（第 12、22、36、47 格），收在拳收回那一格
+                            move("guard", [(12, 36), (60, 84)], ["金鐘罩"], new=True),        # 蹲低、雙前臂交叉擋臉→放下
+                            move("flurry", [(10, 48), (80, 92)], ["狂風連掌"], new=True),     # 左右輪流推掌（第 20、28、35、45 格）→收回
+                            # 換階段二→三：仰頭大吼、黑煙繞身、斗笠掀飛出畫面右側、長出肌肉紫火白眼（結尾＝idle3）。前 12 格只是站著
+                            change("to_p3", 12, 92, new=True)]},
+    "daxia_p3": {"src": "daxia_p3", "display": 350 / 560, "sprite_box": True, "oversample": 1.2, "long": True,
+                 "idle_from": "lunge",
+                 # 戰敗（第三階段打死；他只會在第三階段倒下，前兩條血打光是換階段）：紫火竄高→一朵朵熄滅冒灰煙→金光→單膝跪成 defeat3。
+                 # 整段 96 格照原速（每 2 格取 1、4.0 秒），不壓短（使用者 2026-10-01：全遊戲最華麗）。晚一點才下載（late），沒到就照舊靜態倒下
+                 "clips": [death("defeat", 0, 95, long=True, late=True, new=True, max_s=4.0)],
+                 "extras": [move("lunge", [(14, 44), (64, 86)], ["亡命一擊"], new=True),          # 蹲低→上半身往左撲、雙爪伸出（第 48 格）→收回爪架
+                            move("doublepalm", [(16, 50), (74, 88)], ["破功", "看破"], new=True),  # 雙掌一起往左推（第 51 格）
+                            move("flurry", [(6, 40), (76, 92)], ["狂風連掌"], new=True),         # 左右輪流推掌（第 14、23、35、76 格）
+                            move("meditate", [(10, 34), (62, 90)], ["氣沉丹田"], new=True)]},   # 盤腿坐下→呼吸→站起來
 }
 
 
@@ -235,7 +279,7 @@ def pick(n: int, clip: dict) -> tuple[list[int], float]:
             idx = [i for a, b in clip["segments"] for i in range(a, min(n - 1, b) + 1, step)]
         else:
             idx = list(range(first, last + 1, step))
-        dur = min(step / SRC_FPS, DEATH_LONG_MAX_S / len(idx))
+        dur = min(step / SRC_FPS, clip.get("max_s", DEATH_LONG_MAX_S) / len(idx))
         return idx, round(dur, 4)
     step = max(1, round(count / 12))
     idx = list(range(first, last + 1, step))
@@ -278,7 +322,13 @@ def pack_action(src_root: Path, src_id: str, action: str, idx: list[int], pack: 
             im = im.resize((w, h), Image.LANCZOS)
         box = im.getchannel("A").point(lambda v: 255 if v > 6 else 0).getbbox() or (0, 0, 1, 1)
         crop = im.crop(box)
-        cells.append((crop, fr["ax"] * pack - box[0], fr["ay"] * pack - box[1]))
+        if clip and clip.get("sprite_box"):
+            # 師父：腳底＝靜態立繪（560×493）底邊中點。spriteBox＝立繪左上角相對於 ax/ay 的位移（anims_new.json）
+            sb = meta["spriteBox"]
+            ax, ay = fr["ax"] + sb["x"] + sb["w"] / 2, fr["ay"] + sb["y"] + sb["h"]
+        else:
+            ax, ay = fr["ax"], fr["ay"]
+        cells.append((crop, ax * pack - box[0], ay * pack - box[1]))
     x = y = row_h = 0
     places = []
     width = 0
@@ -312,10 +362,12 @@ def main() -> None:
     for kind, spec in KINDS.items():
         if only and kind not in only:
             continue
-        lift = spec.get("lift")
+        lift = 0.0 if spec.get("sprite_box") else spec.get("lift")
         if lift is None:
             lift = auto_lift(kind, spec)
-        anims = json.loads((src_root / spec["src"] / "anims.json").read_text(encoding="utf-8"))
+        # 全部是新片段的（師父）沒有 qiuqiu-side 那份 anims.json
+        old_anims = src_root / spec["src"] / "anims.json"
+        anims = json.loads(old_anims.read_text(encoding="utf-8")) if old_anims.exists() else {}
         actions = {}
         extras = {}
         moves = {}
@@ -327,7 +379,9 @@ def main() -> None:
             key = clip["src"] if name == "move" else name
             display = spec.get(f"{name}_display", spec["display"])
             # 圖集比畫面大 OVERSAMPLE 倍，但不超過來源
-            over = OVERSAMPLE_LONG_DEATH if clip.get("long") else OVERSAMPLE
+            over = spec.get("oversample") or (OVERSAMPLE_LONG_DEATH if clip.get("long") else OVERSAMPLE)
+            if spec.get("sprite_box"):
+                clip = {**clip, "sprite_box": True}
             pack = min(1.0, display * over)
             meta = anims_of(src_root, spec["src"], clip)[clip["src"]] if clip.get("new") else anims[clip["src"]]
             n = len(meta["frames"])
@@ -363,6 +417,11 @@ def main() -> None:
                 actions[name] = motion
             report.setdefault(kind, {})[key] = {"src": clip["src"], "frames": len(frames), "seconds": round(duration * len(frames), 2),
                                                "atlas": list(sheet.size), "src_frames": idx}
+        if spec.get("idle_from"):
+            # 待機畫靜態立繪（staticIdle），這一格只是佔位：借那一段片段的第 0 格（＝待機立繪的姿勢），不另外出圖集
+            base = extras[spec["idle_from"]]
+            actions = {"idle": {"texture": base["texture"], "mirror": False, "scale": base["scale"], "loop": True,
+                                "frames": [base["frames"][0]]}, **actions}
         data = {"native_height": 1, "default_height": 1, "mirror": False, "actions": actions}
         if extras:
             data["extras"] = extras

@@ -19,6 +19,8 @@ const dataOf = (kind: string): {
   moves?: Record<string, string>;
 } => JSON.parse(readFileSync(join(ROOT, `src/ui/side-motion/${kind}.json`), 'utf8'));
 const seconds = (m: { frames: { duration: number }[] }): number => m.frames.reduce((sum, f) => sum + f.duration, 0);
+/** 這一套是哪一隻魔物的（師父三套 daxia_p1～p3 是 tower_master，2026-10-01） */
+const enemyOfKind = (kind: string): string => (kind.startsWith('daxia_') ? 'tower_master' : kind.replace(/_p2$/, ''));
 
 describe('招式對片段：資料', () => {
   it('這一批對到的招與片段', () => {
@@ -32,7 +34,7 @@ describe('招式對片段：資料', () => {
 
   it('對照表裡的招式名都是那隻魔物真的有的招（寫錯字就永遠對不到）', () => {
     const owner: Record<string, string> = {};
-    for (const kind of SIDE_MOTION_KINDS) owner[kind] = kind.replace(/_p2$/, '');
+    for (const kind of SIDE_MOTION_KINDS) owner[kind] = enemyOfKind(kind);
     for (const kind of SIDE_MOTION_KINDS) {
       const moves = dataOf(kind).moves ?? {};
       const def = enemyById[owner[kind]!]!;
@@ -55,7 +57,7 @@ describe('招式對片段：資料', () => {
     for (const kind of SIDE_MOTION_KINDS) {
       const a = dataOf(kind);
       const b = JSON.parse(JSON.stringify(a)) as typeof a;   // 另一台各自載入的同一份資料
-      const def = enemyById[kind.replace(/_p2$/, '')]!;
+      const def = enemyById[enemyOfKind(kind)]!;
       const labels = [...def.moves, ...(def.phases ?? []).flatMap((p) => p.moves ?? [])].map((m) => m.label);
       for (const label of labels) expect(enemyMoveClipOf(a, label), `${kind} ${label}`).toBe(enemyMoveClipOf(b, label));
     }
@@ -128,6 +130,8 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
     enemyMotionDuration: (_k: string, a: string) => (a === 'change' ? 1900 : 1350),
     qiuqiuEnemyMotionHold: (_k: string, a: string) => (a === 'change' ? 1900 : 1350), BOSS_DEATH_HOLD_MS: 400,
     motionImpactTimers: new Set(), performance: { now: () => now },
+    // 特效圖層（2026-10-01 師父：變身演完才補閉關氣場）：這裡只看逐格，特效給空的
+    fxLayer: { syncAura() {}, fire() {} }, fxCuesFor: () => [], fxOwnersOf: () => [], enemyBoxOf: () => () => null,
     window: { setTimeout: (fn: () => void, ms: number) => { timers.push({ fn, ms }); return timers.length; }, clearTimeout() {} },
   };
   const cs = { phase: 'combat', players: [], enemies: [e] };

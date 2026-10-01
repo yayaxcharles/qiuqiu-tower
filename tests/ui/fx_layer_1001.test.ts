@@ -28,7 +28,8 @@ function labelsOf(enemyId: string): Set<string> {
   return new Set([...def.moves, ...(def.phases ?? []).flatMap((p) => p.moves ?? [])].map((m) => m.label));
 }
 const ENEMY_OF: Record<string, string> = { iron_claw: 'iron_claw', iron_claw_p2: 'iron_claw', roomba_king: 'roomba_king', lantern_ghost: 'lantern_ghost',
-  orange_king: 'orange_king', orange_king_p2: 'orange_king', frog_daimyo: 'frog_daimyo', tanuki_lord: 'tanuki_lord' };
+  orange_king: 'orange_king', orange_king_p2: 'orange_king', frog_daimyo: 'frog_daimyo', tanuki_lord: 'tanuki_lord',
+  daxia_p1: 'tower_master', daxia_p2: 'tower_master', daxia_p3: 'tower_master' };
 
 describe('特效提示表（fx/cues.json）：寫錯字會紅', () => {
   it('每一條：特效有打包、誰是真的逐格套或魔物編號、招式名是那隻真的有的招、關鍵格查得到', () => {
@@ -38,7 +39,7 @@ describe('特效提示表（fx/cues.json）：寫錯字會紅', () => {
       const isKind = (SIDE_MOTION_KINDS as readonly string[]).includes(cue.owner);
       const enemyId = isKind ? ENEMY_OF[cue.owner] : /^enemy:([a-z_]+)(@\d+)?$/.exec(cue.owner)?.[1];
       expect(enemyId && enemyById[enemyId], cue.owner).toBeTruthy();
-      expect(/^(death|change|attack|aura|move:.+)$/.test(cue.on), cue.on).toBe(true);
+      expect(/^(death|change|attack|aura|seclude|move:.+)$/.test(cue.on), cue.on).toBe(true);
       if (cue.on.startsWith('move:')) expect(labelsOf(enemyId!).has(cue.on.slice(5)), `${cue.owner} ${cue.on}`).toBe(true);
       if (typeof cue.at === 'string') {
         expect(isKind, '關鍵格名只能用在逐格套').toBe(true);

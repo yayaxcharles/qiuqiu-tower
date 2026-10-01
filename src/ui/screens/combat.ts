@@ -70,7 +70,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMarks, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, prefetchEnemyMotionLate, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMarks, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, prefetchEnemyMotionAhead, prefetchEnemyMotionLate, preloadEnemyMotion, lateTexturesOf, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import { createFxLayer, fxCuesFor, fxNamesFor, fxOwnersOf, prefetchFx, type FxCue } from '../fx-layer';
 import {
   buildCombatMotionImpactPlan,
@@ -115,6 +115,19 @@ import { attachTextTooltip, attachTooltip, hideTooltip } from '../tooltip';
 const STATUS_LABEL: Partial<Record<StatusName, string>> = { 潛水: '下回合隱身', 鐵布衫: '下回合蜷縮' };
 /** 意圖沒有圖示素材（美術清單只做了狀態圖示），用一個中文字當記號，字型一定有 */
 const INTENT_GLYPH: Record<Intent, string> = { attack: '攻', block: '守', buff: '強', debuff: '弱', special: '？', summon: '召', idle: '…' };
+/**
+ * 進第三關時師父的逐格動作與特效先在背景下載（2026-10-01；由 `netload-run.ts` 的 `prefetchMasterAhead` 在第三關的地圖上叫）。
+ * 順序：第一階段的招式與變身 → 黑氣與閉關氣場（第一階段就在身上）→ 第二階段 → 第三階段（招式、戰敗）。
+ * 每一張都排在大檔那一條最後面、一次一張（`prefetchEnemyMotionAhead`）；只下載不解碼。`alive` 回 false（換了一局）就停。
+ */
+export async function prefetchMasterMotionAhead(alive: () => boolean): Promise<void> {
+  const kinds = [0, 1, 2].map((phase) => qiuqiuEnemyMotionKind('tower_master', phase));
+  const [first, ...rest] = [...new Set(kinds.filter((k): k is EnemyMotionKind => !!k))];
+  if (!first) return;
+  await prefetchEnemyMotionAhead([first], alive);
+  if (alive()) await prefetchFx(fxNamesFor(kinds.flatMap((kind, phase) => fxOwnersOf('tower_master', phase, kind))));
+  await prefetchEnemyMotionAhead(rest, alive);
+}
 const PENDING_TITLE: Record<PendingChoice['purpose'], string> = {
   exhaust: N_('挑要消耗的牌'), retain: N_('挑要留到下回合的牌'), discard: N_('挑要丟掉的牌'),
   recover: N_('挑要拿回手上的牌'), scryDiscard: N_('這是抽牌堆最上面的牌，挑要丟掉的'),
@@ -736,7 +749,9 @@ registerScreen('combat', (app, root, props) => {
       // 特效圖集（燈籠妖吐火的爆炸⋯⋯）排在招式片段後面
       if (!extrasAfterNextPhase.has(kind)) {
         void prefetchEnemyMotionExtras(kind, true).catch(() => undefined)
-          .then(() => (app.cs === cs && !ended ? prefetchFx(fxNamesFor([kind])) : undefined)).catch(() => undefined);
+          .then(() => (app.cs === cs && !ended ? prefetchFx(fxNamesFor([kind])) : undefined)).catch(() => undefined)
+          // 晚下載的倒下（師父第三階段的戰敗）：到這一階段才解開，打死那一刻不在主執行緒當場解這張大圖集（第一階段那幾套由底下那一串管）
+          .then(() => (app.cs === cs && !ended && lateTexturesOf(kind).length > 0 ? prefetchEnemyMotionLate(kind) : undefined)).catch(() => undefined);
       }
       if (app.cs === cs && !ended) render();
     }).catch((error: unknown) => console.error('敵人動作素材載入失敗', kind, error));
@@ -785,7 +800,14 @@ registerScreen('combat', (app, root, props) => {
        */
       if (now && later && later !== now) {
         const startPhase = enemy.phase;   // 引擎是原地改這隻的資料：要先記下開打時的階段
-        const fxNames = fxNamesFor([...fxOwnersOf(enemy.enemyId, enemy.phase, now), ...fxOwnersOf(enemy.enemyId, enemy.phase + 1, later)]);
+        /*
+         * 第三階段（師父，2026-10-01）：第二階段的招式片段之後，再排第三階段的戰敗（使用者：全遊戲最華麗）與招式片段，都只下載不解碼
+         *（到第三階段那一刻 ensureEnemyMotion 才解）。進第三關時在地圖上已經先排過一輪（netload-run.ts），多半已經在手上，這裡只補沒到的。
+         */
+        const last = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase + 2);
+        const third = last && last !== later ? last : undefined;
+        const fxNames = fxNamesFor([...fxOwnersOf(enemy.enemyId, enemy.phase, now), ...fxOwnersOf(enemy.enemyId, enemy.phase + 1, later),
+          ...(third ? fxOwnersOf(enemy.enemyId, enemy.phase + 2, third) : [])]);
         // 這一場已經打完（或換了畫面）：後面幾步都用不到了，不再排（慢網路打完了還在抓特效、二階招式片段）
         const fighting = (): boolean => app.cs === cs && !ended;
         void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined)
@@ -793,7 +815,9 @@ registerScreen('combat', (app, root, props) => {
           // 已經打到第二階段了（慢網路排到這裡時常常是）：第一階段的倒下用不到，不抓（實測 0.8 Mbps 換階段後還在抓 1.5 MB 的鐵爪一階倒下）
           .then(() => (fighting() && (cs.enemies.find((x) => x.uid === enemy.uid)?.phase ?? startPhase) === startPhase ? prefetchEnemyMotionLate(now) : undefined)).catch(() => undefined)
           .then(() => (fighting() ? prefetchFx(fxNames) : undefined)).catch(() => undefined)
-          .then(() => (fighting() ? prefetchEnemyMotionExtras(later, false) : undefined)).catch(() => undefined);
+          .then(() => (fighting() ? prefetchEnemyMotionExtras(later, false) : undefined)).catch(() => undefined)
+          .then(() => (fighting() && third ? prefetchEnemyMotionLate(third, false) : undefined)).catch(() => undefined)
+          .then(() => (fighting() && third ? prefetchEnemyMotionExtras(third, false) : undefined)).catch(() => undefined);
       }
     }
   }
@@ -1163,6 +1187,8 @@ registerScreen('combat', (app, root, props) => {
         phaseSmoke.set(e.uid, smoke.actor.element);
       }
       if (live && box) mountEnemyMotion(live, box);
+      // 變身演完：閉關氣場這時才出來（師父，見 enemyAuraCues）
+      if (live && box) syncEnemyAura(live);
       if (smoke && box) {
         const canvas = smoke.actor.element;
         if (canvas.parentNode !== box) box.append(canvas);
@@ -1183,6 +1209,20 @@ registerScreen('combat', (app, root, props) => {
     }, Math.max(0, entry.until - performance.now()) + 30);
     motionImpactTimers.add(timer);
   };
+
+  /**
+   * 站著時一直有的特效（2026-10-01 師父）：`aura`（走火入魔的黑氣，一二三階段濃淡不同）＋閉關中（`invulnIn`，蹲下調息、無敵那一回合）的
+   * `seclude`（閉關氣場）。閉關氣場等換階段的變身片段演完才出來（變身中身上已經是黑煙，疊金環太亂）；倒下了全部淡出散掉。
+   * 引擎狀態決定，不看畫面：連線兩台在同一個時機有、同一個時機收。
+   */
+  const enemyAuraCues = (e: EnemyCombat): FxCue[] => {
+    if (e.dead) return [];
+    const owners = fxOwnersOf(e.enemyId, e.phase, qiuqiuEnemyMotionKind(e.enemyId, e.phase));
+    const changing = enemyPhaseChanges.get(e.uid);
+    const secluding = e.invulnIn > 0 && !(changing && performance.now() < changing.until);
+    return [...fxCuesFor(owners, 'aura'), ...(secluding ? fxCuesFor(owners, 'seclude') : [])];
+  };
+  const syncEnemyAura = (e: EnemyCombat): void => { fxLayer.syncAura(`e${e.uid}`, enemyAuraCues(e), enemyBoxOf(e.uid)); };
 
   /**
    * 倒下的特效（2026-10-01，使用者：「爆炸應該很華麗」）：逐格倒下真的在演（`knockdown`）才放那一套的提示，
@@ -1281,7 +1321,8 @@ registerScreen('combat', (app, root, props) => {
     // 重生中的殘影（蝌蚪兵的同生共死）：靜態那邊畫成貼地的半透明影子，逐格畫布沒有這一套，交還靜態
     const revivingNow = e.dead && !fallingUids.has(e.uid) && e.reviveIn > 0 && willRevive(cs, e);
     const handBack = !changing && side && ((revivingNow) || (e.dead && !enemyMotionHas(kind, 'knockdown')) || (!e.dead && !keepAttack
-      && ((action === 'attack' && !enemyMotionHas(kind, 'attack')) || (action === 'idle' && enemyStaticPose(e) === 'block')))
+      // 師父那三套沒有預設出招（每一招各有自己的片段）：這一招沒對到片段（醉拳）或圖集還沒到，就交還靜態的出招立繪（2026-10-01）
+      && ((action === 'attack' && moveClip === undefined && !enemyMotionHas(kind, 'attack')) || (action === 'idle' && enemyStaticPose(e) === 'block')))
       // 待機（含挨打、防禦）改畫原本的立繪（staticIdle，使用者 2026-09-29）。
       // 不看 e.dead：剛被打死、還在分段擊殺空檔（fallingUids）時 action 也是 idle，不交還的話會把停在半路的走路格掛回去閃一下（審查 高-2）
       || (!keepAttack && action === 'idle' && staticIdle(kind)));
@@ -2237,8 +2278,12 @@ registerScreen('combat', (app, root, props) => {
     }
     const picture = node.querySelector<HTMLElement>('.sprite-box');
     if (picture) mountEnemyMotion(e, picture);
-    // 站著時一直有的氣場（特效圖層的 aura，給師父用；現在表上還沒有）：該有的補上、換階段或倒下的收掉
-    if (picture) fxLayer.syncAura(`e${e.uid}`, e.dead ? [] : fxCuesFor(fxOwnersOf(e.enemyId, e.phase, qiuqiuEnemyMotionKind(e.enemyId, e.phase)), 'aura'), enemyBoxOf(e.uid));
+    // 站著時一直有的氣場（特效圖層的 aura：師父的黑氣）與閉關氣場（seclude）：該有的補上、換階段或倒下的收掉。
+    // 整頁重畫時這一格還沒放進畫面（找不到宿主、這一次放不上去）：下一格畫面再補一次，不必等到牠下一次被重畫（實測開打時黑氣要等師父第一次出手才出來）
+    if (picture) {
+      syncEnemyAura(e);
+      if (!enemyBoxOf(e.uid)()) window.requestAnimationFrame(() => { if (app.cs === cs && !ended) syncEnemyAura(e); });
+    }
     // 點的當下才看在不在選目標：選目標改成就地修補（`patchTargeting` 只換 `targetable` 類別），
     // 節點不會為了開始選目標而重建，監聽得先掛好（2026-09-23 效能）
     node.addEventListener('click', () => { if (targeting && !e.dead) pickTarget(e.uid); });

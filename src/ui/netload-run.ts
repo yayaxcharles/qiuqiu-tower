@@ -139,4 +139,23 @@ export async function preloadNextFights(run: RunState, high = true): Promise<voi
   for (const u of fresh) nextAsked.add(u);
   await decodeAll(fresh, Math.max(1, fresh.length), true, undefined, high ? 'high' : undefined);
   for (const u of fresh) if (!warmed.has(u)) nextAsked.delete(u);
+  prefetchMasterAhead(run, key);
+}
+
+/*
+ * ===== 第三關：師父的逐格動作與特效先在背景下載（2026-10-01）=====
+ * 師父三個階段的招式片段、換階段、戰敗加起來好幾 MB，開打那一刻才抓的話慢網路要一兩分鐘，前幾回合都只看得到靜態立繪。
+ * 進第三關（第一次畫出第三關的地圖）就排：**排在最後、一次一張**（`prefetchEnemyMotionAhead`），
+ * 這一步的魔物立繪（上面那一批）、主角的動作、一般魔物的圖集都在它前面；之後才排進來的，前面最多只多一張師父的。
+ * 順序：第一階段的招式與變身 → 黑氣與閉關氣場（第一階段就在身上）→ 第二階段 → 第三階段（招式、戰敗）。只下載、不解碼。
+ * 一局只排一次；換了一局（`nextKey` 變了）就不再往下排。`?motion=0`（關掉逐格）不抓。
+ */
+let masterAheadKey = '';
+function prefetchMasterAhead(run: RunState, key: string): void {
+  if (run.act < 3 || masterAheadKey === key) return;
+  if (typeof location !== 'undefined' && new URLSearchParams(location.search).get('motion') === '0') return;
+  masterAheadKey = key;
+  const alive = (): boolean => nextKey === key;
+  // 程式放在戰鬥畫面那一塊（開局時 A 層就抓了）：這裡直接引用逐格、特效那幾支的話，打包會把它們各拆成一個檔、首載程式變大（實測 +158 位元組）
+  void import('./screens/combat').then((m) => m.prefetchMasterMotionAhead(alive)).catch(() => undefined);
 }
