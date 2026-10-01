@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import motionData from '../../src/ui/enemy-motion-data.json';
+import COMBAT_SRC from '../../src/ui/screens/combat.ts?raw';
 import type {
   EnemyMotionAction,
   EnemyMotionKind,
@@ -327,5 +328,46 @@ describe('橫向捲軸動作：腳底不跳位', () => {
       expect(canvas.style.bottom).toBe(initial.bottom);
     }
     actor.dispose();
+  });
+});
+
+/*
+ * 2026-10-01 慢網路（使用者：「第一關 BOSS 機器狗還是原本的？爆炸應該很華麗」）：
+ * 待機改畫立繪的那幾套不抓走路圖集（從來不上畫面）；塔主第二階段先下載、不解碼、不算就緒。
+ * 0.8 Mbps 實測鐵爪變身後要等走路那張，雷射與爆炸 52 秒才演得出來（只等雷射、爆炸是 30 秒）。
+ */
+describe('慢網路：只抓會上畫面的圖集、第二階段先下載', () => {
+  const sideSources = (): string[] => FakeImage.sources.map((s) => s.replace(/^.*motion\/side\//, '').replace(/\.webp.*$/, ''));
+
+  it('鐵爪第二階段：就緒只等雷射與爆炸，不抓走路那張；建好畫布也不去抓', async () => {
+    await motion.preloadEnemyMotion(['iron_claw_p2']);
+    expect(motion.enemyMotionReady('iron_claw_p2')).toBe(true);
+    expect(sideSources().sort()).toEqual(['iron_claw-down_p2', 'iron_claw-laser_p2']);
+    const actor = motion.createEnemyMotionActor('iron_claw_p2');
+    expect(sideSources()).not.toContain('iron_claw-walk_p2');
+    actor.play('knockdown');
+    expect(lastDraw()).toBeDefined();   // 倒下照樣畫得出來
+    actor.dispose();
+  });
+
+  it('待機照播逐格的（掃地機器人王）照舊抓待機那張', async () => {
+    await motion.preloadEnemyMotion(['roomba_king']);
+    expect(sideSources().sort()).toEqual(['roomba_king-down', 'roomba_king-drive', 'roomba_king-ram']);
+  });
+
+  it('先下載第二階段：只設網址、不解碼、不算就緒；之後真的要用時沿用同一張、不重抓', async () => {
+    await motion.prefetchEnemyMotion('iron_claw_p2');
+    expect(sideSources().sort()).toEqual(['iron_claw-down_p2', 'iron_claw-laser_p2']);
+    expect(motion.enemyMotionReady('iron_claw_p2')).toBe(false);
+    expect(FakeImage.decoded).toEqual([]);
+    await motion.preloadEnemyMotion(['iron_claw_p2']);
+    expect(motion.enemyMotionReady('iron_claw_p2')).toBe(true);
+    expect(sideSources().length).toBe(2);
+  });
+
+  it('戰鬥畫面：第一階段那套好了才先下載下一階段', () => {
+    const c = COMBAT_SRC.replace(/\r\n/g, '\n');
+    expect(c).toContain('const later = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase + 1);');
+    expect(c).toContain('if (now && later && later !== now) void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined);');
   });
 });
