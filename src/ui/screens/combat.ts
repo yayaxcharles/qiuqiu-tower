@@ -1087,8 +1087,12 @@ registerScreen('combat', (app, root, props) => {
     if (!state && e.dead && !fallingUids.has(e.uid) && !(e.reviveIn > 0 && willRevive(cs, e))) return;
     if (!state || state.kind !== kind) {
       disposeEnemyMotion(e.uid);
-      const action: EnemyMotionAction = e.dead ? 'knockdown' : 'idle';
-      state = { kind, actor: createEnemyMotionActor(kind), action, busyUntil: 0 };
+      /*
+       * 畫布一建好就畫這個動作（2026-10-01）：待機改畫立繪的那幾套建好時不畫待機，記成倒下卻沒畫的話會是一張空畫布。
+       * 還在等倒下（fallingUids）的記成待機：倒下那一拍 finishEnemyMotion 才從第一格開演。
+       */
+      const action: EnemyMotionAction = e.dead && !fallingUids.has(e.uid) ? 'knockdown' : 'idle';
+      state = { kind, actor: createEnemyMotionActor(kind, { action }), action, busyUntil: 0 };
       enemyMotionActors.set(e.uid, state);
     }
     const side = isSideMotionKind(kind);
