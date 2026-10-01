@@ -61,7 +61,8 @@ declare global {
 }
 /** 各套格子資料的載入函式（Vite 會把每個檔拆成獨立的小區塊，要用才抓） */
 const sideLoaders = import.meta.glob<{ default: unknown }>('./side-motion/*.json');
-export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup';
+/** `change`＝換階段那一刻的變身（2026-10-01；只有帶變身片段的那幾套有，放在 json 的 extras） */
+export type EnemyMotionAction = 'idle' | 'attack' | 'hurt' | 'air_rise' | 'air_fall' | 'knockdown' | 'getup' | 'change';
 
 type MotionFrame = {
   rect: [number, number, number, number];
@@ -83,6 +84,13 @@ type MotionKind = {
   mirror: boolean;
   /** 魔王只有待機、出招、挨打、倒地四段；缺的動作一律退回待機（`motionOf`） */
   actions: Partial<Record<EnemyMotionAction, Motion>> & { idle: Motion };
+  /**
+   * 額外片段（2026-10-01 招式對片段＋變身）：某幾招自己的出招片段（slam、jump⋯⋯）與變身（change）。
+   * **不算進就緒**：基本那幾張好了才在背景下載（`fetchExtras`），還沒到就退回預設出招片段／原本的立繪，不卡住。
+   */
+  extras?: Record<string, Motion>;
+  /** 招式名（enemies.ts 的 label，引擎裡的原文、不是翻譯後的字）→ extras 裡的片段名；沒寫的招照舊播預設出招 */
+  moves?: Record<string, string>;
 };
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
@@ -124,14 +132,57 @@ function kindOf(kind: EnemyMotionKind): MotionKind {
   return data;
 }
 
-function motionOf(kind: MotionKind, action: EnemyMotionAction): Motion {
+function motionOf(kind: MotionKind, action: EnemyMotionAction, clip?: string): Motion {
+  if (action === 'change') return kind.extras?.change ?? kind.actions.idle;
+  if (action === 'attack' && clip) {
+    const own = kind.extras?.[clip];
+    if (own) return own;
+  }
   return kind.actions[action] ?? kind.actions.idle;
+}
+
+/** 這一套所有片段（基本＋額外）：算畫布大小用，換片段時畫布與腳底才不跳 */
+function allMotionsOf(kind: MotionKind): Motion[] {
+  return [...actionsOf(kind), ...Object.values(kind.extras ?? {})];
+}
+
+/**
+ * 這一招對到哪一段額外片段（只看資料、不看下載）。連線兩台拿同一份資料、同一個招式名，就對到同一段。
+ * 招式名是引擎裡的原文（`e.move.label`），不受介面語言影響。
+ */
+export function enemyMoveClipOf(data: Readonly<{ moves?: Readonly<Record<string, string>>; extras?: Readonly<Record<string, unknown>> }> | undefined,
+  label: string | undefined): string | undefined {
+  if (!data || !label) return undefined;
+  const clip = data.moves?.[label];
+  return clip !== undefined && data.extras?.[clip] !== undefined ? clip : undefined;
 }
 
 function actionsOf(kind: MotionKind): Motion[] {
   return ACTIONS.map((action) => kind.actions[action]).filter((motion): motion is Motion => motion !== undefined);
 }
 const images = new Map<string, HTMLImageElement>();
+
+/** 這張圖集已經下載好、畫得出來（還沒抓或還在抓都算沒有；**不會**因為問了就開始抓） */
+function textureDrawable(texture: string): boolean {
+  const image = images.get(texture);
+  return image !== undefined && !('complete' in image && (!image.complete || image.naturalWidth === 0));
+}
+
+/**
+ * 這一招這一刻要播的額外片段名：有對到、而且圖集已經下載好才回（2026-10-01）。
+ * 慢網路還沒到就回 undefined，呼叫端照舊播預設出招片段（攻擊招）或不播（非攻擊招），不等、不卡。
+ */
+export function enemyMotionMoveClip(kind: EnemyMotionKind, label: string | undefined): string | undefined {
+  const data = kinds[kind];
+  const clip = enemyMoveClipOf(data, label);
+  return clip !== undefined && textureDrawable(data!.extras![clip]!.texture) ? clip : undefined;
+}
+
+/** 這一套的變身片段畫得出來嗎（有片段、這一套就緒、圖集已下載好）。沒有就照舊：閃白＋直接換第二階段立繪 */
+export function enemyMotionChangeReady(kind: EnemyMotionKind): boolean {
+  const change = kinds[kind]?.extras?.change;
+  return change !== undefined && readyKinds.has(kind) && textureDrawable(change.texture);
+}
 const readyKinds = new Set<EnemyMotionKind>();
 const kindLoads = new Map<EnemyMotionKind, Promise<void>>();
 const timings = new WeakMap<Motion, { durations: number[]; total: number }>();
@@ -170,6 +221,28 @@ function texturesOf(kind: EnemyMotionKind, data: MotionKind): string[] {
   return [...new Set(actionsOf(data).filter((motion) => !(skipIdle && motion === data.actions.idle)).map((motion) => motion.texture))];
 }
 
+/** 額外片段的圖集（招式片段、變身）：不算進就緒，見 `fetchExtras` */
+function extraTexturesOf(data: MotionKind): string[] {
+  const base = new Set(actionsOf(data).map((motion) => motion.texture));
+  return [...new Set(Object.values(data.extras ?? {}).map((motion) => motion.texture))].filter((texture) => !base.has(texture));
+}
+
+/**
+ * 額外片段的圖集在背景下載（2026-10-01）：**不插隊**，排在這一套基本那幾張後面、第二階段先下載之前
+ *（這一套就緒的那一刻排進去，combat.ts 等就緒之後才排第二階段）。`decode`：下載好再排背景解開，第一次播時不在主執行緒解碼。
+ * 失敗的從快取拿掉：這一招照舊播預設片段，下一場再試。
+ */
+async function fetchExtras(data: MotionKind, decode: boolean): Promise<void> {
+  await Promise.all(extraTexturesOf(data).map(async (texture) => {
+    const image = imageFor(texture, false);
+    await loadHeavy(image, fileUrl(texture), false);
+    try {
+      await imageLoaded(image);
+      if (decode) void prepareDecodedAtlas(image, false);
+    } catch { if (images.get(texture) === image) images.delete(texture); }
+  }));
+}
+
 /**
  * 先把這一套要畫的圖集**下載**下來，不解碼、不算就緒（2026-10-01：塔主第二階段的出招與爆炸）。
  * 第一階段那套好了才叫（`combat.ts`），不跟第一階段搶頻寬；不解碼，就不會在第一階段多壓一份點陣圖（稽核 2026-09-28 低-2 的顧慮）。
@@ -180,11 +253,12 @@ function texturesOf(kind: EnemyMotionKind, data: MotionKind): string[] {
 export async function prefetchEnemyMotion(kind: EnemyMotionKind): Promise<void> {
   if (readyKinds.has(kind)) return;
   await ensureKindData(kind);
-  await Promise.all(texturesOf(kind, kindOf(kind)).map(async (texture) => {
+  const data = kindOf(kind);
+  await Promise.all([...texturesOf(kind, data).map(async (texture) => {
     const image = imageFor(texture, false);
     await loadHeavy(image, fileUrl(texture), false);
     try { await imageLoaded(image); } catch { if (images.get(texture) === image) images.delete(texture); }
-  }));
+  }), fetchExtras(data, false)]);   // 第二階段的招式片段（蛙大名重跳壓）也一起先下載、不解碼，排在基本那幾張後面
 }
 
 async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
@@ -200,7 +274,11 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
     // 等解好才算這類魔物就緒：開戰那一刻就要畫老鼠，沒等的話第一格會在主執行緒當場解碼（實機追蹤）。
     // 開戰就要畫＝「正要用」：插隊、解好不會一進來就被當罕用圖放掉；最多等 0.8 秒，網路卡住就照舊畫 <img>
     await Promise.race([prepareDecodedAtlas(image, true), new Promise<void>((done) => setTimeout(done, 800))]);
-  }))).then(() => { readyKinds.add(kind); });
+  }))).then(() => {
+    readyKinds.add(kind);
+    // 基本那幾張好了才排額外片段（不跟這一場馬上要畫的搶頻寬），不等它
+    void fetchExtras(kindOf(kind), true).catch(() => undefined);
+  });
   kindLoads.set(kind, load);
   try { await load; } finally { kindLoads.delete(kind); }
 }
@@ -211,9 +289,9 @@ export async function preloadEnemyMotion(
   await Promise.all([...new Set(requested)].map(preloadEnemyMotionKind));
 }
 
-export function enemyMotionDuration(kind: EnemyMotionKind, action: EnemyMotionAction): number {
+export function enemyMotionDuration(kind: EnemyMotionKind, action: EnemyMotionAction, clip?: string): number {
   const data = kinds[kind];
-  return data ? Math.round(timingFor(motionOf(data, action)).total) : 0;
+  return data ? Math.round(timingFor(motionOf(data, action, clip)).total) : 0;
 }
 
 function motionBounds(kind: MotionKind, wantedHeight: number): Bounds {
@@ -222,7 +300,7 @@ function motionBounds(kind: MotionKind, wantedHeight: number): Bounds {
   let maxX = -Infinity;
   let maxY = -Infinity;
   const heightScale = wantedHeight / kind.native_height;
-  for (const motion of actionsOf(kind)) {
+  for (const motion of allMotionsOf(kind)) {
     const scale = motion.scale * heightScale;
     const mirror = motion.mirror ?? kind.mirror;
     for (const frame of motion.frames) {
@@ -259,7 +337,8 @@ export function createEnemyMotionActor(
 ): {
   element: HTMLCanvasElement;
   foot: Readonly<{ x: number; y: number }>;
-  play(action: EnemyMotionAction): void;
+  /** `clip`＝這一招自己的片段（`enemyMotionMoveClip`）；沒給或這一套沒有就播預設出招 */
+  play(action: EnemyMotionAction, clip?: string): void;
   pause(): void;
   dispose(): void;
 } {
@@ -289,6 +368,7 @@ export function createEnemyMotionActor(
   if (!context) throw new Error('無法建立敵人動畫的 2D 畫布');
 
   let action = options.action ?? 'idle';
+  let clip: string | undefined;
   let startedAt: number | null = null;
   let raf = 0;
   let disposed = false;
@@ -296,7 +376,7 @@ export function createEnemyMotionActor(
   let drawnFrame: MotionFrame | undefined;
 
   const draw = (frameIndex: number): void => {
-    const motion = motionOf(kindData, action);
+    const motion = motionOf(kindData, action, clip);
     const frame = motion.frames[frameIndex] ?? motion.frames[0];
     if (!frame) return;
     if (drawnMotion === motion && drawnFrame === frame) return;
@@ -334,14 +414,14 @@ export function createEnemyMotionActor(
     if (disposed) return;
     if (startedAt === null) startedAt = now;
     const elapsed = Math.max(0, now - startedAt);
-    const current = motionOf(kindData, action);
+    const current = motionOf(kindData, action, clip);
     draw(frameAt(current, elapsed));
     // 只有一格的循環（兩種魔物的待機都是）畫好就不會再變：不必每一拍都醒來（2026-09-23 效能）。
     // 場上每一隻都在每一拍要下一格的話，主執行緒整場都停不下來，CSS 動畫也被拖著每一拍重算樣式
     //（實測閒置 3 秒、CPU 降速 4 倍：主執行緒忙 1.8～2.2 秒）。下一次 play() 會重新排。
     // 還沒畫上去（圖還沒載好）就照舊每一拍再試。
     if (current.loop && current.frames.length <= 1 && drawnMotion === current) return;
-    if (current.loop || elapsed < enemyMotionDuration(kind, action)) {
+    if (current.loop || elapsed < enemyMotionDuration(kind, action, clip)) {
       raf = window.requestAnimationFrame(tick);
     }
   };
@@ -350,9 +430,10 @@ export function createEnemyMotionActor(
     if (!disposed && raf === 0) raf = window.requestAnimationFrame(tick);
   };
 
-  const play = (next: EnemyMotionAction): void => {
+  const play = (next: EnemyMotionAction, nextClip?: string): void => {
     if (disposed) return;
     action = next;
+    clip = nextClip;
     startedAt = null;
     drawnMotion = null;
     draw(0);

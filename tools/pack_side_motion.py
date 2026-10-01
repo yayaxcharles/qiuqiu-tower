@@ -57,6 +57,22 @@ def death(src, first, last, long=False):
     return {"action": "knockdown", "src": src, "first": first, "last": last, "long": long}
 
 
+# ---- 2026-10-01 招式對片段＋變身（使用者看過盤點對照圖說「好」） ----
+# 這兩種是「額外片段」，寫進 json 的 extras，不算進這一套的就緒（enemy-motion.ts：基本那幾張好了才在背景下載，
+# 還沒到就退回預設出招片段或原本的立繪）。
+CHANGE_MAX_S = 1.9   # 變身：原片 4 秒，跳格＋加速壓到 2 秒內（使用者 2026-10-01）
+
+
+def move(src, segments, labels):
+    """某幾招改播自己的片段（招式名照 enemies.ts 的 label）。segments＝要的格段（含頭尾），段與段之間的格子剪掉"""
+    return {"action": "move", "src": src, "segments": segments, "labels": labels, "max_s": ATTACK_MAX_S}
+
+
+def change(src, first, last, step=3):
+    """換階段那一刻播的變身片段（放在第一階段那一套，演完交還第二階段的立繪）"""
+    return {"action": "change", "src": src, "first": first, "last": last, "step": step, "max_s": CHANGE_MAX_S}
+
+
 """
 display＝來源 1 像素在爪破魔塔戰場上畫成幾像素，**照頭的大小對舊立繪**（使用者鐵則：比頭不比外框）。
 先照「整隻高度」自動算，再逐隻把舊圖與新圖並排看頭，差太多的手調（註明原因）。
@@ -71,22 +87,33 @@ KINDS: dict[str, dict] = {
                      "clips": [idle("walk_p2"), attack("laser_p2", 12, 66), death("down_p2", 0, 62, long=True)]},
     "roomba_king": {"src": "roomba_king", "display": 0.57, "lift": 2.1, "size": "large", "long": True,
                     # 倒下第 0～5 格是橫向捲軸裡玩家的子彈飛進來，拿掉
-                    "clips": [idle("drive", speed=1.0), attack("ram", 14, 58), death("down", 6, 70, long=True)]},
+                    "clips": [idle("drive", speed=1.0), attack("ram", 14, 58), death("down", 6, 70, long=True)],
+                    # 「吸走」（減益招，2026-10-01）：眼睛睜大、吸口捲起龍捲風。吸完龍捲縮小那幾格（79 以後）剪掉
+                    "extras": [move("suck", [(8, 78)], ["吸走"])]},
 
     # ---- 塔主（有第二階段；倒下只有第二階段的片段） ----
     # 第一階段那一套**不帶倒下**：一刀從第一階段打死（很少見）就照舊靜態倒下。
     # 原本借第二階段的爆炸，等於第一階段就要先載那張最大的圖集（稽核 2026-09-28 低-2）
     # 蛙大名：頭照舊圖比，第一階段 0.667 頭偏小 → 0.72
     "frog_daimyo": {"src": "frog_daimyo", "display": 0.72, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("tongue", 2, 52)]},
+                    "clips": [idle("walk"), attack("tongue", 2, 52)],
+                    # 「跳壓」（2026-10-01）：蹲、起跳（第 2～12 格），中間站直騰空的第 13～29 格剪掉（爪破沒有騰空位移，
+                    # 原地站著一秒很怪），接前傾、落地濺水、爬起來（第 30～60 格）
+                    "extras": [move("jump", [(2, 12), (30, 60)], ["跳壓"])]},
     "frog_daimyo_p2": {"src": "frog_daimyo", "display": 0.694, "size": "large", "long": True, "art": "frog_daimyo_p2",
-                       "clips": [idle("walk_p2"), attack("tongue_p2", 0, 56), death("down_p2", 0, 72, long=True)]},
+                       "clips": [idle("walk_p2"), attack("tongue_p2", 0, 56), death("down_p2", 0, 72, long=True)],
+                       # 「重跳壓」：同上，剪掉站直騰空的第 15～23 格。「跳壓」也對到這段：換階段那一拍出的還是第一階段宣告的招
+                       "extras": [move("jump_p2", [(2, 14), (24, 60)], ["重跳壓", "跳壓"])]},
     "orange_king": {"src": "orange_king", "display": 0.678, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("throw", 8, 50)]},
+                    "clips": [idle("walk"), attack("throw", 8, 50)],
+                    # 「肚皮壓」播大跳砸下（來源已剪掉跳太高的影片第 18～34 格）；換階段播暴怒變身（甩掉魚骨、吼、長出尖刺）
+                    "extras": [move("slam", [(2, 48)], ["肚皮壓"]), change("rage", 8, 95)]},
     "orange_king_p2": {"src": "orange_king", "display": 0.678, "size": "large", "long": True, "art": "orange_king_p2",
                        "clips": [idle("walk_p2"), attack("jump_p2", 28, 72), death("down_p2", 2, 74, long=True)]},
     "tanuki_lord": {"src": "tanuki_lord", "display": 0.695, "size": "large", "long": True,
-                    "clips": [idle("walk"), attack("leaf", 12, 46)]},
+                    "clips": [idle("walk"), attack("leaf", 12, 46)],
+                    # 換階段播煙霧變身（丟斗笠、白煙包住、現出紅臉）。「肚皮鼓」片段自帶白色震波圈，不用
+                    "extras": [change("change", 0, 95)]},
     # 倒下第 0 格是子彈飛進來的白線，從第 3 格開始
     "tanuki_lord_p2": {"src": "tanuki_lord", "display": 0.675, "size": "large", "long": True, "art": "tanuki_lord_p2",
                        "clips": [idle("walk_p2"), attack("stomp_p2", 4, 44), death("down_p2", 3, 75, long=True)]},
@@ -142,6 +169,21 @@ def texture_name(src_id: str, src_action: str) -> str:
 
 def pick(n: int, clip: dict) -> tuple[list[int], float]:
     """挑哪幾格、每格幾秒"""
+    if clip["action"] in ("move", "change"):
+        if clip["action"] == "move":
+            step = 2
+            idx = [i for a, b in clip["segments"] for i in range(a, min(n - 1, b) + 1, step)]
+            count = sum(min(n - 1, b) - a + 1 for a, b in clip["segments"])
+        else:
+            step = clip["step"]
+            last = min(n - 1, clip["last"])
+            idx = list(range(clip["first"], last + 1, step))
+            if idx[-1] != last:
+                idx.append(last)   # 變身停在最後一格（跟第二階段立繪接得上的那一格）
+            count = last - clip["first"] + 1
+        natural = count / SRC_FPS
+        dur = min(natural, clip["max_s"]) / len(idx)
+        return idx, round(dur, 4)
     first = clip["first"]
     last = n - 1 if clip["last"] is None else min(n - 1, clip["last"])
     count = last - first + 1
@@ -207,6 +249,7 @@ def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_DATA.mkdir(parents=True, exist_ok=True)
     written: dict[str, int] = {}
+    packs: dict[str, float] = {}
     report = {}
     for kind, spec in KINDS.items():
         if only and kind not in only:
@@ -216,9 +259,13 @@ def main() -> None:
             lift = auto_lift(kind, spec)
         anims = json.loads((src_root / spec["src"] / "anims.json").read_text(encoding="utf-8"))
         actions = {}
+        extras = {}
+        moves = {}
         textures = set()
-        for clip in spec["clips"]:
+        for clip in spec["clips"] + spec.get("extras", []):
             name = clip["action"]
+            # 額外片段：招式片段用來源動作名（slam、jump⋯⋯）當名字，變身叫 change
+            key = clip["src"] if name == "move" else name
             display = spec.get(f"{name}_display", spec["display"])
             # 圖集比畫面大 OVERSAMPLE 倍，但不超過來源
             over = OVERSAMPLE_LONG_DEATH if clip.get("long") else OVERSAMPLE
@@ -226,23 +273,43 @@ def main() -> None:
             n = len(anims[clip["src"]]["frames"])
             idx, duration = pick(n, clip)
             tex = texture_name(spec["src"], clip["src"])
+            # 圖集檔名只看來源動作：同一段來源給兩套用的話，兩套的縮放與挑的格子要一樣，不然後寫的格子位置對不上圖
+            if tex in packs and packs[tex] != (pack, tuple(idx)):
+                raise SystemExit(f"{tex} 被兩套用不同的縮放或格子打包，格子位置會對不上圖集")
+            packs[tex] = (pack, tuple(idx))
             sheet, frames = pack_action(src_root, spec["src"], clip["src"], idx, pack)
             path = ROOT / "public" / tex
             if tex not in written:
                 sheet.save(path, "WEBP", quality=QUALITY, method=6)
                 written[tex] = path.stat().st_size
             textures.add(tex)
-            actions[name] = {
+            motion = {
                 "texture": tex, "mirror": False, "scale": round(display / pack, 6), "loop": clip["loop"] if "loop" in clip else False,
                 "frames": [{**f, "pivot": [f["pivot"][0], round(f["pivot"][1] + lift * pack / display, 2)], "duration": duration} for f in frames],
             }
-            report.setdefault(kind, {})[name] = {"src": clip["src"], "frames": len(frames), "seconds": round(duration * len(frames), 2),
-                                                "atlas": list(sheet.size)}
+            if name in ("move", "change"):
+                extras[key] = motion
+                for label in clip.get("labels", []):
+                    moves[label] = key
+            else:
+                actions[name] = motion
+            report.setdefault(kind, {})[key] = {"src": clip["src"], "frames": len(frames), "seconds": round(duration * len(frames), 2),
+                                               "atlas": list(sheet.size)}
         data = {"native_height": 1, "default_height": 1, "mirror": False, "actions": actions}
+        if extras:
+            data["extras"] = extras
+        if moves:
+            data["moves"] = moves
         (OUT_DATA / f"{kind}.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         report[kind]["_lift"] = lift
         report[kind]["_textures"] = sorted(textures)
-    (ROOT / "tools" / "pack_side_motion.report.json").write_text(json.dumps({"kinds": report, "bytes": written}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    report_path = ROOT / "tools" / "pack_side_motion.report.json"
+    if only and report_path.exists():
+        # 只重打幾套時，其他套的紀錄留著（原本整份蓋掉）
+        old = json.loads(report_path.read_text(encoding="utf-8"))
+        report = {**old.get("kinds", {}), **report}
+        written = {**old.get("bytes", {}), **written}
+    report_path.write_text(json.dumps({"kinds": report, "bytes": written}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"合計 {sum(written.values()) / 1024 / 1024:.2f} MB，{len(written)} 張圖集")
 
 

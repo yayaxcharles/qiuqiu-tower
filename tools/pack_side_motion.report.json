@@ -88,11 +88,21 @@
      639
     ]
    },
+   "suck": {
+    "src": "suck",
+    "frames": 36,
+    "seconds": 1.35,
+    "atlas": [
+     4045,
+     1665
+    ]
+   },
    "_lift": 2.1,
    "_textures": [
     "assets/motion/side/roomba_king-down.webp",
     "assets/motion/side/roomba_king-drive.webp",
-    "assets/motion/side/roomba_king-ram.webp"
+    "assets/motion/side/roomba_king-ram.webp",
+    "assets/motion/side/roomba_king-suck.webp"
    ]
   },
   "frog_daimyo": {
@@ -114,8 +124,18 @@
      798
     ]
    },
+   "jump": {
+    "src": "jump",
+    "frames": 22,
+    "seconds": 1.35,
+    "atlas": [
+     4067,
+     953
+    ]
+   },
    "_lift": 1.14,
    "_textures": [
+    "assets/motion/side/frog_daimyo-jump.webp",
     "assets/motion/side/frog_daimyo-tongue.webp",
     "assets/motion/side/frog_daimyo-walk.webp"
    ]
@@ -148,9 +168,19 @@
      487
     ]
    },
+   "jump_p2": {
+    "src": "jump_p2",
+    "frames": 26,
+    "seconds": 1.35,
+    "atlas": [
+     3926,
+     913
+    ]
+   },
    "_lift": 0.0,
    "_textures": [
     "assets/motion/side/frog_daimyo-down_p2.webp",
+    "assets/motion/side/frog_daimyo-jump_p2.webp",
     "assets/motion/side/frog_daimyo-tongue_p2.webp",
     "assets/motion/side/frog_daimyo-walk_p2.webp"
    ]
@@ -174,8 +204,28 @@
      640
     ]
    },
+   "slam": {
+    "src": "slam",
+    "frames": 24,
+    "seconds": 1.35,
+    "atlas": [
+     4049,
+     931
+    ]
+   },
+   "change": {
+    "src": "rage",
+    "frames": 30,
+    "seconds": 1.9,
+    "atlas": [
+     4052,
+     1009
+    ]
+   },
    "_lift": 1.7,
    "_textures": [
+    "assets/motion/side/orange_king-rage.webp",
+    "assets/motion/side/orange_king-slam.webp",
     "assets/motion/side/orange_king-throw.webp",
     "assets/motion/side/orange_king-walk.webp"
    ]
@@ -234,8 +284,18 @@
      640
     ]
    },
+   "change": {
+    "src": "change",
+    "frames": 33,
+    "seconds": 1.9,
+    "atlas": [
+     4075,
+     1723
+    ]
+   },
    "_lift": 1.7,
    "_textures": [
+    "assets/motion/side/tanuki_lord-change.webp",
     "assets/motion/side/tanuki_lord-leaf.webp",
     "assets/motion/side/tanuki_lord-walk.webp"
    ]
@@ -755,6 +815,12 @@
   "assets/motion/side/vacuum-down.webp": 98146,
   "assets/motion/side/wraith_samurai-walk.webp": 113528,
   "assets/motion/side/wraith_samurai-attack.webp": 372064,
-  "assets/motion/side/wraith_samurai-down.webp": 106484
+  "assets/motion/side/wraith_samurai-down.webp": 106484,
+  "assets/motion/side/roomba_king-suck.webp": 1249396,
+  "assets/motion/side/frog_daimyo-jump.webp": 586046,
+  "assets/motion/side/frog_daimyo-jump_p2.webp": 707992,
+  "assets/motion/side/orange_king-slam.webp": 538058,
+  "assets/motion/side/orange_king-rage.webp": 664792,
+  "assets/motion/side/tanuki_lord-change.webp": 774152
  }
 }

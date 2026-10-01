@@ -232,7 +232,7 @@ describe('敵人逐格畫布', () => {
       const actor = motion.createEnemyMotionActor(kind);
       const canvas = canvases.at(-1)!;
       const initialTransform = canvas.style.transform;
-      const actions: EnemyMotionAction[] = ['idle', 'attack', 'hurt', 'air_rise', 'air_fall', 'knockdown', 'getup', 'idle'];
+      const actions: Exclude<EnemyMotionAction, 'change'>[] = ['idle', 'attack', 'hurt', 'air_rise', 'air_fall', 'knockdown', 'getup', 'idle'];
       for (const action of actions) {
         actor.play(action);
         const mirrored = kind !== 'rat' || (action !== 'idle' && action !== 'hurt');
@@ -351,7 +351,8 @@ describe('慢網路：只抓會上畫面的圖集、第二階段先下載', () =
 
   it('待機照播逐格的（掃地機器人王）照舊抓待機那張', async () => {
     await motion.preloadEnemyMotion(['roomba_king']);
-    expect(sideSources().sort()).toEqual(['roomba_king-down', 'roomba_king-drive', 'roomba_king-ram']);
+    // 「吸走」那段（額外片段，2026-10-01）是就緒之後才排進去的，不算在就緒裡
+    expect(sideSources().sort()).toEqual(['roomba_king-down', 'roomba_king-drive', 'roomba_king-ram', 'roomba_king-suck']);
   });
 
   it('先下載第二階段：只設網址、不解碼、不算就緒；之後真的要用時沿用同一張、不重抓', async () => {
@@ -397,5 +398,93 @@ describe('慢網路：只抓會上畫面的圖集、第二階段先下載', () =
     const before = FakeImage.sources.length;
     await motion.preloadEnemyMotion(['iron_claw_p2']).catch(() => undefined);
     expect(FakeImage.sources.length - before).toBe(2);   // 雷射、爆炸各重抓一次
+  });
+});
+
+/*
+ * 2026-10-01 招式對片段＋變身：額外片段（extras）不算進就緒、就緒之後才在背景下載；
+ * 圖集到了才挑得到，沒到就退回預設出招；換片段時腳底不跳。
+ */
+describe('額外片段（招式片段、變身）', () => {
+  const sideSources = (): string[] => FakeImage.sources.map((s) => s.replace(/^.*motion\/side\//, '').replace(/\.webp.*$/, ''));
+  const flush = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise((r) => setTimeout(r, 0)); };
+
+  it('就緒只等基本那幾張；額外片段排在後面（第二階段先下載之前），下載好了才挑得到', async () => {
+    const lane = await import('../../src/ui/heavy-lane');
+    lane._resetHeavyLaneForTest();
+    await motion.preloadEnemyMotion(['orange_king']);
+    expect(motion.enemyMotionReady('orange_king')).toBe(true);
+    const order = sideSources();
+    expect(order.slice(0, 1)).toEqual(['orange_king-throw']);   // 待機改畫立繪：不抓走路那張
+    await flush();
+    expect(sideSources().slice(1).sort()).toEqual(['orange_king-rage', 'orange_king-slam']);
+    expect(motion.enemyMotionMoveClip('orange_king', '肚皮壓')).toBe('slam');
+    expect(motion.enemyMotionMoveClip('orange_king', '丟魚骨頭')).toBe(undefined);
+    expect(motion.enemyMotionChangeReady('orange_king')).toBe(true);
+    expect(motion.enemyMotionChangeReady('orange_king_p2')).toBe(false);
+  });
+
+  it('額外片段的圖集壞掉（404、斷線）也不拖累就緒：基本那幾張好了就算好，那一招退回預設', async () => {
+    const lane = await import('../../src/ui/heavy-lane');
+    lane._resetHeavyLaneForTest();
+    const brokenExtras = class extends FakeImage {
+      get naturalWidth(): number { return /orange_king-(slam|rage)/.test(this.src) ? 0 : 100; }
+      addEventListener(): void {}
+    };
+    vi.stubGlobal('Image', brokenExtras);
+    await motion.preloadEnemyMotion(['orange_king']);
+    await flush();
+    vi.stubGlobal('Image', FakeImage);
+    expect(motion.enemyMotionReady('orange_king')).toBe(true);
+    expect(motion.enemyMotionMoveClip('orange_king', '肚皮壓')).toBe(undefined);
+    expect(motion.enemyMotionChangeReady('orange_king')).toBe(false);
+  });
+
+  it('慢網路：片段圖集還沒到（或壞掉）就挑不到，呼叫端退回預設出招、變身照舊換立繪', async () => {
+    await motion.preloadEnemyMotion(['orange_king']);
+    await flush();
+    for (const image of FakeImage.instances) {
+      if (/orange_king-(slam|rage)/.test(image.src)) image.complete = false;
+    }
+    expect(motion.enemyMotionMoveClip('orange_king', '肚皮壓')).toBe(undefined);
+    expect(motion.enemyMotionChangeReady('orange_king')).toBe(false);
+  });
+
+  it('播招式片段與變身：畫的是那段的圖集、長度照那段；沒給片段名照舊播預設出招', async () => {
+    await motion.preloadEnemyMotion(['orange_king']);
+    await flush();
+    const actor = motion.createEnemyMotionActor('orange_king');
+    actor.play('attack', 'slam');
+    expect((lastDraw()[0] as unknown as FakeImage).src).toContain('orange_king-slam');
+    expect(motion.enemyMotionDuration('orange_king', 'attack', 'slam')).toBeGreaterThan(1300);
+    actor.play('attack');
+    expect((lastDraw()[0] as unknown as FakeImage).src).toContain('orange_king-throw');
+    actor.play('change');
+    expect((lastDraw()[0] as unknown as FakeImage).src).toContain('orange_king-rage');
+    expect(motion.enemyMotionDuration('orange_king', 'change')).toBeGreaterThan(1800);
+    expect(motion.enemyMotionDuration('orange_king', 'change')).toBeLessThanOrEqual(2000);
+    actor.dispose();
+  });
+
+  it.each(['orange_king', 'tanuki_lord', 'frog_daimyo', 'frog_daimyo_p2', 'roomba_king'] as const)('%s：額外片段腳底跟其他動作同一點、畫布不動', async (kind) => {
+    await motion.preloadEnemyMotion([kind]);
+    await flush();
+    const data = (await import(`../../src/ui/side-motion/${kind}.json`)).default as {
+      extras: Record<string, { scale: number; frames: { pivot: [number, number] }[] }>;
+    };
+    const actor = motion.createEnemyMotionActor(kind);
+    const canvas = canvases.at(-1)!;
+    const initial = { transform: canvas.style.transform, bottom: canvas.style.bottom, width: canvas.width };
+    for (const [name, clip] of Object.entries(data.extras)) {
+      if (name === 'change') actor.play('change'); else actor.play('attack', name);
+      const [, , , , , dx, dy] = lastDraw();
+      const [px, py] = clip.frames[0]!.pivot;
+      expect(dx + px * clip.scale, `${kind} ${name} 腳底 x`).toBeCloseTo(actor.foot.x, 4);
+      expect(dy + py * clip.scale, `${kind} ${name} 腳底 y`).toBeCloseTo(actor.foot.y, 4);
+      expect(canvas.style.transform).toBe(initial.transform);
+      expect(canvas.style.bottom).toBe(initial.bottom);
+      expect(canvas.width).toBe(initial.width);
+    }
+    actor.dispose();
   });
 });

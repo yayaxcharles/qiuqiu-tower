@@ -70,7 +70,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -534,12 +534,20 @@ registerScreen('combat', (app, root, props) => {
     afterimages?: () => void };
   type MeleeTrip = { plan: MotionMeleePlan<CombatMotionAction>; origin: { x: number; y: number } };
   type EnemyMotionState = { kind: EnemyMotionKind; actor: ReturnType<typeof createEnemyMotionActor>; action: EnemyMotionAction; busyUntil: number;
+    /** 這一次出招播的是哪一段（招式自己的片段，見 enemyMotionMoveClip；沒有＝預設出招） */
+    clip?: string;
     /** 長倒下演完、場上還有別隻：已經開始淡掉（重畫時照樣掛淡出類別） */
     faded?: boolean };
   const motionActors = new Map<number, CombatMotion>();
   // 全場最後一個出手動作收掉的時間；收場用它判斷勝利動作是不是太早就開始（見 checkOver 的 finish）
   let lastMotionEndAt = 0;
   const enemyMotionActors = new Map<number, EnemyMotionState>();
+  /**
+   * 正在演變身的塔主（2026-10-01，使用者看過盤點對照圖說「好」）：uid → 變身片段在哪一套（第一階段那一套）、演到什麼時候。
+   * 換階段那一拍引擎已經是第二階段了，這段時間 mountEnemyMotion 照舊掛第一階段那一套的畫布、播變身，
+   * 演完（`startPhaseChange` 的計時）才交還第二階段（立繪）。牠出手或倒下就馬上收掉。
+   */
+  const enemyPhaseChanges = new Map<number, { kind: EnemyMotionKind; until: number }>();
   const motionImpactTimers = new Set<number>();
   const motionPendingDamage = new Map<number, number>();
   /**
@@ -978,9 +986,12 @@ registerScreen('combat', (app, root, props) => {
     root.querySelector(`.unit.enemy[data-uid="${uid}"] .sprite-box`)?.classList.remove('has-enemy-motion');
   };
 
-  const playEnemyMotion = (uid: number, action: EnemyMotionAction): void => {
+  const playEnemyMotion = (uid: number, action: EnemyMotionAction, clip?: string): void => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
+    // 變身演到一半：挨打、收回待機都不打斷（倒下與出手由 mountEnemyMotion 先把變身收掉）
+    const changing = enemyPhaseChanges.get(uid);
+    if (changing && action !== 'change' && action !== 'knockdown' && performance.now() < changing.until) return;
     // 待機改畫原本立繪的那幾套（見 enemy-motion.ts 的 staticIdle）：出招演完就把畫布收掉、交還靜態待機圖，不播走路
     if (action === 'idle' && staticIdle(state.kind)) {
       state.action = 'idle';
@@ -998,9 +1009,10 @@ registerScreen('combat', (app, root, props) => {
      */
     if (action === 'hurt' && staticIdle(state.kind) && !enemyMotionHas(state.kind, 'hurt')) return;
     state.action = action;
-    state.busyUntil = action === 'attack' || (action === 'knockdown' && playsLongDeath(state.kind))
-      ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
-    state.actor.play(action);
+    state.clip = action === 'attack' ? clip : undefined;
+    state.busyUntil = action === 'attack' || action === 'change' || (action === 'knockdown' && playsLongDeath(state.kind))
+      ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0, state.clip) : 0;
+    state.actor.play(action, state.clip);
     if (action === 'attack') {
       const expectedEnd = state.busyUntil;
       const timer = window.setTimeout(() => {
@@ -1070,15 +1082,45 @@ registerScreen('combat', (app, root, props) => {
     motionImpactTimers.add(timer);
   };
 
+  /**
+   * 換階段那一刻播變身（2026-10-01）：第一階段那一套帶變身片段、圖集也到了才播（慢網路還沒到就照舊閃白＋換立繪，不等）。
+   * 原片 4 秒壓到 1.9 秒（pack_side_motion.py 的 CHANGE_MAX_S）；演完重掛一次，交還第二階段的立繪。
+   */
+  const startPhaseChange = (e: EnemyCombat, fromPhase: number): void => {
+    if (!qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) return;
+    const from = qiuqiuEnemyMotionKind(e.enemyId, fromPhase);
+    if (!from || from === qiuqiuEnemyMotionKind(e.enemyId, e.phase) || !enemyMotionChangeReady(from)) return;
+    const entry = { kind: from, until: performance.now() + enemyMotionDuration(from, 'change') };
+    enemyPhaseChanges.set(e.uid, entry);
+    const state = enemyMotionActors.get(e.uid);
+    if (state?.kind === from) state.action = 'idle';   // 下一次掛畫布時從第一格開演
+    const timer = window.setTimeout(() => {
+      motionImpactTimers.delete(timer);
+      if (app.cs !== cs || enemyPhaseChanges.get(e.uid) !== entry) return;
+      enemyPhaseChanges.delete(e.uid);
+      const live = cs.enemies.find((x) => x.uid === e.uid);
+      const box = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite-box`);
+      if (live && box) mountEnemyMotion(live, box);
+    }, Math.max(0, entry.until - performance.now()) + 30);
+    motionImpactTimers.add(timer);
+  };
+
   const mountEnemyMotion = (e: EnemyCombat, box: HTMLElement): void => {
     if (!qiuqiuEnemyMotionAllowed(motionEnabled, cs.players.map((q) => heroOf(q)))) {
       disposeEnemyMotion(e.uid);
       box.classList.remove('has-enemy-motion');
       return;
     }
-    const kind = qiuqiuEnemyMotionKind(e.enemyId, e.phase);
+    const realKind = qiuqiuEnemyMotionKind(e.enemyId, e.phase);
     // 還沒抓的（變身成第二階段、叫出來的小兵）現在開始抓，抓好之前畫靜態立繪
-    if (kind && !enemyMotionReady(kind) && !e.dead) ensureEnemyMotion(kind);
+    if (realKind && !enemyMotionReady(realKind) && !e.dead) ensureEnemyMotion(realKind);
+    // 變身中：照舊掛第一階段那一套播變身。演完、倒下、輪到牠出手就收掉，換回這一階段該畫的
+    let changing = enemyPhaseChanges.get(e.uid);
+    if (changing && (e.dead || acting.has(e.uid) || performance.now() >= changing.until || !enemyMotionReady(changing.kind))) {
+      enemyPhaseChanges.delete(e.uid);
+      changing = undefined;
+    }
+    const kind = changing?.kind ?? realKind;
     if (!kind || !enemyMotionReady(kind)) {
       disposeEnemyMotion(e.uid);
       box.classList.remove('has-enemy-motion');
@@ -1097,10 +1139,16 @@ registerScreen('combat', (app, root, props) => {
       enemyMotionActors.set(e.uid, state);
     }
     const side = isSideMotionKind(kind);
-    const action: EnemyMotionAction = e.dead && !fallingUids.has(e.uid) ? 'knockdown'
+    /*
+     * 招式對片段（2026-10-01）：這一招有自己的片段、圖集也到了，就播那一段（橘皮大王肚皮壓、蛙大名跳壓⋯⋯）；
+     * 非攻擊招只有對到片段的才播（掃地機器人王吸走），其餘照舊不播。圖還沒到就照舊播預設出招／不播。
+     */
+    const act = acting.get(e.uid);
+    const moveClip = act && !e.dead && e.invulnIn === 0 ? enemyMotionMoveClip(kind, act.label) : undefined;
+    const action: EnemyMotionAction = changing ? 'change' : e.dead && !fallingUids.has(e.uid) ? 'knockdown'
       // 橫向捲軸那幾套沒有受擊片段：挨打時待機照跑不重來，紅閃＋抖動照舊由 combat.css 掛在畫布上
       : hurtSet.has(e.uid) ? (side ? 'idle' : 'hurt')
-        : acting.get(e.uid)?.attacked ? 'attack' : 'idle';
+        : act?.attacked || moveClip !== undefined ? 'attack' : 'idle';
     const keepAttack = action === 'idle' && state.action === 'attack' && state.busyUntil > performance.now();
     /*
      * 沒有自己出招片段的（山豬頭目、唐傘小僧、小掃把⋯⋯）：出招那一拍交還靜態的出招立繪；
@@ -1109,12 +1157,12 @@ registerScreen('combat', (app, root, props) => {
      */
     // 重生中的殘影（蝌蚪兵的同生共死）：靜態那邊畫成貼地的半透明影子，逐格畫布沒有這一套，交還靜態
     const revivingNow = e.dead && !fallingUids.has(e.uid) && e.reviveIn > 0 && willRevive(cs, e);
-    const handBack = side && ((revivingNow) || (e.dead && !enemyMotionHas(kind, 'knockdown')) || (!e.dead && !keepAttack
+    const handBack = !changing && side && ((revivingNow) || (e.dead && !enemyMotionHas(kind, 'knockdown')) || (!e.dead && !keepAttack
       && ((action === 'attack' && !enemyMotionHas(kind, 'attack')) || (action === 'idle' && enemyStaticPose(e) === 'block')))
       // 待機（含挨打、防禦）改畫原本的立繪（staticIdle，使用者 2026-09-29）。
       // 不看 e.dead：剛被打死、還在分段擊殺空檔（fallingUids）時 action 也是 idle，不交還的話會把停在半路的走路格掛回去閃一下（審查 高-2）
       || (!keepAttack && action === 'idle' && staticIdle(kind)));
-    if (!handBack && !keepAttack && state.action !== action) playEnemyMotion(e.uid, action);
+    if (!handBack && !keepAttack && state.action !== action) playEnemyMotion(e.uid, action, moveClip);
     if (playsLongDeath(kind) && action === 'knockdown') {
       box.closest('.unit')?.classList.add('motion-death');
       if (state.faded) box.closest('.unit')?.classList.add('motion-death-fade');
@@ -3498,6 +3546,12 @@ registerScreen('combat', (app, root, props) => {
       // 調息中的那一拍不算出手：中毒在他回合開頭把血條打光，回合數照樣推進、他卻沒出招，
       // 前撲掛上去會變成盤腿打坐的人往前滑一下（稽核 2026-09-08 低 2）
       acting.set(e.uid, { label: b.label, attacked: b.intent === 'attack' && e.invulnIn === 0, blocked: b.intent === 'block' && e.invulnIn === 0, learned: b.learned });
+    }
+    // 換階段的變身要在重畫之前登記：重畫時引擎已經是第二階段，沒登記的話會先閃一下第二階段的立繪
+    for (const e of cs.enemies) {
+      const b = before.enemies.get(e.uid);
+      const a = comparison?.enemies.get(e.uid);
+      if (b && !(a?.dead ?? e.dead) && (a?.phase ?? e.phase) > b.phase && !acting.has(e.uid)) startPhaseChange(e, b.phase);
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。

@@ -44,7 +44,7 @@ async function runDeath(kind: string, opts: { longDeath: boolean; hasKnockdown: 
     querySelector: (sel: string) => sel === '.unit.enemy[data-uid="7"] .sprite-box' ? box : sel === '.unit.enemy[data-uid="7"]' ? unit : null,
   };
   const bindings: Record<string, unknown> = {
-    enemyMotionActors, root,
+    enemyMotionActors, root, enemyPhaseChanges: new Map(),
     staticIdle: () => opts.staticIdleKind,
     playsLongDeath: () => opts.longDeath,
     isSideMotionKind: () => true,
@@ -121,7 +121,7 @@ describe('建畫布時就帶要畫的動作（不留空畫布）', () => {
     const enemyMotionActors = new Map<number, unknown>([[7, { kind: 'iron_claw', action: 'idle', busyUntil: 0, actor: { element: oldCanvas, play() {}, pause() {}, dispose() {} } }]]);
     const e = { uid: 7, enemyId: 'iron_claw', phase: 1, dead: true, reviveIn: 0 };
     const bindings: Record<string, unknown> = {
-      enemyMotionActors,
+      enemyMotionActors, enemyPhaseChanges: new Map(), enemyMotionMoveClip: () => undefined,
       root: { querySelector: () => box },
       qiuqiuEnemyMotionAllowed: () => true, motionEnabled: true, heroOf: () => 'ninja',
       qiuqiuEnemyMotionKind: (_id: string, phase: number) => (phase > 0 ? 'iron_claw_p2' : 'iron_claw'),
