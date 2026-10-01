@@ -116,6 +116,7 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
     enemyMotionReady: opts.ready ?? (() => true), ensureEnemyMotion() {},
     enemyMotionChangeReady: () => opts.changeReady ?? true,
     enemyMotionChangeFade: () => opts.fade ?? 0,
+    enemyMotionChangeCrossfade: () => false,   // 交叉淡入只有師父（daxia_motion_1001.test.ts）
     enemyMotionMoveClip: (kind: string, label: string) => opts.clipFor?.(kind, label),
     fallingUids: new Set(), willRevive: () => false,
     createEnemyMotionActor: (kind: string) => {

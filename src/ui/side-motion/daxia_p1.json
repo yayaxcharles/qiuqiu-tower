@@ -1886,6 +1886,8 @@
      "duration": 0.0655
     }
    ],
+   "fade": 0.35,
+   "crossfade": true,
    "marks": {
     "reachPeak": 982,
     "smoke": 393,

@@ -90,12 +90,15 @@ def move(src, segments, labels, new=False):
     return clip
 
 
-def change(src, first, last, step=3, max_s=CHANGE_MAX_S, fade_s=0.0, new=False):
+def change(src, first, last, step=3, max_s=CHANGE_MAX_S, fade_s=0.0, new=False, crossfade=False):
     """換階段那一刻播的變身片段（放在第一階段那一套，演完交還第二階段的立繪）。
-    fade_s＞0：停在最後一格（煙最濃、整隻蓋住的那一格）交還立繪，那一格在立繪上方淡出這麼多秒（combat.ts 的 startPhaseChange）"""
+    fade_s＞0：停在最後一格（煙最濃、整隻蓋住的那一格）交還立繪，那一格在立繪上方淡出這麼多秒（combat.ts 的 startPhaseChange）。
+    crossfade＝真的交叉淡入：最後一格淡出的同時，底下的立繪從透明淡入（師父：變身停在站姿、閉關立繪是打坐，2026-10-01 主控）"""
     clip = {"action": "change", "src": src, "first": first, "last": last, "step": step, "max_s": max_s, "fade": fade_s}
     if new:
         clip["new"] = True
+    if crossfade:
+        clip["crossfade"] = True
     return clip
 
 
@@ -207,16 +210,19 @@ KINDS: dict[str, dict] = {
                             move("palm", [(16, 50), (74, 92)], ["拆招", "沾衣十八跌"], new=True),  # 右掌推直（第 47 格）→收回抱胸
                             move("shout", [(16, 46), (62, 86)], ["獅吼功"], new=True),          # 雙掌舉胸前、張大嘴→收回
                             # 換階段一→二：摀胸發抖→黑煙冒出、道服變破、螺旋眼→握拳站成二階待機（結尾＝idle2）。前 12 格只是站著抱胸
-                            change("to_p2", 12, 95, new=True)]},
+                            # 演完停在站姿（idle2），但那時他在閉關、立繪是打坐（guard2）：最後一格淡出、打坐立繪淡入 0.35 秒（主控 2026-10-01）
+                            change("to_p2", 12, 95, new=True, fade_s=0.35, crossfade=True)]},
     "daxia_p2": {"src": "daxia_p2", "display": 340 / 560, "change_display": 350 / 560, "sprite_box": True, "oversample": 1.2,
                  "idle_from": "combo",
                  "clips": [],
-                 "extras": [move("palm", [(26, 60), (72, 90)], ["穿心掌", "拆招", "沾衣十八跌"], new=True),   # 單掌推直（第 58 格最遠）
+                 # 穿心掌：原本從第 26 格（手已經抬起、張開）切進來，接在握拳待機後面手會跳一下（主控 2026-10-01）。
+                 # 改從第 2 格（跟待機幾乎一樣）起手，抬手那段每 4 格取 1；收手收到第 94 格（又跟待機一樣），收手那段也每 4 格取 1
+                 "extras": [move("palm", [(2, 26, 4), (28, 58), (74, 94, 4)], ["穿心掌", "拆招", "沾衣十八跌"], new=True),   # 單掌推直（第 58 格最遠）
                             move("combo", [(6, 58)], ["十二連環"], new=True),                  # 左右交替出拳（第 12、22、36、47 格），收在拳收回那一格
                             move("guard", [(12, 36), (60, 84)], ["金鐘罩"], new=True),        # 蹲低、雙前臂交叉擋臉→放下
                             move("flurry", [(10, 48), (80, 92)], ["狂風連掌"], new=True),     # 左右輪流推掌（第 20、28、35、45 格）→收回
                             # 換階段二→三：仰頭大吼、黑煙繞身、斗笠掀飛出畫面右側、長出肌肉紫火白眼（結尾＝idle3）。前 12 格只是站著
-                            change("to_p3", 12, 92, new=True)]},
+                            change("to_p3", 12, 92, new=True, fade_s=0.35, crossfade=True)]},   # 同上：站姿 idle3 → 打坐 guard3
     "daxia_p3": {"src": "daxia_p3", "display": 350 / 560, "sprite_box": True, "oversample": 1.2, "long": True,
                  "idle_from": "lunge",
                  # 戰敗（第三階段打死；他只會在第三階段倒下，前兩條血打光是換階段）：紫火竄高→一朵朵熄滅冒灰煙→金光→單膝跪成 defeat3。
@@ -247,9 +253,9 @@ def pick(n: int, clip: dict) -> tuple[list[int], float]:
     """挑哪幾格、每格幾秒"""
     if clip["action"] in ("move", "change"):
         if clip["action"] == "move":
-            step = 2
-            idx = [i for a, b in clip["segments"] for i in range(a, min(n - 1, b) + 1, step)]
-            count = sum(min(n - 1, b) - a + 1 for a, b in clip["segments"])
+            # 段可以寫第三個數＝這一段每幾格取 1（預設 2）：起手、收手這種慢慢抬手的段跳快一點，整段才壓得進 1.35 秒
+            idx = [i for seg in clip["segments"] for i in range(seg[0], min(n - 1, seg[1]) + 1, seg[2] if len(seg) > 2 else 2)]
+            count = sum(min(n - 1, seg[1]) - seg[0] + 1 for seg in clip["segments"])
         else:
             step = clip["step"]
             last = min(n - 1, clip["last"])
@@ -403,6 +409,8 @@ def main() -> None:
             }
             if clip.get("fade"):
                 motion["fade"] = clip["fade"]
+            if clip.get("crossfade"):
+                motion["crossfade"] = True
             marks = marks_ms(meta, clip, idx, duration)
             if marks:
                 motion["marks"] = marks

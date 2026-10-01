@@ -80,6 +80,8 @@ type Motion = {
   texture: string;
   /** 變身片段：停在最後一格交還立繪，那一格在立繪上方淡出幾秒（狸大人的煙，2026-10-01） */
   fade?: number;
+  /** 變身片段：最後一格淡出的同時，底下的立繪從透明淡入（交叉淡入，師父 2026-10-01） */
+  crossfade?: boolean;
   /** 關鍵格（hit、spark、fall⋯⋯）在這一段開演後第幾毫秒（`pack_side_motion.py` 換算）：特效圖層照它對時間 */
   marks?: Record<string, number>;
   mirror?: boolean;
@@ -207,6 +209,11 @@ export function enemyMotionMoveClip(kind: EnemyMotionKind, label: string | undef
   const data = kinds[kind];
   const clip = enemyMoveClipOf(data, label);
   return clip !== undefined && textureDrawable(data!.extras![clip]!.texture) ? clip : undefined;
+}
+
+/** 變身演完交還立繪時，底下的立繪也從透明淡入（真的交叉淡入；師父：站姿 → 閉關打坐，2026-10-01） */
+export function enemyMotionChangeCrossfade(kind: EnemyMotionKind): boolean {
+  return kinds[kind]?.extras?.change?.crossfade === true;
 }
 
 /** 變身演完交還立繪時，最後一格在立繪上方淡出幾毫秒（0＝直接換） */

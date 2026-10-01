@@ -57,6 +57,14 @@ describe('師父：三個階段各一套，不跨階段', () => {
     for (const label of Object.keys(side('daxia_p2').moves!)) expect([...phaseMoves(1), '拆招', '沾衣十八跌'], label).toContain(label);
   });
 
+  it('第二階段穿心掌從跟待機一樣的那一格起手、收回到跟待機一樣的那一格（原本從手已經抬起的第 26 格切進來，手會跳一下）', () => {
+    const frames = kindsReport.daxia_p2!.palm!.src_frames!;
+    expect(frames[0]).toBe(2);
+    expect(frames.at(-1)).toBe(94);
+    expect(frames).toContain(58);   // 推到最遠那一格還在
+    expect(kindsReport.daxia_p2!.palm!.seconds).toBeLessThanOrEqual(1.35);
+  });
+
   it('醉拳沒有合格片：第二階段對不到片段（照舊畫靜態 drunk2）', () => {
     expect(enemyMoveClipOf(side('daxia_p2'), '醉拳')).toBeUndefined();
     expect(Object.keys(side('daxia_p2').extras!)).not.toContain('drunk');
@@ -93,10 +101,10 @@ describe('師父：三個階段各一套，不跨階段', () => {
         const [, , , h] = m.frames[0]!.rect;
         const drawnH = (h ?? 0) * m.scale;
         expect(drawnH / display, `${kind} ${name} 第 0 格的高`).toBeGreaterThan(460);
-        expect(drawnH / display, `${kind} ${name} 第 0 格的高`).toBeLessThan(500);
+        expect(drawnH / display, `${kind} ${name} 第 0 格的高`).toBeLessThan(510);   // 第二階段身上飄的細黑煙會多出幾像素
         const footToTop = m.frames[0]!.pivot[1]! * m.scale / display;
         expect(footToTop, `${kind} ${name} 腳底到頂`).toBeGreaterThan(470);
-        expect(footToTop, `${kind} ${name} 腳底到頂`).toBeLessThan(492);
+        expect(footToTop, `${kind} ${name} 腳底到頂`).toBeLessThan(515);   // 同上：頭頂上的細黑煙
       }
     }
     // 打包報告記的 spriteBox 對位：pack_side_motion.py 的 sprite_box 模式（腳底＝立繪底邊中點）
@@ -241,8 +249,10 @@ function sourceBetween(start: string, end: string): string {
 }
 const mountSource = sourceBetween('  const MOTION_DEATH_FADE_MS', '  app.disposers.push(() => {');
 
+type Anim = { keyframes: unknown; options: Record<string, unknown> };
 type FakeEl = { parentNode: FakeEl | null; children: FakeEl[]; classes: Set<string>; append(c: FakeEl): void; remove(): void;
-  classList: { add(k: string): void; remove(k: string): void; contains(k: string): boolean }; closest(): FakeEl | null; style: Record<string, string>; animate(): void };
+  classList: { add(k: string): void; remove(k: string): void; contains(k: string): boolean }; closest(): FakeEl | null; style: Record<string, string>;
+  animations: Anim[]; animate(keyframes: unknown, options: Record<string, unknown>): void; sprite?: FakeEl; querySelector(sel: string): FakeEl | null };
 function fakeEl(): FakeEl {
   const node: FakeEl = {
     parentNode: null, children: [], classes: new Set(),
@@ -251,16 +261,19 @@ function fakeEl(): FakeEl {
     classList: { add: (k) => { node.classes.add(k); }, remove: (k) => { node.classes.delete(k); }, contains: (k) => node.classes.has(k) },
     closest: () => node.parentNode,
     style: {},
-    animate() {},
+    animations: [],
+    animate(keyframes, options) { node.animations.push({ keyframes, options }); },
+    querySelector: (sel) => (sel === 'img.sprite' ? node.sprite ?? null : null),
   };
   return node;
 }
 
 /** 只有師父一隻的戰場：真的階段→套對照、真的提示表，逐格與圖集用假的 */
 async function field(opts: { phase: number; invulnIn?: number; acting?: Map<number, { label: string; attacked: boolean }>;
-  drawable?: (kind: string, clip: string) => boolean; changeReady?: boolean; dead?: boolean; lateReady?: boolean }) {
+  drawable?: (kind: string, clip: string) => boolean; changeReady?: boolean; dead?: boolean; lateReady?: boolean; fade?: number }) {
   const unit = fakeEl();
   const box = fakeEl();
+  box.sprite = fakeEl();   // 靜態立繪（不在 children 裡，canvasShown 只看畫布）
   unit.append(box);
   const played: [string, string, string | undefined][] = [];
   const created: string[] = [];
@@ -277,7 +290,9 @@ async function field(opts: { phase: number; invulnIn?: number; acting?: Map<numb
     qiuqiuEnemyMotionAllowed: () => true, motionEnabled: true, heroOf: () => 'ninja',
     qiuqiuEnemyMotionKind, enemyMotionReady: () => true, ensureEnemyMotion() {},
     enemyMotionChangeReady: () => opts.changeReady ?? true,
-    enemyMotionChangeFade: () => 0,
+    // 真的資料：師父兩段變身都是最後一格淡出 0.35 秒＋底下立繪淡入（交叉淡入）
+    enemyMotionChangeFade: (kind: string) => opts.fade ?? Math.round(((data(kind).extras?.change as { fade?: number } | undefined)?.fade ?? 0) * 1000),
+    enemyMotionChangeCrossfade: (kind: string) => (data(kind).extras?.change as { crossfade?: boolean } | undefined)?.crossfade === true,
     // 這一招對到的片段（真的資料），圖集到了才回（drawable）
     enemyMotionMoveClip: (kind: string, label: string) => {
       const clip = enemyMoveClipOf(data(kind), label);
@@ -288,7 +303,7 @@ async function field(opts: { phase: number; invulnIn?: number; acting?: Map<numb
       created.push(kind);
       const canvas = fakeEl();
       return { element: canvas, play: (a: string, clip?: string) => { played.push([kind, a, clip]); }, pause() {},
-        holdLast() {}, dispose() {} };
+        holdLast: () => { played.push([kind, 'holdLast', undefined]); }, dispose() {} };
     },
     isSideMotionKind: () => true, hurtSet: new Set(), acting: opts.acting ?? new Map(), enemyStaticPose: () => 'idle',
     staticIdle, playsLongDeath: (k: string) => k === 'daxia_p3' && !!opts.lateReady,
@@ -373,6 +388,28 @@ describe('師父：戰鬥畫面', () => {
     expect(f.auraCalls.at(-1)).toContain('seclude:daxia_seclude_aura');
   });
 
+  it('變身演完交叉淡入（主控 2026-10-01）：最後一格（站姿）留在上面 0.35 秒淡出、底下閉關打坐立繪同時從透明淡入，不縮放不位移；淡完才拿掉', async () => {
+    const f = await field({ phase: 1, invulnIn: 1 });
+    f.api.startPhaseChange(f.e, 0);
+    f.mount();
+    const canvas = f.box.children[0]!;
+    f.advance(1950);
+    f.timers.find((t) => t.ms >= 1900)!.fn();
+    expect(f.box.classList.contains('has-enemy-motion')).toBe(false);   // 打坐立繪露出來了
+    expect(canvas.parentNode).toBe(f.box);                                  // 最後一格還在上面
+    expect(f.played.at(-1)).toEqual(['daxia_p1', 'holdLast', undefined]);
+    expect(canvas.animations).toEqual([{ keyframes: [{ opacity: 1 }, { opacity: 0 }], options: { duration: 350, fill: 'forwards', easing: 'ease-out' } }]);
+    expect(f.box.sprite!.animations).toEqual([{ keyframes: [{ opacity: 0 }, { opacity: 1 }], options: { duration: 350, easing: 'ease-out' } }]);
+    f.timers.find((t) => t.ms === 400)!.fn();
+    expect(canvas.parentNode).toBe(null);
+    // 資料：兩段變身都寫了淡出與交叉淡入
+    for (const kind of ['daxia_p1', 'daxia_p2']) {
+      const change = side(kind).extras!.change as Motion & { fade?: number; crossfade?: boolean };
+      expect(change.fade, kind).toBe(0.35);
+      expect(change.crossfade, kind).toBe(true);
+    }
+  });
+
   it('二→三：播第二套的變身（斗笠飛走），演完交還第三階段的靜態立繪', async () => {
     const f = await field({ phase: 2, invulnIn: 1 });
     f.api.startPhaseChange(f.e, 1);
@@ -452,6 +489,8 @@ describe('師父：走火入魔特效（提示表）', () => {
       expect(list!.length).toBeGreaterThan(0);
       for (const cue of list!) expect(cue.layer).toBe('back');
     }
+    // 一階 0.3 縮圖上幾乎看不到（主控 2026-10-01）：至少 0.45，看得出走火入魔的跡象，但不搶過二三階
+    expect(a![0]!.opacity!).toBeGreaterThanOrEqual(0.45);
     expect(a![0]!.opacity!).toBeLessThan(b![0]!.opacity!);
     expect(b![0]!.opacity!).toBeLessThan(c![0]!.opacity!);
   });

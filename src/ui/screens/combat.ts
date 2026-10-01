@@ -70,7 +70,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMarks, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, prefetchEnemyMotionAhead, prefetchEnemyMotionLate, preloadEnemyMotion, lateTexturesOf, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionChangeCrossfade, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMarks, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, prefetchEnemyMotionAhead, prefetchEnemyMotionLate, preloadEnemyMotion, lateTexturesOf, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import { createFxLayer, fxCuesFor, fxNamesFor, fxOwnersOf, prefetchFx, type FxCue } from '../fx-layer';
 import {
   buildCombatMotionImpactPlan,
@@ -1198,6 +1198,13 @@ registerScreen('combat', (app, root, props) => {
          * 用腳本掛的動畫排在樣式表的動畫之上，紅閃與抖動照樣疊得上去，透明度只有這一條在改。
          */
         canvas.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: fade, fill: 'forwards', easing: 'ease-out' });
+        /*
+         * 交叉淡入（師父，2026-10-01 主控）：變身停在站姿，閉關的立繪是打坐，直接換會跳一下。
+         * 最後一格淡出的同時，底下的立繪從透明淡入；不縮放、不位移（只動不透明度，呼吸、閉關金光照舊）
+         */
+        if (enemyMotionChangeCrossfade(entry.kind)) {
+          box.querySelector<HTMLElement>('img.sprite')?.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: fade, easing: 'ease-out' });
+        }
         const gone = window.setTimeout(() => {
           motionImpactTimers.delete(gone);
           if (phaseSmoke.get(e.uid) === canvas) phaseSmoke.delete(e.uid);
