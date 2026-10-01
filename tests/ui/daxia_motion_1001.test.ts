@@ -410,6 +410,11 @@ describe('師父：戰鬥畫面', () => {
     expect(f.api.enemyAuraCues(f.e).map((c) => c.on)).toContain('seclude');
   });
 
+  it('開打時立繪框還沒放進畫面（整頁重畫）：下一格畫面再補一次氣場，黑氣不必等到師父第一次出手（實機抓到的）', () => {
+    const c = SRC.replace(/\r\n/g, '\n');
+    expect(c).toContain('syncEnemyAura(e);\n      if (!enemyBoxOf(e.uid)()) window.requestAnimationFrame(() => { if (app.cs === cs && !ended) syncEnemyAura(e); });');
+  });
+
   it('閉關氣場：閉關中（invulnIn）才有、起身（invulnIn 歸零）就沒有；黑氣一直都有；倒下全部收掉', async () => {
     const f = await field({ phase: 2, invulnIn: 1 });
     const on = (): string[] => f.api.enemyAuraCues(f.e).map((c) => `${c.on}:${c.fx}`);
