@@ -54,7 +54,8 @@ const PLAN = {
   ] },
   tanuki_lord: { act: 2, steps: [
     { force: { intent: 'attack', label: '醉八仙', effects: [{ kind: 'damage', amount: 10, times: 3 }] }, name: '01_醉八仙_預設出招' },
-    { phaseHp: 133, name: '02_變身' },
+    // MM_HITS＝1：變身中（0.5 秒）與煙淡出中（1.45 秒）各再出一張有傷害的牌（審查 2026-10-01：受擊紅閃曾把淡出蓋掉）
+    { phaseHp: 133, name: '02_變身', hitsDuring: process.env.MM_HITS === '1' ? [500, 1450] : [] },
     { force: { intent: 'attack', label: '醉拳真髓', effects: [{ kind: 'damage', amount: 10, times: 3 }] }, name: '03_二階_醉拳真髓_預設出招' },
     { kill: true, name: '04_打死_二階爆炸' },
   ] },
@@ -131,12 +132,17 @@ await page.evaluate((BOSS) => {
     window.__bx.samples.push({
       t: Date.now(), hp: e.hp, phase: e.phase, dead: e.dead,
       motion: !!box?.classList.contains('has-enemy-motion'), canvas: !!box?.querySelector('canvas.enemy-motion'),
+      // 框裡每一張逐格畫布當下的透明度（變身的煙淡出看這個）、這一格有沒有掛受擊類別
+      cv: [...(box?.querySelectorAll('canvas.enemy-motion') ?? [])].map((c) => Math.round(+getComputedStyle(c).opacity * 100) / 100),
+      hit: !!unit?.classList.contains('hit'),
       img: img ? (img.getAttribute('src') || '').replace(/^.*\//, '').replace(/-[A-Za-z0-9_-]{8}\.webp.*$/, '').replace(/\?.*$/, '') : null,
     });
   }, 80);
 }, BOSS);
 const mark = (what) => page.evaluate((w) => window.__bx.marks.push({ t: Date.now(), what: w }), what);
 const shots = [];
+/** 變身中補出的牌（不打標記，免得把換階段那一段切開） */
+const hitLog = [];
 const shot = async (name) => {
   const clip = await page.evaluate((BOSS) => {
     const e = window.__app.cs.enemies.find((x) => x.enemyId === BOSS);
@@ -212,7 +218,24 @@ async function hitToPhase(step) {
     const node = document.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite-box`); return node ? f(node) : null;
   }, { POINT_FN, BOSS });
   if (tp) await page.mouse.click(tp.x, tp.y);
+  const clickedAt = Date.now();
+  const extraHits = (async () => {
+    for (const at of step.hitsDuring ?? []) {
+      await sleep(Math.max(0, clickedAt + at - Date.now()));
+      await page.evaluate(() => { window.__app.cs.players[0].energy = 9; });
+      const p2 = await page.evaluate(({ POINT_FN }) => { const f = eval(POINT_FN); const n = document.querySelector('.hand .card:not(.flying)'); return n ? f(n) : null; }, { POINT_FN });
+      if (!p2) { hitLog.push(`沒有牌可出（${at}）`); continue; }
+      hitLog.push({ at, t: Date.now() - t0 });
+      await page.mouse.click(p2.x, p2.y); await sleep(150);
+      const t2 = await page.evaluate(({ POINT_FN, BOSS }) => {
+        const f = eval(POINT_FN); const e = window.__app.cs.enemies.find((x) => x.enemyId === BOSS);
+        const node = document.querySelector(`.unit.enemy[data-uid="${e.uid}"] .sprite-box`); return node ? f(node) : null;
+      }, { POINT_FN, BOSS });
+      if (t2) await page.mouse.click(t2.x, t2.y);
+    }
+  })();
   await burst(step.name, step.phaseHp === 1 ? 4000 : 3000, step.phaseHp === 1 ? 150 : 120);
+  await extraHits;
   if (step.phaseHp === 1) { await mark(step.name + '完'); return; }
   await page.waitForFunction(CAN_ACT, null, { timeout: 90000 }).catch(() => {});
   await mark(step.name + '完');
@@ -240,12 +263,14 @@ for (let i = 0; i < marks.length; i++) {
     canvasPct: ss.length ? Math.round(100 * ss.filter((s) => s.canvas && s.motion).length / ss.length) : 0,
     atlasesDrawn: [...new Set(ds.map((d) => ATLAS.get(d.key) ?? d.key))],
     imgs: [...new Set(ss.map((s) => s.img))].join(','), phase: [...new Set(ss.map((s) => s.phase))].join(','),
+    // 換階段之後每一筆：毫秒、框裡每張畫布的透明度、有沒有受擊類別（看煙淡出有沒有被紅閃蓋掉）
+    smokeTrace: firstP2 >= 0 ? ss.slice(firstP2).map((s) => `${s.t - ss[firstP2].t}ms ${JSON.stringify(s.cv)}${s.hit ? ' 受擊' : ''}${s.motion ? ' 掛畫布' : ''}`) : undefined,
     phaseFlip: firstP2 >= 0 ? { canvasAtFlip: ss[firstP2].canvas && ss[firstP2].motion,
       // 換階段後：掛著畫布的連續幾毫秒、之後交還立繪時靜態圖是哪一張
       canvasMsAfterFlip: (() => { let k = firstP2; while (k < ss.length && ss[k].canvas) k++; return (ss[Math.min(k, ss.length - 1)].t - ss[firstP2].t); })(),
       imgAfter: ss.at(-1)?.img } : undefined });
 }
-const summary = { boss: BOSS, net: NET, waitMs: WAIT, pendingAtFirstMove: pendingAtFirstMove.slice(0, 30), requestsBeforeFirstMove, segs,
+const summary = { boss: BOSS, net: NET, waitMs: WAIT, hitLog, pendingAtFirstMove: pendingAtFirstMove.slice(0, 30), requestsBeforeFirstMove, segs,
   atlasRequests: atlasLog.map((x) => `${x.url} 送出 ${sec(x.sent)} 到齊 ${x.done > 0 ? sec(x.done) : x.done < 0 ? '失敗' : '沒到'}`),
   logs: c.logs.slice(0, 20) };
 writeFileSync(join(OUT, 'timeline.json'), JSON.stringify({ marks, samples, draws, shots }, null, 1));
