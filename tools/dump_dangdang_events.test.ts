@@ -1,5 +1,5 @@
 import { it } from 'vitest';
-import { writeFileSync } from 'node:fs';
+import { writeDoc } from './docs-dump';   // 平常跑測試不寫檔，`npm run docs:dump` 才更新
 import { eventTextFor } from '../src/content/event-text';
 import { events } from '../src/content/events';
 
@@ -35,7 +35,7 @@ it.skipIf(!process.env['DUMP_DANGDANG'])('dump', () => {
       };
     }
   }
-  writeFileSync(OUT, JSON.stringify(table, null, 1), 'utf-8');
+  writeDoc(OUT, JSON.stringify(table, null, 1));
   const same = Object.entries(table).filter(([, v]) => v.ninja === v.dangdang);
   // eslint-disable-next-line no-console
   console.log(`寫好了：${OUT}（${Object.keys(table).length} 段；其中 ${same.length} 段沒有他的版本、退回球球原文：${same.map(([k]) => k).join(' ')}）`);

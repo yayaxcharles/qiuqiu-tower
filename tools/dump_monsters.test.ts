@@ -1,12 +1,12 @@
 /**
  * 把所有魔物定義倒成 JSON 給「怪物工作檯」網頁（tools/build_monster_workbench.py）用。
- * 跑法：npx vitest run tools/dump_monsters.test.ts → docs/怪物工作檯.json
+ * 跑法：npm run docs:dump → docs/怪物工作檯.json（平常跑測試不寫檔，見 tools/docs-dump.ts）
  * 只倒資料：id／名字／血／池／體型／出現關數／被動（除了結構欄位以外的所有鍵）／招式／階段。
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { expect, it } from 'vitest';
 import { encounters, enemies } from '../src/content/enemies';
+import { writeDoc } from './docs-dump';
 
 const STRUCT = new Set(['id', 'name', 'hp', 'pool', 'pattern', 'size', 'art', 'line', 'lines', 'moves', 'phases', 'chooseMove']);
 
@@ -34,7 +34,6 @@ it('倒出怪物工作檯資料', () => {
     };
   });
   const out = resolve(__dirname, '..', 'docs', '怪物工作檯.json');
-  mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, JSON.stringify({ generatedAt: new Date().toISOString().slice(0, 10), monsters: rows }, null, 1), 'utf8');
+  writeDoc(out, JSON.stringify({ generatedAt: new Date().toISOString().slice(0, 10), monsters: rows }, null, 1));
   expect(rows.length).toBeGreaterThan(50);
 });

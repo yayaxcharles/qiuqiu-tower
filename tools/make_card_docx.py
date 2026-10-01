@@ -5,7 +5,7 @@
 用遊戲本人那份 `describeCard()` 倒出來的，所以跟畫面上看到的一字不差。
 
 跑法：
-  npx vitest run tools/dump_cards.test.ts      # 先產 tools/out/cards.json
+  CARD_DUMP=tools/out/cards.json npx vitest run tools/dump_cards.test.ts   # 先產 tools/out/cards.json
   python tools/make_card_docx.py               # 再產 docx
 
 輸出：`tools/out/球球牌組對照表.docx`

@@ -1,5 +1,5 @@
 import { it } from 'vitest';
-import { writeFileSync } from 'node:fs';
+import { writeDoc } from './docs-dump';   // 平常跑測試不寫檔，`npm run docs:dump` 才更新
 import { castLineFor, dialogue, feifeiDialogue, lineFor, storyFor, FEIFEI_BOSS_LINES } from '../src/content/dialogue';
 import { eventTextFor, FEIFEI_EVENT_LINES } from '../src/content/event-text';
 import { events } from '../src/content/events';
@@ -187,7 +187,7 @@ it.skipIf(!process.env['DUMP_FEIFEI'])('dump', () => {
     p('');
   }
 
-  writeFileSync(MD, out.join('\n'), 'utf-8');
+  writeDoc(MD, out.join('\n'));
   // eslint-disable-next-line no-console
   console.log(`寫好了：${MD}（${out.length} 行）`);
 });

@@ -19,7 +19,8 @@
  * 離開碼：0＝沒有不通過（可能有「要人看」）；1＝有非預期差異；2＝閘門自己出錯。
  * 預期內的改動（這批本來就換了某張圖）：寫進 tools/visual-gate/allow.json 放行，格式見那個檔。
  *
- * **這支沒有接進推送閘門**（`tools/prepush_gate.sh`）：誤報會卡住部署，要不要硬接由使用者決定。`tools/deploy.sh` 開頭有提醒。
+ * 2026-10-02 起 `tools/deploy.sh` 推之前會自己跑這支（`--head <要推的那筆> --site coop|single`），沒過就不推；
+ * 不通過時自動重跑一次（動作流暢度偶爾量歪）。`tools/prepush_gate.sh`（git push 的鉤子）仍然只跑測試與打包。
  */
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
