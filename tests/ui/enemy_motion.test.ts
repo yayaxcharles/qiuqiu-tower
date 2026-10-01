@@ -329,3 +329,73 @@ describe('橫向捲軸動作：腳底不跳位', () => {
     actor.dispose();
   });
 });
+
+/*
+ * 2026-10-01 慢網路（使用者：「第一關 BOSS 機器狗還是原本的？爆炸應該很華麗」）：
+ * 待機改畫立繪的那幾套不抓走路圖集（從來不上畫面）；塔主第二階段先下載、不解碼、不算就緒。
+ * 0.8 Mbps 實測鐵爪變身後要等走路那張，雷射與爆炸 52 秒才演得出來（只等雷射、爆炸是 30 秒）。
+ */
+describe('慢網路：只抓會上畫面的圖集、第二階段先下載', () => {
+  const sideSources = (): string[] => FakeImage.sources.map((s) => s.replace(/^.*motion\/side\//, '').replace(/\.webp.*$/, ''));
+
+  it('鐵爪第二階段：就緒只等雷射與爆炸，不抓走路那張；建好畫布也不去抓', async () => {
+    await motion.preloadEnemyMotion(['iron_claw_p2']);
+    expect(motion.enemyMotionReady('iron_claw_p2')).toBe(true);
+    expect(sideSources().sort()).toEqual(['iron_claw-down_p2', 'iron_claw-laser_p2']);
+    const actor = motion.createEnemyMotionActor('iron_claw_p2');
+    expect(sideSources()).not.toContain('iron_claw-walk_p2');
+    actor.play('knockdown');
+    expect(lastDraw()).toBeDefined();   // 倒下照樣畫得出來
+    actor.dispose();
+  });
+
+  it('待機照播逐格的（掃地機器人王）照舊抓待機那張', async () => {
+    await motion.preloadEnemyMotion(['roomba_king']);
+    expect(sideSources().sort()).toEqual(['roomba_king-down', 'roomba_king-drive', 'roomba_king-ram']);
+  });
+
+  it('先下載第二階段：只設網址、不解碼、不算就緒；之後真的要用時沿用同一張、不重抓', async () => {
+    await motion.prefetchEnemyMotion('iron_claw_p2');
+    expect(sideSources().sort()).toEqual(['iron_claw-down_p2', 'iron_claw-laser_p2']);
+    expect(motion.enemyMotionReady('iron_claw_p2')).toBe(false);
+    expect(FakeImage.decoded).toEqual([]);
+    await motion.preloadEnemyMotion(['iron_claw_p2']);
+    expect(motion.enemyMotionReady('iron_claw_p2')).toBe(true);
+    expect(sideSources().length).toBe(2);
+  });
+
+  it('先下載不插隊：慢網路排在主角那些圖集後面；變身時真的要用才插到最前面（審查 2026-10-01 中）', async () => {
+    const lane = await import('../../src/ui/heavy-lane');
+    lane.armHeavyLane(2);
+    const release = lane.holdHeavyLane();   // 先擋住，看排隊的順序
+    try {
+      void lane.loadHeavy(new FakeImage() as unknown as HTMLImageElement, 'assets/motion/qiuqiu/hero-a.webp');
+      const prefetch = motion.prefetchEnemyMotion('iron_claw_p2');
+      for (let i = 0; i < 50 && lane._heavyLaneStateForTest().waiting.length < 3; i++) await new Promise((r) => setTimeout(r, 0));
+      const order = (): string[] => lane._heavyLaneStateForTest().waiting.map((u) => u.replace(/^.*\//, '').replace(/\.webp.*$/, ''));
+      expect(order()).toEqual(['hero-a', 'iron_claw-laser_p2', 'iron_claw-down_p2']);
+      void motion.preloadEnemyMotion(['iron_claw_p2']);
+      for (let i = 0; i < 50 && order()[0] === 'hero-a'; i++) await new Promise((r) => setTimeout(r, 0));
+      expect(order().slice(0, 2).sort()).toEqual(['iron_claw-down_p2', 'iron_claw-laser_p2']);
+      expect(order()[2]).toBe('hero-a');
+      release();
+      await prefetch;
+    } finally {
+      release();
+      lane._resetHeavyLaneForTest();
+    }
+  });
+
+  it('先下載失敗的從快取拿掉，之後真的要用時會重抓', async () => {
+    const lane = await import('../../src/ui/heavy-lane');
+    lane._resetHeavyLaneForTest();
+    // 讓這一次建出來的圖都是「載入失敗」（complete 但沒有寬度，見 decoded-atlas.ts 的 imageLoaded）
+    const broken = class extends FakeImage { naturalWidth = 0; addEventListener(): void {} };
+    vi.stubGlobal('Image', broken);
+    await motion.prefetchEnemyMotion('iron_claw_p2');
+    vi.stubGlobal('Image', FakeImage);
+    const before = FakeImage.sources.length;
+    await motion.preloadEnemyMotion(['iron_claw_p2']).catch(() => undefined);
+    expect(FakeImage.sources.length - before).toBe(2);   // 雷射、爆炸各重抓一次
+  });
+});

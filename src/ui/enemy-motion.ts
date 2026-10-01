@@ -145,13 +145,13 @@ function timingFor(motion: Motion): { durations: number[]; total: number } {
   return timing;
 }
 
-function imageFor(texture: string): HTMLImageElement {
+function imageFor(texture: string, urgent = true): HTMLImageElement {
   const cached = images.get(texture);
   if (cached) return cached;
   const image = new Image();
   images.set(texture, image);
   // 網址交給大檔那一條設（`heavy-lane.ts`，2026-09-23）；這一場就要畫的魔物，排隊的話插到最前面
-  void loadHeavy(image, fileUrl(texture), true);
+  void loadHeavy(image, fileUrl(texture), urgent);
   return image;
 }
 
@@ -159,11 +159,39 @@ export function enemyMotionReady(kind: EnemyMotionKind): boolean {
   return readyKinds.has(kind);
 }
 
+/**
+ * 這一套真的會畫上畫面的圖集（2026-10-01 慢網路）。待機改畫立繪的那幾套（`staticIdle`）不抓待機那張：
+ * 那是走路片段，站著時畫的是原本立繪，從來不上畫面（鐵爪第二階段那張 735 KB）。
+ * 0.8 Mbps 實測鐵爪變身後：雷射、爆炸 30 秒就到了，卻因為還在等走路那張，52 秒才算好、才演得出來。
+ * 真的有人叫 `play('idle')` 的話照舊當場抓（`imageFor`），不會畫不出來。
+ */
+function texturesOf(kind: EnemyMotionKind, data: MotionKind): string[] {
+  const skipIdle = STATIC_IDLE_KINDS.has(kind);
+  return [...new Set(actionsOf(data).filter((motion) => !(skipIdle && motion === data.actions.idle)).map((motion) => motion.texture))];
+}
+
+/**
+ * 先把這一套要畫的圖集**下載**下來，不解碼、不算就緒（2026-10-01：塔主第二階段的出招與爆炸）。
+ * 第一階段那套好了才叫（`combat.ts`），不跟第一階段搶頻寬；不解碼，就不會在第一階段多壓一份點陣圖（稽核 2026-09-28 低-2 的顧慮）。
+ * **不插隊**（審查 2026-10-01 中）：慢網路大檔那一條只有兩個位子，插隊的話會把主角第一次用到的動作圖集擠到後面；
+ * 排在後面，輪到了才下載。變身那一刻照舊走 `preloadEnemyMotion`（插隊）：已經下載好就只剩解碼，還在排隊的移到最前面。
+ * 下載失敗的從快取拿掉，變身時才會真的重抓。
+ */
+export async function prefetchEnemyMotion(kind: EnemyMotionKind): Promise<void> {
+  if (readyKinds.has(kind)) return;
+  await ensureKindData(kind);
+  await Promise.all(texturesOf(kind, kindOf(kind)).map(async (texture) => {
+    const image = imageFor(texture, false);
+    await loadHeavy(image, fileUrl(texture), false);
+    try { await imageLoaded(image); } catch { if (images.get(texture) === image) images.delete(texture); }
+  }));
+}
+
 async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
   if (readyKinds.has(kind)) return;
   const pending = kindLoads.get(kind);
   if (pending) return pending;
-  const load = ensureKindData(kind).then(() => Promise.all([...new Set(actionsOf(kindOf(kind)).map((motion) => motion.texture))].map(async (texture) => {
+  const load = ensureKindData(kind).then(() => Promise.all(texturesOf(kind, kindOf(kind)).map(async (texture) => {
     const image = imageFor(texture);
     await loadHeavy(image, fileUrl(texture), true);   // 排到了、網址設好了（還在排隊的圖沒有網址，底下會當成壞圖）
     // 只等載好、不呼叫 decode()：畫布不吃 decode() 的結果，白解一次還多占記憶體（見 decoded-atlas.ts 的 `imageLoaded`）。
@@ -331,8 +359,11 @@ export function createEnemyMotionActor(
     schedule();
   };
 
-  draw(0);
-  schedule();
+  // 待機改畫立繪的那幾套：一建好就畫待機的話會去抓那張從來不上畫面的走路圖集（`texturesOf`），等出招、倒下再畫
+  if (!(action === 'idle' && STATIC_IDLE_KINDS.has(kind))) {
+    draw(0);
+    schedule();
+  }
 
   return {
     element: canvas,

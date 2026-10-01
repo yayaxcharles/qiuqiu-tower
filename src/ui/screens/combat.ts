@@ -70,7 +70,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, isSideMotionKind, playsLongDeath, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionDuration, enemyMotionHas, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -721,7 +721,8 @@ registerScreen('combat', (app, root, props) => {
       ...(encounterById[cs.encounterId]?.reinforce ?? []).map((r) => r.enemyId),   // 伏兵（河童的蝌蚪兵）
     ];
     /*
-     * 只抓**現在這個階段**的（塔主的第二階段等變身那一刻才抓，見 mountEnemyMotion；稽核 2026-09-28 低-2）。
+     * 只抓**現在這個階段**的（塔主的第二階段等變身那一刻才解碼、算就緒，見 mountEnemyMotion；稽核 2026-09-28 低-2。
+     * 第二階段的圖集在第一階段好了之後先下載、不解碼，見底下）。
      * 一套一套各自抓、各自接錯（低-3）：部署後沒重新整理的分頁會拿舊檔名去要、回 404，
      * 一套失敗不能拖住別套，也不能變成沒人接的錯誤。
      */
@@ -730,6 +731,16 @@ registerScreen('combat', (app, root, props) => {
       ...summoned.map((id) => qiuqiuEnemyMotionKind(id, 0)),
     ];
     for (const kind of new Set(requested)) if (kind) ensureEnemyMotion(kind);
+    /*
+     * 塔主第二階段（2026-10-01，使用者：「爆炸應該很華麗」）：第一階段那套好了之後，先把第二階段的出招、爆炸圖集**下載**下來，
+     * 不解碼、不算就緒、不插隊（`prefetchEnemyMotion`；插隊會把主角第一次用到的動作圖集擠到後面，審查 2026-10-01 中）。0.8 Mbps 實測變身那一刻才開始抓，要 30～50 秒才演得出來，
+     * 第二階段打得快的話整段爆炸都看不到。變身那一刻照舊由 mountEnemyMotion 叫 ensureEnemyMotion（只剩解碼），抓好重畫也照舊。
+     */
+    for (const enemy of cs.enemies) {
+      const now = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase);
+      const later = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase + 1);
+      if (now && later && later !== now) void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined);
+    }
   }
 
   const refreshMotion = (q: PlayerCombat): void => {
@@ -980,6 +991,12 @@ registerScreen('combat', (app, root, props) => {
       state.actor.pause();   // 畫布拿掉了，背後的逐格迴圈也要停（審查 高-1：不停的話整場在背景重畫走路）
       return;
     }
+    /*
+     * 同一批魔物挨打（2026-10-01）：牠們沒有挨打片段，播「挨打」會退回待機＝走路片段。一律不播：
+     * 站著交還立繪時播了也看不到，只會在背景去抓那張從來不上畫面的走路圖集（慢網路跟出招、爆炸搶頻寬）、空轉逐格迴圈；
+     * 出招中被反彈打到時也不該把出招換成走路、打斷收招計時（審查 低-2）。挨打的紅閃與抖動照舊由 combat.css 掛。
+     */
+    if (action === 'hurt' && staticIdle(state.kind) && !enemyMotionHas(state.kind, 'hurt')) return;
     state.action = action;
     state.busyUntil = action === 'attack' || (action === 'knockdown' && playsLongDeath(state.kind))
       ? performance.now() + qiuqiuEnemyMotionHold(state.kind, action, 0) : 0;
@@ -995,6 +1012,19 @@ registerScreen('combat', (app, root, props) => {
     }
   };
 
+  /**
+   * 倒下要演給人看：把逐格畫布掛回立繪框（2026-10-01，使用者：「第一關 BOSS 機器狗還是原本的？爆炸應該很華麗」）。
+   * 待機改畫原本立繪的那幾套（`staticIdle`，09-29）站著時、剛被打死還在等倒下的空檔（`fallingUids`）時，
+   * 畫布都是拿掉的（`mountEnemyMotion` 的 handBack）。倒下從這裡直接開演，之後不一定再重畫（打完就等換場），
+   * 不掛回去的話整段爆炸在看不見的畫布上演完，畫面上只剩靜態倒地圖——鐵爪機關貓第二階段就是這樣。
+   */
+  const showEnemyMotion = (uid: number, state: EnemyMotionState): void => {
+    const box = root.querySelector(`.unit.enemy[data-uid="${uid}"] .sprite-box`);
+    if (!box) return;
+    box.classList.add('has-enemy-motion');
+    if (state.actor.element.parentNode !== box) box.append(state.actor.element);
+  };
+
   const finishEnemyMotion = (uid: number): void => {
     const state = enemyMotionActors.get(uid);
     if (!state) return;
@@ -1005,6 +1035,7 @@ registerScreen('combat', (app, root, props) => {
      */
     if (playsLongDeath(state.kind)) {
       if (state.action !== 'knockdown') playEnemyMotion(uid, 'knockdown');
+      showEnemyMotion(uid, state);
       root.querySelector(`.unit.enemy[data-uid="${uid}"]`)?.classList.add('motion-death');
       /*
        * 打完了（這隻是最後一隻）就停在最後一格等換場；還有叫出來的小兵站著（掃地機器人王的小掃把、
@@ -1029,6 +1060,7 @@ registerScreen('combat', (app, root, props) => {
     // 沒有自己倒下片段的（塔主第一階段那一套）：馬上交還靜態，倒地圖與慢倒照舊
     if (isSideMotionKind(state.kind) && !enemyMotionHas(state.kind, 'knockdown')) { disposeEnemyMotion(uid); return; }
     playEnemyMotion(uid, 'knockdown');
+    showEnemyMotion(uid, state);   // 河童、盔甲幽靈那幾套短倒下也一樣（站著時畫布是拿掉的）
     const timer = window.setTimeout(() => {
       motionImpactTimers.delete(timer);
       if (app.cs === cs) disposeEnemyMotion(uid);
@@ -1056,8 +1088,12 @@ registerScreen('combat', (app, root, props) => {
     if (!state && e.dead && !fallingUids.has(e.uid) && !(e.reviveIn > 0 && willRevive(cs, e))) return;
     if (!state || state.kind !== kind) {
       disposeEnemyMotion(e.uid);
-      const action: EnemyMotionAction = e.dead ? 'knockdown' : 'idle';
-      state = { kind, actor: createEnemyMotionActor(kind), action, busyUntil: 0 };
+      /*
+       * 畫布一建好就畫這個動作（2026-10-01）：待機改畫立繪的那幾套建好時不畫待機，記成倒下卻沒畫的話會是一張空畫布。
+       * 還在等倒下（fallingUids）的記成待機：倒下那一拍 finishEnemyMotion 才從第一格開演。
+       */
+      const action: EnemyMotionAction = e.dead && !fallingUids.has(e.uid) ? 'knockdown' : 'idle';
+      state = { kind, actor: createEnemyMotionActor(kind, { action }), action, busyUntil: 0 };
       enemyMotionActors.set(e.uid, state);
     }
     const side = isSideMotionKind(kind);
