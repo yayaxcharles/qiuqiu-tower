@@ -75,7 +75,7 @@ function sourceBetween(start: string, end: string): string {
 const mountSource = sourceBetween('  const MOTION_DEATH_FADE_MS', '  app.disposers.push(() => {');
 
 type FakeEl = { parentNode: FakeEl | null; children: FakeEl[]; classes: Set<string>; append(c: FakeEl): void; remove(): void;
-  classList: { add(k: string): void; remove(k: string): void; contains(k: string): boolean }; closest(): FakeEl | null };
+  classList: { add(k: string): void; remove(k: string): void; contains(k: string): boolean }; closest(): FakeEl | null; style: Record<string, string> };
 function fakeEl(): FakeEl {
   const node: FakeEl = {
     parentNode: null, children: [], classes: new Set(),
@@ -83,6 +83,7 @@ function fakeEl(): FakeEl {
     remove() { const p = node.parentNode; if (p) { p.children = p.children.filter((x) => x !== node); node.parentNode = null; } },
     classList: { add: (k) => { node.classes.add(k); }, remove: (k) => { node.classes.delete(k); }, contains: (k) => node.classes.has(k) },
     closest: () => node.parentNode,
+    style: {} as Record<string, string>,
   };
   return node;
 }
@@ -90,12 +91,13 @@ function fakeEl(): FakeEl {
 type Played = [string, string, string | undefined];
 /** 搭一個只有一隻塔主的戰場，回傳可以呼叫 combat.ts 那幾段的環境 */
 async function field(opts: { enemyId: string; phase: number; staticIdleKind?: boolean; acting?: Map<number, { label: string; attacked: boolean }>;
-  clipFor?: (kind: string, label: string) => string | undefined; changeReady?: boolean; ready?: (kind: string) => boolean; hurt?: boolean }) {
+  clipFor?: (kind: string, label: string) => string | undefined; changeReady?: boolean; ready?: (kind: string) => boolean; hurt?: boolean; fade?: number }) {
   const unit = fakeEl();
   const box = fakeEl();
   unit.append(box);
   const played: Played[] = [];
   const created: string[] = [];
+  const disposed: string[] = [];
   const timers: { fn: () => void; ms: number }[] = [];
   let now = 1000;
   const e = { uid: 7, enemyId: opts.enemyId, phase: opts.phase, dead: false, reviveIn: 0, invulnIn: 0 };
@@ -108,12 +110,13 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
     qiuqiuEnemyMotionKind: (id: string, phase: number) => (phase > 0 ? `${id}_p2` : id),
     enemyMotionReady: opts.ready ?? (() => true), ensureEnemyMotion() {},
     enemyMotionChangeReady: () => opts.changeReady ?? true,
+    enemyMotionChangeFade: () => opts.fade ?? 0,
     enemyMotionMoveClip: (kind: string, label: string) => opts.clipFor?.(kind, label),
     fallingUids: new Set(), willRevive: () => false,
     createEnemyMotionActor: (kind: string) => {
       created.push(kind);
       const canvas = fakeEl();
-      return { element: canvas, play: (a: string, clip?: string) => { played.push([kind, a, clip]); }, pause() {}, dispose() {} };
+      return { element: canvas, play: (a: string, clip?: string) => { played.push([kind, a, clip]); }, pause() {}, dispose: () => { disposed.push(kind); } };
     },
     isSideMotionKind: () => true, hurtSet: new Set(opts.hurt ? [7] : []), acting: opts.acting ?? new Map(), enemyStaticPose: () => 'idle',
     staticIdle: () => opts.staticIdleKind ?? true, playsLongDeath: () => false,
@@ -131,7 +134,7 @@ async function field(opts: { enemyId: string; phase: number; staticIdleKind?: bo
     mountEnemyMotion(e: unknown, box: FakeEl): void; startPhaseChange(e: unknown, from: number): void; playEnemyMotion(uid: number, a: string, clip?: string): void;
   };
   return {
-    e, box, played, created, timers, enemyPhaseChanges, enemyMotionActors,
+    e, box, played, created, disposed, timers, enemyPhaseChanges, enemyMotionActors,
     mount: () => api.mountEnemyMotion(e, box), api,
     advance: (ms: number) => { now += ms; },
     canvasShown: () => box.children.length > 0 && box.classList.contains('has-enemy-motion'),
@@ -211,6 +214,35 @@ describe('變身：換階段那一刻播變身，演完交還第二階段立繪'
     expect(f.canvasShown()).toBe(false);   // 第二階段待機改畫立繪
   });
 
+  it('狸大人：煙最濃那一格交還二階立繪（立繪露出來），那一格煙留在立繪上方淡出，淡完才丟（審查 2026-10-01）', async () => {
+    const f = await field({ enemyId: 'tanuki_lord', phase: 1, fade: 550 });
+    f.api.startPhaseChange(f.e, 0);
+    f.mount();
+    const smoke = f.box.children[0]!;
+    f.advance(1950);
+    f.timers.find((t) => t.ms >= 1900)!.fn();
+    expect(f.box.classList.contains('has-enemy-motion')).toBe(false);   // 二階立繪露出來了
+    expect(smoke.parentNode).toBe(f.box);                                  // 煙還在立繪上方
+    expect(smoke.classes.has('motion-change-fade')).toBe(true);
+    expect(smoke.style.animationDuration).toBe('550ms');
+    expect(f.enemyMotionActors.get(7)?.kind).toBe('tanuki_lord_p2');      // 這一隻已經換成第二階段那一套
+    const gone = f.timers.find((t) => t.ms === 600)!;
+    gone.fn();
+    expect(smoke.parentNode).toBe(null);
+    expect(f.disposed).toContain('tanuki_lord');
+  });
+
+  it('沒有淡出的（橘皮大王）：演完直接交還立繪，畫布不留', async () => {
+    const f = await field({ enemyId: 'orange_king', phase: 1, fade: 0 });
+    f.api.startPhaseChange(f.e, 0);
+    f.mount();
+    const canvas = f.box.children[0]!;
+    f.advance(1950);
+    f.timers.find((t) => t.ms >= 1900)!.fn();
+    expect(canvas.parentNode).toBe(null);
+    expect(f.box.children.length).toBe(0);
+  });
+
   it('變身片段圖集還沒到（慢網路）：不登記，照舊直接換第二階段立繪、不等', async () => {
     const f = await field({ enemyId: 'orange_king', phase: 1, changeReady: false });
     f.api.startPhaseChange(f.e, 0);
@@ -238,5 +270,21 @@ describe('變身：換階段那一刻播變身，演完交還第二階段立繪'
     expect(start).toBeGreaterThan(0);
     expect(start).toBeLessThan(render);
     expect(render - start).toBeLessThan(600);
+  });
+});
+
+describe('下載順序：塔主先保第二階段的出招與爆炸（審查 2026-10-01）', () => {
+  it('沒有第二階段的（掃地機器人王）就緒之後就排招式片段；塔主第一階段那一套不在這裡排（留給第二階段先下載完之後）', async () => {
+    const ensureSource = sourceBetween('  const enemyMotionAsked', '  // 丟出去的東西的圖');
+    const extras: string[] = [];
+    const bindings: Record<string, unknown> = {
+      enemyMotionReady: () => false, preloadEnemyMotion: () => Promise.resolve(),
+      prefetchEnemyMotionExtras: (kind: string, decode: boolean) => { extras.push(`${kind}:${decode}`); return Promise.resolve(); },
+      app: { cs: null }, cs: {}, ended: false, render() {}, console,
+    };
+    const code = (await transformWithOxc(`${ensureSource}\nextrasAfterNextPhase.add('orange_king');\nensureEnemyMotion('roomba_king');\nensureEnemyMotion('orange_king');`, 'ensure.ts')).code;
+    new Function(...Object.keys(bindings), code)(...Object.values(bindings));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(extras).toEqual(['roomba_king:true']);
   });
 });

@@ -72,6 +72,8 @@ type MotionFrame = {
 
 type Motion = {
   texture: string;
+  /** 變身片段：停在最後一格交還立繪，那一格在立繪上方淡出幾秒（狸大人的煙，2026-10-01） */
+  fade?: number;
   mirror?: boolean;
   scale: number;
   loop: boolean;
@@ -178,6 +180,11 @@ export function enemyMotionMoveClip(kind: EnemyMotionKind, label: string | undef
   return clip !== undefined && textureDrawable(data!.extras![clip]!.texture) ? clip : undefined;
 }
 
+/** 變身演完交還立繪時，最後一格在立繪上方淡出幾毫秒（0＝直接換） */
+export function enemyMotionChangeFade(kind: EnemyMotionKind): number {
+  return Math.round((kinds[kind]?.extras?.change?.fade ?? 0) * 1000);
+}
+
 /** 這一套的變身片段畫得出來嗎（有片段、這一套就緒、圖集已下載好）。沒有就照舊：閃白＋直接換第二階段立繪 */
 export function enemyMotionChangeReady(kind: EnemyMotionKind): boolean {
   const change = kinds[kind]?.extras?.change;
@@ -228,8 +235,7 @@ function extraTexturesOf(data: MotionKind): string[] {
 }
 
 /**
- * 額外片段的圖集在背景下載（2026-10-01）：**不插隊**，排在這一套基本那幾張後面、第二階段先下載之前
- *（這一套就緒的那一刻排進去，combat.ts 等就緒之後才排第二階段）。`decode`：下載好再排背景解開，第一次播時不在主執行緒解碼。
+ * 額外片段的圖集在背景下載（2026-10-01）：**不插隊**。`decode`：下載好再排背景解開，第一次播時不在主執行緒解碼。
  * 失敗的從快取拿掉：這一招照舊播預設片段，下一場再試。
  */
 async function fetchExtras(data: MotionKind, decode: boolean): Promise<void> {
@@ -254,11 +260,21 @@ export async function prefetchEnemyMotion(kind: EnemyMotionKind): Promise<void> 
   if (readyKinds.has(kind)) return;
   await ensureKindData(kind);
   const data = kindOf(kind);
-  await Promise.all([...texturesOf(kind, data).map(async (texture) => {
+  await Promise.all(texturesOf(kind, data).map(async (texture) => {
     const image = imageFor(texture, false);
     await loadHeavy(image, fileUrl(texture), false);
     try { await imageLoaded(image); } catch { if (images.get(texture) === image) images.delete(texture); }
-  }), fetchExtras(data, false)]);   // 第二階段的招式片段（蛙大名重跳壓）也一起先下載、不解碼，排在基本那幾張後面
+  }));
+}
+
+/**
+ * 這一套的額外片段（招式片段、變身）在背景下載（2026-10-01）。**由 combat.ts 決定什麼時候排**：
+ * 塔主要等第二階段的出招與爆炸先下載完才排（審查 2026-10-01：使用者最在意關主爆炸；招式片段沒到只是退回預設出招），
+ * 其他魔物就緒之後就排。`decode`＝這一階段正在打（下載好就排背景解開）；第二階段的先只下載。
+ */
+export async function prefetchEnemyMotionExtras(kind: EnemyMotionKind, decode: boolean): Promise<void> {
+  await ensureKindData(kind);
+  await fetchExtras(kindOf(kind), decode);
 }
 
 async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
@@ -274,11 +290,7 @@ async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {
     // 等解好才算這類魔物就緒：開戰那一刻就要畫老鼠，沒等的話第一格會在主執行緒當場解碼（實機追蹤）。
     // 開戰就要畫＝「正要用」：插隊、解好不會一進來就被當罕用圖放掉；最多等 0.8 秒，網路卡住就照舊畫 <img>
     await Promise.race([prepareDecodedAtlas(image, true), new Promise<void>((done) => setTimeout(done, 800))]);
-  }))).then(() => {
-    readyKinds.add(kind);
-    // 基本那幾張好了才排額外片段（不跟這一場馬上要畫的搶頻寬），不等它
-    void fetchExtras(kindOf(kind), true).catch(() => undefined);
-  });
+  }))).then(() => { readyKinds.add(kind); });
   kindLoads.set(kind, load);
   try { await load; } finally { kindLoads.delete(kind); }
 }

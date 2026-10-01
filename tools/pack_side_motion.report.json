@@ -286,11 +286,11 @@
    },
    "change": {
     "src": "change",
-    "frames": 33,
-    "seconds": 1.9,
+    "frames": 21,
+    "seconds": 1.25,
     "atlas": [
      4075,
-     1723
+     839
     ]
    },
    "_lift": 1.7,
@@ -821,6 +821,6 @@
   "assets/motion/side/frog_daimyo-jump_p2.webp": 707992,
   "assets/motion/side/orange_king-slam.webp": 538058,
   "assets/motion/side/orange_king-rage.webp": 664792,
-  "assets/motion/side/tanuki_lord-change.webp": 774152
+  "assets/motion/side/tanuki_lord-change.webp": 363124
  }
 }

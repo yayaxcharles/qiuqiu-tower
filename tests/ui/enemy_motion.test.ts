@@ -351,8 +351,8 @@ describe('慢網路：只抓會上畫面的圖集、第二階段先下載', () =
 
   it('待機照播逐格的（掃地機器人王）照舊抓待機那張', async () => {
     await motion.preloadEnemyMotion(['roomba_king']);
-    // 「吸走」那段（額外片段，2026-10-01）是就緒之後才排進去的，不算在就緒裡
-    expect(sideSources().sort()).toEqual(['roomba_king-down', 'roomba_king-drive', 'roomba_king-ram', 'roomba_king-suck']);
+    // 「吸走」那段（額外片段，2026-10-01）不算在就緒裡，由 combat.ts 就緒之後另外排（prefetchEnemyMotionExtras）
+    expect(sideSources().sort()).toEqual(['roomba_king-down', 'roomba_king-drive', 'roomba_king-ram']);
   });
 
   it('先下載第二階段：只設網址、不解碼、不算就緒；之後真的要用時沿用同一張、不重抓', async () => {
@@ -409,15 +409,18 @@ describe('額外片段（招式片段、變身）', () => {
   const sideSources = (): string[] => FakeImage.sources.map((s) => s.replace(/^.*motion\/side\//, '').replace(/\.webp.*$/, ''));
   const flush = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise((r) => setTimeout(r, 0)); };
 
-  it('就緒只等基本那幾張；額外片段排在後面（第二階段先下載之前），下載好了才挑得到', async () => {
+  it('就緒只等基本那幾張；額外片段要呼叫端另外排（塔主排在第二階段後面），下載好了才挑得到', async () => {
     const lane = await import('../../src/ui/heavy-lane');
     lane._resetHeavyLaneForTest();
     await motion.preloadEnemyMotion(['orange_king']);
     expect(motion.enemyMotionReady('orange_king')).toBe(true);
-    const order = sideSources();
-    expect(order.slice(0, 1)).toEqual(['orange_king-throw']);   // 待機改畫立繪：不抓走路那張
     await flush();
-    expect(sideSources().slice(1).sort()).toEqual(['orange_king-rage', 'orange_king-slam']);
+    expect(sideSources()).toEqual(['orange_king-throw']);   // 待機改畫立繪：不抓走路那張；額外片段還沒排
+    expect(motion.enemyMotionMoveClip('orange_king', '肚皮壓')).toBe(undefined);   // 還沒下載：退回預設出招
+    await motion.prefetchEnemyMotion('orange_king_p2');
+    await motion.prefetchEnemyMotionExtras('orange_king', true);
+    await flush();
+    expect(sideSources()).toEqual(['orange_king-throw', 'orange_king-jump_p2', 'orange_king-down_p2', 'orange_king-slam', 'orange_king-rage']);
     expect(motion.enemyMotionMoveClip('orange_king', '肚皮壓')).toBe('slam');
     expect(motion.enemyMotionMoveClip('orange_king', '丟魚骨頭')).toBe(undefined);
     expect(motion.enemyMotionChangeReady('orange_king')).toBe(true);
@@ -433,6 +436,7 @@ describe('額外片段（招式片段、變身）', () => {
     };
     vi.stubGlobal('Image', brokenExtras);
     await motion.preloadEnemyMotion(['orange_king']);
+    await motion.prefetchEnemyMotionExtras('orange_king', true);
     await flush();
     vi.stubGlobal('Image', FakeImage);
     expect(motion.enemyMotionReady('orange_king')).toBe(true);
@@ -442,6 +446,7 @@ describe('額外片段（招式片段、變身）', () => {
 
   it('慢網路：片段圖集還沒到（或壞掉）就挑不到，呼叫端退回預設出招、變身照舊換立繪', async () => {
     await motion.preloadEnemyMotion(['orange_king']);
+    await motion.prefetchEnemyMotionExtras('orange_king', true);
     await flush();
     for (const image of FakeImage.instances) {
       if (/orange_king-(slam|rage)/.test(image.src)) image.complete = false;
@@ -452,6 +457,7 @@ describe('額外片段（招式片段、變身）', () => {
 
   it('播招式片段與變身：畫的是那段的圖集、長度照那段；沒給片段名照舊播預設出招', async () => {
     await motion.preloadEnemyMotion(['orange_king']);
+    await motion.prefetchEnemyMotionExtras('orange_king', true);
     await flush();
     const actor = motion.createEnemyMotionActor('orange_king');
     actor.play('attack', 'slam');
@@ -468,6 +474,7 @@ describe('額外片段（招式片段、變身）', () => {
 
   it.each(['orange_king', 'tanuki_lord', 'frog_daimyo', 'frog_daimyo_p2', 'roomba_king'] as const)('%s：額外片段腳底跟其他動作同一點、畫布不動', async (kind) => {
     await motion.preloadEnemyMotion([kind]);
+    await motion.prefetchEnemyMotionExtras(kind, true);
     await flush();
     const data = (await import(`../../src/ui/side-motion/${kind}.json`)).default as {
       extras: Record<string, { scale: number; frames: { pivot: [number, number] }[] }>;

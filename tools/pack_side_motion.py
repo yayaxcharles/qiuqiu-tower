@@ -68,9 +68,10 @@ def move(src, segments, labels):
     return {"action": "move", "src": src, "segments": segments, "labels": labels, "max_s": ATTACK_MAX_S}
 
 
-def change(src, first, last, step=3):
-    """換階段那一刻播的變身片段（放在第一階段那一套，演完交還第二階段的立繪）"""
-    return {"action": "change", "src": src, "first": first, "last": last, "step": step, "max_s": CHANGE_MAX_S}
+def change(src, first, last, step=3, max_s=CHANGE_MAX_S, fade_s=0.0):
+    """換階段那一刻播的變身片段（放在第一階段那一套，演完交還第二階段的立繪）。
+    fade_s＞0：停在最後一格（煙最濃、整隻蓋住的那一格）交還立繪，那一格在立繪上方淡出這麼多秒（combat.ts 的 startPhaseChange）"""
+    return {"action": "change", "src": src, "first": first, "last": last, "step": step, "max_s": max_s, "fade": fade_s}
 
 
 """
@@ -112,8 +113,10 @@ KINDS: dict[str, dict] = {
                        "clips": [idle("walk_p2"), attack("jump_p2", 28, 72), death("down_p2", 2, 74, long=True)]},
     "tanuki_lord": {"src": "tanuki_lord", "display": 0.695, "size": "large", "long": True,
                     "clips": [idle("walk"), attack("leaf", 12, 46)],
-                    # 換階段播煙霧變身（丟斗笠、白煙包住、現出紅臉）。「肚皮鼓」片段自帶白色震波圈，不用
-                    "extras": [change("change", 0, 95)]},
+                    # 換階段播煙霧變身（丟斗笠、白煙包住全身）。2026-10-01 審查：煙散開後露出的是大冒險的側面、戴斗笠造型，
+                    # 跟正面二階立繪接不上 → 只演到煙最濃、身體整個蓋住的第 60 格（實測露出身體的像素最少），
+                    # 交還二階立繪、那一格煙在立繪上方淡出 0.55 秒。速度照舊（約 2 倍速）。「肚皮鼓」片段自帶白色震波圈，不用
+                    "extras": [change("change", 0, 60, max_s=1.25, fade_s=0.55)]},
     # 倒下第 0 格是子彈飛進來的白線，從第 3 格開始
     "tanuki_lord_p2": {"src": "tanuki_lord", "display": 0.675, "size": "large", "long": True, "art": "tanuki_lord_p2",
                        "clips": [idle("walk_p2"), attack("stomp_p2", 4, 44), death("down_p2", 3, 75, long=True)]},
@@ -287,6 +290,8 @@ def main() -> None:
                 "texture": tex, "mirror": False, "scale": round(display / pack, 6), "loop": clip["loop"] if "loop" in clip else False,
                 "frames": [{**f, "pivot": [f["pivot"][0], round(f["pivot"][1] + lift * pack / display, 2)], "duration": duration} for f in frames],
             }
+            if clip.get("fade"):
+                motion["fade"] = clip["fade"]
             if name in ("move", "change"):
                 extras[key] = motion
                 for label in clip.get("labels", []):

@@ -172,6 +172,8 @@ describe('塔主第二階段先下載：等第一階段好了才開始', () => {
       qiuqiuEnemyMotionKind: (id: string, phase: number) => (id === 'iron_claw' ? (phase > 0 ? 'iron_claw_p2' : 'iron_claw') : id),
       preloadEnemyMotion: (kinds: string[]) => { preloadCalls.push(kinds); return new Promise<void>((r) => { finish = r; }); },
       prefetchEnemyMotion: (kind: string) => { prefetched.push(kind); return Promise.resolve(); },
+      // 招式片段與變身（2026-10-01 審查）：排在第二階段的出招與爆炸後面
+      prefetchEnemyMotionExtras: (kind: string, decode: boolean) => { prefetched.push(`${kind}:片段${decode ? '' : '（只下載）'}`); return Promise.resolve(); },
     };
     const code = (await transformWithOxc(prefetchSource, 'boss-prefetch.ts')).code;
     new Function(...Object.keys(bindings), code)(...Object.values(bindings));
@@ -180,6 +182,6 @@ describe('塔主第二階段先下載：等第一階段好了才開始', () => {
     expect(prefetched).toEqual([]);
     finish();
     await new Promise((r) => setTimeout(r, 0));
-    expect(prefetched).toEqual(['iron_claw_p2']);
+    expect(prefetched).toEqual(['iron_claw_p2', 'iron_claw:片段', 'iron_claw_p2:片段（只下載）']);
   });
 });

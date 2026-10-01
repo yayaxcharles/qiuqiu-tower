@@ -70,7 +70,7 @@ import { meleeHandoffReturn, motionMeleePlan, motionMeleeSample, type MotionMele
 import { playThrow, preloadProjectiles, throwElapsed } from '../projectile-flight';
 import { cardProjectile, potionProjectile, resolveProjectileShot, shotAimsAt, shotUsedIn, type ProjectileShot } from '../projectile-kinds';
 import { playFeifeiClone, playQiuqiuAfterimages, playQiuqiuEchoes } from '../qiuqiu-motion-effects';
-import { createEnemyMotionActor, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
+import { createEnemyMotionActor, enemyMotionChangeFade, enemyMotionChangeReady, enemyMotionDuration, enemyMotionHas, enemyMotionMoveClip, enemyMotionReady, isSideMotionKind, playsLongDeath, prefetchEnemyMotion, prefetchEnemyMotionExtras, preloadEnemyMotion, staticIdle, type EnemyMotionAction, type EnemyMotionKind } from '../enemy-motion';
 import {
   buildCombatMotionImpactPlan,
   buildFeifeiStatusImpactPlan,
@@ -712,10 +712,14 @@ registerScreen('combat', (app, root, props) => {
   }
   /** 這一場抓過的敵人動作套（要放在底下開打預載之前宣告）：抓失敗的這一場不再重抓（照舊靜態），抓好了重畫一次 */
   const enemyMotionAsked = new Set<EnemyMotionKind>();
+  /** 額外片段（招式片段、變身）由底下塔主那一串排的套：等第二階段先下載完才排，這裡不排 */
+  const extrasAfterNextPhase = new Set<EnemyMotionKind>();
   function ensureEnemyMotion(kind: EnemyMotionKind): void {
     if (enemyMotionReady(kind) || enemyMotionAsked.has(kind)) return;
     enemyMotionAsked.add(kind);
     void preloadEnemyMotion([kind]).then(() => {
+      // 就緒之後才排額外片段（不跟這一場馬上要畫的搶頻寬）；第二階段變身那一刻也走這裡，先下載過的只剩解碼
+      if (!extrasAfterNextPhase.has(kind)) void prefetchEnemyMotionExtras(kind, true).catch(() => undefined);
       if (app.cs === cs && !ended) render();
     }).catch((error: unknown) => console.error('敵人動作素材載入失敗', kind, error));
   }
@@ -738,6 +742,11 @@ registerScreen('combat', (app, root, props) => {
       ...cs.enemies.map((enemy) => qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase)),
       ...summoned.map((id) => qiuqiuEnemyMotionKind(id, 0)),
     ];
+    for (const boss of cs.enemies) {
+      const first = qiuqiuEnemyMotionKind(boss.enemyId, boss.phase);
+      const next = qiuqiuEnemyMotionKind(boss.enemyId, boss.phase + 1);
+      if (first && next && next !== first) extrasAfterNextPhase.add(first);
+    }
     for (const kind of new Set(requested)) if (kind) ensureEnemyMotion(kind);
     /*
      * 塔主第二階段（2026-10-01，使用者：「爆炸應該很華麗」）：第一階段那套好了之後，先把第二階段的出招、爆炸圖集**下載**下來，
@@ -747,7 +756,14 @@ registerScreen('combat', (app, root, props) => {
     for (const enemy of cs.enemies) {
       const now = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase);
       const later = qiuqiuEnemyMotionKind(enemy.enemyId, enemy.phase + 1);
-      if (now && later && later !== now) void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined);
+      /*
+       * 下載順序（審查 2026-10-01）：這一階段的基本圖集 → 第二階段的出招與爆炸 → 這一階段的招式片段與變身 → 第二階段的招式片段。
+       * 使用者最在意關主爆炸華麗；招式片段、變身沒到只是退回預設出招／直接換立繪。
+       */
+      if (now && later && later !== now) {
+        void preloadEnemyMotion([now]).then(() => prefetchEnemyMotion(later)).catch(() => undefined)
+          .then(() => prefetchEnemyMotionExtras(now, true)).then(() => prefetchEnemyMotionExtras(later, false)).catch(() => undefined);
+      }
     }
   }
 
@@ -1102,7 +1118,30 @@ registerScreen('combat', (app, root, props) => {
       enemyPhaseChanges.delete(e.uid);
       const live = cs.enemies.find((x) => x.uid === e.uid);
       const box = root.querySelector<HTMLElement>(`.unit.enemy[data-uid="${e.uid}"] .sprite-box`);
+      /*
+       * 煙最濃那一格交還立繪、煙在立繪上方淡出（狸大人，2026-10-01 審查：煙散開後露出的大冒險側面造型跟二階立繪接不上）。
+       * 畫布從這一套拿出來（重掛時不會被收掉），停在最後一格，淡完才丟。
+       */
+      const fade = enemyMotionChangeFade(entry.kind);
+      const state = enemyMotionActors.get(e.uid);
+      const smoke = fade > 0 && live && box && !live.dead && state?.kind === entry.kind ? state : undefined;
+      if (smoke) {
+        smoke.actor.pause();
+        enemyMotionActors.delete(e.uid);
+      }
       if (live && box) mountEnemyMotion(live, box);
+      if (smoke && box) {
+        const canvas = smoke.actor.element;
+        if (canvas.parentNode !== box) box.append(canvas);
+        canvas.style.animationDuration = `${fade}ms`;
+        canvas.classList.add('motion-change-fade');
+        const gone = window.setTimeout(() => {
+          motionImpactTimers.delete(gone);
+          smoke.actor.dispose();
+          canvas.remove();
+        }, fade + 50);
+        motionImpactTimers.add(gone);
+      }
     }, Math.max(0, entry.until - performance.now()) + 30);
     motionImpactTimers.add(timer);
   };
