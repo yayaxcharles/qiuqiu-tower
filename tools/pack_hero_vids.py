@@ -59,7 +59,9 @@ VARIANTS = {
   old      舊動作資料檔（量大小的舊待機、抄命中時間、核對總長都從這裡來）
   gate     畫面比對閘門用的主角代號（head_measure 的 HEAD_CUT）
   clips    片代號 → (來源路徑（相對 VIDS，不含 .mp4）, 參考圖分組, 只留最大一塊[, "deshadow"＝去掉片子自己畫的暗綠影子]
-           [, ("measureAt", 第幾格)＝量大小用這一格，不用第 0 格])
+           [, ("measureAt", 第幾格)＝量大小用這一格，不用第 0 格][, "novote"＝照用同組中位數、但自己不算進中位數])
+           novote（2026-10-01）：後補的片一加進同組，中位數就可能跟著動，已經上線的動作會整組縮放幾像素；
+           後補的片一律加 novote，舊動作的大小才不會被牽動
            「只留最大一塊」＝去綠底後只留跟身體連在一起的那一塊：清單標「合格（後製去特效）」與有飛出去的小東西的片
   actions  keys＝[(來源第幾格, 原速秒數)…]：第一個是起點（0 秒），最後一個是收尾（＝現在那個動作的總長），
            中間的是命中／出手那一格要落在的時間。每一段各自均分，所以中間那格一定剛好在那個時間開始。
@@ -127,8 +129,11 @@ HEROES: dict[str, dict] = {
     },
     "feifei": {
         "gate": "feifei",
-        "old": ["feifei-motion-data.json"],
+        "old": ["feifei-motion-data.json", "feifei-needle-motion-data.json"],
         "clips": {
+            # 10-01 補：針術兩招（舊圖在 feifei-needle-motion-data.json）。空手、沒畫針、沒有特效，針交給程式畫
+            "ncombo": ("flow/爪破/菲菲/針連擊_omni_v2", "idle", False, "novote"),
+            "nrain": ("flow/爪破/菲菲/針雨_omni_v2", "idle", False, "novote"),
             "guard": ("flow/爪破/菲菲/防禦_omni_v3", "idle", False),   # v3：雙腳全程貼地（v1 第 16～40 格離地小跳）
             "kick": ("flow/爪破/菲菲/踢腿_omni_v1", "idle", False),
             "eat": ("flow/爪破/菲菲/吃飯糰_omni_v1", "idle", False),
@@ -172,6 +177,13 @@ HEROES: dict[str, dict] = {
             # 之後頭朝左縮著躺。退了幾步，腳底定位改用第 60 格（anchor），不然第一格就往左跳
             "defeat": {"clip": "defeat", "keys": [(60, 0), (71, 0.3), (80, 0.6), (92, 1.18)], "anchor": 60, "clamp": True},
             "run": {"clip": "run", "loop": (20, 72, 14, 26), "cycle": 0.48},
+            # 連針（0.68 秒、出手 220／380）：手臂往前伸到最遠在第 10、40、70 格，第 24～28、54～62 格收回胸前。
+            # 第 10 格＝第一針、收回（第 26 格）、第 40 格＝第二針，第 58 格收回站姿。
+            # 三波以上照舊重播原速 240→380 那段＝收回→再伸出
+            "needle_combo": {"clip": "ncombo", "keys": [(2, 0), (10, 0.22), (26, 0.30), (40, 0.38), (58, 0.68)], "originAt": [10, 40]},
+            # 針雨（0.88 秒、出手 350）：第 12～20 格右手前伸再往上舉、第 22～36 格手舉過頭、第 38 格手在頭頂開始往前揮
+            # ＝出手（針往上飛再落下，程式畫）；第 44～62 格手揮到前方，第 80 格起收回站姿
+            "needle_rain": {"clip": "nrain", "keys": [(8, 0), (24, 0.2), (38, 0.35), (54, 0.55), (88, 0.88)], "originAt": 38},
         },
     },
     "dangdang": {
@@ -194,6 +206,8 @@ HEROES: dict[str, dict] = {
             # 第 56～72 格身旁細弧線（只留最大一塊）；身下一片暗綠色影子貼著身體（deshadow：偏綠的半透明一律去掉）
             "defeat": ("flow/爪破/噹噹/倒下_omni_v3", "idle", True, "deshadow"),
             "run": ("flow/爪破/噹噹/跑_omni_v2", "idle", False),
+            # 10-01 補：橫掃連踢（兩記低掃＋一記中段側踢）
+            "sweepk": ("flow/爪破/噹噹/掃腿_omni_v4", "idle", False, "novote"),
         },
         "hits": {},
         "actions": {
@@ -221,6 +235,11 @@ HEROES: dict[str, dict] = {
             "defeat": {"clip": "defeat", "keys": [(46, 0), (60, 0.35), (76, 0.8), (86, 1.18)]},
             # 跑：第 34～47 格靠鏡頭那隻手在前停太久（中間少換一次手），循環改在第 56 格以後找（第 58、69、77 格兩腳交錯時換手）
             "run": {"clip": "run", "loop": (56, 84, 18, 24), "cycle": 0.48},
+            # 橫掃連踢（1.0 秒、命中 220／460／700）：第 10～26 格第一記低掃（第 18 格最遠）、第 30 格收回、
+            # 第 34～50 格第二記低掃（第 42 格最遠）、第 54～62 格收回、第 66～70 格提膝、第 74～80 格側踢（第 77 格最遠）。
+            # 只打一兩下時程式會從用到的那記直接跳到「最後一記那格之後」，所以側踢最遠那格自己停久一點（原速 0.09 秒＝實際 60 毫秒，
+            # 第一版只停 27 毫秒、實機連拍幾乎看不到側踢），下一格直接接第 86 格（膝蓋已收回）——跳的幅度小
+            "sweep_combo": {"clip": "sweepk", "keys": [(8, 0), (18, 0.22), (30, 0.34), (42, 0.46), (60, 0.58), (77, 0.70), (86, 0.79), (94, 1.0)]},
         },
     },
     "fengfeng": {
@@ -449,7 +468,8 @@ def measure_heads(hero: str, cfg: dict, firsts: dict[str, np.ndarray], old: dict
     for slug, (_, ref, *_) in cfg["clips"].items():
         groups.setdefault(ref, []).append(slug)
     for slugs in groups.values():
-        med = float(np.median([out[s]["own"] for s in slugs]))
+        voters = [s for s in slugs if "novote" not in cfg["clips"][s][3:]] or slugs
+        med = float(np.median([out[s]["own"] for s in voters]))
         for s in slugs:
             out[s]["display"] = med
     return out
@@ -551,12 +571,17 @@ def pack_hero(hero: str, tmp: Path) -> dict:
                 entry = {"texture": tex, "scale": round(pa["display"] / pack, 6), "loop": "loop" in cfg["actions"][action], "frames": frames}
                 entry.update(carry.get(action, {}))
                 if "originAt" in cfg["actions"][action]:
-                    # 手指尖＝出手那格最右邊的實心像素（往左 12 像素內取平均高度），換成相對腳底的 CSS 像素
-                    a = fr[cfg["actions"][action]["originAt"]][..., 3]
-                    ys, xs = np.nonzero(a > 128)
-                    near = xs >= xs.max() - 12
-                    entry["releaseOrigins"] = [{"x": round((float(xs.max()) - pa["foot_x"]) * pa["display"]),
-                                                "y": round((float(ys[near].mean()) - pa["foot_y"]) * pa["display"])}]
+                    # 手指尖＝出手那格最右邊的實心像素（往左 12 像素內取平均高度），換成相對腳底的 CSS 像素。
+                    # originAt 可給一串（連針兩波各一格；遊戲照波次輪流用）
+                    at = cfg["actions"][action]["originAt"]
+                    origins = []
+                    for idx in (at if isinstance(at, list) else [at]):
+                        a = fr[idx][..., 3]
+                        ys, xs = np.nonzero(a > 128)
+                        near = xs >= xs.max() - 12
+                        origins.append({"x": round((float(xs.max()) - pa["foot_x"]) * pa["display"]),
+                                        "y": round((float(ys[near].mean()) - pa["foot_y"]) * pa["display"])})
+                    entry["releaseOrigins"] = origins
                 actions_out[action] = entry
         data["variants"][vname] = {"fps": fps, "actions": {a: actions_out[a] for a in cfg["actions"]}}
     (OUT_DATA / f"{hero}.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
