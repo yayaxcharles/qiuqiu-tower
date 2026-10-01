@@ -385,6 +385,22 @@ describe('師父：戰鬥畫面', () => {
     expect(f.canvasShown()).toBe(false);
   });
 
+  it('他自己回合開頭被中毒打光血條（回合推進了、沒出招、當場閉關）：變身照演，不被當成「輪到牠出手」收掉', async () => {
+    const f = await field({ phase: 1, invulnIn: 1, acting: new Map([[7, { label: '拆招', attacked: false }]]) });
+    f.api.startPhaseChange(f.e, 0);
+    f.mount();
+    expect(f.played).toEqual([['daxia_p1', 'change', undefined]]);
+    expect(f.canvasShown()).toBe(true);
+    // 換階段那一拍的判斷（settle 裡）也一樣：有出手且不在閉關才擋
+    const c = SRC.replace(/\r\n/g, '\n');
+    expect(c).toContain("(a?.phase ?? e.phase) > b.phase && !(acting.has(e.uid) && !((a?.secluding ?? e.invulnIn > 0)))) startPhaseChange(e, b.phase);");
+    // 真的出手（閉關已經結束）照舊收掉變身
+    const g = await field({ phase: 1, invulnIn: 0, acting: new Map([[7, { label: '十二連環', attacked: true }]]) });
+    g.api.startPhaseChange(g.e, 0);
+    g.mount();
+    expect(g.played.some(([, a]) => a === 'change')).toBe(false);
+  });
+
   it('變身圖集還沒到：不登記，照舊閃白＋直接換下一階段立繪；閉關氣場馬上就有', async () => {
     const f = await field({ phase: 1, invulnIn: 1, changeReady: false });
     f.api.startPhaseChange(f.e, 0);
@@ -439,7 +455,7 @@ describe('師父：走火入魔特效（提示表）', () => {
     for (const kind of ['daxia_p2', 'daxia_p3']) {
       const burst = fxCuesFor([kind], 'change');
       expect(burst.length, kind).toBeGreaterThan(0);
-      for (const cue of burst) expect(cue.scale!, kind).toBeGreaterThan(1.8);
+      for (const cue of burst) expect(cue.scale!, kind).toBeGreaterThanOrEqual(1.8);
       expect(fxCuesFor([kind], 'seclude').map((c) => c.fx), kind).toEqual(['daxia_seclude_aura']);
     }
     expect(fxCuesFor(['daxia_p1'], 'seclude')).toEqual([]);

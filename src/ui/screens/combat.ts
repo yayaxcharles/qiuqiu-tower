@@ -1274,7 +1274,8 @@ registerScreen('combat', (app, root, props) => {
     if (realKind && !enemyMotionReady(realKind) && !e.dead) ensureEnemyMotion(realKind);
     // 變身中：照舊掛第一階段那一套播變身。演完、倒下、輪到牠出手就收掉，換回這一階段該畫的
     let changing = enemyPhaseChanges.get(e.uid);
-    if (changing && (e.dead || acting.has(e.uid) || performance.now() >= changing.until || !enemyMotionReady(changing.kind))) {
+    // 「輪到牠出手」不算師父回合開頭被中毒打光血條、當場蹲下調息（invulnIn）那一拍：回合推進了卻沒出招，變身照演（2026-10-01 連線實測菲菲的毒）
+    if (changing && (e.dead || (acting.has(e.uid) && !(e.invulnIn > 0)) || performance.now() >= changing.until || !enemyMotionReady(changing.kind))) {
       enemyPhaseChanges.delete(e.uid);
       changing = undefined;
     }
@@ -3733,7 +3734,8 @@ registerScreen('combat', (app, root, props) => {
     for (const e of cs.enemies) {
       const b = before.enemies.get(e.uid);
       const a = comparison?.enemies.get(e.uid);
-      if (b && !(a?.dead ?? e.dead) && (a?.phase ?? e.phase) > b.phase && !acting.has(e.uid)) startPhaseChange(e, b.phase);
+      // 牠這一拍有出手就不演變身（出招優先）；師父回合開頭被中毒打光血條、當場蹲下調息（invulnIn）沒出招的那一拍照演
+      if (b && !(a?.dead ?? e.dead) && (a?.phase ?? e.phase) > b.phase && !(acting.has(e.uid) && !((a?.secluding ?? e.invulnIn > 0)))) startPhaseChange(e, b.phase);
     }
     // 逐隻演出的每一步只換有變動的單位（light）：整頁重畫會把所有立繪的呼吸動畫重來、背景重貼，
     // 每 0.7 秒抖一下就是使用者說的「嚴重卡頓感」（2026-09-03 晚）。換不了（有新召喚的）才整頁重畫。
