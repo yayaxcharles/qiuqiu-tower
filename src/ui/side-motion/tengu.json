@@ -446,7 +446,11 @@
      ],
      "duration": 0.0692
     }
-   ]
+   ],
+   "marks": {
+    "hit": 415,
+    "end": 1176
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/tengu-down.webp",
@@ -610,7 +614,11 @@
      ],
      "duration": 0.0708
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 142,
+    "fall": 708
+   }
   }
  }
 }

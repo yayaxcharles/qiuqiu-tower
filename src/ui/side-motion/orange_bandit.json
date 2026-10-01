@@ -381,7 +381,10 @@
      ],
      "duration": 0.0692
     }
-   ]
+   ],
+   "marks": {
+    "hit": 554
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/orange_bandit-down.webp",
@@ -558,7 +561,11 @@
      ],
      "duration": 0.0654
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 131,
+    "fall": 654
+   }
   }
  }
 }

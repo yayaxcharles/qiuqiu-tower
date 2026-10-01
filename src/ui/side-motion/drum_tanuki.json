@@ -498,7 +498,11 @@
      ],
      "duration": 0.06
     }
-   ]
+   ],
+   "marks": {
+    "hit": 420,
+    "hit2": 1140
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/drum_tanuki-down.webp",
@@ -987,7 +991,11 @@
      ],
      "duration": 0.0811
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 324,
+    "fall": 1865
+   }
   }
  }
 }

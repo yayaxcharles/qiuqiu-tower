@@ -511,7 +511,10 @@
      ],
      "duration": 0.0659
     }
-   ]
+   ],
+   "marks": {
+    "hit": 593
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/mask_dancer-down.webp",
@@ -1000,7 +1003,11 @@
      ],
      "duration": 0.0811
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 406,
+    "fall": 1865
+   }
   }
  }
 }

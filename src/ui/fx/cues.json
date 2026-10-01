@@ -1,0 +1,98 @@
+{
+ "_doc": "魔物特效圖層的提示表（2026-10-01）。格式說明見 docs/特效圖層_20261001.md 第 5 節；程式在 src/ui/fx-layer.ts。",
+ "cues": [
+  {
+   "owner": "iron_claw",
+   "on": "death",
+   "fx": "blast_large",
+   "at": "spark",
+   "x": -0.04,
+   "y": 0.4,
+   "scale": 1.15,
+   "speed": 1.2,
+   "_why": "鐵爪一階倒下：第 22 格火花爆開那一刻在身上炸一團大爆炸，播完剛好接上片段自己的黑煙與趴平",
+   "layer": "back"
+  },
+  {
+   "owner": "iron_claw",
+   "on": "death",
+   "fx": "blast_small",
+   "at": "spark",
+   "x": -0.04,
+   "y": 0.45,
+   "scale": 0.8,
+   "speed": 1.2,
+   "_why": "同一刻在身上前面再炸一團小的：大爆炸放在身體後面（片段自己的齒輪、黑煙、趴平才看得到），前面這團讓「炸開」的那一下打在身上"
+  },
+  {
+   "owner": "iron_claw_p2",
+   "on": "death",
+   "fx": "blast_large",
+   "at": 250,
+   "x": -0.04,
+   "y": 0.38,
+   "scale": 1.25,
+   "speed": 1.25,
+   "_why": "鐵爪二階倒下：原本只有火花與黑煙，沒有爆開的那一下（使用者：爆炸應該很華麗）",
+   "layer": "back"
+  },
+  {
+   "owner": "iron_claw_p2",
+   "on": "death",
+   "fx": "blast_small",
+   "at": 250,
+   "x": -0.04,
+   "y": 0.43,
+   "scale": 0.8,
+   "speed": 1.2,
+   "_why": "同一刻在身上前面再炸一團小的：大爆炸放在身體後面（片段自己的齒輪、黑煙、趴平才看得到），前面這團讓「炸開」的那一下打在身上"
+  },
+  {
+   "owner": "roomba_king",
+   "on": "death",
+   "fx": "blast_large",
+   "at": 330,
+   "x": -0.17,
+   "y": 0.22,
+   "scale": 0.95,
+   "speed": 1.3,
+   "_why": "掃地機器人王倒下：機械類，原本只有小火花",
+   "layer": "back"
+  },
+  {
+   "owner": "roomba_king",
+   "on": "death",
+   "fx": "blast_small",
+   "at": 330,
+   "x": -0.17,
+   "y": 0.26,
+   "scale": 0.65,
+   "speed": 1.2,
+   "_why": "同一刻在身上前面再炸一團小的：大爆炸放在身體後面（片段自己的齒輪、黑煙、趴平才看得到），前面這團讓「炸開」的那一下打在身上"
+  },
+  {
+   "owner": "iron_claw_p2",
+   "on": "move:全開",
+   "fx": "blast_small",
+   "at": "hit",
+   "host": "target",
+   "x": 0.06,
+   "y": 0.36,
+   "scale": 0.75,
+   "speed": 1.4,
+   "_why": "鐵爪二階「全開」雷射命中：打在被打的那一位身上"
+  },
+  {
+   "owner": "lantern_ghost",
+   "on": "move:吐火",
+   "fx": "blast_small",
+   "at": "hit",
+   "host": "target",
+   "x": 0.06,
+   "y": 0.34,
+   "scale": 0.55,
+   "speed": 1.4,
+   "_why": "燈籠妖「吐火」火球命中：打在被打的那一位身上"
+  }
+ ]
+}

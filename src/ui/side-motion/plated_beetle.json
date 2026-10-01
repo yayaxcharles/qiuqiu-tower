@@ -446,7 +446,10 @@
      ],
      "duration": 0.073
     }
-   ]
+   ],
+   "marks": {
+    "hit": 803
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/plated_beetle-down.webp",
@@ -597,7 +600,11 @@
      ],
      "duration": 0.0773
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 155,
+    "fall": 618
+   }
   }
  }
 }

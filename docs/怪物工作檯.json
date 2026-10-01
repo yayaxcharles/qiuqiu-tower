@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-22",
+ "generatedAt": "2026-10-01",
  "monsters": [
   {
    "id": "rat",
@@ -294,7 +294,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 8
+       "amount": 7
       }
      ]
     },
@@ -3720,9 +3720,7 @@
    "size": "medium",
    "pattern": "cycle",
    "art": "codex/monster_shadow_cat",
-   "acts": [
-    3
-   ],
+   "acts": [],
    "passives": {},
    "moves": [
     {
@@ -4024,7 +4022,9 @@
    "size": "medium",
    "pattern": "cycle",
    "art": "codex/monster_shadow_cat",
-   "acts": [],
+   "acts": [
+    3
+   ],
    "passives": {
     "learnsPlayerCards": true
    },
@@ -4955,7 +4955,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 12
+       "amount": 11
       }
      ]
     },
@@ -4965,7 +4965,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 9
+       "amount": 8
       },
       {
        "kind": "block",
@@ -4979,7 +4979,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 12
+       "amount": 11
       }
      ]
     }
@@ -5988,7 +5988,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 12
+       "amount": 11
       }
      ]
     },
@@ -6009,7 +6009,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 12
+       "amount": 11
       }
      ]
     }
@@ -6041,7 +6041,7 @@
      "effects": [
       {
        "kind": "damage",
-       "amount": 11
+       "amount": 10
       }
      ]
     },

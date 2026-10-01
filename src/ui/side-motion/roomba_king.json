@@ -420,7 +420,11 @@
      ],
      "duration": 0.06
     }
-   ]
+   ],
+   "marks": {
+    "hit": 240,
+    "back": 900
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/roomba_king-down.webp",
@@ -857,7 +861,11 @@
      ],
      "duration": 0.0833
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 250,
+    "fall": 916
+   }
   }
  },
  "extras": {
@@ -1335,7 +1343,11 @@
      ],
      "duration": 0.0375
     }
-   ]
+   ],
+   "marks": {
+    "hit": 375,
+    "end": 1200
+   }
   }
  },
  "moves": {

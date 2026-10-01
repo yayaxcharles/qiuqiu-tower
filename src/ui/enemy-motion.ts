@@ -53,7 +53,7 @@ export function hasLongDeath(kind: EnemyMotionKind): boolean {
  * 塔主第一階段那一套不帶倒下（一刀從第一階段打死就照舊靜態倒下，見 pack_side_motion.py）。
  */
 export function playsLongDeath(kind: EnemyMotionKind): boolean {
-  return LONG_DEATH_KINDS.has(kind) && kinds[kind]?.actions.knockdown !== undefined;
+  return LONG_DEATH_KINDS.has(kind) && enemyMotionHas(kind, 'knockdown');
 }
 /** tsconfig 不吃 vite/client，自己宣告 Vite 的 `import.meta.glob`（打包時 Vite 會換成每個檔各自的動態載入） */
 declare global {
@@ -74,6 +74,8 @@ type Motion = {
   texture: string;
   /** 變身片段：停在最後一格交還立繪，那一格在立繪上方淡出幾秒（狸大人的煙，2026-10-01） */
   fade?: number;
+  /** 關鍵格（hit、spark、fall⋯⋯）在這一段開演後第幾毫秒（`pack_side_motion.py` 換算）：特效圖層照它對時間 */
+  marks?: Record<string, number>;
   mirror?: boolean;
   scale: number;
   loop: boolean;
@@ -93,6 +95,12 @@ type MotionKind = {
   extras?: Record<string, Motion>;
   /** 招式名（enemies.ts 的 label，引擎裡的原文、不是翻譯後的字）→ extras 裡的片段名；沒寫的招照舊播預設出招 */
   moves?: Record<string, string>;
+  /**
+   * 晚一點才下載的基本動作（2026-10-01：塔主第一階段的倒下，Flow 新生）。**不算進就緒**（不拖慢第一階段的出招），
+   * 由 combat.ts 排在第二階段的出招與爆炸、這一階段的招式片段後面下載（`prefetchEnemyMotionLate`）。
+   * **圖集到了才算有這個動作**（`enemyMotionHas`）：一刀從第一階段打死時還沒到，就照舊靜態倒地圖淡出，不會掛一張空畫布。
+   */
+  late?: Partial<Record<EnemyMotionAction, Motion>>;
 };
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
@@ -123,9 +131,23 @@ function ensureKindData(kind: EnemyMotionKind): Promise<void> {
   return load;
 }
 
-/** 這一套有沒有自己的這個動作（沒有的：出招交還靜態立繪、倒下照舊溶解）。資料還沒載入就回 false */
+/**
+ * 這一套有沒有自己的這個動作（沒有的：出招交還靜態立繪、倒下照舊溶解）。資料還沒載入就回 false。
+ * 晚一點才下載的（`late`）要圖集真的到了才算有：倒下那一刻的所有判斷（長倒下、交還立繪、小怪化煙）都走這一支，
+ * 圖還沒到就一致退回靜態倒下（審查建議 2026-10-01：不能一邊說有、一邊畫不出來，變成整隻空白）。
+ */
 export function enemyMotionHas(kind: EnemyMotionKind, action: EnemyMotionAction): boolean {
-  return kinds[kind]?.actions[action] !== undefined;
+  const data = kinds[kind];
+  if (!data) return false;
+  if (data.actions[action] !== undefined) return true;
+  const late = data.late?.[action];
+  return late !== undefined && textureDrawable(late.texture);
+}
+
+/** 這一段動作的關鍵格（毫秒）：特效圖層對時間用。出招給 clip＝這一招自己的片段 */
+export function enemyMotionMarks(kind: EnemyMotionKind, action: EnemyMotionAction, clip?: string): Readonly<Record<string, number>> | undefined {
+  const data = kinds[kind];
+  return data ? motionOf(data, action, clip).marks : undefined;
 }
 
 function kindOf(kind: EnemyMotionKind): MotionKind {
@@ -140,12 +162,13 @@ function motionOf(kind: MotionKind, action: EnemyMotionAction, clip?: string): M
     const own = kind.extras?.[clip];
     if (own) return own;
   }
-  return kind.actions[action] ?? kind.actions.idle;
+  const late = kind.late?.[action];
+  return kind.actions[action] ?? (late && textureDrawable(late.texture) ? late : kind.actions.idle);
 }
 
-/** 這一套所有片段（基本＋額外）：算畫布大小用，換片段時畫布與腳底才不跳 */
+/** 這一套所有片段（基本＋額外＋晚下載的）：算畫布大小用，換片段時畫布與腳底才不跳 */
 function allMotionsOf(kind: MotionKind): Motion[] {
-  return [...actionsOf(kind), ...Object.values(kind.extras ?? {})];
+  return [...actionsOf(kind), ...Object.values(kind.extras ?? {}), ...Object.values(kind.late ?? {}).filter((m): m is Motion => m !== undefined)];
 }
 
 /**
@@ -275,6 +298,29 @@ export async function prefetchEnemyMotion(kind: EnemyMotionKind): Promise<void> 
 export async function prefetchEnemyMotionExtras(kind: EnemyMotionKind, decode: boolean): Promise<void> {
   await ensureKindData(kind);
   await fetchExtras(kindOf(kind), decode);
+}
+
+/** 晚一點才下載的基本動作的圖集（`late`，塔主第一階段的倒下） */
+export function lateTexturesOf(kind: EnemyMotionKind): string[] {
+  const data = kinds[kind];
+  return data ? [...new Set(Object.values(data.late ?? {}).filter((m): m is Motion => m !== undefined).map((m) => m.texture))] : [];
+}
+
+/**
+ * 塔主第一階段的倒下（`late`）在背景下載（2026-10-01）：**不插隊**、下載好排背景解開。由 combat.ts 排順序
+ *（這一階段基本 → 第二階段出招與爆炸 → 這一階段招式片段 → **這裡** → 特效 → 第二階段招式片段）。
+ * 失敗的從快取拿掉：這一次照舊靜態倒下，下一場再試。
+ */
+export async function prefetchEnemyMotionLate(kind: EnemyMotionKind): Promise<void> {
+  await ensureKindData(kind);
+  await Promise.all(lateTexturesOf(kind).map(async (texture) => {
+    const image = imageFor(texture, false);
+    await loadHeavy(image, fileUrl(texture), false);
+    try {
+      await imageLoaded(image);
+      void prepareDecodedAtlas(image, false);
+    } catch { if (images.get(texture) === image) images.delete(texture); }
+  }));
 }
 
 async function preloadEnemyMotionKind(kind: EnemyMotionKind): Promise<void> {

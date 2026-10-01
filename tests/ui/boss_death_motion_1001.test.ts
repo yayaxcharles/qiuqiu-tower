@@ -174,6 +174,11 @@ describe('塔主第二階段先下載：等第一階段好了才開始', () => {
       prefetchEnemyMotion: (kind: string) => { prefetched.push(kind); return Promise.resolve(); },
       // 招式片段與變身（2026-10-01 審查）：排在第二階段的出招與爆炸後面
       prefetchEnemyMotionExtras: (kind: string, decode: boolean) => { prefetched.push(`${kind}:片段${decode ? '' : '（只下載）'}`); return Promise.resolve(); },
+      // 2026-10-01 特效圖層：這一階段的倒下（late）、這一場的特效排在招式片段後面、第二階段招式片段前面
+      prefetchEnemyMotionLate: (kind: string) => { prefetched.push(`${kind}:倒下`); return Promise.resolve(); },
+      fxOwnersOf: (id: string, phase: number, kind?: string) => [kind, `enemy:${id}@${phase}`],
+      fxNamesFor: (owners: string[]) => (owners.includes('iron_claw_p2') ? ['blast_large'] : []),
+      prefetchFx: (names: string[]) => { prefetched.push(`特效:${names.join(',')}`); return Promise.resolve(); },
     };
     const code = (await transformWithOxc(prefetchSource, 'boss-prefetch.ts')).code;
     new Function(...Object.keys(bindings), code)(...Object.values(bindings));
@@ -182,6 +187,6 @@ describe('塔主第二階段先下載：等第一階段好了才開始', () => {
     expect(prefetched).toEqual([]);
     finish();
     await new Promise((r) => setTimeout(r, 0));
-    expect(prefetched).toEqual(['iron_claw_p2', 'iron_claw:片段', 'iron_claw_p2:片段（只下載）']);
+    expect(prefetched).toEqual(['iron_claw_p2', 'iron_claw:片段', 'iron_claw:倒下', '特效:blast_large', 'iron_claw_p2:片段（只下載）']);
   });
 });

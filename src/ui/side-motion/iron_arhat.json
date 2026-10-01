@@ -472,7 +472,10 @@
      ],
      "duration": 0.0692
     }
-   ]
+   ],
+   "marks": {
+    "hit": 554
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/iron_arhat-down.webp",
@@ -961,7 +964,11 @@
      ],
      "duration": 0.0811
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 324,
+    "fall": 1622
+   }
   }
  }
 }

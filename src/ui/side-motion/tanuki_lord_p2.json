@@ -420,7 +420,10 @@
      ],
      "duration": 0.0659
     }
-   ]
+   ],
+   "marks": {
+    "hit": 461
+   }
   },
   "knockdown": {
    "texture": "assets/motion/side/tanuki_lord-down_p2.webp",
@@ -909,7 +912,11 @@
      ],
      "duration": 0.0811
     }
-   ]
+   ],
+   "marks": {
+    "hurtEnd": 243,
+    "fall": 1541
+   }
   }
  }
 }
