@@ -9,7 +9,7 @@ const src = (p: string): string => readFileSync(p, 'utf8').replace(/\r\n/g, '\n'
 describe('背景火光與浮塵：省力做法', () => {
   it('戰鬥畫面用 ambient 畫布，不再掛 .motes 三層', () => {
     const combat = src('src/ui/screens/combat.ts');
-    expect(combat).toContain('box.append(bg, ambientCanvas());');
+    expect(combat).toContain('box.append(bg, ambientCanvas(bgKey, bg));');
     expect(combat).not.toContain("class: 'motes'");
     const css = src('src/ui/styles/combat.css');
     expect(css).not.toMatch(/\.battle-bg\s*\{[^}]*animation:/);

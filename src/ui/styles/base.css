@@ -170,6 +170,8 @@ img { -webkit-user-drag: none; }
   letter-spacing: 6px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, .95), 0 0 18px rgba(0, 0, 0, .8), 2px 3px 0 rgba(201, 112, 42, .5);
 }
+/* 書法標誌（美術改版 2026-10-06，title.ts）：寬高寫在標籤上先佔位；比原本 52 像素的字高一倍，上下各收一點免得把四隻貓與按鈕推開 */
+.title-screen h1 .title-logo { display: block; width: 400px; height: 125px; margin: -14px 0 -10px; filter: drop-shadow(0 4px 10px #000000b3); }
 .title-buttons {
   display: flex;
   align-items: center;

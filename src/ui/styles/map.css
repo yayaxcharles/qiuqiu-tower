@@ -25,6 +25,17 @@
   opacity: 0;
   animation: map-torchlight 6.9s ease-in-out infinite;
 }
+/* 地圖中層（2026-10-06 背景線）：兩側牆中間那一片黑補一層塔內結構。圖本身已經壓暗、左右邊緣淡出成透明（進倉時做好），
+   這裡只負責擺位置；不動、不擋點擊。對比度留給節點與路線，數字見 docs/審查報告/2026-10-06_美術方向/art-bg-1006_報告.md */
+.map-mid {
+  position: absolute;
+  top: 0;
+  left: 300px;
+  width: 680px;
+  height: 100%;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
 /* 捲軸：一次看得到 664（720 減狀態列 56），內容比它高，往上捲＝往上爬 */
 .map-scroll {
   position: absolute;

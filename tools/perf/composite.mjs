@@ -47,10 +47,11 @@ async function trace(label, secs = 4) {
 }
 
 if (ONLY.includes('封面')) { await page.goto(server.url + '?debug'); await waitScreen(page, 'title', 60000); await sleep(3000); await trace('封面'); }
-if (ONLY.includes('地圖') || ONLY.includes('戰鬥')) { await bootRun(page, server.url, 'feifei', 'perf-comp'); }
+if (ONLY.includes('地圖') || ONLY.includes('戰鬥')) { await bootRun(page, server.url, 'feifei', 'perf-comp', process.env.PERF_QUERY ?? '?debug'); }   // PERF_QUERY：例 '?debug&bgfx=0' 關掉背景動效對照（2026-10-06）
 if (ONLY.includes('地圖')) { await page.evaluate(() => window.__app.show('map')); await sleep(3000); await trace('地圖'); }
 if (ONLY.includes('戰鬥')) {
-  await page.evaluate(() => { const app = window.__app; const r = app.run; r.act = 1; r.floor = 2; r.flags['tut:combat'] = true; app.startFight('nekomata'); });
+  // PERF_FLOOR：換戰鬥背景量（樓層決定哪一張，見 screenbg.ts 的 tierBgKey；2026-10-06 背景動效量測加的，不給就是原本的 2 樓）
+  await page.evaluate((fl) => { const app = window.__app; const r = app.run; r.act = 1; r.floor = fl; r.flags['tut:combat'] = true; app.startFight('nekomata'); }, Number(process.env.PERF_FLOOR ?? 2));
   await waitScreen(page, 'combat', 60000); await page.waitForFunction(CAN_ACT, null, { timeout: 60000 }); await sleep(3000); await page.mouse.move(900, 230);
   await trace('戰鬥');
 }

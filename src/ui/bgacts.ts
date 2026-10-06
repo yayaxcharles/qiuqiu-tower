@@ -19,6 +19,14 @@ export const BG_VARIANTS = ['', '_b', '_c'] as const;
 const TIER_BY_ACT = ['low', 'mid', 'top'] as const;
 
 /**
+ * 2026-10-06 美術改版新加的戰鬥背景（`bg/art26_<色調>_<1～3>`），跟上面三張一起輪（`screenbg.ts` 的 `tierBgKey`）。
+ * 用公式算不寫名單：這支在首載程式裡，首載程式只剩幾百位元組的預算。沒進倉的號碼 `tierBgKey` 會自己跳過。
+ * **不在開場載**：第一關那幾張併進 `deferredBgKeys`，進入一局時由 `preloadAct(1)` 抓；
+ * 而且第 1、2 層輪到的一定是舊的那兩張（樓層取餘數，新圖排在舊圖後面），進入一局到第三層之間有兩場戰鬥的時間。
+ */
+export const art26Keys = (tier: string): string[] => [1, 2, 3].map((n) => `bg/art26_${tier}_${n}`);
+
+/**
  * **打完這一關才會看到的幻燈片**（過關三張、第三關是結局兩張）。
  *
  * 算進該關的鍵，是為了讓第二、三關那幾張歸「分關載入」——共 250 KB，
@@ -37,7 +45,8 @@ export const SLIDES_BY_ACT = [
 ] as const;
 
 /** 會跟著關數換皮的節點畫面底圖（`actVariantKey` 加 `_mid`／`_top`） */
-const SCREEN_BASES = ['map_tall', 'screen_chest', 'screen_event', 'screen_rest', 'screen_shop'] as const;
+// `art26_mapmid`＝地圖中間那層塔內結構（2026-10-06），一關一張、跟地圖底圖同一套換皮
+const SCREEN_BASES = ['map_tall', 'art26_mapmid', 'screen_chest', 'screen_event', 'screen_rest', 'screen_shop'] as const;
 const SCREEN_SUFFIX = ['', '_mid', '_top'] as const;
 /**
  * 關內還有第二、三款的那幾個（2026-09-10 生了 18 張）。`actVariantKey` 會照樓層輪著挑，
@@ -75,6 +84,8 @@ export function bgKeysForAct(act: number): string[] {
     if (SCREEN_BC.has(base)) for (const v of BG_VARIANTS) keys.push(`${stem}${v}`);
     else keys.push(stem);
   }
+  // 新戰鬥背景排最後（地圖與節點畫面先到；第一、二層也輪不到它們），見 `art26Keys`
+  keys.push(...art26Keys(TIER_BY_ACT[i]!));
   return keys;
 }
 
@@ -123,5 +134,6 @@ export function deferredBgKeys(): Set<string> {
   // 事件主圖同理：不在任何一關的清單裡，不併進來的話開場會照舊整包載（2026-09-23 0-2）
   // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）同理，用到的畫面自己抓
   const screenArt = NON_EVENT_ART.map((id) => `bg/event_${id}`);
-  return new Set([...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys(), ...screenArt].filter((k) => !first.has(k)));
+  // 第一關的新戰鬥背景（2026-10-06）也延後：進入一局才由 `preloadAct(1)` 抓（見 `art26Keys`），所以要加在減法之後
+  return new Set([...[...bgKeysForAct(2), ...bgKeysForAct(3), ...slides, ...eventMainKeys(), ...screenArt].filter((k) => !first.has(k)), ...art26Keys('low')]);
 }

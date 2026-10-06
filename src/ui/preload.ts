@@ -118,7 +118,9 @@ export function preloadAct(act: number, skinHero: string | undefined = localHero
   // 師父（第三關關主）戰鬥用的那二十幾張：開場不載了（2026-09-29 開場分批，`assets.ts` 的 `isDeferredBossArt`），
   // 進第三關時跟這一關的魔物一起抓、排在最後（關主要打完十五層才遇到）；不留參照，開打時戰鬥畫面自己會再暖一次
   const boss = bossPoolForAct(act).includes('tower_master') ? bossArtUrls() : [];
-  return decodeAll([...new Set([...bg, ...held, ...boss])], 4, (u) => held.has(u));
+  // 2026-10-06 新戰鬥背景（`bgacts.ts` 的 `art26Keys`）排到魔物後面：第三層才輪到，不跟第一場搶慢網路的頻寬（量到慢網路第一場晚約半秒才改）
+  const late = bg.filter((u) => /\/art26_[a-z]+_\d/.test(u));
+  return decodeAll([...new Set([...bg.filter((u) => !late.includes(u)), ...held, ...boss, ...late])], 4, (u) => held.has(u));
 }
 
 /**

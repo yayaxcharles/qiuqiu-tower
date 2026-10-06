@@ -8,7 +8,7 @@ import { registerScreen } from '../app';
 import { hasSprite, artUrl, heroArtUrl } from '../assets';
 import { el } from '../dom';
 import { screenBg } from '../screenbg';
-import { t, term } from '../../i18n';
+import { getLang, t, term } from '../../i18n';
 import { langPicker } from '../langpicker';
 // 「參上」照語言挑哪一張：跟主程式「先等封面圖到齊」用同一支（`titleart.ts`），兩邊才不會一個等這張、一個畫那張
 import { titleCoverKey as coverKey, whenTitleArtReady } from '../titleart';
@@ -85,6 +85,15 @@ registerScreen('title', (app, root) => {
   });
   const refreshShareLabel = (): void => { startBtn.textContent = isShare() ? t('載入這個局面') : t('新的一局'); };
 
+  /*
+   * 書法標誌「爪破魔塔」（美術改版 2026-10-06，使用者只留這一項與新背景；原稿 tools/codex_raw/art26/logo_a）：
+   * 只有繁中換圖（英日的標題是翻好的字，圖上是中文）。**等封面四張圖到齊才給 src**：一起抓的話慢網路下多 41 KB
+   * 跟封面圖搶頻寬、封面晚出來（tools/perf/measure.mjs 量過）。寬高寫在標籤上先佔位，按鈕不會被往下推。
+   */
+  const zh = getLang() == 'zh', logo = artUrl('icons', 'icon/art26_logo');
+  const logoImg = zh && !logo.startsWith('data:') ? el('img', { class: 'title-logo', alt: t('爪破魔塔'), width: '400', height: '125' }) as HTMLImageElement : null;
+  if (logoImg) void whenTitleArtReady().then(() => { logoImg.src = logo; });
+
   root.append(screenBg('bg/screen_title'));
   // 語言切換（2026-09-29 多語系）：換了就整個封面重畫
   /*
@@ -127,7 +136,8 @@ registerScreen('title', (app, root) => {
           : el('img', { class: 'title-cat title-cat-fourth', src: heroArtUrl('fengfeng', 'hero/ninja_win'), alt: t('封封') })),
       // 正式名（2026-09-01 定案）：主標走「殺戮尖塔」式的四字重名。
       // 副標「－ 球球參上 －」2026-09-15 拿掉（使用者：第三個角色進來之後首頁不該只掛他的名字）
-      el('h1', {}, t('爪破魔塔')),
+      // 繁中換成書法標誌圖：字留在 alt 給讀屏與分享；圖沒進倉（`data:` 退路）或英日照舊寫字
+      el('h1', {}, logoImg ?? t('爪破魔塔')),
       el('div', { class: 'title-buttons' },
         startBtn,
         // 沒存檔時才加 disabled：這個屬性只要存在就會生效，給空字串也一樣

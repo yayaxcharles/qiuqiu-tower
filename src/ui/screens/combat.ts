@@ -2807,7 +2807,7 @@ registerScreen('combat', (app, root, props) => {
     // 火光明暗、上緣兩團暖光、三層浮塵：畫面靜止時總得有東西在動，不然看起來像一張截圖
     // （量過：不操作的時候整個戰鬥畫面只有立繪的呼吸在跑）。2026-09-29 起全部畫在同一張畫布上（見 ambient.ts：
     // 原本五個蓋滿畫面的圖層各自在動，弱顯示晶片的筆電戰鬥畫面每秒只剩 8 格）
-    box.append(bg, ambientCanvas());
+    box.append(bg, ambientCanvas(bgKey, bg));   // 傳背景鍵與那一層：有設定的新背景多畫霧、光束、燈與呼吸縮放（2026-10-06）
     // 選目標時鋪一層透明的接盤子：點空白處＝取消。魔物與手牌都疊在它上面，照樣點得到
     if (targeting) box.append(targetCatcher());
 

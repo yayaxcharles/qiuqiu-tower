@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { WRITE_DOCS, docUpToDate, writeDoc } from './docs-dump';
 import { expect, it } from 'vitest';
 import { monsterArtKeysForAct } from '../src/ui/preload';
-import { NON_EVENT_ART, SLIDES_BY_ACT, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
+import { NON_EVENT_ART, SLIDES_BY_ACT, art26Keys, bgKeysForAct, eventMainKeys } from '../src/ui/bgacts';
 import { MERCHANT_SPRITES, TITLE_ART, _setManifestForTest, heroOfKey, heroSpriteKey, isCoopOnlyArt, isDeferredBossArt, isGuestKeeperArt, isItemIcon, type Manifest } from '../src/ui/assets';
 import { HEROES } from '../src/engine/hero';
 
@@ -38,6 +38,9 @@ it('dump monster acts', () => {
   // 開場與進關都不載，也不在任何一關的 `bgKeysForAct` 裡——跟幻燈片同一類，寫 0。
   // 名單照事件編號算（`eventMainKeys`），紙箱畫面借用的 `bg/event_chest_*` 不在裡面、照舊算首載
   for (const key of eventMainKeys()) { const path = manifest.bg[key]; if (path) out[path] = 0; }
+  // 第一關的新戰鬥背景（2026-10-06 美術改版）：開場不載（`deferredBgKeys`），進入一局才由 `preloadAct(1)` 抓——跟秘寶忍具圖示同一類，寫 0。
+  // 二三關的照上面那圈記 2、3
+  for (const key of art26Keys('low')) { const path = manifest.bg[key]; if (path) out[path] = 0; }
   // 不是事件的事件類主圖（祝福主圖、問號格三張揭曉圖，2026-09-23 第三批）：用到的畫面自己在背景抓（`bgacts.ts` 的 `NON_EVENT_ART`），同一類寫 0。
   // 角色版的揭曉圖由下面「角色專屬」那一圈收
   for (const id of NON_EVENT_ART) { const path = manifest.bg[`bg/event_${id}`]; if (path) out[path] = 0; }

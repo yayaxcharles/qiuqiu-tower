@@ -175,6 +175,9 @@ registerScreen('map', (app, root) => {
   // 第一版用 16:9 的底圖，拉長會變形，只能固定不動再疊一層漸層假裝高度——已經拿掉。
   // 三關各一張長條圖（塔下石牢→塔中木造→塔頂夜空）；後兩張還沒生好之前退回第一張
   inner.append(el('div', { class: 'map-bg', style: `background-image:url(${artUrl('bg', actVariantKey('bg/map_tall', run.act))})` }));
+  // 中間那一片黑補一層很暗很淡的塔內結構（樓梯、橫梁、遠處的燈；2026-10-06 背景線）。不動、不擋點擊，疊在路線與節點底下
+  const mid = artUrl('bg', actVariantKey('bg/art26_mapmid', run.act));
+  if (!mid.startsWith('data:')) inner.append(el('div', { class: 'map-mid', style: `background-image:url(${mid})` }));
 
   // 路線：每條邊一條 SVG 曲線，控制點往側邊推一點，線就會彎（直線排在一起太像電路圖）。
   // 腳印等一下沿著曲線鋪上去——鋪的時候要量曲線長度，所以得等 SVG 進到文件裡才做。

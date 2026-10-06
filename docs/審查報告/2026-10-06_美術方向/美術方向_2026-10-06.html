@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>爪破魔塔 美術方向</title>
+<style>
+  :root { --bg: #1b1713; --ink: #f1e8d8; --muted: #b7a992; --line: #3a3128; --accent: #e0a91c; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif; line-height: 1.6; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  h2 { font-size: 22px; margin: 44px 0 10px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--accent); }
+  h3 { font-size: 17px; margin: 22px 0 6px; }
+  p, li { font-size: 15px; }
+  .muted { color: var(--muted); }
+  .row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+  figure { margin: 0; background: #241f19; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 6px; }
+  figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .tag { display: inline-block; background: #3a2a1c; color: #ffd98a; border-radius: 6px; padding: 0 8px; font-size: 12px; margin-right: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td, th { border: 1px solid var(--line); padding: 6px 10px; vertical-align: top; text-align: left; }
+  th { background: #241f19; }
+  .ask { background: #2b2214; border: 1px solid #6b5218; border-radius: 10px; padding: 12px 16px; }
+  .ask li { margin: 6px 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>爪破魔塔 美術方向（2026-10-06）</h1>
+<p class="muted"><a href="#r2" style="color:#ffd98a">→ 第二輪補充在最下面（長文字示範、再兩張牌、新按鈕）</a></p>
+<p class="muted">先看現在長什麼樣，再看我用 Codex 生的方向稿。方向稿只是「往哪個方向改」的參考，不是直接拿來用的素材；真的要做，會拆成框、底圖、橫幅這些零件讓程式去拼，牌上的字照舊由程式寫。</p>
+
+<h2>一、卡牌</h2>
+<h3>現況</h3>
+<div class="row">
+  <figure><img src="img/card_now_zoom.jpg" alt=""><figcaption>戰鬥手牌放大三倍。插圖是貼紙貼在素色紙上，中間一大塊空白，框是程式畫的細線。</figcaption></figure>
+  <figure><img src="img/13_debug_cards.jpg" alt=""><figcaption>圖鑑裡的牌。每張的字多半只有一兩行，所以空白佔了牌的三分之一。</figcaption></figure>
+</div>
+<h3>我看到的四個問題</h3>
+<ul>
+  <li><b>下半截空白</b>：規則文字區是「有多少空間就撐多大」，短文字的牌看起來像沒畫完。</li>
+  <li><b>插圖像貼紙</b>：貓的圖是去背的，後面沒有場景，跟紙的關係只是「貼上去」，沒有一張畫的感覺。</li>
+  <li><b>框沒有質感</b>：現在是兩條細線，稀有度靠換邊框顏色。之前試過的雕花木框太寬，放不下字，被收起來了。</li>
+  <li><b>牌名與類型標籤是扁的</b>：牌名只有一條淡底，「攻擊／技能」是一行小灰字。</li>
+</ul>
+<h3>兩個方向稿</h3>
+<div class="row">
+  <figure><img src="img/card_A_lacquer.jpg" alt=""><figcaption><span class="tag">A</span>漆器金邊：紅漆框加銅釘、插圖後面是水墨山水底圖、牌名是紅布橫幅、文字區是舊紙。華麗、有收藏感；技能牌會換成藍漆、能力牌換金漆。</figcaption></figure>
+  <figure><img src="img/card_B_washi.jpg" alt=""><figcaption><span class="tag">B</span>和紙墨線：整張是和紙、黑墨描框、底圖是淡墨竹林、牌名寫在一筆墨上、右下一枚紅印章表示稀有。安靜、像繪本，跟現在的溫暖畫風比較接近。</figcaption></figure>
+</div>
+<h3>真的要做會怎麼做</h3>
+<ul>
+  <li>433 張貓的插圖<b>不重畫</b>，照用。改的是插圖後面的「底圖」、牌框、牌名橫幅、文字區。</li>
+  <li>底圖：攻擊／技能／能力三種各生 2～3 張（山水、竹林、夜空這類），貼在插圖後面，貓就變成站在畫裡。</li>
+  <li>牌框：生成三種類型 × 三種稀有度的框，切成九宮格讓程式拉伸。框寬控制在 6 像素以內，字的空間不會被吃掉（上次木框失敗就是因為框 11 像素）。</li>
+  <li>版面：插圖區從 104 像素加高到約 125，文字區改成固定高度的「牌匾」，短文字也不會留一大片空白；四行字的牌自動把插圖縮一點（程式已經有量字的機制）。</li>
+  <li>代價：牌的字體、換行、英日文牌名這些已經調過很多輪，改版面一定要重跑那批測試，手機版也要重看。</li>
+</ul>
+
+<h2>二、背景</h2>
+<h3>現況：戰鬥背景 9 張＋關主 3 張</h3>
+<figure><img src="img/sheet_combat_bg.jpg" alt=""><figcaption>每關三張。品質不差，但<b>構圖全部一樣</b>：正面、一間空房、均勻打光、沒有前景也沒有遠近，氣氛平。玩家覺得「變化少」多半是這個，不是張數。</figcaption></figure>
+<div class="row">
+  <figure><img src="img/05_combat_act1.jpg" alt=""><figcaption>戰鬥畫面。背景跟角色之間沒有空氣感，貓像貼在牆前面。</figcaption></figure>
+  <figure><img src="img/04_ninja_map_act1.jpg" alt=""><figcaption>地圖。兩側的牆很好看，中間卻是一片黑，節點是灰色手裏劍浮在上面，路線是細灰線。</figcaption></figure>
+</div>
+<h3>方向稿（同樣的畫風，加上光、霧、遠近）</h3>
+<div class="row">
+  <figure><img src="img/bg_bamboo_corridor.jpg" alt=""><figcaption>塔內月夜迴廊：月光從圓窗斜進來、地上有薄霧、近的柱子大遠的柱子小。角色站的那一段地板仍然是乾淨的。</figcaption></figure>
+  <figure><img src="img/bg_rooftop_storm.jpg" alt=""><figcaption>塔頂雷雨黃昏：遠方閃電、旗子被吹、楓葉飄過。可以當第三關的另一種天氣。</figcaption></figure>
+</div>
+<h3>真的要做會怎麼做</h3>
+<ul>
+  <li>戰鬥：每關再加 2～3 張這種有光有霧有遠近的，跟現有 9 張輪流出。現有的不刪也不換，只是輪到的機率變低。</li>
+  <li>地圖：中間那片黑補一層淡淡的塔內結構（樓梯、橫梁、遠處的燈），節點加光暈與底座，路線改成石階或繩梯的樣子。</li>
+  <li>特效照舊保留，不動。</li>
+</ul>
+
+<h2>三、按鈕</h2>
+<div class="row">
+  <figure><img src="img/01_title.jpg" alt=""><figcaption>標題畫面。按鈕是深棕色方塊加一條淺邊，難度五顆用顏色區分。</figcaption></figure>
+  <figure><img src="img/09_shop.jpg" alt=""><figcaption>罐頭鋪。價格牌、標籤、按鈕都是同一種扁平深棕。</figcaption></figure>
+</div>
+<figure><img src="img/buttons_sheet.jpg" alt=""><figcaption>方向稿：三種按鈕各三種狀態（平常／滑過發光／按下壓暗）。木板給一般按鈕、紅漆給「開打」「結束回合」這種主要動作、舊紙給次要按鈕。中間留白，字照舊由程式寫。</figcaption></figure>
+<ul>
+  <li>做法：每種按鈕切成九宮格，程式用 border-image 拉伸（遊戲裡對白框、意圖木牌已經是這樣做的），所以文字長短都放得下。</li>
+  <li>範圍：標題選單、選角、狀態列、結束回合、事件選項、罐頭鋪購買、結算畫面。大約三十處，一次換完才會一致。</li>
+</ul>
+
+<h2>四、我的建議與順序</h2>
+<table>
+  <tr><th>順序</th><th>做什麼</th><th>看得到的改變</th><th>工作量</th></tr>
+  <tr><td>1</td><td>卡牌改版（底圖＋框＋橫幅＋版面）</td><td>最大，整場都在看牌</td><td>約兩天：生圖半天、程式與測試一天、手機與四道門檻半天</td></tr>
+  <tr><td>2</td><td>按鈕換九宮格材質</td><td>整個介面質感一起提升</td><td>約一天</td></tr>
+  <tr><td>3</td><td>戰鬥背景每關加 2～3 張、地圖中間補結構</td><td>變化與氣氛</td><td>約一天半，生圖要挑好幾輪</td></tr>
+</table>
+<div class="ask">
+  <b>請你決定兩件事：</b>
+  <ol>
+    <li>卡牌走 <b>A 漆器金邊</b>、<b>B 和紙墨線</b>，還是混搭（例如 A 的框配 B 的紙）？</li>
+    <li>順序照上面（牌 → 按鈕 → 背景），還是你想先看背景？</li>
+  </ol>
+  <p class="muted">決定之後我會在獨立的工作副本做，推上線前照四道門檻跟線上版逐一比對，現有素材一張都不動。</p>
+</div>
+
+<h2 id="r2">五、第二輪補充（你選了 A 之後）</h2>
+<h3>字最多的牌放進 A 版面</h3>
+<div class="row">
+  <figure><img src="img/card_A_longtext.jpg" alt=""><figcaption>遊戲裡最長的牌文字是 42 個字、四行。牌匾固定留四行的高度，短文字的牌就把字置中，牌匾本身有紙紋，不會看起來空。插圖區不用為了字縮小。</figcaption></figure>
+  <figure><img src="img/card_A2_dan_ding.jpg" alt=""><figcaption>同樣的描述再生一張「淡定」：同一隻球球、同一套畫風。注意框的角落每次生都不一樣，所以<b>框會做成固定的素材</b>，每張牌只生插圖。</figcaption></figure>
+</div>
+<div class="row">
+  <figure><img src="img/card_A3_feifei_needle.jpg" alt=""><figcaption>菲菲的「飛針」：暹羅貓、紫衣、粉紅蝴蝶結都對，毒針也畫出來了。四隻貓的長相用文字描述就穩得住，不需要每張附參考圖。</figcaption></figure>
+</div>
+<h3>按鈕再試兩組（配 A 的漆器金邊）</h3>
+<div class="row">
+  <figure><img src="img/buttons_lacquer_set.jpg" alt=""><figcaption>漆器組：黑漆金雲角、朱漆金線、胡桃木金葉邊、鎚紋銅板。跟 A 的牌框是同一套語言。</figcaption></figure>
+  <figure><img src="img/buttons_paper_set.jpg" alt=""><figcaption>紙布組：符紙（左端貓印章）、靛藍布幡、青石板。比較柔和，適合事件選項、對話那類「說話」的按鈕。</figcaption></figure>
+</div>
+</main>
+</body>
+</html>

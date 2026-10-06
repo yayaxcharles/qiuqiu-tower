@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bgKeysForAct, deferredBgKeys } from '../../src/ui/bgacts';
+import { art26Keys, bgKeysForAct, deferredBgKeys } from '../../src/ui/bgacts';
 import { events } from '../../src/content/events';
 
 /** 事件插圖以外的鍵——那批是照 `acts` 自動長出來的，寫死在測試裡只會變成每加一個事件就要改一次 */
@@ -12,11 +12,17 @@ describe('底圖分關', () => {
       // 過關幻燈片**不在這裡**（2026-09-11）：改由推開關主門那一刻才抓（`screens/bossdoor.ts`），
       // 三關八張全部離開首載，省 121 KB。門停在那裡等玩家點，載得完
       'bg/map_tall',
+      'bg/art26_mapmid',   // 地圖中層（2026-10-06），一關一張、跟地圖底圖同一套換皮
       'bg/screen_chest', 'bg/screen_chest_b', 'bg/screen_chest_c',
       'bg/screen_event',
       'bg/screen_rest', 'bg/screen_rest_b', 'bg/screen_rest_c',
       'bg/screen_shop', 'bg/screen_shop_b', 'bg/screen_shop_c',
+      // 2026-10-06 新戰鬥背景排最後：進入一局的 `preloadAct(1)` 先抓地圖與節點畫面
+      'bg/art26_low_1', 'bg/art26_low_2', 'bg/art26_low_3',
     ]);
+    expect(bgKeysForAct(2)).toContain('bg/art26_mid_3');
+    expect(bgKeysForAct(2)).toContain('bg/art26_mapmid_mid');
+    expect(bgKeysForAct(3)).toContain('bg/art26_top_1');
     expect(bgKeysForAct(2)).toContain('bg/mid_c');
     expect(bgKeysForAct(2)).toContain('bg/screen_shop_mid');
     expect(bgKeysForAct(2)).toContain('bg/screen_shop_mid_c');
@@ -85,9 +91,14 @@ describe('底圖分關', () => {
     }
   });
 
-  it('第一關會用到的一張都不准延後', () => {
+  it('第一關會用到的一張都不准延後（唯一例外：2026-10-06 的新戰鬥背景，進入一局才抓）', () => {
     const skip = deferredBgKeys();
-    for (const k of bgKeysForAct(1)) expect(skip.has(k)).toBe(false);
+    const late = new Set(art26Keys('low'));
+    for (const k of bgKeysForAct(1)) expect(skip.has(k), k).toBe(late.has(k));
+    // 地圖中層第一關那張是一進地圖就看到的，留在開場
+    expect(skip.has('bg/art26_mapmid')).toBe(false);
+    // 二三關的新背景照「二三關減第一關」那條延後
+    for (const k of [...art26Keys('mid'), ...art26Keys('top'), 'bg/art26_mapmid_mid', 'bg/art26_mapmid_top']) expect(skip.has(k), k).toBe(true);
   });
 
   it('過關畫面、開場幻燈片不在延後名單裡', () => {

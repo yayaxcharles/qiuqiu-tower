@@ -139,7 +139,9 @@ async function playFirst(page, pred = 'attack') {
 }
 /** 進一場戰鬥（手牌固定成近戰牌、飯糰 9、魔物血加厚以免太快打完） */
 async function enterFight(page, enc, { hpMul = 4, cards = [MELEE, MELEE, MELEE, MELEE, MELEE] } = {}) {
-  await page.evaluate(({ cards, enc, hpMul }) => {
+  // PERF_FLOOR：換戰鬥背景量（2026-10-06 背景動效量測加的，不給就是原本的 2 樓）
+  const floor = Number(process.env.PERF_FLOOR ?? 2);
+  await page.evaluate(({ cards, enc, hpMul, floor }) => {
     const app = window.__app; const orig = app.__origShow ?? app.show.bind(app); app.__origShow = orig; let done = false;
     app.show = (nm, ...r) => {
       if (nm === 'combat' && app.cs && !done) {
@@ -153,9 +155,9 @@ async function enterFight(page, enc, { hpMul = 4, cards = [MELEE, MELEE, MELEE, 
       }
       return orig(nm, ...r);
     };
-    const r = app.run; r.act = 1; r.floor = 2; r.flags['tut:combat'] = true;
+    const r = app.run; r.act = 1; r.floor = floor; r.flags['tut:combat'] = true;
     app.startFight(enc);
-  }, { cards, enc, hpMul });
+  }, { cards, enc, hpMul, floor });
 }
 
 // 頁面裡的每格計時器＋長任務記錄
