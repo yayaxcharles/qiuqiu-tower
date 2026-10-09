@@ -16,6 +16,7 @@
   background-position: center;
 }
 /* 火光那層（2026-09-29 效能：原本直接對整張底圖跑亮度濾鏡動畫，弱顯示晶片每一格都要把整張圖重算一次；改成底圖不動、上面疊一層暖光只變透明度——透明度動畫交給顯示晶片直接疊，不用重算底圖。亮度 1＋x 對應暖光透明度 0.75x，節奏與原本的關鍵影格一樣） */
+/* 2026-10-09 效能（使用者朋友的 i5-2400＋1080p 螢幕會卡）：透明度改成只在跨過 1/255（螢幕顏色差一級）時才換值（step-end），任何時刻跟原本的平滑曲線差不到半級、看起來一樣；整個畫面重疊從每秒 60 次降到每秒約 1～6 次。關鍵影格由 tools/perf/torch_steps.py 照原本的曲線產生，要改節奏改那支再跑 --write，不要手改下面的百分比 */
 .map-bg::before {
   content: '';
   position: absolute;
@@ -23,7 +24,7 @@
   pointer-events: none;
   background: rgb(255, 214, 160);
   opacity: 0;
-  animation: map-torchlight 6.9s ease-in-out infinite;
+  animation: map-torchlight 6.9s step-end infinite;
 }
 /* 地圖中層（2026-10-06 背景線）：兩側牆中間那一片黑補一層塔內結構。圖本身已經壓暗、左右邊緣淡出成透明（進倉時做好），
    這裡只負責擺位置；不動、不擋點擊。對比度留給節點與路線，數字見 docs/審查報告/2026-10-06_美術方向/art-bg-1006_報告.md */
@@ -74,12 +75,50 @@
   width: 1280px;
   pointer-events: none;
 }
+/* 下面這組由 tools/perf/torch_steps.py 產生（原本的關鍵影格與 ease-in-out 曲線寫在那支裡），不要手改 */
 @keyframes map-torchlight {
-  0%, 100% { opacity: 0; }
-  19% { opacity: .045; }
-  36% { opacity: 0; }
-  58% { opacity: .034; }
-  79% { opacity: .015; }
+  0.00% { opacity: 0.00000; }
+  2.80% { opacity: 0.00392; }
+  4.78% { opacity: 0.00784; }
+  6.14% { opacity: 0.01176; }
+  7.28% { opacity: 0.01569; }
+  8.30% { opacity: 0.01961; }
+  9.28% { opacity: 0.02353; }
+  10.24% { opacity: 0.02745; }
+  11.23% { opacity: 0.03137; }
+  12.31% { opacity: 0.03529; }
+  13.54% { opacity: 0.03922; }
+  15.13% { opacity: 0.04314; }
+  22.47% { opacity: 0.03922; }
+  23.89% { opacity: 0.03529; }
+  25.00% { opacity: 0.03137; }
+  25.96% { opacity: 0.02745; }
+  26.85% { opacity: 0.02353; }
+  27.71% { opacity: 0.01961; }
+  28.57% { opacity: 0.01569; }
+  29.49% { opacity: 0.01176; }
+  30.51% { opacity: 0.00784; }
+  31.73% { opacity: 0.00392; }
+  33.50% { opacity: 0.00000; }
+  39.72% { opacity: 0.00392; }
+  42.35% { opacity: 0.00784; }
+  44.19% { opacity: 0.01176; }
+  45.77% { opacity: 0.01569; }
+  47.24% { opacity: 0.01961; }
+  48.74% { opacity: 0.02353; }
+  50.38% { opacity: 0.02745; }
+  52.39% { opacity: 0.03137; }
+  55.81% { opacity: 0.03529; }
+  60.78% { opacity: 0.03137; }
+  65.15% { opacity: 0.02745; }
+  67.86% { opacity: 0.02353; }
+  70.42% { opacity: 0.01961; }
+  73.56% { opacity: 0.01569; }
+  83.28% { opacity: 0.01176; }
+  87.59% { opacity: 0.00784; }
+  90.83% { opacity: 0.00392; }
+  94.72% { opacity: 0.00000; }
+  100% { opacity: 0.00000; }
 }
 
 .map-edges path {

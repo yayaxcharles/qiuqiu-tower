@@ -17,6 +17,7 @@
      週期 7.4 秒是三個裡最慢的——這幾個畫面是停下來讀字的地方，太活潑會搶注意力。 */
 }
 /* 火光那層（2026-09-29 效能：原本直接對整張底圖跑亮度濾鏡動畫，弱顯示晶片每一格都要把整張圖重算一次；改成底圖不動、上面疊一層暖光只變透明度——透明度動畫交給顯示晶片直接疊，不用重算底圖。亮度 1＋x 對應暖光透明度 0.75x，節奏與原本的關鍵影格一樣） */
+/* 2026-10-09 效能（使用者朋友的 i5-2400＋1080p 螢幕會卡）：透明度改成只在跨過 1/255（螢幕顏色差一級）時才換值（step-end），任何時刻跟原本的平滑曲線差不到半級、看起來一樣；整個畫面重疊從每秒 60 次降到每秒約 1～6 次。關鍵影格由 tools/perf/torch_steps.py 照原本的曲線產生，要改節奏改那支再跑 --write，不要手改下面的百分比 */
 .screen-bg::before {
   content: '';
   position: absolute;
@@ -24,23 +25,76 @@
   pointer-events: none;
   background: rgb(255, 214, 160);
   opacity: 0;
-  animation: bg-torchlight 7.4s ease-in-out infinite;
+  animation: bg-torchlight 7.4s step-end infinite;
 }
+/* 下面這組由 tools/perf/torch_steps.py 產生（原本的關鍵影格與 ease-in-out 曲線寫在那支裡），不要手改 */
 @keyframes bg-torchlight {
-  0%, 100% { opacity: 0; }
-  22% { opacity: .0375; }
-  41% { opacity: 0; }
-  64% { opacity: .026; }
-  83% { opacity: .011; }
+  0.00% { opacity: 0.00000; }
+  3.55% { opacity: 0.00392; }
+  6.05% { opacity: 0.00784; }
+  7.79% { opacity: 0.01176; }
+  9.26% { opacity: 0.01569; }
+  10.62% { opacity: 0.01961; }
+  11.96% { opacity: 0.02353; }
+  13.36% { opacity: 0.02745; }
+  14.92% { opacity: 0.03137; }
+  16.89% { opacity: 0.03529; }
+  20.72% { opacity: 0.03922; }
+  23.11% { opacity: 0.03529; }
+  26.41% { opacity: 0.03137; }
+  28.12% { opacity: 0.02745; }
+  29.47% { opacity: 0.02353; }
+  30.67% { opacity: 0.01961; }
+  31.82% { opacity: 0.01569; }
+  33.01% { opacity: 0.01176; }
+  34.27% { opacity: 0.00784; }
+  35.78% { opacity: 0.00392; }
+  37.95% { opacity: 0.00000; }
+  45.43% { opacity: 0.00392; }
+  48.58% { opacity: 0.00784; }
+  50.84% { opacity: 0.01176; }
+  52.88% { opacity: 0.01569; }
+  54.95% { opacity: 0.01961; }
+  57.42% { opacity: 0.02353; }
+  61.71% { opacity: 0.02745; }
+  66.48% { opacity: 0.02353; }
+  71.16% { opacity: 0.01961; }
+  74.13% { opacity: 0.01569; }
+  77.39% { opacity: 0.01176; }
+  86.91% { opacity: 0.00784; }
+  91.16% { opacity: 0.00392; }
+  95.03% { opacity: 0.00000; }
+  100% { opacity: 0.00000; }
 }
 /* 開始畫面是夜景不是火光，改成天色極慢的明暗（22 秒），不要跟著火在跳；光是偏冷的月光色 */
 :is(#stage, .screen-leaving)[data-screen="title"] .screen-bg::before {
   background: rgb(215, 225, 255);
-  animation: night-drift 22s ease-in-out infinite;
+  animation: night-drift 22s step-end infinite;
 }
+/* 下面這組由 tools/perf/torch_steps.py 產生（原本的關鍵影格與 ease-in-out 曲線寫在那支裡），不要手改 */
 @keyframes night-drift {
-  0%, 100% { opacity: 0; }
-  50% { opacity: .0375; }
+  0.00% { opacity: 0.00000; }
+  8.05% { opacity: 0.00392; }
+  13.75% { opacity: 0.00784; }
+  17.71% { opacity: 0.01176; }
+  21.05% { opacity: 0.01569; }
+  24.15% { opacity: 0.01961; }
+  27.20% { opacity: 0.02353; }
+  30.37% { opacity: 0.02745; }
+  33.92% { opacity: 0.03137; }
+  38.39% { opacity: 0.03529; }
+  47.10% { opacity: 0.03922; }
+  52.91% { opacity: 0.03529; }
+  61.62% { opacity: 0.03137; }
+  66.09% { opacity: 0.02745; }
+  69.64% { opacity: 0.02353; }
+  72.81% { opacity: 0.01961; }
+  75.85% { opacity: 0.01569; }
+  78.95% { opacity: 0.01176; }
+  82.30% { opacity: 0.00784; }
+  86.26% { opacity: 0.00392; }
+  91.95% { opacity: 0.00000; }
+  100% { opacity: 0.00000; }
 }
 .screen-bg::after {
   content: '';
