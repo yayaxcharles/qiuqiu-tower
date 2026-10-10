@@ -56,3 +56,5 @@ tools/motion-art-source/fengfeng_qi_0925/*.picked
 
 # 配音工作檔（整批原檔、切片、試聽）：幾百 MB，不進版控；成品在 public/voice/
 vids/
+# 試聽包（ElevenLabs 選角、音效試做），不進版控
+voice_test/
