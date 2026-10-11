@@ -72,7 +72,7 @@ export function playVideo(name: VideoName, onDone: () => void): void {
  * 封面的「介紹影片」（2026-09-29 使用者：「V2 可以了，放到封面上讓玩家可以點來看」）。
  * 跟上面的劇情過場不一樣：玩家自己點開、有播放控制列、隨時可關（按鈕、Esc、播完自動收），不鎖畫面、不接劇情。
  * 檔案 `public/video/trailer.mp4`（720p 約 11 MB，配樂與音效烤在檔案裡）；點了才下載，關掉連下載一起停。
- * 原始專案在 `F:\ClaudeWork\remotion-video\src\qiuqiu\Trailer2.tsx`（遊戲自己的角色動作圖、魔物圖重演＋三段實機錄影）。
+ * 原始專案在 `F:\ClaudeWork\remotion-video\src\qiuqiu\Trailer3.tsx`（2026-10-11 v3：新曲、新背景、大冒險怪物逐格動畫、四隻貓招牌招式、日文配音；v2 是 Trailer2.tsx）。
  */
 export function playTrailer(): void {
   const layer = overlayRoot();
