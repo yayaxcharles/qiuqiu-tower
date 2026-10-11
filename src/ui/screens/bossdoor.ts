@@ -19,11 +19,16 @@ import { t as i18nT } from '../../i18n';
  * 門只有一張圖，開的動作交給 CSS：同一張圖疊兩份、各自用 `clip-path` 切掉一半，
  * 左半往左滑、右半往右滑。生圖時就要求「左右對稱、接縫正好在正中央」，切出來才對得起來。
  */
+/** 這一局在第幾關已經響過門前那段音樂（畫面重畫不再響） */
+const stungAt = new WeakMap<object, number>();
+
 registerScreen('bossdoor', (app, root, props) => {
   const run = app.run;
   const { encounterId } = props as { encounterId: string };
   if (!run || !encounterId) { app.show('map'); return; }
   renderHud(app, root);
+  // 走到門口響一段不安的短音樂（2026-10-11，約 5 秒；推門那一下照舊是壓低音高的重擊）
+  if (stungAt.get(run) !== run.act) { stungAt.set(run, run.act); play('bossdoor'); }
   // 打完這隻關主就會播過關幻燈片。趁門還關著先抓起來——那三張不再算進首載了（見 bgacts.ts），
   // 而這裡是一關裡唯一「畫面停住、等玩家動作」的時刻，最適合塞預載
   warmSlides(run.act);

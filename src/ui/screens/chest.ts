@@ -109,7 +109,7 @@ registerScreen('chest', (app, root, props) => {
       coop.clearPicks('relic');   // 結算完才清（收尾時清會把票清掉，見上面的說明）
       const mine = got[seat];
       if (mine) coop.submitRun({ t: 'relic', seat, id: mine });
-      play('relic');
+      play('chest');
       if (openedCoop) revealCoop();
     });
     coop.onRunApplied((applied) => {
@@ -177,7 +177,7 @@ registerScreen('chest', (app, root, props) => {
     // 「最大生命 +10」的訊息，配上還沒加的血條與少一格的秘寶列，要回地圖才對得起來
     renderHud(app, root);
     const def = id ? relicById[id] : undefined;
-    play(def ? 'relic' : 'click');   // 空箱子沒有拿到東西，不要放拿寶的音
+    play(def ? 'chest' : 'click');   // 空箱子沒有拿到東西，不要放開箱的音
     const url = def ? artUrl('icons', def.art) : '';
     const hasLoot = !!def && !url.startsWith('data:');
 

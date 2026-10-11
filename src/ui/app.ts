@@ -168,7 +168,7 @@ export class App {
     switch (name) {
       // 結算分輸贏：贏放通關曲、輸放陣亡曲——原本共用休閒曲，剛死掉卻放輕鬆的曲子，調性不對
       case 'result': return this.run?.status === 'won' ? 'ending' : this.run?.status === 'lost' ? 'defeat' : 'leisure';
-      case 'title': return 'leisure';
+      case 'title': return 'title';
       case 'map': case 'event': case 'chest': case 'bossdoor': case 'actclear': case 'reward': case 'blessing': return actTrack;
       case 'shop': return 'shop';
       case 'rest': return 'rest';
@@ -662,11 +662,14 @@ export class App {
     const combatScreenReady = import('./screens/combat');
     // 戰鬥配樂分四級：影球球鏡像戰＞最終戰（第三關關主）＞一般關主＞精英，其餘出征曲
     const pool = encounterById[encounterId]?.pool;
-    const battleTrack = (['battle', 'battle2', 'battle3'] as const)[Math.min(3, Math.max(1, run.act)) - 1]!;
+    const actIdx = Math.min(3, Math.max(1, run.act)) - 1;
+    const battleTrack = (['battle', 'battle2', 'battle3'] as const)[actIdx]!;
+    // 2026-10-11：第二關關主、第二／三關大魔物換各自的曲子（第三關關主照舊是 finalboss）
+    const eliteTrack = (['elite', 'elite2', 'elite3'] as const)[actIdx]!;
     // 影子鏈那一場（`shadow_duel`，2026-09-23 內容擴充第二批）也是鏡像戰
     setBgm(encounterId.startsWith('shadow_cat') || encounterId.startsWith('mirror_duel') || encounterId.startsWith('shadow_duel') ? 'shadow'
-      : isBoss ? (run.act >= ACTS ? 'finalboss' : 'boss')
-        : pool === '大魔物' ? 'elite' : battleTrack);
+      : isBoss ? (run.act >= ACTS ? 'finalboss' : run.act === 2 ? 'boss2' : 'boss')
+        : pool === '大魔物' ? eliteTrack : battleTrack);
     const go = (): void => {
       if (this.run !== run) return;   // 關主開場播完時這一局已經丟了（連線斷了回標題，2026-09-23 稽核 高-1）：不開打
       this.cs = beginCombat(run, encounterId);

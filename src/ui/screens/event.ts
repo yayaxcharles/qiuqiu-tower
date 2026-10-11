@@ -287,6 +287,7 @@ registerScreen('event', (app, root, props) => {
   const waitingPicks = new PickWaits();
   /** 最近一次畫的結果畫面（`finish` 的參數）：別種票湊齊、要把按鈕換成「繼續」時照這一份重畫，不重跑結果（重跑會再開一次挑選窗） */
   let lastFinish: [string, string | null, readonly RunGain[], Showcase] | null = null;
+  let rewardRang = false;
   /** 連線時「挑一件淨化」那一輪的文案（2026-09-23 第三批）：只有真的開過挑選窗的那一台才有，理由同 `cardPickInfo` */
   let purifyInfo: { resultText: string; gains: RunGain[]; gotShow: Showcase; noteLine: (extra?: string | readonly string[]) => string | null } | null = null;
   const iDown = !!coop && !!me(run, seat).down;   // 我倒下了：只能看，不能選
@@ -407,6 +408,9 @@ registerScreen('event', (app, root, props) => {
   let afterLearn: ((note: string, learned: CardInstance[]) => void) | null = null;
   const finish = (resultText: string, note: string | null = null, gains: readonly RunGain[] = [], show: Showcase = []): void => {
     lastFinish = [resultText, note, gains, show];
+    // 事件拿到秘寶或忍具響一聲（2026-10-11）。賭局另有輸贏音效（見 `panel`）就不疊；同伴挑完會再叫一次 finish，只響第一次
+    const gambled = (note?.includes(t('中了！')) ?? false) || (note?.includes(t('沒中……')) ?? false);
+    if (!rewardRang && !gambled && gains.some((g) => !g.missed)) { rewardRang = true; play('reward'); }
     panel(resultText, note,
       waitingPicks.waiting
         ? el('button', { class: 'btn', disabled: 'disabled' }, t('等同伴挑完…'))
@@ -712,7 +716,7 @@ registerScreen('event', (app, root, props) => {
         showPurifyPick(ids, (id) => {
           const got: string[] = [];
           if (id) purifyRelic(run, id, seat, got);
-          if (got.length) play('relic');
+          if (got.length) { rewardRang = true; play('purify'); }   // 淨化那聲就夠了，不再疊拿東西那聲
           finish(resultText, noteLine(got.length ? got : undefined), gains, gotShow);
         });
         return;
@@ -831,7 +835,7 @@ registerScreen('event', (app, root, props) => {
           });
           const info = purifyInfo;
           if (!info) { refresh(); return; }   // 我這台沒開過視窗（沒得挑、倒下、挑的是別種）：重畫一次把「繼續」放出來
-          if (mine.length) play('relic');
+          if (mine.length) { rewardRang = true; play('purify'); }
           finish(info.resultText, info.noteLine(mine.length ? mine : undefined), info.gains, info.gotShow);
           return;
         }
@@ -983,8 +987,8 @@ registerScreen('event', (app, root, props) => {
   root.append(markRare(sceneView({ art: eventArt(ev.id, artHero), ...(portrait ? { portrait } : {}), ...(portrait2 ? { portrait2 } : {}), speaker: title,
     // 同伴投一票的安靜重畫：對白框、立繪、備註不再彈一次（畫面抖動稽核 2026-09-24 第 4 項，見 `App.redraw`）
     text: iDown ? t('{opening}（你倒下了，這次由同伴決定）', { opening }) : opening, extra, actions: choices, column: true, calm: app.redraw })));
-  // 稀有事件開場播一聲秘寶那個音效（design3 5-1）。連線時每投一票會重畫一次，有人投過票就不再響
-  if (ev.rare && !votes.some((v) => v !== null)) play('relic');
+  // 稀有事件開場播一聲（design3 5-1；2026-10-11 換成專屬的 rare）。連線時每投一票會重畫一次，有人投過票就不再響
+  if (ev.rare && !votes.some((v) => v !== null)) play('rare');
 
   if (coop) {
     coop.onPick((kind) => {

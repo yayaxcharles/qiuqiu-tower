@@ -66,7 +66,7 @@ describe('事件畫面', () => {
   it('稀有事件：名牌旁的金牌「難得一見」（開場、結果、選牌三個畫面都掛）、開場播秘寶那聲', () => {
     expect(src).toContain("el('span', { class: 'rare-badge' }, t('難得一見'))");
     expect(src.match(/root\.append\(markRare\(sceneView\(/g)?.length).toBe(3);
-    expect(src).toContain("if (ev.rare && !votes.some((v) => v !== null)) play('relic');");
+    expect(src).toContain("if (ev.rare && !votes.some((v) => v !== null)) play('rare');");
   });
   it('抽到之後的那一句接在結果後面（從引擎寫的提示裡找抽到哪一格）', () => {
     // 結果文字照 b2fin 的 `resultHero` 換角色（2026-09-24 b3int 合併）
@@ -90,7 +90,7 @@ describe('貓窩、紙箱、獎勵、地圖、狀態列、圖鑑', () => {
     expect(src).toContain('const miasma = miasmaRelicsOf(run, seat);');
     expect(src).toContain("act({ t: 'rest', seat, c: '淨化', r: id }, () => rest(run, '淨化', undefined, seat, id))");
     expect(src).toContain('showPurifyPick(miasma, go, { cancellable: true })');
-    expect(src).toContain("if (a.c === '淨化') { play('relic'); afterPurify(a.r ?? ''); continue; }");
+    expect(src).toContain("if (a.c === '淨化') { play('purify'); afterPurify(a.r ?? ''); continue; }");
   });
   it('貓窩：夢枕睡完先挑一張；連線時帶夢枕的人挑完（`restCard`）才算做完', () => {
     const src = lf(REST);
