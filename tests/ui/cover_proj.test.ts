@@ -30,7 +30,9 @@ const ORIGINAL_SHA = { qiuqiu: '56385f30aee228358e59f9d891353d03631db01a76f3716a
 describe('球球的標題貼圖是 09-01 原版（使用者 2026-09-23 裁定）', () => {
   it('遊戲裡的檔就是原版那張，紀錄也標成原版', () => {
     const e = FILES['qiuqiu/cover']!;
-    expect(sha(e.file)).toBe(ORIGINAL_SHA.qiuqiu);
+    // 2026-10-11 使用者要拿掉四隻的「參上」題字（`tools/gen_cover_notext.py`，貓與煙塵不動）：原版原檔留在備份夾，遊戲裡是它拿掉題字那張
+    expect(sha('tools/cover_backup_20261011/cover.webp')).toBe(ORIGINAL_SHA.qiuqiu);
+    expect(sha(e.file)).toBe(e.sha256);
     expect(e.batch).toBe('original');
   });
 });
