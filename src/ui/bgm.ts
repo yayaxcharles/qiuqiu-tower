@@ -11,9 +11,10 @@ import { fileUrl } from './assets';
 
 export type BgmName =
   | 'leisure' | 'act1' | 'act2' | 'act3' | 'battle' | 'boss' | 'shop' | 'rest'
-  // 塔中／塔頂的一般戰：同一首出征曲用 ffmpeg 做的兩個變奏（塔中升兩個半音、塔頂降三個半音加回音），
+  // 塔中／塔頂的一般戰：原本是同一首出征曲用 ffmpeg 做的兩個變奏（塔中升兩個半音、塔頂降三個半音加回音），
   // 三關的地圖曲本來就各一首，但戰鬥（玩最久的地方）三關共用一首，整關聽起來就沒換（使用者 2026-09-02）。
-  // 之後有真正的新曲子，直接覆蓋 public/bgm/battle2.mp3、battle3.mp3 就好。
+  // 2026-10-11 battle2 換成 ElevenLabs 生的新曲（和風管弦、124 拍、切在小節線上可無縫重播；舊檔 tools/bgm_backup_20261011/）。
+  // battle3 有新曲子時一樣直接覆蓋 public/bgm/battle3.mp3 就好。
   | 'battle2' | 'battle3'
   | 'elite'      // 大魔物（精英）戰
   | 'finalboss'  // 第三關的走火入魔大俠貓
