@@ -16,6 +16,9 @@ export type BgmName =
   // 2026-10-11 兩首都換成 ElevenLabs 生的新曲（和風管弦；塔中 124 拍、塔頂 132 拍較暗較急；切在小節線上可無縫重播；
   // 舊的變調版在 tools/bgm_backup_20261011/）。要再換就直接覆蓋 public/bgm/battle2.mp3、battle3.mp3。
   | 'battle2' | 'battle3'
+  // 2026-10-11 第二批 ElevenLabs 新曲（同一套和風管弦）：標題畫面原本借休閒曲；關主戰、大魔物戰原本三關共用一首，
+  // 第二關關主、第二／三關大魔物各換一首（第一關留原曲，第三關關主是 finalboss）。選曲在 app.ts（`bgmFor`、`startFight`）
+  | 'title' | 'boss2' | 'elite2' | 'elite3'
   | 'elite'      // 大魔物（精英）戰
   | 'finalboss'  // 第三關的走火入魔大俠貓
   | 'shadow'     // 影球球鏡像戰（遭遇 id 是 shadow_cat 時）
@@ -53,13 +56,17 @@ export function setMusicVolume(v: number): void {
  * 配音講話時把音樂壓低（`voice.ts`，2026-09-28）：`k`＝音量倍率，講完傳 1 還原。
  * 正在淡出換曲就不插手（打斷會讓換曲卡住）；新曲淡入的目標音量本來就照 `level()` 算。
  */
-let duck = 1;
-export function duckBgm(k: number): void {
-  duck = Math.max(0, Math.min(1, k));
+/**
+ * `who`＝誰要壓（2026-10-11 加過場短音樂 `sting`）：配音跟過場音樂各壓各的、取最低那個，
+ * 不然一邊講完傳 1 會把另一邊還在壓的音樂提早放大。
+ */
+const ducks = new Map<string, number>();
+export function duckBgm(k: number, who = 'voice'): void {
+  ducks.set(who, Math.max(0, Math.min(1, k)));
   if (el && !el.paused && !swapping) fade(el, level());
 }
-/** 現在該有的音量（0～1）：拉桿 × 講話壓低 */
-function level(): number { return (volume / 100) * duck; }
+/** 現在該有的音量（0～1）：拉桿 × 壓得最低的那一個 */
+function level(): number { return (volume / 100) * Math.min(1, ...ducks.values()); }
 
 function readEnabled(): boolean {
   try { return window.localStorage.getItem(STORE_KEY) !== 'off'; } catch { return true; }

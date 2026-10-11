@@ -1,5 +1,6 @@
 import { sfxFor } from './sfxhero';
 import { fileUrl } from './assets';
+import { duckBgm } from './bgm';
 
 /**
  * 音效。
@@ -19,6 +20,10 @@ export type Sfx =
   | 'dodge' | 'thorns' | 'poison' | 'stealth' | 'buff' | 'debuff' | 'heal'
   | 'draw' | 'click' | 'turn_end' | 'turn_start' | 'fish' | 'buy' | 'potion'
   | 'upgrade' | 'relic' | 'victory' | 'defeat' | 'step'
+  // 2026-10-11 從共用的 relic 拆出來的四種（ElevenLabs 生，不在 make_sfx.py）：開寶箱、事件拿到東西、稀有事件出現、淨化秘寶
+  | 'chest' | 'reward' | 'rare' | 'purify'
+  // 過場短音樂（過關號角、關主門前）：檔案短、要跟動作同步，所以走音效這條路；播的時候背景音樂壓低（見 `STINGS`）
+  | 'fanfare' | 'bossdoor'
   // 角色專屬版本（`sfxhero.ts` 決定什麼時候用它們）
   | 'hurt_feifei' | 'victory_feifei';
 
@@ -29,6 +34,11 @@ const GAIN: Partial<Record<Sfx, number>> = {
   fish: 0.45, buy: 0.5, victory: 0.7, defeat: 0.7,
   hurt_feifei: 0.7, victory_feifei: 0.7,
 };
+
+/** 過場短音樂：開始播時把背景音樂壓到三成五，播完還原（跟配音各壓各的，見 `duckBgm`） */
+const STINGS: ReadonlySet<Sfx> = new Set<Sfx>(['fanfare', 'bossdoor']);
+/** 正在放的過場音樂有幾段：連線重新同步可能讓同一段再響一次，全部放完才還原背景音樂（審查 2026-10-11 低-3） */
+let stingsPlaying = 0;
 
 const STORE_KEY = 'qiuqiu.sound';
 
@@ -62,7 +72,8 @@ let enabled = readEnabled();
 export function soundOn(): boolean { return enabled; }
 
 export function setSoundOn(on: boolean): void {
-  if (!on) { playbackEpoch++; soundOffHook?.(); }
+  // 關掉聲音時過場音樂只是總音量歸零、還在跑：背景音樂當場還原，不等它放完（審查 2026-10-11 低-4）
+  if (!on) { playbackEpoch++; soundOffHook?.(); stingsPlaying = 0; duckBgm(1, 'sting'); }
   enabled = on;
   try { window.localStorage.setItem(STORE_KEY, on ? 'on' : 'off'); } catch { /* 存不了就算了 */ }
   if (master && ctx) master.gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.01);
@@ -195,6 +206,10 @@ export function play(name: Sfx, rate = 1): void {
     g.gain.value = GAIN[name] ?? 0.6;
     src.connect(g).connect(output);
     src.start();
+    if (STINGS.has(name)) {
+      if (stingsPlaying++ === 0) duckBgm(0.35, 'sting');
+      src.onended = () => { stingsPlaying = Math.max(0, stingsPlaying - 1); if (!stingsPlaying) duckBgm(1, 'sting'); };
+    }
   };
   const buf = buffers.get(name);
   if (buf && audio.state === 'running') { start(buf); return; }

@@ -32,6 +32,8 @@ import { relicLong, relicName, relicText } from '../../i18n/names';
  */
 const NEXT_PLACE: Record<number, string> = { 1: '塔的中央部位', 2: '塔頂' };
 
+const fanfareAt = new WeakMap<object, number>();
+
 registerScreen('actclear', (app, root, props) => {
   root.append(screenBg('bg/screen_result_win'));
   const run = app.run;
@@ -45,7 +47,8 @@ registerScreen('actclear', (app, root, props) => {
   const cardPicks = app.coop ? (rollActCardsPerSeat(run)[app.seat] ?? []) : rollActCards(run);
   let pickedCard: string | null = null;   // 只擲一次、只挑一張；重畫不重擲
   let pickedRelic: string | null = null;
-  play('victory');
+  // 2026-10-11 換成過關號角（約 7 秒的短音樂，播的時候背景音樂壓低）。同一局同一關只吹一次：畫面重畫不再響
+  if (fanfareAt.get(run) !== run.act) { fanfareAt.set(run, run.act); play('fanfare'); }
 
   /*
    * 兩個人一起過關（連線版 2026-09-11）：秘寶與牌**各挑各的**（同一份清單，重複也沒關係——

@@ -30,7 +30,7 @@ const log = vi.hoisted(() => ({ order: [] as string[] }));
 vi.mock('../../src/ui/screens/combat', () => ({}));
 
 const run$ = await import('../../src/ui/netload-run');
-const { ALL_SFX, FIRST_POSES, startRun, useRunDeps, nextFightUrls, preloadNextFights, dropFirstPoses, _heldFirstPosesForTest } = run$;
+const { ALL_SFX, LATE_SFX, FIRST_POSES, startRun, useRunDeps, nextFightUrls, preloadNextFights, dropFirstPoses, _heldFirstPosesForTest } = run$;
 const { gateProgress, MAP_GATE_MS } = await import('../../src/ui/netload');
 
 const APP = APP_RAW.replace(/\r\n/g, '\n');
@@ -107,10 +107,10 @@ describe('1. 開局的下載順序（startRun）', () => {
     const o = log.order.filter((x) => !x.startsWith('prio:'));
     expect(o[0], '第一個就是地圖底圖').toBe('img:/assets/bg/map_tall.webp');
     expect(new Set(o.slice(1, 9))).toEqual(new Set([...Object.values(NODE_ICON), 'icon/map_hero_low'].map((k) => `img:/assets/icons/${k}.webp`)));
-    const sfx = o.slice(9, 9 + 28);
-    expect(sfx.every((x) => x.startsWith('fetch:/assets/sfx/')), '接著是 28 個音效').toBe(true);
+    const sfx = o.slice(9, 9 + 32);
+    expect(sfx.every((x) => x.startsWith('fetch:/assets/sfx/')), '接著是 32 個音效（過場音樂兩段在 B 層）').toBe(true);
     expect(sfx[0], '腳步聲排第一（慢網路最常被跳過的）').toBe('fetch:/assets/sfx/step.mp3');
-    expect(o.slice(9 + 28)).toEqual(['voice', 'background']);
+    expect(o.slice(9 + 32)).toEqual(['voice', 'background']);
     expect(log.order.filter((x) => x.startsWith('prio:')).every((x) => x === 'prio:high')).toBe(true);
   });
 
@@ -123,7 +123,7 @@ describe('1. 開局的下載順序（startRun）', () => {
     await flush();
     const later = (): string[] => imgs().filter((x) => /\/(monsters|cards|sprites)\/|\/icons\/icon\/status_/.test(x));
     expect(later(), 'A 還沒到齊').toEqual([]);
-    expect(pr.total, '底圖＋8 圖示＋28 音效＋戰鬥畫面程式＋主角動作資料＋配音').toBe(1 + 8 + 28 + 1 + 1 + 1);
+    expect(pr.total, '底圖＋8 圖示＋32 音效＋戰鬥畫面程式＋主角動作資料＋配音').toBe(1 + 8 + 32 + 1 + 1 + 1);
     for (const res of pending) res({ ok: true, arrayBuffer: async () => new ArrayBuffer(1) } as Response);
     await ready;
     await flush();
@@ -552,15 +552,16 @@ describe('4c. 離開連線、重新同步：拆掉蓋層並解鎖', () => {
 });
 
 describe('5. 全部音效開局就抓', () => {
-  it('名單 28 個一個不漏（對 public/assets/sfx 的檔案）；還沒解鎖只下載、不解碼', async () => {
+  it('名單 32＋2 個一個不漏（對 public/assets/sfx 的檔案）；還沒解鎖只下載、不解碼', async () => {
     const fetched: string[] = [];
     vi.stubGlobal('fetch', vi.fn(async (u: string) => { fetched.push(u); return { ok: true, arrayBuffer: async () => new ArrayBuffer(1) } as Response; }));
     vi.resetModules();
     const audio = await import('../../src/ui/audio');
-    audio.preloadSfx(ALL_SFX);
+    audio.preloadSfx([...ALL_SFX, ...LATE_SFX]);
     const files = readdirSync('public/assets/sfx').filter((f) => f.endsWith('.mp3')).map((f) => `/assets/sfx/${f}`);
     expect(new Set(fetched)).toEqual(new Set(files));
-    expect(fetched).toHaveLength(28);
+    expect(fetched).toHaveLength(34);
+    expect(ALL_SFX).toHaveLength(32);
   });
 
   it('解鎖之後預載過的腳步聲：網路再卡，點下去當下就播', async () => {
@@ -581,7 +582,7 @@ describe('5. 全部音效開局就抓', () => {
     const audio = await import('../../src/ui/audio');
     audio.unlockOnFirstGesture();
     ev.dispatchEvent(new Event('pointerdown'));
-    audio.preloadSfx(ALL_SFX);
+    audio.preloadSfx([...ALL_SFX, ...LATE_SFX]);
     await flush();
     net = false;   // 之後網路整個卡住：沒預載的話 `step` 會等下載、500 毫秒後整個不播
     audio.play('step');

@@ -30,7 +30,12 @@ const B_AFTER_MS = 8000;
 /** 全部音效（`Sfx` 的每一個）；慢網路最常被跳過的四個排前面 */
 export const ALL_SFX: readonly Sfx[] = ['step', 'enemy_down', 'blocked', 'poison', 'claw', 'hit', 'hit_heavy', 'hurt', 'block', 'dodge', 'thorns',
   'stealth', 'buff', 'debuff', 'heal', 'draw', 'click', 'turn_end', 'turn_start', 'fish', 'buy', 'potion', 'upgrade', 'relic',
-  'victory', 'defeat', 'hurt_feifei', 'victory_feifei'];
+  'victory', 'defeat', 'hurt_feifei', 'victory_feifei', 'chest', 'reward', 'rare', 'purify'];
+/**
+ * 過場短音樂（過關號角 110 KB、關主門前 80 KB，2026-10-11）：比其他音效加起來的一半還大，放進 A 層慢網路進地圖要多等兩三秒，
+ * 而最早也要打到第一關關主門口才用得到，所以跟 B 層一起抓。
+ */
+export const LATE_SFX: readonly Sfx[] = ['fanfare', 'bossdoor'];
 
 /**
  * 主角第一場最先換到的幾張姿勢（待機、出招的掌推與爪擊、蜷縮、施術、挨打；鍵寫球球版，`heroArtUrl` 換成那一位的）。
@@ -80,6 +85,7 @@ export function startRun(run: RunState, seat: number, pr: Preload.Progress, d: R
   void d.preloadHeroArt(run.players.map((p) => p.hero), run.act);
   void Promise.race([ready, new Promise<void>((r) => setTimeout(r, B_AFTER_MS))]).then(() => {
     if (current !== run) return;
+    void Promise.all(d.preloadSfx(LATE_SFX));
     // 狀態小圖示（翻肚、中毒…）排最前面、只抓第一步魔物會上的那幾顆（審查 低-4：原本排在最後、全部十七張，「中毒」那顆慢網路晚到 7.5 秒）
     void decodeAll(statusIconUrls(nextFightDefs(run)), 4, true, iconPool, 'high');
     void preloadNextFights(run);

@@ -301,7 +301,7 @@ registerScreen('rest', (app, root) => {
         if (!act({ t: 'rest', seat, c: '淨化', r: id }, () => rest(run, '淨化', undefined, seat, id))) return;
         used = true;
         if (coop) return;   // 連線的等動作繞回來才演（見 onRunApplied）
-        play('relic');
+        play('purify');
         afterPurify(id);
       };
       incense.addEventListener('click', () => {
@@ -381,7 +381,7 @@ registerScreen('rest', (app, root) => {
         if (a.t === 'revive') { play('heal'); afterAction(t('{who}把同伴拍醒了，{who2}搖搖晃晃地站起來。', { who: heroSpeaker(), who2: heroPronoun(run.players[a.w]) }), pick(storyFor(me(run, seat).hero).reviveLines), undefined, 'helpup'); continue; }
         if (a.t !== 'rest') continue;
         if (a.c === '打盹') { play('heal'); if (restCardChoices(run, seat).length) showPillow(napped); else afterAction(napLine(napped), napQuip()); continue; }
-        if (a.c === '淨化') { play('relic'); afterPurify(a.r ?? ''); continue; }   // 點清心香（2026-09-23 第三批）
+        if (a.c === '淨化') { play('purify'); afterPurify(a.r ?? ''); continue; }   // 點清心香（2026-09-23 第三批）
         play('upgrade');
         const pl = pendingLine;
         const line = pl && pl.choice === '全力準備'
