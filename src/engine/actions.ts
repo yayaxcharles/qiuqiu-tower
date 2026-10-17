@@ -546,7 +546,17 @@ function killEnemy(cs: CombatState, e: EnemyCombat, by?: PlayerCombat): void {
    * 單機三者是同一個人；挪到這裡也不改變單機的結算順序（中間只有算擊倒者這一行）。
    */
   if (def.onDeathHealPlayer) healPlayer(cs, def.onDeathHealPlayer, killer.down ? (cs.players.find((q) => !q.down) ?? killer) : killer);
-  if (e.stolen > 0) { killer.fishDelta += e.stolen; cs.stolenFish -= e.stolen; e.stolen = 0; }
+  if (e.stolen > 0) {
+    // 退給被偷的那一位，不是打倒的那一位：被偷的人扣到 0 就不再扣，全給打倒的人會憑空多出錢（雲端審查 2026-10-17 低-1）。
+    // 沒記到是誰（舊存檔）的部分照舊給打倒的人
+    let left = e.stolen;
+    for (const [seat, n] of Object.entries(e.stolenFrom ?? {})) {
+      const q = cs.players[Number(seat)];
+      if (q) { q.fishDelta += n; left -= n; }
+    }
+    if (left > 0) killer.fishDelta += left;
+    cs.stolenFish -= e.stolen; e.stolen = 0; delete e.stolenFrom;
+  }
   // 同生共死組還有同伴站著＝這隻等一下會爬回來，倒下不算真的擊倒：擊倒獎勵（能力、秘寶）不發（審查 #11）
   // 擊倒者已經倒下就不發（跟下面的秘寶同一條，推前審查 2026-09-16 低-2：回復卷軸讓躺著的人血從 0 變 3）
   if (!reviving && !killer.down) for (const pw of killer.powers) if (pw.trigger === 'onKill') applyEffects(cs, pw.effects, { self: killer, source: 'power' });
@@ -968,6 +978,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
       case 'heal': e.hp = Math.min(e.maxHp, e.hp + (fx.percent ? Math.round(e.maxHp * fx.percent / 100) : fx.n)); break;
       case 'stealFish':
         e.stolen += fx.n; cs.stolenFish += fx.n; p.fishDelta -= fx.n;
+        (e.stolenFrom ??= {})[p.seat] = (e.stolenFrom[p.seat] ?? 0) + fx.n;   // 記下偷了誰，打倒時退給他（雲端審查 2026-10-17 低-1）
         // 逃跑冷卻從**第一次**偷到算起（見 `ESCAPE_GAP`）：再偷第二次不會把時鐘重設，
         // 不然牠可以一直偷一直重設、永遠不跑，玩家也永遠追不回那筆錢
         e.stolenTurn ??= cs.turn;
