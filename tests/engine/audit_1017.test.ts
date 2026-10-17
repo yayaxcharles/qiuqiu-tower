@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enemyById } from '../../src/content/enemies';
-import { runEnemyEffects } from '../../src/engine/actions';
-import { playCard, setReady } from '../../src/engine/combat';
+import { damageEnemy, runEnemyEffects } from '../../src/engine/actions';
+import { endTurn, playCard, setReady } from '../../src/engine/combat';
 import { logEvent } from '../../src/engine/logfmt';
 import { beginCombat, newCoopRun, newRun, takeRelic } from '../../src/engine/run';
 import { getStatus } from '../../src/engine/statuses';
@@ -81,6 +81,22 @@ describe('中-3 連線：牌造成的舉手收不回來', () => {
     setReady(cs, 0, true);
     setReady(cs, 0, false);
     expect(cs.players[0]!.ready).toBe(false);
+  });
+});
+
+describe('中-4 爬起來的血量照這場的血量倍率放大', () => {
+  it('雙人打鬼將：小鬼爬起來的血＝8 × 這場的倍率', () => {
+    const run = newCoopRun('audit1017-imps', 1);
+    const cs = beginCombat(run, 'oni_general');
+    for (const p of cs.players) { p.hp = 9999; p.maxHp = 9999; }
+    const imp = cs.enemies.find((e) => e.enemyId === 'imp')!;
+    const mul = cs.mods!.hpMul!;
+    expect(mul).toBeGreaterThan(1);
+    damageEnemy(cs, imp, 9999, { direct: true });
+    expect(imp.dead).toBe(true);
+    for (let t = 0; t < 6 && imp.dead; t++) endTurn(cs);
+    expect(imp.dead).toBe(false);
+    expect(imp.hp).toBe(Math.round(8 * mul));
   });
 });
 

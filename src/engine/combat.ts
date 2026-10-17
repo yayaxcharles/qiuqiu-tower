@@ -931,7 +931,10 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
     if (e.reviveIn > 1) { e.reviveIn -= 1; continue; }
     e.reviveIn = 0;
     e.dead = false;
-    e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
+    // 乘連線人數與難度的血量倍率：不然雙人時鬼將開場約 392 血、爬起來只剩 30（雲端審查 2026-10-17 中-4，使用者裁定要修）。
+    // 遭遇自己的 hpScale 不乘：reviveHp 是照單人難度 1 調好的數字（影子小貓那場打了折，爬起來照樣是 8）
+    const reviveMul = (cs.mods?.hpMul ?? 1) / (encounterById[cs.encounterId]?.hpScale ?? 1);
+    e.hp = Math.max(1, Math.round((rdef.reviveHp ?? (rdef.hp[0] + rdef.hp[1]) / 4) * reviveMul));
     e.block = 0;
     cs.kills = Math.max(0, cs.kills - 1);
     // 爬起來的這一拍不出手：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）。

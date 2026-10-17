@@ -1010,7 +1010,7 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
             const weakest = same.filter((o) => !o.dead).sort((a, b) => a.hp - b.hp)[0];
             const sdef = enemyById[fx.enemyId];
             if (weakest && sdef) {
-              const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2);
+              const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2 * (cs.mods?.hpMul ?? 1));   // 跟召喚出來的同一套倍率（雲端審查 2026-10-17 中-4）
               weakest.maxHp += add; weakest.hp += add;
               log(cs, '{e}把力量灌進{w}（+{n} 生命）', { e: E(e), w: E(weakest), n: add });
             } else if (sdef) {
