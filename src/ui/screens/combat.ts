@@ -2846,13 +2846,14 @@ registerScreen('combat', (app, root, props) => {
       iDown ? t('倒下了…看同伴打') : iReady ? t('等對方…') : t('結束回合'));
     // 發牌動畫還在跑的那一拍也一起反灰（跟手牌同一個道理，見 handRow 掛 `no-touch` 那段）
     if (!canAct() || dealDelay > 0 || iReady || iDown) endBtn.setAttribute('disabled', 'disabled');
-    if (iReady && !iDown && !my().forcedReady) {   // 牌造成的舉手不給收（雲端審查 2026-10-17 中-3）
+    if (iReady && !iDown) {
       /*
        * 舉手要收得回來。引擎本來就收 `ready: false`（`setReady` 的第三個參數），
        * 缺的只是一個按得到的地方——不給的話「手滑按到」等於整個回合報銷，
        * 而兩個人玩的時候那個回合連對方一起賠進去。
        */
-      box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, t('再想想')));
+      // 牌造成的舉手不給收（雲端審查 2026-10-17 中-3）；下面「替對方結束這回合」照樣要有，不然對方掛機就沒出口（審查 中-A）
+      if (!my().forcedReady) box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, t('再想想')));
       /*
        * 對方走開了：等超過一分鐘就亮出來（使用者 2026-09-11：
        * 「超過一分鐘沒動作，另一人可以強制收回合」）。

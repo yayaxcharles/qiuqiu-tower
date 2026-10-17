@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enemyById } from '../../src/content/enemies';
 import { damageEnemy, runEnemyEffects } from '../../src/engine/actions';
-import { endTurn, playCard, setReady } from '../../src/engine/combat';
+import { endTurn, playCard, resolveChoice, setReady } from '../../src/engine/combat';
 import { logEvent } from '../../src/engine/logfmt';
 import { beginCombat, newCoopRun, newRun, takeRelic } from '../../src/engine/run';
 import { getStatus } from '../../src/engine/statuses';
@@ -59,6 +59,23 @@ describe('中-2 牌組很薄時，0 費抽牌的牌抽不回自己', () => {
     const uid2 = toHand(cs, 'feifei_tanlu', 901);
     playCard(cs, uid2);   // 第二張探路抽牌時，第一張已經打完了，可以洗回來
     expect(p.hand.some((c) => c.uid === uid)).toBe(true);
+  });
+});
+
+describe('中-2 補：選牌暫停後的補抽也抽不回自己（審查員 低-B）', () => {
+  it('讀心術把抽牌堆兩張都丟掉，再補抽 1：抽到的不是讀心術自己', () => {
+    for (let i = 0; i < 30; i++) {
+      const run = newRun(`audit1017-scry-${i}`, 1, 'ninja');
+      const cs = beginCombat(run, 'onigiri_monster');
+      const p = cs.players[0]!;
+      p.energy = 99; p.hand.length = 0; p.discardPile = [];
+      p.drawPile = [{ uid: 801, cardId: 'sanjo', upgraded: false }, { uid: 802, cardId: 'sanjo', upgraded: false }];
+      const uid = toHand(cs, 'duxin', 900);
+      playCard(cs, uid);
+      expect(cs.pending, '讀心術要先選牌').toBeTruthy();
+      resolveChoice(cs, [801, 802]);
+      expect(p.hand.some((c) => c.uid === uid), `種子 ${i}`).toBe(false);
+    }
   });
 });
 

@@ -1,5 +1,5 @@
 import { cardById } from '../content/cards';
-import { enemyById, enemyNameFor } from '../content/enemies';
+import { encounterById, enemyById, enemyNameFor } from '../content/enemies';
 import { relicById } from '../content/relics';
 import { unitName } from './hero';
 import { draw } from './deck';
@@ -1010,7 +1010,8 @@ export function runEnemyEffects(cs: CombatState, e: EnemyCombat, effects: EnemyE
             const weakest = same.filter((o) => !o.dead).sort((a, b) => a.hp - b.hp)[0];
             const sdef = enemyById[fx.enemyId];
             if (weakest && sdef) {
-              const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2 * (cs.mods?.hpMul ?? 1));   // 跟召喚出來的同一套倍率（雲端審查 2026-10-17 中-4）
+              // 乘難度×人數倍率，不乘遭遇自己的 hpScale：單人難度 1 的灌血量不變，跟爬起來的血同一套（雲端審查 2026-10-17 中-4、審查 低-C）
+              const add = Math.round((sdef.hp[0] + sdef.hp[1]) / 2 * (cs.mods?.hpMul ?? 1) / (encounterById[cs.encounterId]?.hpScale ?? 1));
               weakest.maxHp += add; weakest.hp += add;
               log(cs, '{e}把力量灌進{w}（+{n} 生命）', { e: E(e), w: E(weakest), n: add });
             } else if (sdef) {

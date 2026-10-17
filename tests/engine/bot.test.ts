@@ -57,7 +57,9 @@ describe('隨機試玩', () => {
     // 2026-09-23 第三批罐頭鋪店主輪替（b3shop）：bal-453 第一關走進一間客座店主的店（貨架格數不同、進貨擲骰跟著變），重錄；
     // bal-369 沒遇到客座、一個數字都沒動。確認過把 `newRun` 的 `assignKeepers` 暫時拿掉，兩條都回到上一版的數。第三批四條線合併後要再重錄一次
     // 2026-09-23 內容擴充第三批 b3rare（秘寶 +9 進池、稀有事件）：池子變大、抽到的秘寶不同，bal-453 重錄（四條線合併後主控再重錄一次）
-    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 10, turns: 54, kills: 8, deckSize: 15 });
+    // 2026-10-17 雲端審查修正：讀心術、拖字訣選完牌後的補抽不再抽回自己（打出的牌結算完才能洗回抽牌堆）。
+    // bal-369 的機器人在薄牌堆打到讀心術，戰局位移，重錄；把那一行拿掉就回到 54／8／15。bal-453 沒動
+    expect(playRun('bal-369')).toEqual({ seed: 'bal-369', won: false, floor: 11, turns: 47, kills: 9, deckSize: 17 });
     expect(playRun('bal-453')).toEqual({ seed: 'bal-453', won: false, floor: 15, turns: 25, kills: 4, deckSize: 15 });
   });
 

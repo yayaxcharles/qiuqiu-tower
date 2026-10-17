@@ -1241,7 +1241,10 @@ export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
     }
   }
   cs.pending = null;
+  // 選完牌才接著跑的補抽（讀心術、拖字訣）：打出的那張還在結算，一樣不洗回抽牌堆（審查 2026-10-17 低-B）
+  if (pd.ctx.source === 'card' && pd.ctx.cardUid !== undefined) p.resolvingUid = pd.ctx.cardUid;
   applyEffects(cs, pd.remaining, pd.ctx);
+  delete p.resolvingUid;
   return true;
 }
 
