@@ -4,7 +4,7 @@ import { clampDifficulty, difficultyMods, type DifficultyMods } from '../content
 import { encounterById, encountersOfPool, enemyById } from '../content/enemies';
 import { eventById, events } from '../content/events';
 import { heroOf, pickable, startRelicFor } from './hero';
-import { E, log, note, type LogArg } from './logfmt';
+import { E, log, logEvent, note, remember, type LogArg } from './logfmt';
 import type { Hero } from './hero';
 import { modifierById } from '../content/modifiers';
 import { potionById, potions } from '../content/potions';
@@ -227,14 +227,16 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
   const m = runMods(run);
   // 難度：所有魔物帶爪力、血量倍率；難度 5 的塔頂大魔物再加魔氣
   const strength = m.enemyStrength + (run.act >= ACTS && encounterById[enc]?.pool === '大魔物' ? m.topEliteStrength : 0);
-  const startBlock = me(run).restBlock ?? 0;
-  me(run).restBlock = 0;   // 暖毯的蜷縮只帶一場
+  const down0 = !!run.players[0]?.down;
+  // 倒著進場的不吃暖毯，留到他站起來那一場（跟座位 1 以上同一套）
+  const startBlock = down0 ? 0 : me(run).restBlock ?? 0;
+  if (!down0) me(run).restBlock = 0;   // 暖毯的蜷縮只帶一場
   const cs = startCombat({ hp: me(run).hp, maxHp: me(run).maxHp, deck: me(run).deck.map((c) => ({ ...c })), relics: me(run).relics, potions: me(run).potions, encounterId: enc, rng: runRng(run),
     mods: { hpMul: m.hpMul, strength, startBlock }, hero: heroOf(me(run)),
     // 跨戰鬥的秘寶計數（木人樁，2026-09-23 第二批）抄一份進戰鬥，打完 `finishCombat` 寫回
     ...(me(run).counters ? { counters: me(run).counters } : {}),
     // 幾個人決定魔物的血量倍率（只放大血量，傷害不動——見 `coopscale.ts`）
-    players: run.players.length });
+    players: run.players.length, down: down0 });
   /*
    * 第二位之後的玩家（連線版 2026-09-11）。
    *
@@ -281,21 +283,7 @@ export function beginCombat(run: RunState, encounterId?: string): CombatState {
     startJoinedSeat(cs, p, rp.restBlock ?? 0);
     rp.restBlock = 0;
   }
-  // 第一位也一樣（他是 `startCombat` 建的，那支沒有「倒下」這個輸入）
-  if (run.players[0]?.down) {
-    /*
-     * 座位 0 是 `startCombat` 建的，那支已經跑完第一回合（發了五張牌、給滿飯糰、吃掉暖毯的蜷縮），
-     * 所以要把那些**還回去**——不然主機倒下時畫面上擺著五張點不動的牌與三顆飯糰，
-     * 點下去被引擎擋掉、毫無反應（稽核第二輪 中-1）。座位 1 以上是在發牌之前就 `continue`，沒這個問題。
-     */
-    const first = cs.players[0] as PlayerCombat;
-    first.down = true; first.hp = 0;
-    first.drawPile = [...first.hand, ...first.drawPile];
-    first.hand = [];
-    first.energy = 0;
-    first.block = 0;
-    first.qi = 0;
-  }
+  // 第一位倒著進場由 `startCombat` 的 `down` 處理：秘寶、暖毯、第一回合一開始就不跑，不用事後收回（雲端審查 2026-10-17 中-5）
   // 人到齊了：座位 0 開場時「給同伴」的那份秘寶效果現在才發（同心結、分食便當，見 `CombatState.pendingAllyRelics`）。
   // 擺在「座位 0 倒下」那段之後：倒著的人的秘寶不該再替別人加東西
   flushAllyRelics(cs);
@@ -379,13 +367,28 @@ function nodeModifier(run: RunState, encounterId: string | undefined) {
   return id && Object.hasOwn(modifierById, id) ? modifierById[id] : undefined;
 }
 
+/**
+ * 開場白換上新名字。改寫後的句子要重新登記到紀錄對照表，名字參數一起換掉，
+ * 不然英日文介面查不到這行、只能顯示中文（雲端審查 2026-10-17 低-2）。
+ */
+function relabelLog(cs: CombatState, hit: (l: string) => boolean, line: (l: string) => string, nm: (old: string) => string): void {
+  cs.log = cs.log.map((l) => {
+    if (!hit(l)) return l;
+    const nl = line(l);
+    const ev = logEvent(l);
+    const e = ev?.p?.['e'];
+    if (ev && e && typeof e === 'object' && 'en' in e) remember(nl, { k: ev.k, p: { ...ev.p, e: { ...e, nm: nm(e.nm) } } });
+    return nl;
+  });
+}
+
 export function applyEncounterModifier(run: RunState, cs: CombatState): void {
   const mod = nodeModifier(run, cs.encounterId);
   if (!mod) return;
   const oldNames = [...new Set(cs.enemies.map((e) => e.name))];
   for (const e of cs.enemies) { mod.apply(e); e.name = mod.label + e.name; }
   // 比對「舊名字＋全形冒號」而不是只比名字：「老鼠」才不會把「老鼠將軍：…」那行也改掉
-  cs.log = cs.log.map((l) => (oldNames.some((n) => l.startsWith(n + '：')) ? mod.label + l : l));
+  relabelLog(cs, (l) => oldNames.some((n) => l.startsWith(n + '：')), (l) => mod.label + l, (nm) => mod.label + nm);
   log(cs, '{label}：{desc}', { label: { tx: mod.label }, desc: { tx: mod.desc } });
 }
 
@@ -414,7 +417,7 @@ export function applyBossPrefix(run: RunState, cs: CombatState): void {
   const oldName = boss.name;
   boss.name = p.label + boss.name;
   // startCombat 已經用舊名字印了開場白，一併改寫，紀錄裡才不會同一隻兩個名字（稽核 2026-09-04 中 9）
-  cs.log = cs.log.map((l) => (l.startsWith(oldName + '：') ? boss.name + l.slice(oldName.length) : l));
+  relabelLog(cs, (l) => l.startsWith(oldName + '：'), (l) => boss.name + l.slice(oldName.length), () => boss.name);
   log(cs, '{e}：{line}', { e: E(boss), line: { say: p.line } });
 }
 

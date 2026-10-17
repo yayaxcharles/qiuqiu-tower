@@ -35,6 +35,8 @@ export function startCombat(input: {
   hero?: Hero;
   /** 第一位跨戰鬥的秘寶計數（`RunPlayer.counters`，2026-09-23 第二批木人樁）。抄一份進戰鬥，打完由 `finishCombat` 寫回 */
   counters?: Record<string, number>;
+  /** 第一位上一場就倒下了（連線）：倒著進場，開場秘寶、暖毯、第一回合都不跑（雲端審查 2026-10-17 中-5） */
+  down?: boolean;
 }): CombatState {
   const enc = encounterById[input.encounterId];
   if (!enc) throw new Error(`未知的遭遇：${input.encounterId}`);
@@ -103,12 +105,13 @@ export function startCombat(input: {
    * 一件秘寶只會浮一張名牌，金色的加成與暗紅的代價會互相蓋掉，玩家看到的顏色變成隨機的。
    * 常駐加成要講清楚的地方是秘寶說明（滑上去就看得到），不是每場閃一次。
    */
-  for (const rid of player.relics) {
+  if (input.down) { player.down = true; player.hp = 0; }
+  if (!input.down) for (const rid of player.relics) {
     const hooks = relicById[rid]?.hooks.combatStart;
     if (hooks) { fireRelic(cs, rid, player); applyRelicHook(cs, player, hooks); }
   }
   // 暖毯：打盹後帶進來的蜷縮（run.ts 的 rest 記、beginCombat 帶進來）
-  if (input.mods?.startBlock) {
+  if (input.mods?.startBlock && !input.down) {
     player.block += input.mods.startBlock;
     // 暖毯自己有專屬紀錄句，只推清單讓畫面閃（稽核 2026-09-10 中-3）
     const wid = player.relics.find((id) => (relicById[id]?.hooks.restNextFightBlock ?? 0) > 0);
@@ -625,6 +628,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
   const watchHad = new Map(cs.players.map((q) => [q, {
     allyPlay: q.watchAllyPlay, selfPlay: q.watchSelfPlay, poisonHit: q.watchPoisonHit,
   }]));
+  p.resolvingUid = card.uid;   // 這張牌結算完（含影子分身重播）之前不洗回抽牌堆（雲端審查 2026-10-17 中-2）
   applyEffects(cs, st.effects, ctx);
   /*
    * 影子分身（2026-09-12 使用者指定）：這場戰鬥裡**每回合打出的第一張牌會再打一次**。
@@ -687,12 +691,14 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
       delete echoCtx.nextAttackBonus;
       delete echoCtx.nextAttackBonusUsed;
       delete echoCtx.selfBlockPool;
+      delete echoCtx.killed;   // 第一次打倒的不算重播的：不然順手牽羊、追擊重播時打空也照發（雲端審查 2026-10-17 中-1）
       applyEffects(cs, st.effects, echoCtx);
     }
     // 重播途中開了選牌選單（告退、拖字訣、讀心術在手牌空著時原打不問、重播才問）就停在這裡，
     // 剩下的不補跑——但要說出來，不然紀錄印了 1／2 之後永遠等不到 2／2（審查 低-1）
     if (i < times && cs.pending) log(cs, '影子分身：這張牌要挑牌，剩下的 {n} 次就不再打了', { n: times - i });
   }
+  delete p.resolvingUid;
   /*
    * **監聽排在影子分身重播之後**（2026-09-13 稽核 中-4）。
    *
@@ -791,6 +797,7 @@ export function playCard(cs: CombatState, uid: number, targetUid?: number, seat 
 export function setReady(cs: CombatState, seat: number, ready = true): boolean {
   const p = cs.players[seat];
   if (!p || p.down || cs.phase !== 'player') return false;
+  if (!ready && p.forcedReady) return allReady(cs);   // 先睡了、撒手鐧的代價就是這回合結束，不能按再想想收回（雲端審查 2026-10-17 中-3）
   p.ready = ready;
   return allReady(cs);
 }
@@ -857,7 +864,7 @@ export function rampageTurnFor(cs: CombatState): number {
 /** 敵方回合前半：詛咒發作、沒攻擊的鉤子、棄手牌、減益衰減、同伴復活、魔物防禦歸零，並排好這回合要行動的魔物。回 false＝這回合結束不了（不在玩家回合、還有牌要選、或球球被詛咒打倒） */
 export function beginEnemyTurn(cs: CombatState): boolean {
   if (cs.phase !== 'player' || cs.pending) return false;
-  for (const p of cs.players) p.ready = false;   // 舉的手到這裡就兌現了
+  for (const p of cs.players) { p.ready = false; delete p.forcedReady; }   // 舉的手到這裡就兌現了
   // 每位玩家各收一次自己的回合（連線版第一步 2026-09-11）。單機跑一次，順序與結果完全沒變
   for (const p of cs.players) { if (p.down) continue; endSeatTurn(cs, p); if (cs.phase !== 'player') return false; }
   return beginEnemyTurnRest(cs);
@@ -924,7 +931,10 @@ function beginEnemyTurnRest(cs: CombatState): boolean {
     if (e.reviveIn > 1) { e.reviveIn -= 1; continue; }
     e.reviveIn = 0;
     e.dead = false;
-    e.hp = rdef.reviveHp ?? Math.max(1, Math.round((rdef.hp[0] + rdef.hp[1]) / 4));
+    // 乘連線人數與難度的血量倍率：不然雙人時鬼將開場約 392 血、爬起來只剩 30（雲端審查 2026-10-17 中-4，使用者裁定要修）。
+    // 遭遇自己的 hpScale 不乘：reviveHp 是照單人難度 1 調好的數字（影子小貓那場打了折，爬起來照樣是 8）
+    const reviveMul = (cs.mods?.hpMul ?? 1) / (encounterById[cs.encounterId]?.hpScale ?? 1);
+    e.hp = Math.max(1, Math.round((rdef.reviveHp ?? (rdef.hp[0] + rdef.hp[1]) / 4) * reviveMul));
     e.block = 0;
     cs.kills = Math.max(0, cs.kills - 1);
     // 爬起來的這一拍不出手：牠頭上掛的是倒下前的舊招，玩家沒看過就被打會覺得是 bug（使用者 2026-09-03）。
@@ -1231,7 +1241,10 @@ export function resolveChoice(cs: CombatState, chosenUids: number[]): boolean {
     }
   }
   cs.pending = null;
+  // 選完牌才接著跑的補抽（讀心術、拖字訣）：打出的那張還在結算，一樣不洗回抽牌堆（審查 2026-10-17 低-B）
+  if (pd.ctx.source === 'card' && pd.ctx.cardUid !== undefined) p.resolvingUid = pd.ctx.cardUid;
   applyEffects(cs, pd.remaining, pd.ctx);
+  delete p.resolvingUid;
   return true;
 }
 

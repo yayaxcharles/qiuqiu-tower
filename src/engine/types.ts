@@ -1047,6 +1047,10 @@ export interface PlayerCombat extends Unit {
    * 單機只有一位，舉手的下一拍就結算，跟以前按下去就結束一模一樣。
    */
   ready?: boolean;
+  /** 這次舉手是牌造成的（先睡了、撒手鐧）：收不回來，回合結束時清掉 */
+  forcedReady?: boolean;
+  /** 正在結算的那張牌：結算完之前洗牌不洗它（deck.ts 的 reshuffle） */
+  resolvingUid?: number;
   /**
    * 這一輪魔物全部打我（「我來擋」那張牌，連線版 2026-09-11）。
    * 回合開始清掉——它只保護**一輪**，不是掛著就永遠有效。
@@ -1268,6 +1272,7 @@ export interface EnemyCombat extends Unit {
    */
   faded?: boolean;
   stolen: number;     // 這隻偷走的小魚乾，擊倒牠時退回
+  stolenFrom?: Record<number, number>;   // 從哪個座位偷了多少（退給被偷的人）
   /** 分裂過了：一場只裂一次（見 EnemyDef.splitInto） */
   split?: boolean;
 }

@@ -2852,7 +2852,8 @@ registerScreen('combat', (app, root, props) => {
        * 缺的只是一個按得到的地方——不給的話「手滑按到」等於整個回合報銷，
        * 而兩個人玩的時候那個回合連對方一起賠進去。
        */
-      box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, t('再想想')));
+      // 牌造成的舉手不給收（雲端審查 2026-10-17 中-3）；下面「替對方結束這回合」照樣要有，不然對方掛機就沒出口（審查 中-A）
+      if (!my().forcedReady) box.append(el('button', { class: 'btn end-undo', onclick: () => onUnready() }, t('再想想')));
       /*
        * 對方走開了：等超過一分鐘就亮出來（使用者 2026-09-11：
        * 「超過一分鐘沒動作，另一人可以強制收回合」）。

@@ -20,8 +20,10 @@ export function cardStats(inst: CardInstance): { def: CardDef; name: string; cos
 }
 
 function reshuffle(p: PlayerCombat, rng: Rng): void {
-  p.drawPile = rng.shuffle(p.discardPile);
-  p.discardPile = [];
+  // 正在結算的那張牌已經躺在棄牌堆，但還不能洗回去：不然 0 費抽牌的牌在薄牌組裡會把自己抽回來無限重打（雲端審查 2026-10-17 中-2）
+  const r = p.resolvingUid;
+  p.drawPile = rng.shuffle(r === undefined ? p.discardPile : p.discardPile.filter((c) => c.uid !== r));
+  p.discardPile = r === undefined ? [] : p.discardPile.filter((c) => c.uid === r);
 }
 
 export function draw(p: PlayerCombat, n: number, rng: Rng): CardInstance[] {
@@ -31,6 +33,7 @@ export function draw(p: PlayerCombat, n: number, rng: Rng): CardInstance[] {
     if (p.drawPile.length === 0) {
       if (p.discardPile.length === 0) break;
       reshuffle(p, rng);
+      if (p.drawPile.length === 0) break;   // 棄牌堆只有正在結算的那張
     }
     const c = p.drawPile.shift() as CardInstance;
     p.hand.push(c);
